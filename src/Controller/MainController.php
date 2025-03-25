@@ -28,11 +28,13 @@ final class MainController extends AbstractController
         return $this->render('main/destination.html.twig');
     }
     
+    /*
     #[Route('/voyages', name: 'liste_voyages')]
     public function listeVoyages(): Response
     {
         return $this->render('main/destination.html.twig');
     }
+    */
 
     #[Route('/packs', name: 'liste_packs')]
     public function listePacks(): Response

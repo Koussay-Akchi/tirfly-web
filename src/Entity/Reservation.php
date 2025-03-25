@@ -188,7 +188,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\OneToOne(targetEntity: Payment::class, mappedBy: 'reservation')]
+    #[ORM\OneToOne(targetEntity: Payment::class, inversedBy: 'reservation')]
     private ?Payment $payment = null;
 
     public function getPayment(): ?Payment

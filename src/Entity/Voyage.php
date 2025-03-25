@@ -29,7 +29,7 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true)]
+    #[ORM\Column(type: 'date', nullable: true, name: 'dateArrive')]
     private ?\DateTimeInterface $dateArrive = null;
 
     public function getDateArrive(): ?\DateTimeInterface
@@ -43,7 +43,7 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true)]
+    #[ORM\Column(type: 'date', nullable: true, name: 'dateDepart')]
     private ?\DateTimeInterface $dateDepart = null;
 
     public function getDateDepart(): ?\DateTimeInterface
@@ -57,7 +57,7 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true, name: 'description')]
     private ?string $description = null;
 
     public function getDescription(): ?string
@@ -71,8 +71,8 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'blob', nullable: true)]
-    private ?string $image = null;
+    #[ORM\Column(type: 'blob', nullable: true, name: 'image')]
+    private $image = null;
 
     public function getImage(): ?string
     {
@@ -85,7 +85,7 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true, name: 'nom')]
     private ?string $nom = null;
 
     public function getNom(): ?string
@@ -99,7 +99,7 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: false)]
+    #[ORM\Column(type: 'decimal', nullable: false, name: 'prix')]
     private ?float $prix = null;
 
     public function getPrix(): ?float
@@ -113,7 +113,7 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true, name: 'formule')]
     private ?string $formule = null;
 
     public function getFormule(): ?string
@@ -127,7 +127,7 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'float', nullable: false)]
+    #[ORM\Column(type: 'float', nullable: false, name: 'note')]
     private ?float $note = null;
 
     public function getNote(): ?float
@@ -255,5 +255,4 @@ class Voyage
         $this->getPacks()->removeElement($pack);
         return $this;
     }
-
 }
