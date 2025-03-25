@@ -14,11 +14,13 @@ final class MainController extends AbstractController
         return $this->render('main/home.html.twig');
     }
 
+    /*
     #[Route('/about', name: 'about')]
     public function about(): Response
     {
         return $this->render('main/about.html.twig');
-    }
+    }  
+    */
 
     #[Route('/destinations', name: 'liste_destinations')]
     public function listeDestinations(): Response
