@@ -11,13 +11,19 @@
 <body id="top">
 
     {% include 'main/navbar.html.twig' %}
-    <div  style="margin-bottom: 50px;"></div>
+    
+    {% if app.request.pathinfo == '' %}
+        <div style="margin-bottom: 50px;"></div>
+    {% endif %}
 
     <main>
         {% block body %}{% endblock %}
     </main>
     
-    <div  style="margin-bottom: 50px;"></div>
+    {% if app.request.pathinfo == '' %}
+        <div style="margin-bottom: 50px;"></div>
+    {% endif %}
+
     {% include 'main/footer.html.twig' %}
 
     <a href="#top" class="go-top" data-go-top>
