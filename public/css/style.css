@@ -1280,8 +1280,15 @@ address {
    * REUSED STYLE
    */
 
-  .container { max-width: 1180px; }
+  .container { max-width: 1180px; } 
 
-  
+}
 
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
 }

@@ -16,6 +16,34 @@ class VoyageRepository extends ServiceEntityRepository
         parent::__construct($registry, Voyage::class);
     }
 
+    public function filterVoyages($search, $dateDepart, $dateArrive, $country)
+    {
+        $qb = $this->createQueryBuilder('v')
+            ->join('v.destination', 'd');
+
+        if ($search) {
+            $qb->andWhere('v.nom LIKE :search')
+                ->setParameter('search', "%$search%");
+        }
+
+        if ($dateDepart) {
+            $qb->andWhere('v.dateDepart >= :dateDepart')
+                ->setParameter('dateDepart', new \DateTime($dateDepart));
+        }
+
+        if ($dateArrive) {
+            $qb->andWhere('v.dateArrive <= :dateArrive')
+                ->setParameter('dateArrive', new \DateTime($dateArrive));
+        }
+
+        if ($country) {
+            $qb->andWhere('d.pays = :country')
+                ->setParameter('country', $country);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     //    /**
     //     * @return Voyage[] Returns an array of Voyage objects
     //     */

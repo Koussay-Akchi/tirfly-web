@@ -74,6 +74,50 @@ class Voyage
     #[ORM\Column(type: 'blob', nullable: true, name: 'image')]
     private $image = null;
 
+    /*
+    public function getImage(): ?string
+    {
+        if ($this->image === null) {
+            return null;
+        }
+
+        if (is_resource($this->image)) {
+            $imageData = stream_get_contents($this->image);
+            return base64_encode($imageData);
+        }
+
+        return base64_encode($this->image);
+    }
+
+    public function getImageBase64(): ?string {
+        if ($this->image === null) {
+            return null;
+        }
+
+        return 'data:image/jpeg;base64,' . base64_encode(stream_get_contents($this->image));
+    }
+
+    public function getImageUrl(): ?string
+{
+    if ($this->image === null) {
+        return null;
+    }
+    $uploadDir = 'uploads/voyages/';
+    $fileName = uniqid('voyage_', true) . '.jpg';
+    $filePath = $uploadDir . $fileName;
+
+    // Write the BLOB data to the file system
+    $imageData = stream_get_contents($this->image);
+    $result = file_put_contents($filePath, $imageData);
+
+        if ($result === false) {
+            throw new \RuntimeException('Failed to save the image.');
+        }
+        return 'uploads/voyages/' . $fileName;
+}
+
+    */
+
     public function getImage(): ?string
     {
         return $this->image;

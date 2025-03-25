@@ -47,5 +47,11 @@ final class MainController extends AbstractController
     {
         return $this->render('main/contact.html.twig');
     }
+
+    #[Route('/reservation', name: 'reservation_form')]
+    public function reservationForm(): Response
+    {
+        return $this->render('main/contact.html.twig');
+    }
     
 }
