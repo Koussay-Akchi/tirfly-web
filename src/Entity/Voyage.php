@@ -224,6 +224,13 @@ class Voyage
     )]
     private Collection $packs;
 
+    public function __construct()
+    {
+        $this->feedbacks = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
+        $this->packs = new ArrayCollection();
+    }
+
     /**
      * @return Collection<int, Pack>
      */

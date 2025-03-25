@@ -162,6 +162,7 @@ class Destination
     {
         $this->voyages = new ArrayCollection();
         $this->hebergements = new ArrayCollection();
+        $this->evenements = new ArrayCollection();
     }
 
     /**

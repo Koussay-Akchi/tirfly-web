@@ -236,6 +236,8 @@ class Hebergement
         $this->foyers = new ArrayCollection();
         $this->hotels = new ArrayCollection();
         $this->logements = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
+        $this->packs = new ArrayCollection();
     }
 
     /**

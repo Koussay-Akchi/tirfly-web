@@ -97,6 +97,12 @@ class Sejour
     )]
     private Collection $packs;
 
+    public function __construct()
+    {
+        $this->reservations = new ArrayCollection();
+        $this->packs = new ArrayCollection();
+    }
+
     /**
      * @return Collection<int, Pack>
      */
