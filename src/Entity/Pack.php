@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -197,6 +198,14 @@ class Pack
         ]
     )]
     private Collection $voyages;
+
+    public function __construct()
+    {
+        $this->reservations = new ArrayCollection();
+        $this->hebergements = new ArrayCollection();
+        $this->sejours = new ArrayCollection();
+        $this->voyages = new ArrayCollection();
+    }
 
     /**
      * @return Collection<int, Voyage>

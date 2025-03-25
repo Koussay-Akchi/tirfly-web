@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,6 +13,11 @@ use App\Repository\LogementRepository;
 #[ORM\Table(name: 'logements')]
 class Logement
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
+
     #[ORM\Column(type: 'date', nullable: true)]
     private ?\DateTimeInterface $jour_dispo = null;
 
@@ -52,6 +58,23 @@ class Logement
     public function setHebergement(?Hebergement $hebergement): self
     {
         $this->hebergement = $hebergement;
+        return $this;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getJourDispo(): ?\DateTimeInterface
+    {
+        return $this->jour_dispo;
+    }
+
+    public function setJourDispo(?\DateTimeInterface $jour_dispo): static
+    {
+        $this->jour_dispo = $jour_dispo;
+
         return $this;
     }
 

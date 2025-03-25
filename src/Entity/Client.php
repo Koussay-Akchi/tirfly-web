@@ -278,6 +278,17 @@ class Client
     )]
     private Collection $users;
 
+    public function __construct()
+    {
+        $this->feedbacks = new ArrayCollection();
+        $this->paniers = new ArrayCollection();
+        $this->payments = new ArrayCollection();
+        $this->reclamations = new ArrayCollection();
+        $this->refunds = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
+        $this->users = new ArrayCollection();
+    }
+
     /**
      * @return Collection<int, User>
      */

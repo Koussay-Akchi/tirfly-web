@@ -12,6 +12,12 @@ use App\Repository\FoyerRepository;
 #[ORM\Table(name: 'foyers')]
 class Foyer
 {
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
+    
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $documents = null;
 
@@ -67,6 +73,11 @@ class Foyer
     {
         $this->hebergement = $hebergement;
         return $this;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 
 }

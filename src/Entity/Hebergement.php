@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -112,6 +113,7 @@ class Hebergement
         $this->destination = $destination;
         return $this;
     }
+
 
     #[ORM\OneToMany(targetEntity: Foyer::class, mappedBy: 'hebergement')]
     private Collection $foyers;
@@ -227,6 +229,14 @@ class Hebergement
 
     #[ORM\OneToMany(targetEntity: Sejour::class, mappedBy: 'hebergement')]
     private Collection $sejours;
+
+    public function __construct()
+    {
+        $this->sejours = new ArrayCollection();
+        $this->foyers = new ArrayCollection();
+        $this->hotels = new ArrayCollection();
+        $this->logements = new ArrayCollection();
+    }
 
     /**
      * @return Collection<int, Sejour>

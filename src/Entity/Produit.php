@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -165,6 +166,12 @@ class Produit
         ]
     )]
     private Collection $paniers;
+
+    public function __construct()
+    {
+        $this->articles = new ArrayCollection();
+        $this->paniers = new ArrayCollection();
+    }
 
     /**
      * @return Collection<int, Panier>

@@ -12,6 +12,11 @@ use App\Repository\HotelRepository;
 #[ORM\Table(name: 'hotels')]
 class Hotel
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
+
     #[ORM\Column(type: 'float', nullable: false)]
     private ?float $prix = null;
 
@@ -39,6 +44,11 @@ class Hotel
     {
         $this->hebergement = $hebergement;
         return $this;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 
 }

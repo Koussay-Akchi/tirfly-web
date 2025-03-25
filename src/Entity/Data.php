@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -207,6 +208,54 @@ class Data
     public function setPayment(?Payment $payment): self
     {
         $this->payment = $payment;
+        return $this;
+    }
+
+    public function getBuyerId(): ?int
+    {
+        return $this->buyer_id;
+    }
+
+    public function setBuyerId(int $buyer_id): static
+    {
+        $this->buyer_id = $buyer_id;
+
+        return $this;
+    }
+
+    public function getPaymentStatus(): ?string
+    {
+        return $this->payment_status;
+    }
+
+    public function setPaymentStatus(string $payment_status): static
+    {
+        $this->payment_status = $payment_status;
+
+        return $this;
+    }
+
+    public function getReceivedAmount(): ?int
+    {
+        return $this->received_amount;
+    }
+
+    public function setReceivedAmount(int $received_amount): static
+    {
+        $this->received_amount = $received_amount;
+
+        return $this;
+    }
+
+    public function getTransactionId(): ?int
+    {
+        return $this->transaction_id;
+    }
+
+    public function setTransactionId(?int $transaction_id): static
+    {
+        $this->transaction_id = $transaction_id;
+
         return $this;
     }
 

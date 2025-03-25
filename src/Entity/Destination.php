@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -156,6 +157,12 @@ class Destination
 
     #[ORM\OneToMany(targetEntity: Voyage::class, mappedBy: 'destination')]
     private Collection $voyages;
+
+    public function __construct()
+    {
+        $this->voyages = new ArrayCollection();
+        $this->hebergements = new ArrayCollection();
+    }
 
     /**
      * @return Collection<int, Voyage>
