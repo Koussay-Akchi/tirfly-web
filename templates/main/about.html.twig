@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+{% include 'main/navbar.html.twig' %}
+
+
+    <main class="main">
+
+      <article class="about" id="about">
+    
+      <section class="cta" id="contact">
+        <div class="container">
+
+
+    <div class="about-content">
+        <h2>About Us</h2>
+        <p>Content for the About Us page goes here.</p>
+    </div>
+
+          <div class="cta-content">
+            <p class="section-subtitle">Call To Action</p>
+
+            <h2 class="h2 section-title">Ready For Unforgettable Travel. Remember Us!</h2>
+
+            <p class="section-text">
+              Fusce hic augue velit wisi quibusdam pariatur, iusto primis, nec nemo, rutrum. Vestibulum cumque
+              laudantium. Sit ornare
+              mollitia tenetur, aptent.
+            </p>
+          </div>
+
+          <button class="btn btn-secondary">Contact Us !</button>
+
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+{% include 'main/footer.html.twig' %}
+{% endblock %}

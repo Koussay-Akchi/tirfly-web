@@ -1,17 +1,30 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TirFly{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+</head>
+<body id="top">
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
+    {% include 'main/navbar.html.twig' %}
+
+    <main>
         {% block body %}{% endblock %}
-    </body>
+    </main>
+
+    {% include 'main/footer.html.twig' %}
+
+    <a href="#top" class="go-top" data-go-top>
+        <ion-icon name="chevron-up-outline"></ion-icon>
+    </a>
+
+    <script src="{{ asset('js/script.js') }}"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
 </html>

@@ -1,16 +1,4 @@
 /*-----------------------------------*\
- * #style.css
-\*-----------------------------------*/
-
-/**
- * copyright 2022 codewithsadee
- */
-
-
-
-
-
-/*-----------------------------------*\
  * #CUSTOM PROPERTY
 \*-----------------------------------*/
 
@@ -124,9 +112,6 @@ html {
 body { background: var(--white); }
 
 
-
-
-
 /*-----------------------------------*\
  * #REUSED STYLE
 \*-----------------------------------*/
@@ -199,9 +184,6 @@ body { background: var(--white); }
   color: var(--black-coral);
   font-size: var(--fs-5);
 }
-
-
-
 
 
 /*-----------------------------------*\
@@ -366,16 +348,15 @@ body { background: var(--white); }
   pointer-events: all;
 }
 
-
-
-
+.main {
+  padding-top: 120px;
+}
 
 /*-----------------------------------*\
  * #HERO
 \*-----------------------------------*/
 
 .hero {
-  background-image: url("../images/hero-banner.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
