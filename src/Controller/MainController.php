@@ -8,22 +8,40 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class MainController extends AbstractController
 {
-    #[Route('/', name: 'app_home')]
+    #[Route('/', name: 'home')]
     public function index(): Response
     {
         return $this->render('main/home.html.twig');
     }
 
-    #[Route('/about', name: 'app_about')]
+    #[Route('/about', name: 'about')]
     public function about(): Response
     {
         return $this->render('main/about.html.twig');
     }
 
-    #[Route('/destination', name: 'app_destination')]
-    public function destination(): Response
+    #[Route('/destinations', name: 'liste_destinations')]
+    public function listeDestinations(): Response
     {
         return $this->render('main/destination.html.twig');
+    }
+    
+    #[Route('/voyages', name: 'liste_voyages')]
+    public function listeVoyages(): Response
+    {
+        return $this->render('main/destination.html.twig');
+    }
+
+    #[Route('/packs', name: 'liste_packs')]
+    public function listePacks(): Response
+    {
+        return $this->render('main/destination.html.twig');
+    }
+
+    #[Route('/contact', name: 'contact')]
+    public function contact(): Response
+    {
+        return $this->render('main/contact.html.twig');
     }
     
 }
