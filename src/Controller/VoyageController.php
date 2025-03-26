@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Form\VoyageType;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class VoyageController extends AbstractController
 {
@@ -24,7 +26,6 @@ class VoyageController extends AbstractController
         $voyages = $voyageRepository->filterVoyages($search, $dateDepart, $dateArrive, $country);
         $countries = array_unique(array_map(fn($voyage) => $voyage->getDestination()->getPays(), $voyages));
 
-
         return $this->render('voyages/liste-voyages.html.twig', [
             'voyages' => $voyages,
             'countries' => $countries
@@ -32,7 +33,7 @@ class VoyageController extends AbstractController
     }
 
     #[Route('/voyages/ajout', name: 'ajout_voyage')]
-    public function add(Request $request, EntityManagerInterface $entityManager): Response
+    public function add(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
     {
         $voyage = new Voyage();
         $form = $this->createForm(VoyageType::class, $voyage);
@@ -40,15 +41,50 @@ class VoyageController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             
-            if ($voyage->getDateArrive() < $voyage->getDateDepart()) {
-                $this->addFlash('error', "La date d'arrivée doit etre après la date de départ.");
+            $dateConstraints = new Assert\Collection([
+                'dateDepart' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)],
+                'dateArrive' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)]
+            ]);
+            
+            $dateErrors = $validator->validate([
+                'dateDepart' => $voyage->getDateDepart(),
+                'dateArrive' => $voyage->getDateArrive(),
+            ], $dateConstraints);
+
+            if (count($dateErrors) > 0 || $voyage->getDateArrive() < $voyage->getDateDepart()) {
+                $this->addFlash('error', "La date d'arrivée doit être après la date de départ.");
                 return $this->redirectToRoute('ajout_voyage');
             }
 
+            $priceErrors = $validator->validate($voyage->getPrix(), [
+                new Assert\NotNull(),
+                new Assert\Type('numeric'),
+                new Assert\Positive(),
+            ]);
+
+            if (count($priceErrors) > 0) {
+                $this->addFlash('error', "Le prix doit être un nombre positif.");
+                return $this->redirectToRoute('ajout_voyage');
+            }
+
+            // n5allouha mba3ed image
             /*
             $imageFile = $form->get('image')->getData();
             
             if ($imageFile) {
+                $imageErrors = $validator->validate($imageFile, [
+                    new Assert\File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/jpg'],
+                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, JPEG, PNG)',
+                    ])
+                ]);
+
+                if (count($imageErrors) > 0) {
+                    $this->addFlash('error', 'Image invalide.');
+                    return $this->redirectToRoute('ajout_voyage');
+                }
+
                 $newFilename = uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
@@ -62,6 +98,7 @@ class VoyageController extends AbstractController
                 }
             }
             */
+
             $voyage->setNote(0);
             $entityManager->persist($voyage);
             $entityManager->flush();
@@ -69,6 +106,7 @@ class VoyageController extends AbstractController
             $this->addFlash('success', 'Voyage ajouté avec succès.');
             return $this->redirectToRoute('liste_voyages');
         }
+
         return $this->render('voyages/ajout-voyage.html.twig', [
             'form' => $form->createView(),
         ]);
