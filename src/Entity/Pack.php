@@ -43,8 +43,8 @@ class Pack
         return $this;
     }
 
-    #[ORM\Column(type: 'blob', nullable: true)]
-    private ?string $image = null;
+    #[ORM\Column(type: 'blob', nullable: true, name: 'image')]
+    private $image = null;
 
     public function getImage(): ?string
     {
