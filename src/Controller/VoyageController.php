@@ -124,20 +124,78 @@ class VoyageController extends AbstractController
 
 
     #[Route('/admin/voyages/edit/{id}', name: 'edit_voyage')]
-    public function edit(Voyage $voyage, Request $request, EntityManagerInterface $entityManager): Response
+    public function edit(Voyage $voyage, Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
     {
         $form = $this->createForm(VoyageType::class, $voyage);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $dateConstraints = new Assert\Collection([
+                'dateDepart' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)],
+                'dateArrive' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)]
+            ]);
+
+            $dateErrors = $validator->validate([
+                'dateDepart' => $voyage->getDateDepart(),
+                'dateArrive' => $voyage->getDateArrive(),
+            ], $dateConstraints);
+
+            if (count($dateErrors) > 0 || $voyage->getDateArrive() < $voyage->getDateDepart()) {
+                $this->addFlash('error', "La date d'arrivée doit être après la date de départ.");
+                return $this->redirectToRoute('modifier_voyage', ['id' => $voyage->getId()]);
+            }
+
+            $priceErrors = $validator->validate($voyage->getPrix(), [
+                new Assert\NotNull(),
+                new Assert\Type('numeric'),
+                new Assert\Positive(),
+            ]);
+
+            if (count($priceErrors) > 0) {
+                $this->addFlash('error', "Le prix doit être un nombre positif.");
+                return $this->redirectToRoute('modifier_voyage', ['id' => $voyage->getId()]);
+            }
+
+            // Handle image upload logic (if needed)
+            /*
+            $imageFile = $form->get('image')->getData();
+            
+            if ($imageFile) {
+                $imageErrors = $validator->validate($imageFile, [
+                    new Assert\File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/jpg'],
+                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, JPEG, PNG)',
+                    ])
+                ]);
+
+                if (count($imageErrors) > 0) {
+                    $this->addFlash('error', 'Image invalide.');
+                    return $this->redirectToRoute('modifier_voyage', ['id' => $voyage->getId()]);
+                }
+
+                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('voyage_images_directory'),
+                        $newFilename
+                    );
+                    $voyage->setImage($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
+                }
+            }
+            */
+
             $entityManager->flush();
+
             $this->addFlash('success', 'Voyage modifié avec succès.');
             return $this->redirectToRoute('admin_liste_voyages');
         }
 
         return $this->render('voyages/edit-voyage.html.twig', [
             'form' => $form->createView(),
-            'voyage' => $voyage
         ]);
     }
 

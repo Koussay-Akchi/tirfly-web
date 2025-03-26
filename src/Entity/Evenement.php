@@ -29,7 +29,7 @@ class Evenement
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true)]
+    #[ORM\Column(type: 'date', nullable: true, name: 'dateDebut')]
     private ?\DateTimeInterface $dateDebut = null;
 
     public function getDateDebut(): ?\DateTimeInterface
@@ -43,7 +43,7 @@ class Evenement
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true)]
+    #[ORM\Column(type: 'date', nullable: true,name: 'dateFin')]
     private ?\DateTimeInterface $dateFin = null;
 
     public function getDateFin(): ?\DateTimeInterface
@@ -115,7 +115,7 @@ class Evenement
     }
 
     #[ORM\Column(type: 'blob', nullable: true)]
-    private ?string $image = null;
+    private $image = null;
 
     public function getImage(): ?string
     {

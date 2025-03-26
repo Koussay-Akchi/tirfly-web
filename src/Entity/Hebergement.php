@@ -72,7 +72,7 @@ class Hebergement
     }
 
     #[ORM\Column(type: 'blob', nullable: true)]
-    private ?string $image = null;
+    private $image = null;
 
     public function getImage(): ?string
     {

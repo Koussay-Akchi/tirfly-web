@@ -48,7 +48,6 @@
 								<div class="table-actions">
 									<button class="btn btn-primary" onclick="window.location.href='{{ path('edit_voyage', {'id': voyage.id}) }}'">Modifier</button>
 									<button class="btn btn-danger" onclick="if(confirm('Supprimer ce voyage ?')) window.location.href='{{ path('delete_voyage', {'id': voyage.id}) }}'">Supprimer</button>
-									<button class="btn btn-success" onclick="showFeedbacks({{ voyage.id }})">Voir Feedbacks</button>
 								</div>
 							</td>
 						</tr>
@@ -61,44 +60,7 @@
 			</table>
 
 
-			<div class="modal" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title" id="feedbackModalLabel">Feedbacks</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<div
-							class="modal-body" id="feedbackContent"><!-- Feedbacks will be loaded here dynamically -->
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
 
-
-	<script>
-    function showFeedbacks(voyageId) {
-        fetch('{{ path('admin_voyage_feedbacks', {'id': 'VOYAGE_ID'}) }}'.replace('VOYAGE_ID', voyageId))
-            .then(response => response.json())
-            .then(data => {
-                // Log the feedbacks to the console
-                console.log(data.feedbacks);
-
-                let feedbackHtml = '';
-                data.feedbacks.forEach(feedback => {
-                    feedbackHtml += `<p>${feedback.content}</p>`;
-                });
-                document.getElementById('feedbackContent').innerHTML = feedbackHtml;
-                new bootstrap.Modal(document.getElementById('feedbackModal')).show();
-            })
-            .catch(error => console.error('Error fetching feedbacks:', error));
-    }
-</script>
 
 
 {% endblock %}
