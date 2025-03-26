@@ -1,83 +1,103 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des Voyages{% endblock %}
+{% block title %}Liste des Voyages
+{% endblock %}
 
 {% block body %}
 
+	<main class="main" style="margin-top: 50px;">
+
+		<article>
+
+			<section>
 
 
-    <main class="main" style="margin-top: 50px;">
+				<div class="container mt-4">
+					<h2 class="text-center">Liste des Voyages</h2>
 
-      <article>
-    
-      <section>
+					<div class="filters-container">
+						<div class="filters d-flex flex-wrap justify-content-center gap-3">
+							<input type="text" id="searchField" class="form-control filter-input" placeholder="Rechercher un voyage...">
+							<input type="date" id="dateDepartPicker" class="form-control filter-date">
+							<input type="date" id="dateArrivePicker" class="form-control filter-date">
+							<select id="countryComboBox" class="form-select filter-select">
+								<option value="">Pays</option>
+								{% for country in countries %}
+									<option value="{{ country }}">{{ country }}</option>
+								{% endfor %}
+							</select>
+							<button class="btn filter-button-primary" onclick="filterVoyages()">Filtrer</button>
+							<button class="btn filter-button-danger" onclick="clearFilters()">Effacer filtres</button>
+						</div>
+					</div>
 
 
-<div class="container mt-4">
-    <h2 class="text-center">Liste des Voyages</h2>
-    
-    <div class="filters d-flex justify-content-between mb-3">
-        <input type="text" id="searchField" class="form-control" placeholder="Rechercher un voyage...">
-        <input type="date" id="dateDepartPicker" class="form-control">
-        <input type="date" id="dateArrivePicker" class="form-control">
-        <select id="countryComboBox" class="form-select">
-            <option value="">Pays</option>
-            {% for country in countries %}
-                <option value="{{ country }}">{{ country }}</option>
-            {% endfor %}
-        </select>
-        <button class="btn btn-primary" onclick="filterVoyages()">Filtrer</button>
-        <button class="btn btn-danger" onclick="clearFilters()">Effacer filtres</button>
-    </div>
+					<div class="row" id="voyageGrid">
+						{% for voyage in voyages %}
+							<div class="col-md-4 mb-4">
+								<div class="voyage-card">
+									{% if false %}
+										<img src="{{ asset(voyage.getImage()) }}" alt="Image du voyage" class="card-image">
+									{% else %}
+										<img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image"/>
+									{% endif %}
 
-    <div class="row" id="voyageGrid">
-        {% for voyage in voyages %}
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                {% if false %}
-                    <img src="{{ asset(voyage.getImage()) }}" alt="Image du voyage">
-                {% else %}
-                    <img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" />
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ voyage.nom }}</h5>
-                    <p class="card-text">{{ voyage.destination.ville }}, {{ voyage.destination.pays }}</p>
-                    <p class="card-text">Départ: {{ voyage.dateDepart|date('d-m-Y') }}</p>
-                    <p class="card-text">Durée: {{ (voyage.dateDepart | date('Y-m-d') | date('U') - voyage.dateArrive | date('Y-m-d') | date('U')) / 86400 }} jours</p>
-                    <p class="card-text">Prix: {{ voyage.prix }} DT</p>
-                    <p class="card-text">Note: {{ voyage.note }} ⭐</p>
-                    <p class="card-text">Température: {{ temperatures[voyage.destination.id]|default('-') }}°C</p>
-                    <a href="{{ path('reservation_form', {'id': voyage.id}) }}" class="btn btn-success">Réserver</a>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
+									<div class="card-title">{{ voyage.nom }}</div>
 
-</section>
+									<div class="card-details">
+										{{ voyage.dateDepart | date('Y-m-d') }}
+										-
+										{{ voyage.dateArrive | date('Y-m-d') }}
+										<br>
+										{{ voyage.destination.ville }},
+										{{ voyage.destination.pays }}
+									</div>
 
-    </article>
-  </main>
+									<div class="card-price">{{ voyage.prix }}
+										DT</div>
 
-<script>
-function filterVoyages() {
-    let searchText = document.getElementById("searchField").value.toLowerCase();
-    let departDate = document.getElementById("dateDepartPicker").value;
-    let arriveDate = document.getElementById("dateArrivePicker").value;
-    let selectedCountry = document.getElementById("countryComboBox").value;
+									<button class="card-reserve-button" onclick="window.location.href='{{ path('reservation_form', {'id': voyage.id}) }}'">Réserver</button>
+								</div>
 
-    let url = new URL(window.location.href);
-    url.searchParams.set('search', searchText);
-    if (departDate) url.searchParams.set('depart', departDate);
-    if (arriveDate) url.searchParams.set('arrive', arriveDate);
-    if (selectedCountry) url.searchParams.set('country', selectedCountry);
-    
-    window.location.href = url.toString();
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+
+			</section>
+
+		</article>
+	</main>
+
+	<script>
+		function filterVoyages() {
+let searchText = document.getElementById("searchField").value.toLowerCase();
+let departDate = document.getElementById("dateDepartPicker").value;
+let arriveDate = document.getElementById("dateArrivePicker").value;
+let selectedCountry = document.getElementById("countryComboBox").value;
+
+let url = new URL(window.location.href);
+url.searchParams.set('search', searchText);
+if (departDate) 
+url.searchParams.set('depart', departDate);
+
+
+
+if (arriveDate) 
+url.searchParams.set('arrive', arriveDate);
+
+
+
+if (selectedCountry) 
+url.searchParams.set('country', selectedCountry);
+
+
+
+window.location.href = url.toString();
 }
 
 function clearFilters() {
-    window.location.href = window.location.pathname;
+window.location.href = window.location.pathname;
 }
-</script>
+	</script>
 {% endblock %}
