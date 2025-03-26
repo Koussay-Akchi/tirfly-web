@@ -1605,3 +1605,107 @@ address {
   border-radius: 5px;
   margin: auto;
 }
+
+/* Container & Title */
+.table-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 30px auto;
+  padding: 20px;
+  max-width: 1200px;
+}
+
+.table-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Table Responsiveness */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Voyage Table */
+.voyage-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.voyage-table th,
+.voyage-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+}
+
+.voyage-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  color: #555;
+}
+
+.voyage-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.voyage-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Table Image */
+.table-image {
+  max-width: 80px;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* Table Actions */
+.table-actions button {
+  margin: 2px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.table-actions .btn-primary {
+  background-color: #3498db;
+}
+
+.table-actions .btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.table-actions .btn-danger {
+  background-color: #e74c3c;
+}
+
+.table-actions .btn-danger:hover {
+  background-color: #c0392b;
+}
+
+.table-actions .btn-success {
+  background-color: #2ecc71;
+}
+
+.table-actions .btn-success:hover {
+  background-color: #27ae60;
+}
+
+/* Responsive Table for Smaller Screens */
+@media (max-width: 768px) {
+  .voyage-table th, .voyage-table td {
+    padding: 8px 10px;
+  }
+  .table-title {
+    font-size: 24px;
+  }
+}

@@ -44,7 +44,7 @@ class Feedback
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true, name: 'dateFeedback')]
     private ?\DateTimeInterface $dateFeedback = null;
 
     public function getDateFeedback(): ?\DateTimeInterface

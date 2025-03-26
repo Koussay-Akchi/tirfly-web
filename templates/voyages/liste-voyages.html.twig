@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block body %}
-	<main class="main" style="margin-top: 50px;">
+	<main class="main">
 		<article>
 			<section>
 				<div class="container mt-4">
@@ -29,10 +29,10 @@
 					<div class="voyage-grid">
 						{% for voyage in voyages %}
 							<div class="voyage-card">
-									{% if false %}
+								{% if false %}
 									<img src="{{ asset(voyage.getImage()) }}" alt="Image du voyage" class="card-image">
 								{% else %}
-										<img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image"/>
+									<img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image"/>
 								{% endif %}
 
 								<div class="card-title">{{ voyage.nom }}</div>

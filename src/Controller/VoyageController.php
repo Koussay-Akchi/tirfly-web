@@ -40,12 +40,12 @@ class VoyageController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             $dateConstraints = new Assert\Collection([
                 'dateDepart' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)],
                 'dateArrive' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)]
             ]);
-            
+
             $dateErrors = $validator->validate([
                 'dateDepart' => $voyage->getDateDepart(),
                 'dateArrive' => $voyage->getDateArrive(),
@@ -111,4 +111,53 @@ class VoyageController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    #[Route('/admin/voyages', name: 'admin_liste_voyages')]
+    public function adminVoyages(VoyageRepository $voyageRepository): Response
+    {
+        $voyages = $voyageRepository->findAll();
+
+        return $this->render('voyages/tableau-voyages.html.twig', [
+            'voyages' => $voyages,
+        ]);
+    }
+
+
+    #[Route('/admin/voyages/edit/{id}', name: 'edit_voyage')]
+    public function edit(Voyage $voyage, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(VoyageType::class, $voyage);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            $this->addFlash('success', 'Voyage modifié avec succès.');
+            return $this->redirectToRoute('admin_liste_voyages');
+        }
+
+        return $this->render('voyages/edit-voyage.html.twig', [
+            'form' => $form->createView(),
+            'voyage' => $voyage
+        ]);
+    }
+
+    #[Route('/admin/voyages/delete/{id}', name: 'delete_voyage')]
+    public function delete(Voyage $voyage, EntityManagerInterface $entityManager): Response
+    {
+        $entityManager->remove($voyage);
+        $entityManager->flush();
+        $this->addFlash('success', 'Voyage supprimé avec succès.');
+        return $this->redirectToRoute('admin_liste_voyages');
+    }
+
+    #[Route('/admin/voyages/feedback/{id}', name: 'admin_voyage_feedbacks')]
+    public function listFeedbacks(Voyage $voyage): Response
+    {
+        $feedbacks = $voyage->getFeedbacks(); // assuming the relation is properly set
+
+        return $this->json([
+            'feedbacks' => $feedbacks
+        ]);
+    }
+
 }
