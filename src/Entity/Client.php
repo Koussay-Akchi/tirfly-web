@@ -10,7 +10,7 @@ use App\Repository\ClientRepository;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 #[ORM\Table(name: 'clients')]
-class Client
+class Client extends User
 {
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $adresse = null;
@@ -54,21 +54,6 @@ class Client
         return $this;
     }
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
 
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $phoneNumber = null;
@@ -218,7 +203,7 @@ class Client
      */
     public function getRefunds(): Collection
     {
-        if (!$this->refunds instanceof Collection) {
+if (!$this->refunds instanceof Collection) {
             $this->refunds = new ArrayCollection();
         }
         return $this->refunds;
@@ -228,7 +213,7 @@ class Client
     {
         if (!$this->getRefunds()->contains($refund)) {
             $this->getRefunds()->add($refund);
-        }
+                    }
         return $this;
     }
 
@@ -246,7 +231,7 @@ class Client
      */
     public function getReservations(): Collection
     {
-        if (!$this->reservations instanceof Collection) {
+if (!$this->reservations instanceof Collection) {
             $this->reservations = new ArrayCollection();
         }
         return $this->reservations;
@@ -256,7 +241,7 @@ class Client
     {
         if (!$this->getReservations()->contains($reservation)) {
             $this->getReservations()->add($reservation);
-        }
+                    }
         return $this;
     }
 
@@ -294,7 +279,7 @@ class Client
      */
     public function getUsers(): Collection
     {
-        if (!$this->users instanceof Collection) {
+if (!$this->users instanceof Collection) {
             $this->users = new ArrayCollection();
         }
         return $this->users;

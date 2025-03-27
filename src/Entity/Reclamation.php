@@ -40,20 +40,7 @@ class Reclamation
     public function setDescription(?string $description): self
     {
         $this->description = $description;
-        return $this;
-    }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $doooooo = null;
-
-    public function getDoooooo(): ?string
-    {
-        return $this->doooooo;
-    }
-
-    public function setDoooooo(?string $doooooo): self
-    {
-        $this->doooooo = $doooooo;
         return $this;
     }
 
