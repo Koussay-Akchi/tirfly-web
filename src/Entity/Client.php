@@ -10,9 +10,9 @@ use App\Repository\ClientRepository;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 #[ORM\Table(name: 'clients')]
-class Client
+class Client extends User
 {
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true,name:"adresse" )]
     private ?string $adresse = null;
 
     public function getAdresse(): ?string
@@ -54,23 +54,7 @@ class Client
         return $this;
     }
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true,name:"phoneNumber")]
     private ?string $phoneNumber = null;
 
     public function getPhoneNumber(): ?string

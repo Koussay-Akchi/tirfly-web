@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Réclamations{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+            <h2 class="h5 mb-0"><i class="fas fa-tasks mr-2"></i>Réclamations</h2>
+            <a href="{{ path('ajout_reclamation') }}" class="btn btn-light btn-sm">
+                <i class="fas fa-plus-circle mr-1"></i>Nouvelle réclamation
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width: 10%">ID</th>
+                            <th style="width: 20%">Titre</th>
+                            <th style="width: 15%">État</th>
+                            <th style="width: 35%">Description</th>
+                            <th style="width: 10%">Téléphone</th>
+                            <th style="width: 10%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reclamation in reclamations %}
+                            <tr>
+                                <td class="font-weight-bold text-primary">#{{ reclamation.id }}</td>
+                                  
+                                <td class="text-truncate" style="max-width: 200px;">
+                                    {{ reclamation.titre|escape }}
+                                </td>
+                                  
+                                <td>
+                                    <span class="badge 
+                                        {% if reclamation.etat == 'Qualité de service' %}badge-warning
+                                        {% elseif reclamation.etat == 'Retard' %}badge-danger
+                                        {% else %}badge-secondary{% endif %}">
+                                        {{ reclamation.etat }}
+                                    </span>
+                                </td>
+                                  
+                                <td class="text-truncate" style="max-width: 300px;">
+                                    {{ reclamation.description|escape }}
+                                </td>
+                                  
+                                <td>
+                                    {{ reclamation.phone|default('N/A')|slice(0, 3) }}...
+                                </td>
+                                  
+                                <td>
+                                    <div class="d-inline-flex">
+                                        <!-- Détails (Bleu personnalisé) -->
+                                        <a href="{{ path('details_reclamation', {'id': reclamation.id}) }}" class="btn btn-sm" style="background-color: #007bff; color: white; border-radius: 5px; margin-right: 10px;" title="Voir les détails">
+                                            <i class="fas fa-info-circle"></i> Détails
+                                        </a>
+                                        <!-- Modifier (Jaune personnalisé) -->
+                                        <a href="{{ path('edit_reclamation', {'id': reclamation.id}) }}" class="btn btn-sm" style="background-color: #ffc107; color: white; border-radius: 5px; margin-right: 10px;" title="Modifier cette réclamation">
+                                            <i class="fas fa-edit"></i> Modifier
+                                        </a>
+                                        <!-- Supprimer (Rouge personnalisé) -->
+                                        <a href="{{ path('delete_reclamation', {'id': reclamation.id}) }}" class="btn btn-sm" style="background-color: #dc3545; color: white; border-radius: 5px;" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?')" title="Supprimer cette réclamation">
+                                            <i class="fas fa-trash-alt"></i> Supprimer
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 bg-light">
+                                    <div class="text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-3"></i><br>
+                                        Aucune réclamation trouvée
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Pagination si nécessaire -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

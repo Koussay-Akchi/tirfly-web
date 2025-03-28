@@ -1,0 +1,85 @@
+/* Tableau avec des bordures plus larges et des couleurs plus foncées */
+.table {
+    margin: 0 auto;
+    width: 100% !important;
+    border-collapse: collapse; /* Pour que les bordures se rejoignent */
+    background-color: #f4f6f9; /* Fond plus clair pour contraster avec les lignes */
+}
+
+.table th,
+.table td {
+    font-weight: 700; /* Texte en gras */
+    text-align: center; /* Centrage horizontal du contenu */
+    padding: 15px; /* Augmenter le padding pour une meilleure lisibilité */
+    border: 1px solid #34495e; /* Bordure plus sombre */
+}
+
+/* Hover sur les lignes du tableau */
+.table-hover tbody tr:hover {
+    background-color: #e0e4e7; /* Couleur plus foncée pour l'effet hover */
+    vertical-align: middle;
+}
+
+/* Styles des en-têtes du tableau */
+.thead-dark th {
+    background-color: #2c3e50; /* Couleur de fond sombre */
+    color: white;
+    vertical-align: middle; /* Centrage vertical des en-têtes */
+    padding: 15px; /* Augmenter le padding pour les en-têtes */
+}
+
+/* Badge et boutons centrés */
+.badge, .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Texte tronqué (si nécessaire) */
+.text-truncate {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Cartes avec coins arrondis */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Ombre subtile pour les cartes */
+}
+
+/* Boutons avec un fond plus foncé pour les petits boutons */
+.btn-light.btn-sm {
+    font-weight: bold;
+    border-radius: 5px;
+    background-color: #f1f1f1; /* Fond plus doux */
+    color: #2c3e50; /* Texte foncé */
+    border: 1px solid #ddd; /* Bordure plus claire */
+}
+
+.btn-light.btn-sm:hover {
+    background-color: #bdc3c7; /* Changement de couleur au survol */
+}
+
+/* Icônes avec espacement à droite */
+.fas {
+    margin-right: 5px;
+}
+
+/* Styliser les lignes du tableau */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9; /* Alternance de lignes plus claires */
+}
+
+/* Ajouter des bordures arrondies à la table */
+.table-bordered {
+    border-radius: 8px;
+    border: 2px solid #34495e;
+}
+
+/* Espacement entre les colonnes et les lignes */
+.table th, .table td {
+    border-top: 2px solid #34495e;
+    border-bottom: 2px solid #34495e;
+}

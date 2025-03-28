@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+
+
+
+
+
+
+
+{% block title %} Ajouter une Réclamation {% endblock %}
+
+{% block body %}
+    <div class="form-container">
+        {# Dans votre template Twig #}
+<div class="form-container">
+    <h1>Ajouter une Réclamation</h1>
+    
+    {{ form_start(form) }}
+        {% for field in form %}
+            <div class="form-group">
+                {{ form_row(field, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-paper-plane"></i> Envoyer
+        </button>
+    {{ form_end(form) }}
+    
+    <a href="{{ path('liste_reclamations') }}" class="btn btn-secondary mt-3">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+</div>
+{% endblock %}

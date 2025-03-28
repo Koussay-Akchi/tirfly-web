@@ -1,0 +1,48 @@
+/* Styles pour la page des détails de la réclamation */
+h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    color: #34495e;
+}
+
+strong {
+    color: #2c3e50;
+}
+
+.video-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+video {
+    max-width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #95a5a6;
+    color: #fff;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #7f8c8d;
+}
+
+.mt-3 {
+    margin-top: 1em;
+}

@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Détails Réclamation {% endblock %}
+
+{% block body %}
+    <h1>Détails de la Réclamation</h1>
+
+    <p><strong>ID :</strong> {{ reclamation.id }}</p>
+    <p><strong>Titre :</strong> {{ reclamation.titre }}</p>
+    <p><strong>Description :</strong> {{ reclamation.description }}</p>
+    <p><strong>État :</strong> {{ reclamation.etat }}</p>
+    <p><strong>Date :</strong> {{ reclamation.dateCreation ? reclamation.dateCreation|date('d/m/Y') : 'N/A' }}</p>
+    <p><strong>Client :</strong> {{ reclamation.client ? reclamation.client.nom : 'Inconnu' }}</p>
+
+    {% if reclamation.videoPath %}
+        <p><strong>Vidéo :</strong></p>
+        <video controls width="400">
+            <source src="{{ asset(reclamation.videoPath) }}" type="video/mp4">
+            Votre navigateur ne supporte pas la lecture de vidéos.
+        </video>
+    {% endif %}
+
+    <a href="{{ path('liste_reclamations') }}" class="btn btn-secondary mt-3">Retour</a>
+{% endblock %}

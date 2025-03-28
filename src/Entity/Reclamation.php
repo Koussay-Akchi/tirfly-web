@@ -43,19 +43,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $doooooo = null;
-
-    public function getDoooooo(): ?string
-    {
-        return $this->doooooo;
-    }
-
-    public function setDoooooo(?string $doooooo): self
-    {
-        $this->doooooo = $doooooo;
-        return $this;
-    }
+   
 
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $etat = null;
@@ -85,7 +73,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true)]
+    #[ORM\Column(type: 'date', nullable: true,name:"dateCreation")]
     private ?\DateTimeInterface $dateCreation = null;
 
     public function getDateCreation(): ?\DateTimeInterface
@@ -114,7 +102,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true,name:"videoPath")]
     private ?string $videoPath = null;
 
     public function getVideoPath(): ?string
@@ -128,7 +116,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
+    #[ORM\Column(type: 'string', nullable: false,name:"isRed")]
     private ?string $isRed = null;
 
     public function getIsRed(): ?string

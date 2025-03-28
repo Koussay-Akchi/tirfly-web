@@ -11,6 +11,14 @@ use App\Repository\UserRepository;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'role', type: 'string')]
+#[ORM\DiscriminatorMap([
+    'ADMIN' => User::class,
+    'CLIENT' => Client::class,
+    'SUPPORT' => User::class,
+    'VOYAGEUR' => User::class
+])]
 class User
 {
     #[ORM\Id]
@@ -29,7 +37,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true,name:"dateCreation")]
     private ?\DateTimeInterface $dateCreation = null;
 
     public function getDateCreation(): ?\DateTimeInterface
@@ -57,7 +65,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true ,name:"motDePasse")]
     private ?string $motDePasse = null;
 
     public function getMotDePasse(): ?string
@@ -99,9 +107,6 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $role = null;
-
     public function getRole(): ?string
     {
         return $this->role;
@@ -121,7 +126,7 @@ class User
      */
     public function getMessages(): Collection
     {
-        if (!$this->messages instanceof Collection) {
+if (!$this->messages instanceof Collection) {
             $this->messages = new ArrayCollection();
         }
         return $this->messages;
@@ -131,7 +136,7 @@ class User
     {
         if (!$this->getMessages()->contains($message)) {
             $this->getMessages()->add($message);
-        }
+                    }
         return $this;
     }
 
@@ -149,7 +154,7 @@ class User
      */
     public function getNotifications(): Collection
     {
-        if (!$this->notifications instanceof Collection) {
+if (!$this->notifications instanceof Collection) {
             $this->notifications = new ArrayCollection();
         }
         return $this->notifications;
@@ -159,7 +164,7 @@ class User
     {
         if (!$this->getNotifications()->contains($notification)) {
             $this->getNotifications()->add($notification);
-        }
+                    }
         return $this;
     }
 
@@ -193,7 +198,7 @@ class User
      */
     public function getClients(): Collection
     {
-        if (!$this->clients instanceof Collection) {
+if (!$this->clients instanceof Collection) {
             $this->clients = new ArrayCollection();
         }
         return $this->clients;

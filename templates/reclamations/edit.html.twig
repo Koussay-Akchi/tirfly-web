@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Modifier Réclamation {% endblock %}
+
+{% block body %}
+    <h1>Modifier la Réclamation</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.titre) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.etat) }}
+    
+        {{ form_row(form.client) }}
+        {{ form_row(form.videoPath) }}
+
+        <button type="submit" class="btn btn-primary">Modifier</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('liste_reclamations') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
+{% endblock %}
