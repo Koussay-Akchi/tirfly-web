@@ -37,7 +37,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true, name: 'dateCreation')]
     private ?\DateTimeInterface $dateCreation = null;
 
     public function getDateCreation(): ?\DateTimeInterface
@@ -65,7 +65,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true, name: 'motDePasse')]
     private ?string $motDePasse = null;
 
     public function getMotDePasse(): ?string

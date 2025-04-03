@@ -1,14 +1,16 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Détails du Voyage
+{% block title %}
+	Détails du Voyage
 {% endblock %}
-
 {% block body %}
 	<div class="voyage-details-details-container">
-		<a href="{{ path('liste_voyages') }}" class="back-button">Retour</a>
-
+		<a href="{{ path('liste_voyages') }}" class="back-button">
+			Retour
+		</a>
 		<div class="content-box">
-			<h1 class="voyage-details-title">{{ voyage.nom }}</h1>
+			<h1 class="voyage-details-title">
+				{{ voyage.nom }}
+			</h1>
 			<div class="voyage-details-grid-container">
 				<div class="voyage-details-grid-image">
 					{% if false %}
@@ -18,35 +20,48 @@
 					{% endif %}
 				</div>
 				<div class="voyage-details-grid-text">
-
-
 					<div class="voyage-details-details-grid">
 						<div>
-							<strong>Destination :</strong>
+							<strong>
+								Destination :
+							</strong>
 						</div>
-						<div>{{ voyage.destination.ville }},
-							{{ voyage.destination.pays }}</div>
-
 						<div>
-							<strong>Dates :</strong>
+							{{ voyage.destination.ville }}
+							,
+							{{ voyage.destination.pays }}
 						</div>
-						<div>{{ voyage.dateDepart|date('d/m/Y') }}
+						<div>
+							<strong>
+								Dates :
+							</strong>
+						</div>
+						<div>
+							{{ voyage.dateDepart|date('d/m/Y') }}
 							-
-							{{ voyage.dateArrive|date('d/m/Y') }}</div>
-
-						<div>
-							<strong>Durée :</strong>
+							{{ voyage.dateArrive|date('d/m/Y') }}
 						</div>
-						<div>{{ voyage.dateDepart.diff(voyage.dateArrive).days }}
-							jours</div>
-
 						<div>
-							<strong>Formule :</strong>
+							<strong>
+								Durée :
+							</strong>
 						</div>
-						<div>{{ voyage.formule }}</div>
-
 						<div>
-							<strong>Note :</strong>
+							{{ voyage.dateDepart.diff(voyage.dateArrive).days }}
+							jours
+						</div>
+						<div>
+							<strong>
+								Formule :
+							</strong>
+						</div>
+						<div>
+							{{ voyage.formule }}
+						</div>
+						<div>
+							<strong>
+								Note :
+							</strong>
 						</div>
 						<div class="stars">
 							{% for i in 1..5 %}
@@ -59,9 +74,10 @@
 								{% endif %}
 							{% endfor %}
 						</div>
-
 						<div>
-							<strong>Météo actuelle :</strong>
+							<strong>
+								Météo actuelle :
+							</strong>
 						</div>
 						<div>
 							mizel°C
@@ -69,40 +85,92 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="description">
 				<div class="price-box">
-					<strong>Prix :</strong>
-					<span class="price-value">{{ voyage.prix }}
-						DT</span>
+					<strong>
+						Prix :
+					</strong>
+					<span class="price-value">
+						{{ voyage.prix }}
+						DT
+					</span>
 				</div>
 				<div>
 					{{ voyage.description }}
 				</div>
 			</div>
-
-			<a href="{{ path('reservation_form', {'id': voyage.id}) }}" class="reserve-button">Réserver</a>
-
+			<a href="{{ path('reservation_form', {'id': voyage.id}) }}" class="reserve-button">
+				Réserver
+			</a>
 			<div class="voyage-details-feedback-container">
-				<h2>Avis des voyageurs</h2>
-
+				<h2>
+					Avis des voyageurs
+				</h2>
 				<form method="post" class="voyage-details-feedback-form">
-					<label for="note">Note :</label>
-					<input type="number" name="note" min="1" max="5" required>
-
-					<label for="comment">Avis :</label>
-					<textarea name="comment" required></textarea>
-
-					<button type="submit">Envoyer</button>
+					<div class="rating-input">
+						<label for="note">
+							Note :
+						</label>
+						<div class="star-rating">
+							<input type="radio" id="star5" name="note" value="5">
+							<label for="star5">
+								★
+							</label>
+							<input type="radio" id="star4" name="note" value="4">
+							<label for="star4">
+								★
+							</label>
+							<input type="radio" id="star3" name="note" value="3">
+							<label for="star3">
+								★
+							</label>
+							<input type="radio" id="star2" name="note" value="2">
+							<label for="star2">
+								★
+							</label>
+							<input type="radio" id="star1" name="note" value="1">
+							<label for="star1">
+								★
+							</label>
+						</div>
+					</div>
+					<label for="comment">
+						Avis :
+					</label>
+					<textarea name="comment" required class="feedback-textarea"></textarea>
+					<button type="submit" class="submit-feedback-btn">
+						Envoyer
+					</button>
 				</form>
 
 				<div class="voyage-details-feedback-list">
 					{% for feedback in voyage.feedbacks %}
 						<div class="voyage-details-feedback-item">
-							<strong>{{ feedback.client.nom }}
-								{{ feedback.client.prenom }}</strong>
-							<span>({{ feedback.dateFeedback|date('d/m/Y') }})</span>
-							<p>{{ feedback.contenu }}</p>
+							<div class="feedback-header">
+								<strong>
+									{{ feedback.client.nom }}
+									{{ feedback.client.prenom }}
+								</strong>
+								<span class="feedback-date">
+									{{ feedback.dateFeedback|date('d/m/Y') }}
+								</span>
+							</div>
+							<div class="feedback-rating">
+								{% for i in 1..5 %}
+									{% if i <= feedback.note %}
+										<span class="filled-star">
+											★
+										</span>
+									{% else %}
+										<span class="empty-star">
+											☆
+										</span>
+									{% endif %}
+								{% endfor %}
+							</div>
+							<p class="feedback-content">
+								{{ feedback.contenu }}
+							</p>
 						</div>
 					{% endfor %}
 				</div>
