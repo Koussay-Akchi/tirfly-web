@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Destinations
+{% endblock %}
+
+{% block body %}
+	<main class="main">
+		<div class="table-container">
+			<h1 class="table-title">Liste des destinations</h1>
+			<div class="table-responsive">
+
+				<table class="table table-striped table-hover voyage-table">
+					<thead class="table-dark">
+						<tr>
+							<th>ID</th>
+							<th>Ville</th>
+							<th>Pays</th>
+							<th>Latitude</th>
+							<th>Longitude</th>
+							<th>Climat</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for destination in destinations %}
+							<tr>
+								<td>{{ destination.id }}</td>
+								<td>{{ destination.ville }}</td>
+								<td>{{ destination.pays }}</td>
+								<td>{{ destination.latitude }}</td>
+								<td>{{ destination.longitude }}</td>
+								<td>{{ destination.climat }}</td>
+								<td>
+									<a href="{{ path('details_destination', {'id': destination.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="7" class="text-center">Aucune destination trouvée.</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</h1>
+		</div>
+	</div>
+</main>{% endblock %}

@@ -1947,3 +1947,30 @@ address {
   color: #555;
   line-height: 1.5;
 }
+
+
+.destinations-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.destinations-table th,
+.destinations-table td {
+  padding: 12px;
+  text-align: center;
+}
+
+.destinations-table th {
+  background-color: #343a40;
+  color: white;
+}
+
+.destinations-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 14px;
+}
