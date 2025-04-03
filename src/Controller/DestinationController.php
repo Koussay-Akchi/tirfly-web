@@ -15,11 +15,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DestinationController extends AbstractController
 {
-    #[Route('/destinations', name: 'liste_destinations')]     public function index(DestinationRepository $destinationRepository): Response
+    #[Route('/destinations', name: 'liste_destinations')] public function index(DestinationRepository $destinationRepository): Response
     {
 
         $destinations = $destinationRepository->findAll();
-        
+
         return $this->render('destinations/liste-destinations.html.twig', [
             'destinations' => $destinations
         ]);
@@ -40,7 +40,6 @@ class DestinationController extends AbstractController
     }
 
 
-    /*
     #[Route('/destinations/ajout', name: 'ajout_destination')]
     public function add(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
     {
@@ -50,34 +49,8 @@ class DestinationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $dateConstraints = new Assert\Collection([
-                'dateDepart' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)],
-                'dateArrive' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)]
-            ]);
-
-            $dateErrors = $validator->validate([
-                'dateDepart' => $destination->getDateDepart(),
-                'dateArrive' => $destination->getDateArrive(),
-            ], $dateConstraints);
-
-            if (count($dateErrors) > 0 || $destination->getDateArrive() < $destination->getDateDepart()) {
-                $this->addFlash('error', "La date d'arrivée doit être après la date de départ.");
-                return $this->redirectToRoute('ajout_destination');
-            }
-
-            $priceErrors = $validator->validate($destination->getPrix(), [
-                new Assert\NotNull(),
-                new Assert\Type('numeric'),
-                new Assert\Positive(),
-            ]);
-
-            if (count($priceErrors) > 0) {
-                $this->addFlash('error', "Le prix doit être un nombre positif.");
-                return $this->redirectToRoute('ajout_destination');
-            }
-
             // n5allouha mba3ed image
-            
+/*            
             $imageFile = $form->get('image')->getData();
             
             if ($imageFile) {
@@ -107,8 +80,7 @@ class DestinationController extends AbstractController
                 }
             }
             
-
-            $destination->setNote(0);
+*/
             $entityManager->persist($destination);
             $entityManager->flush();
 
@@ -121,7 +93,6 @@ class DestinationController extends AbstractController
         ]);
     }
 
-    */
 
     #[Route('/admin/destinations', name: 'admin_liste_destinations')]
     public function adminDestinations(DestinationRepository $destinationRepository): Response

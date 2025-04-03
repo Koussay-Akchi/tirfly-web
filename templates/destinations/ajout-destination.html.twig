@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une Destination
+{% endblock %}
+
+{% block body %}
+
+	<div class="destination-form-container" style="margin-top:150px;">
+		<h2 class="text-center mb-4">Ajouter une Destination</h2>
+		{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'destination-form'}}) }}
+		<div class="form-group mb-3">
+			{{ form_label(form.ville) }}
+			{{ form_widget(form.ville, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom de la ville'}}) }}
+			{{ form_errors(form.ville) }}
+		</div>
+		<div class="form-group mb-3">
+			{{ form_label(form.pays) }}
+			{{ form_widget(form.pays, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom du pays'}}) }}
+			{{ form_errors(form.pays) }}
+		</div>
+		<div class="form-group mb-3">
+			{{ form_label(form.latitude) }}
+			{{ form_widget(form.latitude, {'attr': {'class': 'form-control', 'placeholder': 'Latitude'}}) }}
+			{{ form_errors(form.latitude) }}
+		</div>
+		<div class="form-group mb-3">
+			{{ form_label(form.longitude) }}
+			{{ form_widget(form.longitude, {'attr': {'class': 'form-control', 'placeholder': 'Longitude'}}) }}
+			{{ form_errors(form.longitude) }}
+		</div>
+
+		<div class="form-group mb-3">
+			{{ form_label(form.climat) }}
+			<select class="form-control" name="{{ form.climat.vars.full_name }}" id="{{ form.climat.vars.id }}">
+				<option value="1">Tropical</option>
+				<option value="2">Chaud</option>
+				<option value="3">Froid</option>
+				<option value="4">Desert</option>
+			</select>
+			{{ form_errors(form.climat) }}
+		</div>
+
+
+		<div class="map-container mb-3">
+			<div id="map" style="width:100%; height:300px;"></div>
+		</div>
+		<div class="text-center mb-3">
+			<button type="button" class="btn btn-info" id="predictionButton" disabled onclick="predictClimat()">Prédiction de climat</button>
+		</div>
+		<div class="text-center">
+			<button type="submit" class="btn btn-success">Ajouter la destination</button>
+		</div>
+		{{ form_end(form) }}
+	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css"/>
+	<script>
+		var map = L.map('map').setView([
+20, 0
+], 2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+maxZoom: 19,
+attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+var currentMarker;
+map.on('click', function (e) {
+var lat = e.latlng.lat;
+var lng = e.latlng.lng;
+if (currentMarker) {
+map.removeLayer(currentMarker);
+}
+currentMarker = L.marker([lat, lng]).addTo(map);
+document.getElementById('{{ form.latitude.vars.id }}').value = lat;
+document.getElementById('{{ form.longitude.vars.id }}').value = lng;
+predictClimat(lat, lng);
+});
+function predictClimat(lat, lng) {
+document.getElementById('predictionButton').disabled = false;
+}
+	</script>
+	<style>
+		.destination-form-container {
+			max-width: 600px;
+			margin: auto;
+			padding: 20px;
+			background: #fff;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+			border-radius: 8px;
+		}
+		.map-container {
+			border: 1px solid #ddd;
+			border-radius: 8px;
+			overflow: hidden;
+		}
+		.btn-info {
+			background-color: #2196F3;
+			border: none;
+			color: #fff;
+			padding: 10px 15px;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+		.btn-info:disabled {
+			background-color: #b0c4de;
+			cursor: not-allowed;
+		}
+	</style>
+{% endblock %}
