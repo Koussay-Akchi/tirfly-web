@@ -41,7 +41,7 @@ class DestinationController extends AbstractController
 
 
     #[Route('/destinations/ajout', name: 'ajout_destination')]
-    public function add(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
+    public function ajoutDestination(Request $request, EntityManagerInterface $entityManager): Response
     {
         $destination = new Destination();
         $form = $this->createForm(DestinationType::class, $destination);
@@ -81,10 +81,16 @@ class DestinationController extends AbstractController
             }
             
 */
+            $climatValue = $request->request->get('climatSelect');
+
+            if ($climatValue !== null) {
+                $destination->setClimat((int) $climatValue);
+            }
+
             $entityManager->persist($destination);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Destination ajouté avec succès.');
+            $this->addFlash('success', 'Destination ajoutée avec succès!');
             return $this->redirectToRoute('liste_destinations');
         }
 
@@ -92,7 +98,6 @@ class DestinationController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 
     #[Route('/admin/destinations', name: 'admin_liste_destinations')]
     public function adminDestinations(DestinationRepository $destinationRepository): Response

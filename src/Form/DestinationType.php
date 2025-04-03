@@ -12,7 +12,6 @@ class DestinationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('climat')
             ->add('pays')
             ->add('ville')
             ->add('latitude')

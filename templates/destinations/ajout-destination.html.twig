@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block body %}
-	<div class="destination-form-container" style="margin-top:150px;">
+	<div class="destination-form-container">
 		<h2 class="text-center mb-4">Ajouter une Destination</h2>
 		{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'destination-form'}}) }}
 
@@ -33,14 +33,13 @@
 		</div>
 
 		<div class="form-group mb-3">
-			{{ form_label(form.climat) }}
-			<select class="form-control" name="{{ form.climat.vars.full_name }}" id="climatSelect">
+			<label for="climatSelect">Climat</label>
+            <select class="form-control" id="climatSelect" name="climatSelect">
 				<option value="1">Tropical</option>
 				<option value="2">Chaud</option>
 				<option value="3">Froid</option>
 				<option value="4">Desert</option>
 			</select>
-			{{ form_errors(form.climat) }}
 		</div>
 
 		<div class="map-container mb-3">
@@ -88,16 +87,16 @@ await predictClimat(lat, lng);
 
 async function predictClimat(lat, lng) {
 
-const climat = await climatService.getClimatEnum(lat, lng);
-if (climat !== null) {
-document.getElementById('climatSelect').value = climat;
-}
+    const climat = await climatService.getClimatEnum(lat, lng);
+    if (climat !== null) {
+        document.getElementById('climatSelect').value = climat;
+    }
 
-const location = await climatService.getVilleEtPays(lat, lng);
-if (location) {
-document.getElementById('villeInput').value = location.ville;
-document.getElementById('paysInput').value = location.pays;
-}
+    const location = await climatService.getVilleEtPays(lat, lng);
+    if (location) {
+        document.getElementById('villeInput').value = location.ville;
+        document.getElementById('paysInput').value = location.pays;
+    }
 }
 
 document.getElementById('villeInput').addEventListener('change', async function () {
