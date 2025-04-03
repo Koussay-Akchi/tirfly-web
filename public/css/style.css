@@ -350,9 +350,6 @@ body { background: var(--white); }
   pointer-events: all;
 }
 
-.main {
-  padding-top: 120px;
-}
 
 /*-----------------------------------*\
  * #HERO
@@ -1708,4 +1705,77 @@ address {
   .table-title {
     font-size: 24px;
   }
+}
+
+
+.details-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+
+.back-button {
+  display: inline-block;
+  padding: 8px 15px;
+  background: #007BFF;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.content-box {
+  text-align: center;
+}
+
+.voyage-image {
+  border-radius: 8px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  text-align: left;
+  margin: 20px 0;
+}
+
+.stars {
+  font-size: 18px;
+  color: gold;
+}
+
+.price-box {
+  text-align: right;
+  font-size: 22px;
+  font-weight: bold;
+  color: #E67E22;
+}
+
+.reserve-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background: green;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.feedback-container {
+  margin-top: 30px;
+}
+
+.feedback-item {
+  background: #f5f5f5;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.feedback-form textarea {
+  width: 100%;
+  height: 60px;
 }

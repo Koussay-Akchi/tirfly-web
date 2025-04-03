@@ -32,6 +32,20 @@ class VoyageController extends AbstractController
         ]);
     }
 
+    #[Route('/voyage/{id}', name: 'details_voyage')]
+    public function details(int $id, VoyageRepository $voyageRepository): Response
+    {
+        $voyage = $voyageRepository->find($id);
+
+        if (!$voyage) {
+            throw $this->createNotFoundException('Voyage not found.');
+        }
+
+        return $this->render('voyages/details-voyage.html.twig', [
+            'voyage' => $voyage
+        ]);
+    }
+
     #[Route('/voyages/ajout', name: 'ajout_voyage')]
     public function add(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
     {
