@@ -4,81 +4,89 @@
 {% endblock %}
 
 {% block body %}
-	<div class="details-container">
+	<div class="voyage-details-details-container">
 		<a href="{{ path('liste_voyages') }}" class="back-button">Retour</a>
 
 		<div class="content-box">
-			{% if false %}
-				<img src="{{ asset(voyage.getImage()) }}" alt="Image du voyage" class="voyage-image">
-			{% else %}
-				<img src="{{ asset('images/default.jpg') }}" height="100px" width="100px" alt="Image par défaut" class="voyage-image"/>
-			{% endif %}
-
-			<h1 class="title">{{ voyage.nom }}</h1>
-
-			<div class="details-grid">
-				<div>
-					<strong>Destination :</strong>
+			<h1 class="voyage-details-title">{{ voyage.nom }}</h1>
+			<div class="voyage-details-grid-container">
+				<div class="voyage-details-grid-image">
+					{% if false %}
+						<img src="{{ asset(voyage.getImage()) }}" alt="Image du voyage" class="voyage-image">
+					{% else %}
+						<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut" class="voyage-image"/>
+					{% endif %}
 				</div>
-				<div>{{ voyage.destination.ville }},
-					{{ voyage.destination.pays }}</div>
+				<div class="voyage-details-grid-text">
 
-				<div>
-					<strong>Dates :</strong>
-				</div>
-				<div>{{ voyage.dateDepart|date('d/m/Y') }}
-					-
-					{{ voyage.dateArrive|date('d/m/Y') }}</div>
 
-				<div>
-					<strong>Durée :</strong>
-				</div>
-				<div>{{ voyage.dateDepart.diff(voyage.dateArrive).days }}
-					jours</div>
+					<div class="voyage-details-details-grid">
+						<div>
+							<strong>Destination :</strong>
+						</div>
+						<div>{{ voyage.destination.ville }},
+							{{ voyage.destination.pays }}</div>
 
-				<div>
-					<strong>Formule :</strong>
-				</div>
-				<div>{{ voyage.formule }}</div>
+						<div>
+							<strong>Dates :</strong>
+						</div>
+						<div>{{ voyage.dateDepart|date('d/m/Y') }}
+							-
+							{{ voyage.dateArrive|date('d/m/Y') }}</div>
 
-				<div>
-					<strong>Note :</strong>
-				</div>
-				<div class="stars">
-					{% for i in 1..5 %}
-						{% if i <= voyage.note %}
-							⭐
-						{% elseif i - 0.5 == voyage.note %}
-							✬
-						{% else %}
-							☆
-						{% endif %}
-					{% endfor %}
-				</div>
+						<div>
+							<strong>Durée :</strong>
+						</div>
+						<div>{{ voyage.dateDepart.diff(voyage.dateArrive).days }}
+							jours</div>
 
-				<div>
-					<strong>Météo actuelle :</strong>
-				</div>
+						<div>
+							<strong>Formule :</strong>
+						</div>
+						<div>{{ voyage.formule }}</div>
 
-				<div>
-					mizel°C
+						<div>
+							<strong>Note :</strong>
+						</div>
+						<div class="stars">
+							{% for i in 1..5 %}
+								{% if i <= voyage.note %}
+									⭐
+								{% elseif i - 0.5 == voyage.note %}
+									✬
+								{% else %}
+									☆
+								{% endif %}
+							{% endfor %}
+						</div>
+
+						<div>
+							<strong>Météo actuelle :</strong>
+						</div>
+						<div>
+							mizel°C
+						</div>
+					</div>
 				</div>
 			</div>
 
-			<div class="price-box">
-				<strong>Prix :</strong>
-				<span class="price-value">{{ voyage.prix }}
-					DT</span>
+			<div class="description">
+				<div class="price-box">
+					<strong>Prix :</strong>
+					<span class="price-value">{{ voyage.prix }}
+						DT</span>
+				</div>
+				<div>
+					{{ voyage.description }}
+				</div>
 			</div>
-
-			<p class="description">{{ voyage.description }}</p>
 
 			<a href="{{ path('reservation_form', {'id': voyage.id}) }}" class="reserve-button">Réserver</a>
 
-			<div class="feedback-container">
+			<div class="voyage-details-feedback-container">
 				<h2>Avis des voyageurs</h2>
 
-				<form method="post" class="feedback-form">
+				<form method="post" class="voyage-details-feedback-form">
 					<label for="note">Note :</label>
 					<input type="number" name="note" min="1" max="5" required>
 
@@ -88,9 +96,9 @@
 					<button type="submit">Envoyer</button>
 				</form>
 
-				<div class="feedback-list">
+				<div class="voyage-details-feedback-list">
 					{% for feedback in voyage.feedbacks %}
-						<div class="feedback-item">
+						<div class="voyage-details-feedback-item">
 							<strong>{{ feedback.client.nom }}
 								{{ feedback.client.prenom }}</strong>
 							<span>({{ feedback.dateFeedback|date('d/m/Y') }})</span>
