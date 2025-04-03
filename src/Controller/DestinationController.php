@@ -20,7 +20,7 @@ class DestinationController extends AbstractController
 
         $destinations = $destinationRepository->findAll();
 
-        return $this->render('destinations/liste-destinations.html.twig', [
+        return $this->render('destinations/tableau-destinations.html.twig', [
             'destinations' => $destinations
         ]);
     }

@@ -29,7 +29,16 @@
 								<td>{{ destination.pays }}</td>
 								<td>{{ destination.latitude }}</td>
 								<td>{{ destination.longitude }}</td>
-								<td>{{ destination.climat }}</td>
+								<td>
+									{% set climatLabels = {
+										1: 'Tropical',
+										2: 'Chaud',
+										3: 'Froid',
+										4: 'Desert'
+									} %}
+									{{ climatLabels[destination.climat] ?? 'Inconnu' }}
+								</td>
+
 								<td>
 									<a href="{{ path('details_destination', {'id': destination.id}) }}" class="btn btn-primary btn-sm">Voir</a>
 								</td>
