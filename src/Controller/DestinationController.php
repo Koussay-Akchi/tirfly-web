@@ -19,9 +19,16 @@ class DestinationController extends AbstractController
     {
 
         $destinations = $destinationRepository->findAll();
+        $climatNames = [
+            1 => 'Tropical',
+            2 => 'Chaud',
+            3 => 'Froid',
+            4 => 'Désert',
+        ];
 
-        return $this->render('destinations/tableau-destinations.html.twig', [
-            'destinations' => $destinations
+        return $this->render('destinations/liste-destinations.html.twig', [
+            'destinations' => $destinations,
+            'climat_names' => $climatNames,
         ]);
     }
 
@@ -109,82 +116,29 @@ class DestinationController extends AbstractController
         ]);
     }
 
-    /*
-        #[Route('/admin/destinations/edit/{id}', name: 'edit_destination')]
-        public function edit(Destination $destination, Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
-        {
-            $form = $this->createForm(DestinationType::class, $destination);
-            $form->handleRequest($request);
+    #[Route('/admin/destinations/edit/{id}', name: 'edit_destination')]
+    public function edit(Destination $destination, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(DestinationType::class, $destination);
+        $form->handleRequest($request);
 
-            if ($form->isSubmitted() && $form->isValid()) {
-                $dateConstraints = new Assert\Collection([
-                    'dateDepart' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)],
-                    'dateArrive' => [new Assert\NotNull(), new Assert\Type(\DateTimeInterface::class)]
-                ]);
-
-                $dateErrors = $validator->validate([
-                    'dateDepart' => $destination->getDateDepart(),
-                    'dateArrive' => $destination->getDateArrive(),
-                ], $dateConstraints);
-
-                if (count($dateErrors) > 0 || $destination->getDateArrive() < $destination->getDateDepart()) {
-                    $this->addFlash('error', "La date d'arrivée doit être après la date de départ.");
-                    return $this->redirectToRoute('modifier_destination', ['id' => $destination->getId()]);
-                }
-
-                $priceErrors = $validator->validate($destination->getPrix(), [
-                    new Assert\NotNull(),
-                    new Assert\Type('numeric'),
-                    new Assert\Positive(),
-                ]);
-
-                if (count($priceErrors) > 0) {
-                    $this->addFlash('error', "Le prix doit être un nombre positif.");
-                    return $this->redirectToRoute('modifier_destination', ['id' => $destination->getId()]);
-                }
-
-                // Handle image upload logic (if needed)
-                $imageFile = $form->get('image')->getData();
-                
-                if ($imageFile) {
-                    $imageErrors = $validator->validate($imageFile, [
-                        new Assert\File([
-                            'maxSize' => '2M',
-                            'mimeTypes' => ['image/jpeg', 'image/png', 'image/jpg'],
-                            'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, JPEG, PNG)',
-                        ])
-                    ]);
-
-                    if (count($imageErrors) > 0) {
-                        $this->addFlash('error', 'Image invalide.');
-                        return $this->redirectToRoute('modifier_destination', ['id' => $destination->getId()]);
-                    }
-
-                    $newFilename = uniqid() . '.' . $imageFile->guessExtension();
-
-                    try {
-                        $imageFile->move(
-                            $this->getParameter('destination_images_directory'),
-                            $newFilename
-                        );
-                        $destination->setImage($newFilename);
-                    } catch (FileException $e) {
-                        $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
-                    }
-                }
-
-                $entityManager->flush();
-
-                $this->addFlash('success', 'Destination modifié avec succès.');
-                return $this->redirectToRoute('admin_liste_destinations');
+        if ($form->isSubmitted() && $form->isValid()) {
+            $climat = $request->request->get('climatSelect');
+            if ($climat !== null) {
+                $destination->setClimat((int) $climat);
             }
 
-            return $this->render('destinations/edit-destination.html.twig', [
-                'form' => $form->createView(),
-            ]);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Destination modifiée avec succès.');
+            return $this->redirectToRoute('admin_liste_destinations');
         }
 
-        */
+        return $this->render('destinations/edit-destination.html.twig', [
+            'form' => $form->createView(),
+            'destination' => $destination
+        ]);
+    }
 
     #[Route('/admin/destinations/delete/{id}', name: 'delete_destination')]
     public function delete(Destination $destination, EntityManagerInterface $entityManager): Response

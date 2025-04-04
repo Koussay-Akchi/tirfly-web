@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Destinations Populaires
+{% endblock %}
+
+{% block body %}
+	<section class="popular" id="destination">
+		<div class="container">
+
+			<p class="section-subtitle">Explorez des lieux uniques</p>
+
+			<h2 class="h2 section-title">Destinations Populaires</h2>
+
+			<p class="section-text">
+				Découvrez les destinations les plus prisées à travers le monde. Nous sélectionnons pour vous les lieux incontournables pour un voyage inoubliable.
+			</p>
+
+			<ul class="popular-list">
+
+				{% for destination in destinations %}
+					<li>
+						<div class="popular-card">
+							<figure class="card-img">
+								{% if false %}
+									<img src="{{ asset(destination.getImage()) }}" alt="Image destination" class="voyage-image">
+								{% else %}
+									<img src="{{ asset('images/default-destination.jpg') }}" alt="Image par défaut" class="voyage-image"/>
+								{% endif %}
+							</figure>
+							<div class="card-content">
+								<div class="card-rating">
+									Liste des voyages →
+								</div>
+								<p class="card-subtitle">
+									<a href="#">{{ destination.pays }}</a>
+								</p>
+								<h3 class="h3 card-title">
+									<a href="{{ path('details_destination', {id: destination.id}) }}">{{ destination.ville }}</a>
+								</h3>
+								<p class="card-text">
+									Climat :
+									{{ climat_names[destination.climat] ?? 'Inconnu' }}
+								</p>
+							</div>
+						</div>
+					</li>
+				{% else %}
+					<p>Aucune destination trouvée.</p>
+				{% endfor %}
+
+			</ul>
+
+			<div class="text-center mt-4">
+				<a href="{{ path('admin_liste_destinations') }}" class="btn btn-primary">Vue admin</a>
+			</div>
+
+		</div>
+	</section>
+{% endblock %}

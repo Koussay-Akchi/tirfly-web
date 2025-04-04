@@ -6,6 +6,7 @@ use App\Entity\Destination;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class DestinationType extends AbstractType
 {
@@ -14,8 +15,16 @@ class DestinationType extends AbstractType
         $builder
             ->add('pays')
             ->add('ville')
-            ->add('latitude')
-            ->add('longitude')
+            ->add('latitude', NumberType::class, [
+                'scale' => 8,
+                'html5' => true,
+                'required' => true,
+            ])
+            ->add('longitude', NumberType::class, [
+                'scale' => 8,
+                'html5' => true,
+                'required' => true,
+            ])
         ;
     }
 
