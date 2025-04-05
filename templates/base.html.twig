@@ -10,13 +10,15 @@
 		</title>
 		<link rel="shortcut icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
 		<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+
 	</head>
 	<body id="top">
 
 		{% include 'main/navbar.html.twig' %}
 
 		{% if app.request.uri != app.request.schemeAndHttpHost ~ '/' %}
-			<div style="margin-bottom: 160px;"></div>
+			<div style="margin-bottom: 180px;"></div>
 		{% endif %}
 
 		<main>
