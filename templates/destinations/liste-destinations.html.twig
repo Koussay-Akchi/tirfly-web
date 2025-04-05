@@ -19,30 +19,32 @@
 
 				{% for destination in destinations %}
 					<li>
-						<div class="popular-card">
-							<figure class="card-img">
-								{% if false %}
-									<img src="{{ asset(destination.getImage()) }}" alt="Image destination" class="voyage-image">
-								{% else %}
-									<img src="{{ asset('images/default-destination.jpg') }}" alt="Image par défaut" class="voyage-image"/>
-								{% endif %}
-							</figure>
-							<div class="card-content">
-								<div class="card-rating">
-									Liste des voyages →
+						<a href="{{ path('details_destination', {id: destination.id}) }}">
+							<div class="popular-card">
+								<figure class="card-img">
+									{% if false %}
+										<img src="{{ asset(destination.getImage()) }}" alt="Image destination" class="voyage-image">
+									{% else %}
+										<img src="{{ asset('images/default-destination.jpg') }}" alt="Image par défaut" class="voyage-image"/>
+									{% endif %}
+								</figure>
+								<div class="card-content">
+									<div class="card-rating">
+										Liste des voyages →
+									</div>
+									<p class="card-subtitle">
+										<a href="#">{{ destination.pays }}</a>
+									</p>
+									<h3 class="h3 card-title">
+										{{ destination.ville }}
+									</h3>
+									<p class="card-text">
+										Climat :
+										{{ climat_names[destination.climat] ?? 'Inconnu' }}
+									</p>
 								</div>
-								<p class="card-subtitle">
-									<a href="#">{{ destination.pays }}</a>
-								</p>
-								<h3 class="h3 card-title">
-									<a href="{{ path('details_destination', {id: destination.id}) }}">{{ destination.ville }}</a>
-								</h3>
-								<p class="card-text">
-									Climat :
-									{{ climat_names[destination.climat] ?? 'Inconnu' }}
-								</p>
 							</div>
-						</div>
+						</a>
 					</li>
 				{% else %}
 					<p>Aucune destination trouvée.</p>

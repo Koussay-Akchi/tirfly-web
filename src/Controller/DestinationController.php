@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Form\DestinationType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Repository\VoyageRepository;
 
 class DestinationController extends AbstractController
 {
@@ -32,17 +33,33 @@ class DestinationController extends AbstractController
         ]);
     }
 
-    #[Route('/destination/{id}', name: 'details_destination')]
-    public function details(int $id, DestinationRepository $destinationRepository): Response
-    {
+
+    #[Route('/destinations/{id}', name: 'details_destination')]
+    public function detailsDestinations(
+        int $id,
+        DestinationRepository $destinationRepository,
+        VoyageRepository $voyageRepo
+    ): Response {
+
         $destination = $destinationRepository->find($id);
 
         if (!$destination) {
             throw $this->createNotFoundException('Destination not found.');
         }
 
+        $voyages = $voyageRepo->findBy(['destination' => $destination]);
+
+        $climatNames = [
+            1 => 'Tropical',
+            2 => 'Chaud',
+            3 => 'Froid',
+            4 => 'Désert',
+        ];
+
         return $this->render('destinations/details-destination.html.twig', [
-            'destination' => $destination
+            'destination' => $destination,
+            'voyages' => $voyages,
+            'climat_names' => $climatNames,
         ]);
     }
 
