@@ -64,7 +64,7 @@ class DestinationController extends AbstractController
     }
 
 
-    #[Route('/destinations/ajout', name: 'ajout_destination')]
+    #[Route('/admin/destinations/ajout', name: 'ajout_destination')]
     public function ajoutDestination(Request $request, EntityManagerInterface $entityManager): Response
     {
         $destination = new Destination();
