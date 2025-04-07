@@ -1,317 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <meta
-      name="description"
-      content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5"
-    />
-    <meta name="author" content="TirFly" />
-    <meta
-      name="keywords"
-      content="TirFly, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web"
-    />
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+		<meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5"/>
+		<meta name="author" content="TirFly"/>
+		<meta name="keywords" content="TirFly, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web"/>
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link rel="shortcut icon" href="{{ asset('img/icons/icon-48x48.png') }}" />
+		<link rel="preconnect" href="https://fonts.gstatic.com"/>
+		<link rel="shortcut icon" href="{{ asset('img/icons/icon-48x48.png') }}"/>
 
-    <title>{% block title %}Tirfly - Admin{% endblock %}</title>
+		<title>
+			{% block title %}Tirfly - Admin
+			{% endblock %}
+		</title>
 
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
-      rel="stylesheet"
-    />
-    {% block stylesheets %}{% endblock %}
-  </head>
+		<link href="{{ asset('css/app.css') }}" rel="stylesheet"/>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/> {% block stylesheets %}{% endblock %}
+		</head>
 
-  <body>
-    <div class="wrapper">
-      <nav id="sidebar" class="sidebar js-sidebar">
-        <div class="sidebar-content js-simplebar">
-          <a class="sidebar-brand" href="{{ path('home') }}">
-            <span class="align-middle">TirFly</span>
-          </a>
+		<body>
+			<div class="wrapper">
+				<nav id="sidebar" class="sidebar js-sidebar">
+					<div class="sidebar-content js-simplebar">
+						<a class="sidebar-brand" href="{{ path('home') }}">
+							<span class="align-middle">TirFly</span>
+						</a>
 
-          <ul class="sidebar-nav">
-            <li class="sidebar-item active">
-              <a class="sidebar-link" href="{{ path('home') }}">
-                <i class="align-middle" data-feather="sliders"></i>
-                <span class="align-middle">Dashboard</span>
-              </a>
-            </li>
+						<ul class="sidebar-nav">
+							<li class="sidebar-item active">
+								<a class="sidebar-link" href="{{ path('home') }}">
+									<i class="align-middle" data-feather="sliders"></i>
+									<span class="align-middle">Dashboard</span>
+								</a>
+							</li>
 
-            <li class="sidebar-header">
-              <i class="align-middle" data-feather="map-pin"></i> Destinations
-            </li>
+							<li class="sidebar-header">
+								<i class="align-middle" data-feather="map-pin"></i>
+								Destinations
+							</li>
 
-            <li class="sidebar-item active">
-              <a class="sidebar-link" href="{{ path('liste_destinations') }}">
-                <span class="align-middle">Liste des destinations</span>
-              </a>
-            </li>
+							<li class="sidebar-item active">
+								<a class="sidebar-link" href="{{ path('liste_destinations') }}">
+									<span class="align-middle">Liste des destinations</span>
+								</a>
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('ajouter_destination') }}">
-                <span class="align-middle">Ajouter destination</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('ajouter_destination') }}">
+									<span class="align-middle">Ajouter destination</span>
+								</a>
+							</li>
 
-            <li class="sidebar-header">
-              <img
-                src="{{ asset('img/icons/airplane.png') }}"
-                height="20px"
-                style="margin-left: -0.1em"
-              />
-              Voyages
-            </li>
+							<li class="sidebar-header">
+								<img src="{{ asset('img/icons/airplane.png') }}" height="20px" style="margin-left: -0.1em"/>
+								Voyages
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('ajouter_voyage') }}">
-                <span class="align-middle">Ajouter voyage</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('ajouter_voyage') }}">
+									<span class="align-middle">Ajouter voyage</span>
+								</a>
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('liste_voyages') }}">
-                <span class="align-middle">Liste des voyages</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('liste_voyages') }}">
+									<span class="align-middle">Liste des voyages</span>
+								</a>
+							</li>
 
-            <li class="sidebar-header">
-              <i class="align-middle" data-feather="zap"></i> Events
-            </li>
+							<li class="sidebar-header">
+								<i class="align-middle" data-feather="zap"></i>
+								Events
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('ajouter_event') }}">
-                <span class="align-middle">Ajouter event</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('ajouter_event') }}">
+									<span class="align-middle">Ajouter event</span>
+								</a>
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('liste_events') }}">
-                <span class="align-middle">Liste des events</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('liste_events') }}">
+									<span class="align-middle">Liste des events</span>
+								</a>
+							</li>
 
-            <li class="sidebar-header">
-              <i class="align-middle" data-feather="package"></i> Packs
-            </li>
+							<li class="sidebar-header">
+								<i class="align-middle" data-feather="package"></i>
+								Packs
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('ajouter_pack') }}">
-                <span class="align-middle">Ajouter pack</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('ajouter_pack') }}">
+									<span class="align-middle">Ajouter pack</span>
+								</a>
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('liste_packs') }}">
-                <span class="align-middle">Liste des packs</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('liste_packs') }}">
+									<span class="align-middle">Liste des packs</span>
+								</a>
+							</li>
 
-            <li class="sidebar-header">
-              <i class="align-middle" data-feather="tag"></i> Coupons
-            </li>
+							<li class="sidebar-header">
+								<i class="align-middle" data-feather="tag"></i>
+								Coupons
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('ajouter_coupon') }}">
-                <span class="align-middle">Ajouter coupon</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('ajouter_coupon') }}">
+									<span class="align-middle">Ajouter coupon</span>
+								</a>
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('liste_coupons') }}">
-                <span class="align-middle">Liste des coupons</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('liste_coupons') }}">
+									<span class="align-middle">Liste des coupons</span>
+								</a>
+							</li>
 
-            <li class="sidebar-header">
-              <i class="align-middle" data-feather="alert-circle"></i>
-              Réclamations
-            </li>
+							<li class="sidebar-header">
+								<i class="align-middle" data-feather="alert-circle"></i>
+								Réclamations
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('reclamations_clients') }}">
-                <i class="align-middle" data-feather="user-plus"></i>
-                <span class="align-middle">Réclamations clients</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('reclamations_clients') }}">
+									<i class="align-middle" data-feather="user-plus"></i>
+									<span class="align-middle">Réclamations clients</span>
+								</a>
+							</li>
 
-            <li class="sidebar-header">
-              <i class="align-middle" data-feather="users"></i> Utilisateurs
-            </li>
+							<li class="sidebar-header">
+								<i class="align-middle" data-feather="users"></i>
+								Utilisateurs
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('ajouter_utilisateur') }}">
-                <span class="align-middle">Ajouter utilisateur</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('ajouter_utilisateur') }}">
+									<span class="align-middle">Ajouter utilisateur</span>
+								</a>
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('liste_utilisateurs') }}">
-                <span class="align-middle">Liste des utilisateurs</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('liste_utilisateurs') }}">
+									<span class="align-middle">Liste des utilisateurs</span>
+								</a>
+							</li>
 
-            <li class="sidebar-header">
-              <i class="align-middle" data-feather="home"></i> Hébergements
-            </li>
+							<li class="sidebar-header">
+								<i class="align-middle" data-feather="home"></i>
+								Hébergements
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('ajouter_hebergement') }}">
-                <span class="align-middle">Ajouter hébergement</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('ajouter_hebergement') }}">
+									<span class="align-middle">Ajouter hébergement</span>
+								</a>
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('liste_hebergements') }}">
-                <span class="align-middle">Liste des hébergements</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('liste_hebergements') }}">
+									<span class="align-middle">Liste des hébergements</span>
+								</a>
+							</li>
 
-            <li class="sidebar-header">
-              <i class="align-middle" data-feather="shopping-cart"></i> Boutique
-            </li>
+							<li class="sidebar-header">
+								<i class="align-middle" data-feather="shopping-cart"></i>
+								Boutique
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('ajouter_produit') }}">
-                <span class="align-middle">Ajouter produit</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('ajouter_produit') }}">
+									<span class="align-middle">Ajouter produit</span>
+								</a>
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('liste_produits') }}">
-                <span class="align-middle">Liste des produits</span>
-              </a>
-            </li>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('liste_produits') }}">
+									<span class="align-middle">Liste des produits</span>
+								</a>
+							</li>
 
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ path('liste_commandes') }}">
-                <span class="align-middle">Liste des commandes</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </nav>
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('liste_commandes') }}">
+									<span class="align-middle">Liste des commandes</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</nav>
 
-      <div class="main">
-        <nav class="navbar navbar-expand navbar-light navbar-bg">
-          <a class="sidebar-toggle js-sidebar-toggle">
-            <i class="hamburger align-self-center"></i>
-          </a>
+				<div class="main">
+					<nav class="navbar navbar-expand navbar-light navbar-bg">
+						<a class="sidebar-toggle js-sidebar-toggle">
+							<i class="hamburger align-self-center"></i>
+						</a>
 
-          <div class="navbar-collapse collapse">
-            <ul class="navbar-nav navbar-align">
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-icon dropdown-toggle"
-                  href="#"
-                  id="alertsDropdown"
-                  data-bs-toggle="dropdown"
-                >
-                  <div class="position-relative">
-                    <i class="align-middle" data-feather="bell"></i>
-                    <span class="indicator">4</span>
-                  </div>
-                </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-icon dropdown-toggle"
-                  href="#"
-                  id="messagesDropdown"
-                  data-bs-toggle="dropdown"
-                >
-                  <div class="position-relative">
-                    <i class="align-middle" data-feather="message-square"></i>
-                  </div>
-                </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-icon dropdown-toggle d-inline-block d-sm-none"
-                  href="#"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="align-middle" data-feather="settings"></i>
-                </a>
+						<div class="navbar-collapse collapse">
+							<ul class="navbar-nav navbar-align">
+								<li class="nav-item dropdown">
+									<a class="nav-icon dropdown-toggle" href="#" id="alertsDropdown" data-bs-toggle="dropdown">
+										<div class="position-relative">
+											<i class="align-middle" data-feather="bell"></i>
+											<span class="indicator">4</span>
+										</div>
+									</a>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-icon dropdown-toggle" href="#" id="messagesDropdown" data-bs-toggle="dropdown">
+										<div class="position-relative">
+											<i class="align-middle" data-feather="message-square"></i>
+										</div>
+									</a>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
+										<i class="align-middle" data-feather="settings"></i>
+									</a>
 
-                <a
-                  class="nav-link dropdown-toggle d-none d-sm-inline-block"
-                  href="#"
-                  data-bs-toggle="dropdown"
-                >
-                  <img
-                    src="{{ asset('img/avatars/avatar.jpg') }}"
-                    class="avatar img-fluid rounded me-1"
-                    alt="User Avatar"
-                  />
-                  <span class="text-dark">{% block username %}Mil local storage{% endblock %}</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end">
-                  <a class="dropdown-item" href="{{ path('profile') }}">
-                    <i class="align-middle me-1" data-feather="user"></i>
-                    Profile
-                  </a>
-                  <a class="dropdown-item" href="{{ path('statistics') }}">
-                    <i class="align-middle me-1" data-feather="pie-chart"></i>
-                    Statistiques
-                  </a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="{{ path('chats') }}">
-                    <i class="align-middle me-1" data-feather="inbox"></i>
-                    Chats
-                  </a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="{{ path('logout') }}">
-                    <i class="align-middle me-1" data-feather="log-out"></i>
-                    Déconnexion
-                  </a>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </nav>
+									<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
+										<img src="{{ asset('img/avatars/avatar.jpg') }}" class="avatar img-fluid rounded me-1" alt="User Avatar"/>
+										<span class="text-dark">
+											{% block username %}Mil local storage
+											{% endblock %}
+										</span>
+									</a>
+									<div class="dropdown-menu dropdown-menu-end">
+										<a class="dropdown-item" href="{{ path('profile') }}">
+											<i class="align-middle me-1" data-feather="user"></i>
+											Profile
+										</a>
+										<a class="dropdown-item" href="{{ path('statistics') }}">
+											<i class="align-middle me-1" data-feather="pie-chart"></i>
+											Statistiques
+										</a>
+										<div class="dropdown-divider"></div>
+										<a class="dropdown-item" href="{{ path('chats') }}">
+											<i class="align-middle me-1" data-feather="inbox"></i>
+											Chats
+										</a>
+										<div class="dropdown-divider"></div>
+										<a class="dropdown-item" href="{{ path('logout') }}">
+											<i class="align-middle me-1" data-feather="log-out"></i>
+											Déconnexion
+										</a>
+									</div>
+								</li>
+							</ul>
+						</div>
+					</nav>
 
-        <main class="content">
-          <div class="container-fluid p-0">
-            {% block body %}{% endblock %}
-          </div>
-        </main>
+					<main class="content">
+						<div class="container-fluid p-0"> {% block body %}{% endblock %}
+							</div>
+						</main>
 
-        <footer class="footer">
-          <div class="container-fluid">
-            <div class="row text-muted">
-              <div class="col-6 text-start">
-                <p class="mb-0">
-                  <a class="text-muted" target="_blank"
-                    ><strong>TirFly</strong> &copy;</a
-                  >
-                </p>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </div>
+						<footer class="footer">
+							<div class="container-fluid">
+								<div class="row text-muted">
+									<div class="col-6 text-start">
+										<p class="mb-0">
+											<a class="text-muted" target="_blank">
+												<strong>TirFly</strong>
+												&copy;</a>
+										</p>
+									</div>
+								</div>
+							</div>
+						</footer>
+					</div>
+				</div>
 
-    <script src="{{ asset('js/app.js') }}"></script>
-    {% block javascripts %}{% endblock %}
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        var ctx = document
-          .getElementById("chartjs-dashboard-line")
-          .getContext("2d");
-        var gradient = ctx.createLinearGradient(0, 0, 0, 225);
-        gradient.addColorStop(0, "rgba(215, 227, 244, 1)");
-        gradient.addColorStop(1, "rgba(215, 227, 244, 0)");
-      });
-    </script>
-  </body>
-</html>
+				<script src="{{ asset('js/app.js') }}"></script>
+				{% block javascripts %}{% endblock %}
+				<script>
+					document.addEventListener("DOMContentLoaded", function () {
+var ctx = document.getElementById("chartjs-dashboard-line").getContext("2d");
+var gradient = ctx.createLinearGradient(0, 0, 0, 225);
+gradient.addColorStop(0, "rgba(215, 227, 244, 1)");
+gradient.addColorStop(1, "rgba(215, 227, 244, 0)");
+});
+				</script>
+			</body>
+		</html>
