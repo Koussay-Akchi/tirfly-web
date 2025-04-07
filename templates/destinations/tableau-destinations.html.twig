@@ -40,7 +40,7 @@
 								</td>
 
 								<td>
-									<div class="table-actions">
+									<div class="table-actions"  style="display: flex">
 										<button class="btn btn-success" onclick="window.location.href='{{ path('details_destination', {'id': destination.id}) }}'">Details</button>
 										<button class="btn btn-primary" onclick="window.location.href='{{ path('edit_destination', {'id': destination.id}) }}'">Modifier</button>
 										<button class="btn btn-danger" onclick="if(confirm('Supprimer ce destination ?')) window.location.href='{{ path('delete_destination', {'id': destination.id}) }}'">Supprimer</button>
