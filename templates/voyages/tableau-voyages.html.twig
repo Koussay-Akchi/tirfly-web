@@ -4,15 +4,70 @@
 {% endblock %}
 
 {% block body %}
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.css" rel="stylesheet"/>
 
-	<link
-	href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.css" rel="stylesheet"/>
+	<div class="btn-group btn-group-lg mb-3 d-flex justify-content-center" role="group" aria-label="Large button group">
+		<button type="button" class="btn btn-primary" id="showTable">Table</button>
+		<button type="button" class="btn btn-info" id="showCalendar">Calendrier</button>
+	</div>
 
-	{# Calendar container above the table #}
 	<div id="calendar" style="max-width: 900px; margin: 40px auto;"></div>
 
-	{# Include FullCalendar JS and Bootstrap JS #}
+	<div id="tableContainer">
+		<div class="table-container">
+			<h1 class="table-title">Liste des Voyages</h1>
+			<div class="table-responsive">
+				<table class="table table-striped table-hover voyage-table">
+					<thead class="table-dark">
+						<tr>
+							<th>ID</th>
+							<th>Nom</th>
+							<th>Destination</th>
+							<th>Date Départ</th>
+							<th>Date Arrivée</th>
+							<th>Prix</th>
+							<th>Image</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for voyage in voyages %}
+							<tr>
+								<td>{{ voyage.id }}</td>
+								<td>{{ voyage.nom }}</td>
+								<td>{{ voyage.destination.ville }},
+									{{ voyage.destination.pays }}</td>
+								<td>{{ voyage.dateDepart|date('d/m/Y') }}</td>
+								<td>{{ voyage.dateArrive|date('d/m/Y') }}</td>
+								<td>{{ voyage.prix }}
+									DT</td>
+								<td>
+									{% if false %}
+										<img src="{{ asset('uploads/voyages/' ~ voyage.imageName) }}" alt="Image du voyage" class="table-image">
+									{% else %}
+										<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut" class="table-image" height="50" width="50"/>
+									{% endif %}
+								</td>
+								<td>
+									<div class="table-actions" style="display: flex; gap: 5px">
+										<button class="btn btn-success" onclick="window.location.href='{{ path('details_voyage', {'id': voyage.id}) }}'">Details</button>
+										<button class="btn btn-primary" onclick="window.location.href='{{ path('edit_voyage', {'id': voyage.id}) }}'">Modifier</button>
+										<button class="btn btn-danger" onclick="if(confirm('Supprimer ce voyage ?')) window.location.href='{{ path('delete_voyage', {'id': voyage.id}) }}'">Supprimer</button>
+									</div>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="8" class="text-center">Aucun voyage trouvé.</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+
 	<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -48,55 +103,15 @@ calendar.render();
 });
 	</script>
 
-	<div class="table-container">
-		<h1 class="table-title">Liste des Voyages</h1>
-		<div class="table-responsive">
-			<table class="table table-striped table-hover voyage-table">
-				<thead class="table-dark">
-					<tr>
-						<th>ID</th>
-						<th>Nom</th>
-						<th>Destination</th>
-						<th>Date Départ</th>
-						<th>Date Arrivée</th>
-						<th>Prix</th>
-						<th>Image</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for voyage in voyages %}
-						<tr>
-							<td>{{ voyage.id }}</td>
-							<td>{{ voyage.nom }}</td>
-							<td>{{ voyage.destination.ville }},
-								{{ voyage.destination.pays }}</td>
-							<td>{{ voyage.dateDepart|date('d/m/Y') }}</td>
-							<td>{{ voyage.dateArrive|date('d/m/Y') }}</td>
-							<td>{{ voyage.prix }}
-								DT</td>
-							<td>
-								{% if false %}
-									<img src="{{ asset('uploads/voyages/' ~ voyage.imageName) }}" alt="Image du voyage" class="table-image">
-								{% else %}
-									<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut" class="table-image" height="50" width="50"/>
-								{% endif %}
-							</td>
-							<td>
-								<div class="table-actions" style="display: flex; gap: 5px">
-									<button class="btn btn-success" onclick="window.location.href='{{ path('details_voyage', {'id': voyage.id}) }}'">Details</button>
-									<button class="btn btn-primary" onclick="window.location.href='{{ path('edit_voyage', {'id': voyage.id}) }}'">Modifier</button>
-									<button class="btn btn-danger" onclick="if(confirm('Supprimer ce voyage ?')) window.location.href='{{ path('delete_voyage', {'id': voyage.id}) }}'">Supprimer</button>
-								</div>
-							</td>
-						</tr>
-					{% else %}
-						<tr>
-							<td colspan="8" class="text-center">Aucun voyage trouvé.</td>
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-		</div>
-	</div>
+	<script>
+		document.getElementById('showTable').addEventListener('click', function () {
+document.getElementById('tableContainer').style.display = 'block';
+document.getElementById('calendar').style.display = 'none';
+});
+
+document.getElementById('showCalendar').addEventListener('click', function () {
+document.getElementById('tableContainer').style.display = 'none';
+document.getElementById('calendar').style.display = 'block';
+});
+	</script>
 {% endblock %}
