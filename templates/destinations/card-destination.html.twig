@@ -1,0 +1,19 @@
+<div class="popular-card" style="background: #f9f9f9; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px;">
+	<figure class="card-img">
+		<img src="{{ asset('images/default-destination.jpg') }}" alt="Image destination" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;" />
+	</figure>
+	<div class="card-content">
+		<div class="card-rating">
+			{{ destination.getVoyages()|length }} Voyages →
+		</div>
+		<p class="card-subtitle">
+			<a href="#" style="text-decoration: none; color: gray;">{{ destination.pays }}</a>
+		</p>
+		<h3 class="h3 card-title" style="margin: 8px 0;">
+			{{ destination.ville }}
+		</h3>
+		<p class="card-text">
+			Climat : {{ climat_names[destination.climat] ?? 'Inconnu' }}
+		</p>
+	</div>
+</div>
