@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Coupon{% endblock %}
+
+{% block body %}
+    <h1>Modifier le coupon</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.code) }}
+        {{ form_row(form.remise) }}
+        <button class="btn btn-success">Modifier</button>
+    {{ form_end(form) }}
+{% endblock %}

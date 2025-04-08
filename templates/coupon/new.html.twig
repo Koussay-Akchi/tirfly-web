@@ -1,0 +1,14 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Nouveau Coupon{% endblock %}
+
+{% block body %}
+
+    <h1>Créer un nouveau coupon</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.code) }}
+        {{ form_row(form.remise) }}
+        <button class="btn btn-success">Créer</button>
+    {{ form_end(form) }}
+{% endblock %}
