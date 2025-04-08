@@ -4,18 +4,55 @@
 {% endblock %}
 
 {% block body %}
-
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
 	<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+	href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.css" rel="stylesheet"/>
 
-	<!-- Bootstrap JS (Add just before closing </body> tag) -->
+	{# Calendar container above the table #}
+	<div id="calendar" style="max-width: 900px; margin: 40px auto;"></div>
+
+	{# Include FullCalendar JS and Bootstrap JS #}
+	<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+var calendarEl = document.getElementById('calendar');
+
+var events = [{% for voyage in voyages %}{
+title: "{{ voyage.nom|e('js') }}",
+start: "{{ voyage.dateDepart|date('Y-m-d') }}",
+end: "{{ voyage.dateArrive|date('Y-m-d') }}"
+}
+{% if not loop.last %},{% endif %}{% endfor %}];
+
+var calendar = new FullCalendar.Calendar(calendarEl, {
+initialView: 'dayGridMonth',
+locale: 'fr',
+headerToolbar: {
+left: 'prev,next today',
+center: 'title',
+right: 'dayGridMonth,dayGridWeek'
+},
+buttonText: {
+today: 'Aujourd\'hui',
+month: 'Mois',
+week: 'Semaine',
+day: 'Jour'
+},
+events: events
+});
+
+calendar.render();
+});
+	</script>
+
 	<div class="table-container">
 		<h1 class="table-title">Liste des Voyages</h1>
 		<div class="table-responsive">
-				<table class="table table-striped table-hover voyage-table">
-					<thead class="table-dark">
+			<table class="table table-striped table-hover voyage-table">
+				<thead class="table-dark">
 					<tr>
 						<th>ID</th>
 						<th>Nom</th>
@@ -60,6 +97,6 @@
 					{% endfor %}
 				</tbody>
 			</table>
-
-
-		{% endblock %}
+		</div>
+	</div>
+{% endblock %}
