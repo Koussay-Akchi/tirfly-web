@@ -119,7 +119,7 @@ class VoyageController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Voyage ajouté avec succès.');
-            return $this->redirectToRoute('liste_voyages');
+            return $this->redirectToRoute('admin_liste_voyages');
         }
 
         return $this->render('voyages/ajout-voyage.html.twig', [

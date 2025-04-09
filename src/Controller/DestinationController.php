@@ -116,7 +116,7 @@ class DestinationController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Destination ajoutée avec succès!');
-            return $this->redirectToRoute('liste_destinations');
+            return $this->redirectToRoute('admin_liste_destinations');
         }
 
         return $this->render('destinations/ajout-destination.html.twig', [
@@ -159,7 +159,7 @@ class DestinationController extends AbstractController
             $this->addFlash('success', 'Destination modifiée avec succès.');
             return $this->redirectToRoute('admin_liste_destinations');
         }
-
+        
         return $this->render('destinations/edit-destination.html.twig', [
             'form' => $form->createView(),
             'destination' => $destination
