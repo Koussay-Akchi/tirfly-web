@@ -1,0 +1,108 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Liste des Réservations
+{% endblock %}
+
+{% block body %}
+	<main class="main">
+		<div
+			class="container">
+
+			<div class="btn-group btn-group-lg mb-4 d-flex justify-content-center" role="group" aria-label="Large button group">
+				<button type="button" class="btn btn-primary" id="showVoyage">Voyage</button>
+				<button type="button" class="btn btn-info" id="showSejour">Séjour</button>
+				<button type="button" class="btn btn-success" id="showPack">Pack</button>
+			</div>
+
+			<div class="table-container" id="tableView">
+				<h1 class="table-title">Liste des réservations</h1>
+				<div class="table-responsive">
+					<table class="table table-striped table-hover" id="reservationTable">
+						<thead class="table-dark">
+							<tr>
+								<th>ID</th>
+								<th>Date</th>
+								<th>Client</th>
+								<th class="voyage-col">Voyage</th>
+								<th class="sejour-col d-none">Séjour</th>
+								<th class="pack-col d-none">Pack</th>
+								<th>Personnes</th>
+								<th>Prix total</th>
+								<th>Statut</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for reservation in reservations %}
+								<tr>
+									<td>{{ reservation.id }}</td>
+									<td>{{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : 'N/A' }}</td>
+									<td>{{ reservation.client ? reservation.client.nom ~ ' ' ~ reservation.client.prenom : '—' }}</td>
+
+									<td class="voyage-col">{{ reservation.voyage ? reservation.voyage.nom : '—' }}</td>
+									<td class="sejour-col d-none">{{ reservation.sejour ? reservation.sejour.hebergement.nom : '—' }}</td>
+									<td class="pack-col d-none">{{ reservation.pack ? reservation.pack.nom : '—' }}</td>
+
+									<td>{{ reservation.nombrePersonnes }}</td>
+									<td>{{ reservation.prixTotal|number_format(2, '.', ',') }}
+										€</td>
+									<td>
+										{% set badgeClass = {
+                                        'confirmée': 'success',
+                                        'en attente': 'warning',
+                                        'annulée': 'danger'
+                                    }[reservation.statut|lower] ?? 'secondary' %}
+										<span class="badge bg-{{ badgeClass }}">{{ reservation.statut|capitalize }}</span>
+									</td>
+									<td>
+										<div class="table-actions" style="display: flex; gap: 5px;">
+											aaa
+										</div>
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="10" class="text-center">Aucune réservation trouvée.</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+
+				<div class="pagination mt-3">
+					{{ knp_pagination_render(reservations) }}
+				</div>
+			</div>
+
+			<!-- Placeholder for Calendar view (can be expanded later) -->
+			<div id="calendarView" style="display: none;">
+				<h1>Calendrier des Réservations</h1>
+				<!-- Add your calendar code here (e.g., FullCalendar integration) -->
+			</div>
+
+		</div>
+	</main>
+
+	 <script>
+		    document.addEventListener('DOMContentLoaded', function () {
+		        const voyageBtn = document.getElementById('showVoyage');
+		        const sejourBtn = document.getElementById('showSejour');
+		        const packBtn = document.getElementById('showPack');
+		
+		        const voyageCols = document.querySelectorAll('.voyage-col');
+		        const sejourCols = document.querySelectorAll('.sejour-col');
+		        const packCols = document.querySelectorAll('.pack-col');
+		
+		        function toggleColumns(showClass) {
+		            [voyageCols, sejourCols, packCols].forEach(cols => {
+		                cols.forEach(col => col.classList.add('d-none'));
+		            });
+		            showClass.forEach(col => col.classList.remove('d-none'));
+		        }
+		
+		        voyageBtn.addEventListener('click', () => toggleColumns(voyageCols));
+		        sejourBtn.addEventListener('click', () => toggleColumns(sejourCols));
+		        packBtn.addEventListener('click', () => toggleColumns(packCols));
+		    });
+		</script>
+{% endblock %}
