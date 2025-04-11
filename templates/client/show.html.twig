@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Client Details{% endblock %}
+
+{% block body %}
+<section class="section about-section gray-bg">
+    <div class="container">
+        <div class="row align-items-center flex-row-reverse">
+            <div class="col-lg-6">
+                <div class="about-text go-to">
+                    <h3 class="dark-color">{{ client.nom }} {{ client.prenom }}</h3>
+                    <h6 class="theme-color lead">Client Profile Details</h6>
+                    
+                    <div class="row about-list">
+                        <div class="col-md-6">
+                            <div class="media">
+                                <label>ID</label>
+                                <p>{{ client.id }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Phone</label>
+                                <p>{{ client.phoneNumber }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Address</label>
+                                <p>{{ client.adresse }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Age</label>
+                                <p>{{ client.age }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="media">
+                                <label>Email</label>
+                                <p>{{ client.email }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Gender</label>
+                                <p>{{ client.sexe }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Member Since</label>
+                                <p>{{ client.dateCreation|date('Y-m-d') }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Account Level</label>
+                                <p>
+                                    {% if client.niveau %}
+                                        {{ client.niveau.niveau }}
+                                    {% else %}
+                                        Basic
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ path('client_index') }}" class="btn theme-secondary">Back to list</a>
+<a href="{{ path('client_edit', {'id': client.id}) }}" class="btn theme-button">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+     <div class="col-lg-6">
+    <div class="position-relative" style="max-width: 300px; margin: 0 auto;">
+        <!-- XP Progress Circle -->
+        <div class="progress-circle position-relative">
+            <svg class="progress-svg" width="300" height="300">
+                <circle class="progress-bg" cx="150" cy="150" r="130"/>
+                <circle class="progress-bar" cx="150" cy="150" r="130" 
+                        stroke-dasharray="{{ (client.niveau.NiveauXP / client.niveau.MaxNiveauXP * 816) | default(0) }} 816"
+                        data-percentage="{{ (client.niveau.NiveauXP / client.niveau.MaxNiveauXP * 100) | default(0)|round }}"/>
+            </svg>
+            
+            <!-- Avatar Image -->
+            <div class="about-avatar position-absolute top-50 start-50 translate-middle">
+                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" 
+                     alt="Client Avatar" 
+                     class="rounded-circle"
+                     style="width: 200px; height: 200px; object-fit: cover;">
+            </div>
+        </div>
+        
+        <!-- Level Display -->
+        <div class="text-center mt-3">
+            <h4 class="theme-color mb-1">
+                Level {{ client.niveau.niveau|default('N/A') }}
+            </h4>
+            <p class="mb-0">
+                <span class="xp-current">{{ client.niveau.NiveauXP|default(0) }}</span> / 
+                <span class="xp-max">{{ client.niveau.MaxNiveauXP|default(1000) }}</span> XP
+            </p>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Include the provided CSS styles here */
+    {{ include('client/styles.css.twig') }}
+</style>
+{% endblock %}

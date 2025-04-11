@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Data{% endblock %}
+
+{% block body %}
+    <h1>Data</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ data.id }}</td>
+            </tr>
+            <tr>
+                <th>Amount</th>
+                <td>{{ data.amount }}</td>
+            </tr>
+            <tr>
+                <th>Buyer_id</th>
+                <td>{{ data.buyerId }}</td>
+            </tr>
+            <tr>
+                <th>Cost</th>
+                <td>{{ data.cost }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ data.email }}</td>
+            </tr>
+            <tr>
+                <th>Firstname</th>
+                <td>{{ data.firstname }}</td>
+            </tr>
+            <tr>
+                <th>Lastname</th>
+                <td>{{ data.lastname }}</td>
+            </tr>
+            <tr>
+                <th>Note</th>
+                <td>{{ data.note }}</td>
+            </tr>
+            <tr>
+                <th>Payment_status</th>
+                <td>{{ data.paymentStatus }}</td>
+            </tr>
+            <tr>
+                <th>Phone</th>
+                <td>{{ data.phone }}</td>
+            </tr>
+            <tr>
+                <th>Received_amount</th>
+                <td>{{ data.receivedAmount }}</td>
+            </tr>
+            <tr>
+                <th>Token</th>
+                <td>{{ data.token }}</td>
+            </tr>
+            <tr>
+                <th>Transaction_id</th>
+                <td>{{ data.transactionId }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_data_index') }}">back to list</a>
+
+    <a href="{{ path('app_data_edit', {'id': data.id}) }}">edit</a>
+
+    {{ include('data/_delete_form.html.twig') }}
+{% endblock %}

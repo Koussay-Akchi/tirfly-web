@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Data index{% endblock %}
+
+{% block body %}
+    <h1>Data index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Amount</th>
+                <th>Buyer_id</th>
+                <th>Cost</th>
+                <th>Email</th>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Note</th>
+                <th>Payment_status</th>
+                <th>Phone</th>
+                <th>Received_amount</th>
+                <th>Token</th>
+                <th>Transaction_id</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for data in data %}
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>{{ data.amount }}</td>
+                <td>{{ data.buyerId }}</td>
+                <td>{{ data.cost }}</td>
+                <td>{{ data.email }}</td>
+                <td>{{ data.firstname }}</td>
+                <td>{{ data.lastname }}</td>
+                <td>{{ data.note }}</td>
+                <td>{{ data.paymentStatus }}</td>
+                <td>{{ data.phone }}</td>
+                <td>{{ data.receivedAmount }}</td>
+                <td>{{ data.token }}</td>
+                <td>{{ data.transactionId }}</td>
+                <td>
+                    <a href="{{ path('app_data_show', {'id': data.id}) }}">show</a>
+                    <a href="{{ path('app_data_edit', {'id': data.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="14">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_data_new') }}">Create new</a>
+{% endblock %}

@@ -70,8 +70,8 @@ class Niveau
         return $this;
     }
 
-    #[ORM\OneToOne(targetEntity: Client::class, inversedBy: 'niveau')]
-    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id', unique: true)]
+    #[ORM\OneToOne(inversedBy: 'niveau', targetEntity: Client::class)]
+    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Client $client = null;
 
     public function getClient(): ?Client

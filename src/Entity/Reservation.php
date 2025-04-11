@@ -129,35 +129,6 @@ class Reservation
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: Hebergement::class, inversedBy: 'reservations')]
-    #[ORM\JoinColumn(name: 'hebergement_id', referencedColumnName: 'id')]
-    private ?Hebergement $hebergement = null;
-
-    public function getHebergement(): ?Hebergement
-    {
-        return $this->hebergement;
-    }
-
-    public function setHebergement(?Hebergement $hebergement): self
-    {
-        $this->hebergement = $hebergement;
-        return $this;
-    }
-
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $jours = null;
-
-    public function getJours(): ?int
-    {
-        return $this->jours;
-    }
-
-    public function setJours(?int $jours): self
-    {
-        $this->jours = $jours;
-        return $this;
-    }
-
     #[ORM\ManyToOne(targetEntity: Sejour::class, inversedBy: 'reservations')]
     #[ORM\JoinColumn(name: 'sejour_id', referencedColumnName: 'id')]
     private ?Sejour $sejour = null;
@@ -189,7 +160,7 @@ class Reservation
     }
 
     #[ORM\OneToOne(targetEntity: Payment::class, inversedBy: 'reservation')]
-    #[ORM\JoinColumn(name: 'payments_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'payments_id', referencedColumnName: 'id', unique: true)]
     private ?Payment $payment = null;
 
     public function getPayment(): ?Payment

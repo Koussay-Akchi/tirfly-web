@@ -101,7 +101,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true,name:'videoPath')]
     private ?string $videoPath = null;
 
     public function getVideoPath(): ?string
@@ -115,7 +115,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
+    #[ORM\Column(type: 'string', nullable: false,name:'isRed')]
     private ?string $isRed = null;
 
     public function getIsRed(): ?string
