@@ -29,7 +29,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true,name: 'dateReservation')]
+    #[ORM\Column(type: 'datetime', nullable: true, name:'dateReservation')]
     private ?\DateTimeInterface $dateReservation = null;
 
     public function getDateReservation(): ?\DateTimeInterface
@@ -43,7 +43,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false,name: 'nombrePersonnes')]
+    #[ORM\Column(type: 'integer', nullable: false, name:'nombrePersonnes')]
     private ?int $nombrePersonnes = null;
 
     public function getNombrePersonnes(): ?int
@@ -57,7 +57,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: false,name: 'prixTotal')]
+    #[ORM\Column(type: 'decimal', nullable: false, name:'prixTotal')]
     private ?float $prixTotal = null;
 
     public function getPrixTotal(): ?float
@@ -115,7 +115,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true,name:'paymentToken')]
+    #[ORM\Column(type: 'string', nullable: true, name:'paymentToken')]
     private ?string $paymentToken = null;
 
     public function getPaymentToken(): ?string

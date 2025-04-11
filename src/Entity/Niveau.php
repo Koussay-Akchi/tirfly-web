@@ -28,7 +28,7 @@ class Niveau
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true,name:"MaxNiveauXP")]
+    #[ORM\Column(type: 'integer', nullable: true, name: 'MaxNiveauXP')]
     private ?int $MaxNiveauXP = null;
 
     public function getMaxNiveauXP(): ?int
@@ -56,7 +56,7 @@ class Niveau
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true,name:"NiveauXP")]
+    #[ORM\Column(type: 'integer', nullable: true, name: 'niveauXP')]
     private ?int $niveauXP = null;
 
     public function getNiveauXP(): ?int

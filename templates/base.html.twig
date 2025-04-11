@@ -36,9 +36,18 @@
 
     {% include 'main/navbar.html.twig' %}
 
-    <main class="container-fluid p-0">
-        {% block body %}{% endblock %}
-    </main>
+		{% if app.request.uri != app.request.schemeAndHttpHost ~ '/' %}
+			<div style="margin-bottom: 180px;"></div>
+		{% endif %}
+
+		<main>
+			{% block body %}{% endblock %}
+		</main>
+
+		{% if app.request.uri != app.request.schemeAndHttpHost ~ '/' %}
+			<div style="margin-bottom: 50px;"></div>
+		{% endif %}
+
 
     {% include 'main/footer.html.twig' %}
 

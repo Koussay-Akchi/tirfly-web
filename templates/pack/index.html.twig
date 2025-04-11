@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Packs Populaires{% endblock %}
+
+{% block body %}
+<section class="popular" id="packs">
+    <div class="container">
+
+        <p class="section-subtitle">Découvrez nos meilleures offres</p>
+
+        <h2 class="h2 section-title">Packs Populaires</h2>
+
+        <p class="section-text">
+            Choisissez parmi une sélection de packs de voyage complets incluant transport, hébergement et activités. Parfait pour vos prochaines aventures !
+        </p>
+
+        <ul class="popular-list">
+            {% for pack in packs %}
+                <li>
+                    <div class="popular-card">
+                        <figure class="card-img">
+                            {% if pack.image %}
+                                <img src="{{ asset('uploads/packs/' ~ pack.image) }}" alt="Image du pack" class="voyage-image">
+                            {% else %}
+                                <img src="{{ asset('images/default-pack.jpg') }}" alt="Image par défaut" class="voyage-image">
+                            {% endif %}
+                        </figure>
+
+                        <div class="card-content">
+                            <div class="card-rating">
+                                Prix : <strong>{{ pack.prix }} €</strong>
+                            </div>
+
+                            <p class="card-subtitle">
+                                {% if pack.voyages|length > 0 %}
+                                    {{ pack.voyages[0].nom }}
+                                {% else %}
+                                    Aucun voyage associé
+                                {% endif %}
+                            </p>
+
+                            <h3 class="h3 card-title">
+                                <a href="#">{{ pack.nom }}</a>
+                            </h3>
+
+                            <!-- Emplacement QR Code -->
+                            <div class="qr-container" data-url="trifly.com/{{ path('app_pack_show', {id: pack.id}) }}"></div>
+
+                            <div class="mt-3">
+                                <a href="{{ path('app_pack_edit', {id: pack.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                                <a href="{{ path('app_pack_delete', {id: pack.id}) }}" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce pack ?')">Supprimer</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {% else %}
+                <p>Aucun pack trouvé.</p>
+            {% endfor %}
+        </ul>
+
+        <div class="text-center mt-4">
+            <a href="{{ path('app_pack_new') }}" class="btn btn-primary">+ Créer un nouveau Pack</a>
+        </div>
+    </div>
+</section>
+
+{# Script JS pour afficher les QR codes #}
+<script type="module">
+    import QrCodeService from '/js/QrCodeService.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const qrService = new QrCodeService();
+
+        document.querySelectorAll('.qr-container').forEach(container => {
+        const data = container.dataset.url;  // <-- ici
+            qrService.renderQrCode(data, container);
+        });
+    });
+</script>
+{% endblock %}

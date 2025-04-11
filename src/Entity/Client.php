@@ -55,7 +55,7 @@ class Client extends User
     }
 
 
-    #[ORM\Column(type: 'string', nullable: true,name:"PhoneNumber")]
+    #[ORM\Column(type: 'string', nullable: true, name: 'phoneNumber')]
     private ?string $phoneNumber = null;
 
     public function getPhoneNumber(): ?string

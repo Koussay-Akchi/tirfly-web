@@ -1,4 +1,5 @@
 parameters:
+            packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
 
 services:
     _defaults:
