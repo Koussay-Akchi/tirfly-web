@@ -29,7 +29,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true,name: 'dateReservation')]
     private ?\DateTimeInterface $dateReservation = null;
 
     public function getDateReservation(): ?\DateTimeInterface
@@ -43,7 +43,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(type: 'integer', nullable: false,name: 'nombrePersonnes')]
     private ?int $nombrePersonnes = null;
 
     public function getNombrePersonnes(): ?int
@@ -57,7 +57,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: false)]
+    #[ORM\Column(type: 'decimal', nullable: false,name: 'prixTotal')]
     private ?float $prixTotal = null;
 
     public function getPrixTotal(): ?float
@@ -115,7 +115,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true,name:'paymentToken')]
     private ?string $paymentToken = null;
 
     public function getPaymentToken(): ?string
@@ -126,35 +126,6 @@ class Reservation
     public function setPaymentToken(?string $paymentToken): self
     {
         $this->paymentToken = $paymentToken;
-        return $this;
-    }
-
-    #[ORM\ManyToOne(targetEntity: Hebergement::class, inversedBy: 'reservations')]
-    #[ORM\JoinColumn(name: 'hebergement_id', referencedColumnName: 'id')]
-    private ?Hebergement $hebergement = null;
-
-    public function getHebergement(): ?Hebergement
-    {
-        return $this->hebergement;
-    }
-
-    public function setHebergement(?Hebergement $hebergement): self
-    {
-        $this->hebergement = $hebergement;
-        return $this;
-    }
-
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $jours = null;
-
-    public function getJours(): ?int
-    {
-        return $this->jours;
-    }
-
-    public function setJours(?int $jours): self
-    {
-        $this->jours = $jours;
         return $this;
     }
 
@@ -173,22 +144,10 @@ class Reservation
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: Pack::class, inversedBy: 'reservations')]
-    #[ORM\JoinColumn(name: 'pack_id', referencedColumnName: 'id')]
-    private ?Pack $pack = null;
 
-    public function getPack(): ?Pack
-    {
-        return $this->pack;
-    }
-
-    public function setPack(?Pack $pack): self
-    {
-        $this->pack = $pack;
-        return $this;
-    }
 
     #[ORM\OneToOne(targetEntity: Payment::class, inversedBy: 'reservation')]
+    #[ORM\JoinColumn(name: 'payments_id', referencedColumnName: 'id', unique: true)]
     private ?Payment $payment = null;
 
     public function getPayment(): ?Payment

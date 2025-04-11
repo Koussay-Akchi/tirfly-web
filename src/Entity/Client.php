@@ -55,7 +55,7 @@ class Client extends User
     }
 
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true,name:"PhoneNumber")]
     private ?string $phoneNumber = null;
 
     public function getPhoneNumber(): ?string
@@ -97,7 +97,7 @@ class Client extends User
         return $this;
     }
 
-    #[ORM\OneToOne(targetEntity: Niveau::class, mappedBy: 'client')]
+#[ORM\OneToOne(targetEntity: Niveau::class, mappedBy: 'client', cascade: ['remove'])]
     private ?Niveau $niveau = null;
 
     public function getNiveau(): ?Niveau

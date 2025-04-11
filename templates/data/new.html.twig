@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Data{% endblock %}
+
+{% block body %}
+    <h1>Create new Data</h1>
+
+    {{ include('data/_form.html.twig') }}
+
+    <a href="{{ path('app_data_index') }}">back to list</a>
+{% endblock %}
