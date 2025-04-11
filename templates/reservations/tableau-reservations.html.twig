@@ -5,15 +5,23 @@
 
 {% block body %}
 	<main class="main">
-		<div
-			class="container">
-
+		<div class="container">
 			<div class="btn-group btn-group-lg mb-4 d-flex justify-content-center" role="group" aria-label="Large button group">
-				<button type="button" class="btn btn-primary" id="showVoyage">Voyage</button>
-				<button type="button" class="btn btn-info" id="showSejour">Séjour</button>
-				<button type="button" class="btn btn-success" id="showPack">Pack</button>
+				<button type="button" class="btn btn-primary" id="showVoyage">
+					<div class="icon-placeholder" id="iconVoyage">
+						<i class="align-middle" data-feather="arrow-down-circle"></i>
+					</div>
+					Voyage
+				</button>
+				<button type="button" class="btn btn-info" id="showSejour">
+					<div class="icon-placeholder" id="iconSejour"></div>
+					Hébergement
+				</button>
+				<button type="button" class="btn btn-success" id="showPack">
+					<div class="icon-placeholder" id="iconPack"></div>
+					Pack
+				</button>
 			</div>
-
 			<div class="table-container" id="tableView">
 				<h1 class="table-title">Liste des réservations</h1>
 				<div class="table-responsive">
@@ -32,17 +40,15 @@
 								<th>Actions</th>
 							</tr>
 						</thead>
-						<tbody>
+						<tbody id="reservationBody">
 							{% for reservation in reservations %}
-								<tr>
+								<tr class="reservation-row">
 									<td>{{ reservation.id }}</td>
 									<td>{{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : 'N/A' }}</td>
 									<td>{{ reservation.client ? reservation.client.nom ~ ' ' ~ reservation.client.prenom : '—' }}</td>
-
 									<td class="voyage-col">{{ reservation.voyage ? reservation.voyage.nom : '—' }}</td>
 									<td class="sejour-col d-none">{{ reservation.sejour ? reservation.sejour.hebergement.nom : '—' }}</td>
 									<td class="pack-col d-none">{{ reservation.pack ? reservation.pack.nom : '—' }}</td>
-
 									<td>{{ reservation.nombrePersonnes }}</td>
 									<td>{{ reservation.prixTotal|number_format(2, '.', ',') }}
 										€</td>
@@ -68,41 +74,62 @@
 						</tbody>
 					</table>
 				</div>
-
 				<div class="pagination mt-3">
 					{{ knp_pagination_render(reservations) }}
 				</div>
 			</div>
-
-			<!-- Placeholder for Calendar view (can be expanded later) -->
 			<div id="calendarView" style="display: none;">
 				<h1>Calendrier des Réservations</h1>
-				<!-- Add your calendar code here (e.g., FullCalendar integration) -->
 			</div>
-
 		</div>
 	</main>
-
 	 <script>
-		    document.addEventListener('DOMContentLoaded', function () {
-		        const voyageBtn = document.getElementById('showVoyage');
-		        const sejourBtn = document.getElementById('showSejour');
-		        const packBtn = document.getElementById('showPack');
-		
-		        const voyageCols = document.querySelectorAll('.voyage-col');
-		        const sejourCols = document.querySelectorAll('.sejour-col');
-		        const packCols = document.querySelectorAll('.pack-col');
-		
-		        function toggleColumns(showClass) {
-		            [voyageCols, sejourCols, packCols].forEach(cols => {
-		                cols.forEach(col => col.classList.add('d-none'));
-		            });
-		            showClass.forEach(col => col.classList.remove('d-none'));
-		        }
-		
-		        voyageBtn.addEventListener('click', () => toggleColumns(voyageCols));
-		        sejourBtn.addEventListener('click', () => toggleColumns(sejourCols));
-		        packBtn.addEventListener('click', () => toggleColumns(packCols));
-		    });
-		</script>
+	document.addEventListener('DOMContentLoaded', function () {
+	    const voyageBtn = document.getElementById('showVoyage');
+	    const sejourBtn = document.getElementById('showSejour');
+	    const packBtn = document.getElementById('showPack');
+	    const iconVoyage = document.getElementById('iconVoyage');
+	    const iconSejour = document.getElementById('iconSejour');
+	    const iconPack = document.getElementById('iconPack');
+	    const voyageCols = document.querySelectorAll('.voyage-col');
+	    const sejourCols = document.querySelectorAll('.sejour-col');
+	    const packCols = document.querySelectorAll('.pack-col');
+	    const reservationRows = document.querySelectorAll('.reservation-row');
+	    function updateSelection(selected) {
+	        iconVoyage.innerHTML = '';
+	        iconSejour.innerHTML = '';
+	        iconPack.innerHTML = '';
+	        if(selected === 'voyage') iconVoyage.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+	        if(selected === 'sejour') iconSejour.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+	        if(selected === 'pack') iconPack.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+	        feather.replace();
+	    }
+	    function toggleColumns(showCols, filterFn) {
+	        [voyageCols, sejourCols, packCols].forEach(cols => {
+	            cols.forEach(col => col.classList.add('d-none'));
+	        });
+	        showCols.forEach(col => col.classList.remove('d-none'));
+	        reservationRows.forEach(row => {
+	            const voyageCell = row.querySelector('.voyage-col').textContent.trim();
+	            const sejourCell = row.querySelector('.sejour-col').textContent.trim();
+	            const packCell = row.querySelector('.pack-col').textContent.trim();
+	            row.style.display = filterFn(voyageCell, sejourCell, packCell) ? '' : 'none';
+	        });
+	    }
+	    voyageBtn.addEventListener('click', () => {
+	        updateSelection('voyage');
+	        toggleColumns(voyageCols, (v, s, p) => v !== '—');
+	    });
+	    sejourBtn.addEventListener('click', () => {
+	        updateSelection('sejour');
+	        toggleColumns(sejourCols, (v, s, p) => s !== '—');
+	    });
+	    packBtn.addEventListener('click', () => {
+	        updateSelection('pack');
+	        toggleColumns(packCols, (v, s, p) => p !== '—');
+	    });
+	    updateSelection('voyage');
+	    toggleColumns(voyageCols, (v, s, p) => v !== '—');
+	});
+	</script>
 {% endblock %}
