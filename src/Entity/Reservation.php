@@ -144,10 +144,23 @@ class Reservation
         return $this;
     }
 
+    #[ORM\ManyToOne(targetEntity: Pack::class, inversedBy: 'reservations')]
+    #[ORM\JoinColumn(name: 'pack_id', referencedColumnName: 'id')]
+    private ?Pack $pack = null;
 
+    public function getPack(): ?Pack
+    {
+        return $this->pack;
+    }
+
+    public function setPack(?Pack $pack): self
+    {
+        $this->pack = $pack;
+        return $this;
+    }
 
     #[ORM\OneToOne(targetEntity: Payment::class, inversedBy: 'reservation')]
-    #[ORM\JoinColumn(name: 'payments_id', referencedColumnName: 'id', unique: true)]
+    #[ORM\JoinColumn(name: 'payments_id', referencedColumnName: 'id')]
     private ?Payment $payment = null;
 
     public function getPayment(): ?Payment
