@@ -19,14 +19,6 @@ use App\Repository\UserRepository;
     'SUPPORT' => User::class,
     'VOYAGEUR' => User::class
 ])]
-#[ORM\InheritanceType('JOINED')]
-#[ORM\DiscriminatorColumn(name: 'role', type: 'string')]
-#[ORM\DiscriminatorMap([
-    'ADMIN' => User::class,
-    'CLIENT' => Client::class,
-    'SUPPORT' => User::class,
-    'VOYAGEUR' => User::class
-])]
 class User
 {
     #[ORM\Id]

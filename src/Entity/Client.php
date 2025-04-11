@@ -11,7 +11,6 @@ use App\Repository\ClientRepository;
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 #[ORM\Table(name: 'clients')]
 class Client extends User
-class Client extends User
 {
     #[ORM\Column(type: 'string', nullable: true,name:"adresse" )]
     private ?string $adresse = null;
