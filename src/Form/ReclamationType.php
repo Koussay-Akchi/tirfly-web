@@ -7,7 +7,7 @@ use App\Entity\Reclamation;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;  // Correct import for HiddenType
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -46,11 +46,9 @@ class ReclamationType extends AbstractType
                 'expanded' => false,
                 'multiple' => false,
             ])
-   
-            
             ->add('videoPath', FileType::class, [
                 'label' => 'Vidéo (facultatif) :',
-                'mapped' => false,
+                'mapped' => false,  // This field is not mapped to the entity
                 'required' => false,
                 'constraints' => [
                     new File([
@@ -60,20 +58,16 @@ class ReclamationType extends AbstractType
                     ])
                 ],
             ])
-            ->add('isRed', ChoiceType::class, [
-                'label' => 'Réclamation lue ?',
-                'choices' => [
-                    'Oui' => '1',
-                    'Non' => '0',
-                ],
-                'expanded' => true,
-                'multiple' => false,
+            // Use HiddenType for isRed to hide it
+            ->add('isRed', HiddenType::class, [
+                'data' => '0',  // Set default value to '0'
+                'mapped' => false,  // Not mapped to the entity
             ])
             ->add('client', EntityType::class, [
                 'class' => Client::class,
-                'choice_label' =>  function (Client $client) {
-                    return $client->getNom(); // Directly fetching from the parent class
-                },  // Affiche le nom du client au lieu de l'ID
+                'choice_label' => function (Client $client) {
+                    return $client->getNom();  // Display the client name instead of ID
+                },
                 'label' => 'Client :',
                 'placeholder' => 'Sélectionnez un client',
             ]);

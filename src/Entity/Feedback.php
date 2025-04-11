@@ -1,13 +1,11 @@
 <?php
 
+
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-
 use App\Repository\FeedbackRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FeedbackRepository::class)]
 #[ORM\Table(name: 'feedbacks')]
@@ -18,20 +16,38 @@ class Feedback
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\NotBlank(message: "Le contenu ne doit pas être vide.")]
+    #[Assert\Length(
+        min: 5,
+        max: 1000,
+        minMessage: "Le contenu doit contenir au moins {{ limit }} caractères.",
+        maxMessage: "Le contenu ne doit pas dépasser {{ limit }} caractères."
+    )]
+    private ?string $contenu = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true, name: 'dateFeedback')]
+    private ?\DateTimeInterface $dateFeedback = null;
+
+    #[ORM\Column(type: 'decimal', precision: 2)]
+    #[Assert\NotNull(message: "La note est obligatoire.")]
+    #[Assert\Range(
+        notInRangeMessage: "La note doit être comprise entre {{ min }} et {{ max }}.",
+        min: 0,
+        max: 10
+    )]
+    private ?float $note = null;
+
+    #[ORM\ManyToOne(targetEntity: Voyage::class)]
+    private ?Voyage $voyage = null;
+
+    #[ORM\ManyToOne(targetEntity: Client::class)]
+    private ?Client $client = null;
+
     public function getId(): ?int
     {
         return $this->id;
     }
-
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $contenu = null;
 
     public function getContenu(): ?string
     {
@@ -44,9 +60,6 @@ class Feedback
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true, name: 'dateFeedback')]
-    private ?\DateTimeInterface $dateFeedback = null;
-
     public function getDateFeedback(): ?\DateTimeInterface
     {
         return $this->dateFeedback;
@@ -57,23 +70,6 @@ class Feedback
         $this->dateFeedback = $dateFeedback;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $description = null;
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): self
-    {
-        $this->description = $description;
-        return $this;
-    }
-
-    #[ORM\Column(type: 'decimal', nullable: false)]
-    private ?float $note = null;
 
     public function getNote(): ?float
     {
@@ -86,10 +82,6 @@ class Feedback
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: Voyage::class, inversedBy: 'feedbacks')]
-    #[ORM\JoinColumn(name: 'voyage_id', referencedColumnName: 'id')]
-    private ?Voyage $voyage = null;
-
     public function getVoyage(): ?Voyage
     {
         return $this->voyage;
@@ -101,10 +93,6 @@ class Feedback
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'feedbacks')]
-    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
-    private ?Client $client = null;
-
     public function getClient(): ?Client
     {
         return $this->client;
@@ -115,5 +103,4 @@ class Feedback
         $this->client = $client;
         return $this;
     }
-
 }

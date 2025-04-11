@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Conversations{% endblock %}
+
+{% block body %}
+    <h1>Mes Conversations</h1>
+
+    <ul>
+        {% for chat in chats %}
+            <li>
+                <a href="{{ path('chat_show', {'id': chat.id}) }}">
+                    Discussion avec 
+                    {% if chat.client.id == currentUser.id %}
+                        {{ chat.support.nom }}
+                    {% else %}
+                        {{ chat.client.nom }}
+                    {% endif %}
+                </a>
+            </li>
+        {% else %}
+            <li>Aucune conversation trouvée.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

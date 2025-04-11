@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 use App\Repository\ReclamationRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
 #[ORM\Table(name: 'reclamations')]
@@ -17,6 +18,38 @@ class Reclamation
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $etat = null;
+    
+    #[ORM\Column(type: 'string', nullable: true, name: "titre")]
+    #[Assert\NotBlank(message: 'Title cannot be blank.')]
+    #[Assert\Length(max: 100, maxMessage: 'Title cannot be longer than 100 characters.')]
+    private ?string $titre = null;
+
+    #[ORM\Column(type: 'date', nullable: true, name: "dateCreation")]
+    private ?\DateTimeInterface $dateCreation = null;
+
+    #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'reclamations')]
+    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
+    private ?Client $client = null;
+
+    #[ORM\Column(type: 'string', nullable: true, name: "videoPath")]
+    #[Assert\Regex(
+        pattern: "/\.(mp4|avi|mpeg|mov)$/i",
+        message: "Le fichier doit être une vidéo avec une extension valide (mp4, avi, mpeg, mov)."
+    )]
+    private ?string $videoPath = null;
+
+    #[ORM\Column(type: 'string', nullable: false, name: "isRed")]
+    private ?string $isRed = '0';
+
+    // =======================
+    // ==== GETTERS/SETTERS ==
+    // =======================
 
     public function getId(): ?int
     {
@@ -29,9 +62,6 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $description = null;
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -42,11 +72,6 @@ class Reclamation
         $this->description = $description;
         return $this;
     }
-
-   
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $etat = null;
 
     public function getEtat(): ?string
     {
@@ -59,9 +84,6 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $titre = null;
-
     public function getTitre(): ?string
     {
         return $this->titre;
@@ -72,9 +94,6 @@ class Reclamation
         $this->titre = $titre;
         return $this;
     }
-
-    #[ORM\Column(type: 'date', nullable: true,name:"dateCreation")]
-    private ?\DateTimeInterface $dateCreation = null;
 
     public function getDateCreation(): ?\DateTimeInterface
     {
@@ -87,10 +106,6 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'reclamations')]
-    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
-    private ?Client $client = null;
-
     public function getClient(): ?Client
     {
         return $this->client;
@@ -101,9 +116,6 @@ class Reclamation
         $this->client = $client;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true,name:"videoPath")]
-    private ?string $videoPath = null;
 
     public function getVideoPath(): ?string
     {
@@ -116,9 +128,6 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false,name:"isRed")]
-    private ?string $isRed = null;
-
     public function getIsRed(): ?string
     {
         return $this->isRed;
@@ -129,5 +138,4 @@ class Reclamation
         $this->isRed = $isRed;
         return $this;
     }
-
 }
