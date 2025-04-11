@@ -160,7 +160,7 @@ class Reservation
     }
 
     #[ORM\OneToOne(targetEntity: Payment::class, inversedBy: 'reservation')]
-    #[ORM\JoinColumn(name: 'payments_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'payments_id', referencedColumnName: 'id', unique: true)]
     private ?Payment $payment = null;
 
     public function getPayment(): ?Payment
