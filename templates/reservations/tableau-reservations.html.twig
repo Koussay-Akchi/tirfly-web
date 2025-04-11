@@ -57,16 +57,20 @@
 									<td>{{ reservation.prixTotal|number_format(2, '.', ',') }}
 										€</td>
 									<td>
-										{% set badgeClass = {
-                                        'confirmée': 'success',
-                                        'en attente': 'warning',
-                                        'annulée': 'danger'
-                                    }[reservation.statut|lower] ?? 'secondary' %}
-										<span class="badge bg-{{ badgeClass }}">{{ reservation.statut|capitalize }}</span>
+										{% set statutIcon = '' %}
+										{% set iconColor = '' %}
+										{% if reservation.statut == 'EN_ATTENTE' %}
+											{% set statutIcon = 'check-circle' %}
+											{% set iconColor = 'text-success' %}
+										{% elseif reservation.statut == 'CONFIRME' %}
+											{% set statutIcon = 'slash' %}
+											{% set iconColor = 'text-danger' %}
+										{% endif %}
+										<i class="align-middle {{ iconColor }}" data-feather="{{ statutIcon }}"></i>
 									</td>
 									<td>
 										<div class="table-actions" style="display: flex; gap: 5px;">
-											aaa
+											mizel
 										</div>
 									</td>
 								</tr>
