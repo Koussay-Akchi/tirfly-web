@@ -16,44 +16,33 @@
 			</p>
 
 			<ul class="popular-list">
+				{% set topDestinations = destinations|sort((a, b) => b.getVoyages()|length <=> a.getVoyages()|length)|slice(0, 3) %}
 
-				{% for destination in destinations %}
+				{% for destination in topDestinations %}
 					<li>
 						<a href="{{ path('details_destination', {id: destination.id}) }}">
-							<div class="popular-card">
-								<figure class="card-img">
-									{% if false %}
-										<img src="{{ asset(destination.getImage()) }}" alt="Image destination" class="voyage-image">
-									{% else %}
-										<img src="{{ asset('images/default-destination.jpg') }}" alt="Image par défaut" class="voyage-image"/>
-									{% endif %}
-								</figure>
-								<div class="card-content">
-									<div class="card-rating">
-										Liste des voyages →
-									</div>
-									<p class="card-subtitle">
-										<a href="#">{{ destination.pays }}</a>
-									</p>
-									<h3 class="h3 card-title">
-										{{ destination.ville }}
-									</h3>
-									<p class="card-text">
-										Climat :
-										{{ climat_names[destination.climat] ?? 'Inconnu' }}
-									</p>
-								</div>
-							</div>
+							{{ include('destinations/card-destination.html.twig', { destination: destination, climat_names: climat_names }) }}
 						</a>
 					</li>
-				{% else %}
-					<p>Aucune destination trouvée.</p>
 				{% endfor %}
-
 			</ul>
 
 			<div class="text-center mt-4">
-				<a href="{{ path('admin_liste_destinations') }}" class="btn btn-primary">Vue admin</a>
+				<button onclick="document.getElementById('carousel').style.display = 'block'; this.style.display='none';" style="padding: 10px 20px; background-color: #007BFF; border: none; color: white; border-radius: 8px; cursor: pointer;">
+					Toutes les destinations
+				</button>
+			</div>
+
+
+			<div id="carousel" style="display: none; overflow-x: auto; white-space: nowrap; padding: 20px 0; margin-top: 30px;">
+				{% for destination in destinations %}
+					<div style="display: inline-block; width: 250px; margin-right: 20px; vertical-align: top;">
+						<a href="{{ path('details_destination', {id: destination.id}) }}" style="text-decoration: none; color: inherit;">
+							{{ include('destinations/card-destination.html.twig', { destination: destination, climat_names: climat_names }) }}
+						</a>
+					</div>
+				{% endfor %}
+
 			</div>
 
 		</div>

@@ -4,15 +4,54 @@
 {% endblock %}
 
 {% block body %}
+
+	 <script>
+		document.addEventListener("DOMContentLoaded", function() {
+			        var markers = [
+						{% for destination in destinationsAll %}
+							{
+								coords: [{{ destination.latitude }}, {{ destination.longitude }}],
+								name: "{{ destination.ville }} - {{ destination.pays }}"
+							}
+							{% if not loop.last %},{% endif %}
+						{% endfor %}
+					];
+			var map = new jsVectorMap({
+				map: "world",
+				selector: "#world_map",
+				zoomButtons: true,
+				markers: markers,
+				markerStyle: {
+					initial: {
+						r: 9,
+						strokeWidth: 7,
+						stokeOpacity: .4,
+						fill: window.theme.primary
+					},
+					hover: {
+						fill: window.theme.primary,
+						stroke: window.theme.primary
+					}
+				},
+				zoomOnScroll: false,
+			});
+			window.addEventListener("resize", () => {
+				map.updateSize();
+			});
+		});
+	</script>
+
 	<main class="main">
 		<div class="table-container">
 			<h1 class="table-title">Liste des destinations</h1>
+			<div class="card-body px-4">
+				<div id="world_map" style="height:350px;"></div>
+			</div>
 			<div class="table-responsive">
 
 				<table class="table table-striped table-hover voyage-table">
 					<thead class="table-dark">
 						<tr>
-							<th>ID</th>
 							<th>Ville</th>
 							<th>Pays</th>
 							<th>Latitude</th>
@@ -22,27 +61,27 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% for destination in destinations %}
+						{% for destination in destinations.items %}
 							<tr>
-								<td>{{ destination.id }}</td>
 								<td>{{ destination.ville }}</td>
 								<td>{{ destination.pays }}</td>
 								<td>{{ destination.latitude }}</td>
 								<td>{{ destination.longitude }}</td>
 								<td>
-									{% set climatLabels = {
+									<span class="badge bg-primary">
+										{% set climatLabels = {
 										1: 'Tropical',
 										2: 'Chaud',
 										3: 'Froid',
 										4: 'Desert'
 									} %}
-									{{ climatLabels[destination.climat] ?? 'Inconnu' }}
+										{{ climatLabels[destination.climat] ?? 'Inconnu' }}</span>
 								</td>
 
 								<td>
-									<div class="table-actions"  style="display: flex; gap: 5px">
+									<div class="table-actions" style="display: flex; gap: 5px">
 										<button class="btn btn-success" onclick="window.location.href='{{ path('details_destination', {'id': destination.id}) }}'">Details</button>
-										<button class="btn btn-primary" onclick="window.location.href='{{ path('edit_destination', {'id': destination.id}) }}'">Modifier</button>
+										<button class="btn btn-warning" onclick="window.location.href='{{ path('edit_destination', {'id': destination.id}) }}'">Modifier</button>
 										<button class="btn btn-danger" onclick="if(confirm('Supprimer ce destination ?')) window.location.href='{{ path('delete_destination', {'id': destination.id}) }}'">Supprimer</button>
 									</div>
 								</td>
@@ -55,6 +94,9 @@
 					</tbody>
 				</table>
 			</h1>
+			<div class="pagination">
+				{{ knp_pagination_render(destinations) }}
+			</div>
 		</div>
 	</div>
 </main>{% endblock %}

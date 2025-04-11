@@ -50,7 +50,7 @@
 							</li>
 
 							<li class="sidebar-item">
-								<a class="sidebar-link" href="{{ path('admin_liste_destinations') }}">
+								<a class="sidebar-link" href="{{ path('ajout_destination') }}">
 									<span class="align-middle">Ajouter destination</span>
 								</a>
 							</li>
@@ -61,14 +61,25 @@
 							</li>
 
 							<li class="sidebar-item">
-								<a class="sidebar-link" href="{{ path('admin_liste_destinations') }}">
+								<a class="sidebar-link" href="{{ path('ajout_voyage') }}">
 									<span class="align-middle">Ajouter voyage</span>
 								</a>
 							</li>
 
 							<li class="sidebar-item">
-								<a class="sidebar-link" href="{{ path('admin_liste_destinations') }}">
+								<a class="sidebar-link" href="{{ path('admin_liste_voyages') }}">
 									<span class="align-middle">Liste des voyages</span>
+								</a>
+							</li>
+
+							<li class="sidebar-header">
+								<i class="align-middle" data-feather="credit-card"></i>
+								Réservations et paiements
+							</li>
+
+							<li class="sidebar-item">
+								<a class="sidebar-link" href="{{ path('admin_liste_reservations') }}">
+									<span class="align-middle">Réservations clients</span>
 								</a>
 							</li>
 
@@ -277,16 +288,16 @@
 					</div>
 				</div>
 
-				<script src="{{ asset('js/app.js') }}"></script>
-				<script src="{{ asset('js/app-staff.js') }}"></script>
+				 <script src="{{ asset('js/app.js') }}"></script>
+				 <script src="{{ asset('js/app-staff.js') }}"></script>
 				{% block javascripts %}{% endblock %}
-				<script>
-					document.addEventListener("DOMContentLoaded", function () {
-var ctx = document.getElementById("chartjs-dashboard-line").getContext("2d");
-var gradient = ctx.createLinearGradient(0, 0, 0, 225);
-gradient.addColorStop(0, "rgba(215, 227, 244, 1)");
-gradient.addColorStop(1, "rgba(215, 227, 244, 0)");
-});
-				</script>
+				 <script>
+													document.addEventListener("DOMContentLoaded", function () {
+								var ctx = document.getElementById("chartjs-dashboard-line").getContext("2d");
+								var gradient = ctx.createLinearGradient(0, 0, 0, 225);
+								gradient.addColorStop(0, "rgba(215, 227, 244, 1)");
+								gradient.addColorStop(1, "rgba(215, 227, 244, 0)");
+								});
+												</script>
 			</body>
 		</html>

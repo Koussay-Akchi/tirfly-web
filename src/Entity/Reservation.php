@@ -29,7 +29,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true, name:'dateReservation')]
     private ?\DateTimeInterface $dateReservation = null;
 
     public function getDateReservation(): ?\DateTimeInterface
@@ -43,7 +43,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(type: 'integer', nullable: false, name:'nombrePersonnes')]
     private ?int $nombrePersonnes = null;
 
     public function getNombrePersonnes(): ?int
@@ -57,7 +57,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: false)]
+    #[ORM\Column(type: 'decimal', nullable: false, name:'prixTotal')]
     private ?float $prixTotal = null;
 
     public function getPrixTotal(): ?float
@@ -115,7 +115,7 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: true, name:'paymentToken')]
     private ?string $paymentToken = null;
 
     public function getPaymentToken(): ?string
@@ -189,6 +189,7 @@ class Reservation
     }
 
     #[ORM\OneToOne(targetEntity: Payment::class, inversedBy: 'reservation')]
+    #[ORM\JoinColumn(name: 'payments_id', referencedColumnName: 'id')]
     private ?Payment $payment = null;
 
     public function getPayment(): ?Payment

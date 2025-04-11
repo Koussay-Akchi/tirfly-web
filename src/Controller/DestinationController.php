@@ -13,6 +13,7 @@ use App\Form\DestinationType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Repository\VoyageRepository;
+use Knp\Component\Pager\PaginatorInterface;
 
 class DestinationController extends AbstractController
 {
@@ -115,7 +116,7 @@ class DestinationController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Destination ajoutée avec succès!');
-            return $this->redirectToRoute('liste_destinations');
+            return $this->redirectToRoute('admin_liste_destinations');
         }
 
         return $this->render('destinations/ajout-destination.html.twig', [
@@ -124,12 +125,20 @@ class DestinationController extends AbstractController
     }
 
     #[Route('/admin/destinations', name: 'admin_liste_destinations')]
-    public function adminDestinations(DestinationRepository $destinationRepository): Response
+    public function adminDestinations(Request $request, DestinationRepository $destinationRepository, PaginatorInterface $paginator): Response
     {
+        $query = $destinationRepository->createQueryBuilder('v')->getQuery();
         $destinations = $destinationRepository->findAll();
 
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
         return $this->render('destinations/tableau-destinations.html.twig', [
-            'destinations' => $destinations,
+            'destinations' => $pagination,
+            'destinationsAll' => $destinations,
         ]);
     }
 
@@ -150,7 +159,7 @@ class DestinationController extends AbstractController
             $this->addFlash('success', 'Destination modifiée avec succès.');
             return $this->redirectToRoute('admin_liste_destinations');
         }
-
+        
         return $this->render('destinations/edit-destination.html.twig', [
             'form' => $form->createView(),
             'destination' => $destination
