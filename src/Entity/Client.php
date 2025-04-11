@@ -11,6 +11,7 @@ use App\Repository\ClientRepository;
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 #[ORM\Table(name: 'clients')]
 class Client extends User
+class Client extends User
 {
     #[ORM\Column(type: 'string', nullable: true,name:"adresse" )]
     private ?string $adresse = null;
@@ -202,7 +203,7 @@ class Client extends User
      */
     public function getRefunds(): Collection
     {
-        if (!$this->refunds instanceof Collection) {
+if (!$this->refunds instanceof Collection) {
             $this->refunds = new ArrayCollection();
         }
         return $this->refunds;
@@ -212,7 +213,7 @@ class Client extends User
     {
         if (!$this->getRefunds()->contains($refund)) {
             $this->getRefunds()->add($refund);
-        }
+                    }
         return $this;
     }
 
@@ -230,7 +231,7 @@ class Client extends User
      */
     public function getReservations(): Collection
     {
-        if (!$this->reservations instanceof Collection) {
+if (!$this->reservations instanceof Collection) {
             $this->reservations = new ArrayCollection();
         }
         return $this->reservations;
@@ -240,7 +241,7 @@ class Client extends User
     {
         if (!$this->getReservations()->contains($reservation)) {
             $this->getReservations()->add($reservation);
-        }
+                    }
         return $this;
     }
 
@@ -278,7 +279,7 @@ class Client extends User
      */
     public function getUsers(): Collection
     {
-        if (!$this->users instanceof Collection) {
+if (!$this->users instanceof Collection) {
             $this->users = new ArrayCollection();
         }
         return $this->users;
