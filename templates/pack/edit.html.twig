@@ -43,15 +43,40 @@
                 </div>
             </div>
 
-            <div class="form-group mb-3">
-                {{ form_label(form.voyages, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(form.voyages, {'attr': {
-                    'class': 'form-select ' ~ (form.voyages.vars.errors|length ? 'is-invalid' : '')
-                }}) }}
-                <div class="invalid-feedback">
-                    {{ form_errors(form.voyages) }}
-                </div>
-            </div>
+           
+
+
+
+
+<div class="form-group mb-3">
+    <label for="pack_voyages" class="form-label required">Voyages inclus</label>
+    <select id="pack_voyages" 
+            name="pack[voyages][]" 
+            multiple="multiple" 
+            class="form-select {% if form.voyages.vars.errors|length > 0 %}is-invalid{% endif %}"
+            required>
+        {% for voyage in voyages %}
+            <option value="{{ voyage.id }}" 
+                    {% if voyage.id in selectedVoyageIds %}selected{% endif %}>
+                {{ voyage.nom }} - {{ voyage.prix }} €
+            </option>
+        {% endfor %}
+    </select>
+    {% if form.voyages.vars.errors|length > 0 %}
+        <div class="invalid-feedback">
+            {% for error in form.voyages.vars.errors %}
+                <div>{{ error.message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <small class="form-text text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs voyages</small>
+</div>
+
+
+
+
+
+
 
             <div class="form-group mb-3">
                 {{ form_label(form.sejours, null, {'label_attr': {'class': 'form-label'}}) }}
@@ -78,16 +103,27 @@
                 <button type="submit" class="btn btn-primary me-2">
                     <i class="fas fa-save me-1"></i> Mettre à jour
                 </button>
-                <a href="{{ path('app_pack_index') }}" class="btn btn-outline-secondary">
+                <a href="{{ path('admin_pack_list') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Annuler
                 </a>
             </div>
 
-            {{ form_end(form) }}
+            {{ form_end(form, {'render_rest': false}) }}
         </div>
     </div>
 
     <style>
+        .form-select-multiple {
+            height: auto;
+            min-height: 120px;
+        }
+        .form-select option {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .form-select option:hover {
+            background-color: #f8f9fa;
+        }
         .form-control:focus, .form-select:focus {
             border-color: #86b7fe;
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
@@ -106,19 +142,14 @@
             border-color: #dc3545;
             box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
         }
-        .form-select-multiple {
-            height: auto;
-            min-height: 120px;
-        }
     </style>
 
     <script>
-        // Script pour améliorer l'expérience utilisateur
         document.addEventListener('DOMContentLoaded', function() {
-            // Ajout d'une classe aux selects multiples pour mieux les styliser
             const multiSelects = document.querySelectorAll('select[multiple]');
             multiSelects.forEach(select => {
                 select.classList.add('form-select-multiple');
+                select.setAttribute('data-placeholder', 'Sélectionnez un ou plusieurs voyages');
             });
         });
     </script>
