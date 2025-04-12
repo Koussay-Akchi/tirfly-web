@@ -1,0 +1,219 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Réservations
+{% endblock %}
+
+{% block body %}
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	 <script src="{{ asset('js/app-staff.js') }}"></script>
+
+	 
+
+		<main class="main"> <div class="container">
+			<div class="btn-group btn-group-lg mb-4 d-flex justify-content-center" role="group" aria-label="Large button group" style="display: flex; gap: 0px; justify-content: center;">
+				<button type="button" class="btn btn-secondary" id="showTous">
+					<div class="icon-placeholder" id="iconTous">
+						<i class="align-middle" data-feather="arrow-down-circle"></i>
+					</div>
+					Tous
+				</button>
+				<button type="button" class="btn btn-primary" id="showVoyage">
+					<div class="icon-placeholder" id="iconVoyage"></div>
+					Voyage
+				</button>
+				<button type="button" class="btn btn-warning text-white" id="showSejour">
+					<div class="icon-placeholder" id="iconSejour"></div>
+					Hébergement
+				</button>
+				<button type="button" class="btn btn-success" id="showPack">
+					<div class="icon-placeholder" id="iconPack"></div>
+					Pack
+				</button>
+			</div>
+
+			<div class="status-bar mb-4" style="width: 100%; height: 10px; display: flex;">
+				<div id="statusConfirme" class="status-section bg-success p-2" data-toggle="tooltip" title="0% - CONFIRME" style="height: 100%;"></div>
+				<div id="statusEnAttente" class="status-section bg-secondary p-2" data-toggle="tooltip" title="0% - EN_ATTENTE" style="height: 100%;"></div>
+				<div id="statusAnnule" class="status-section bg-danger  p-2" data-toggle="tooltip" title="0% - ANNULE" style="height: 100%;"></div>
+			</div>
+
+			<div class="table-container" id="tableView">
+				<h1 class="table-title">Liste des réservations</h1>
+				<div class="table-responsive">
+					<table class="voyage-table table-striped table-hover" id="reservationTable">
+						<thead class="voyage-table">
+							<tr>
+								<th>Date</th>
+								<th class="voyage-col">Voyage</th>
+								<th class="sejour-col d-none">Hébergement</th>
+								<th class="jours-col d-none">Jours</th>
+								<th class="pack-col d-none">Pack</th>
+								<th>Personnes</th>
+								<th>Prix total</th>
+								<th>Statut</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody id="reservationBody">
+							{% for reservation in reservations %}
+								<tr class="reservation-row">
+									<td>{{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y') : 'N/A' }}</td>
+									<td class="voyage-col">{{ reservation.voyage ? reservation.voyage.nom : '—' }}</td>
+									<td class="sejour-col d-none">{{ reservation.sejour ? reservation.sejour.hebergement.nom : '—' }}</td>
+									<td class="jours-col d-none">{{ reservation.sejour ? reservation.sejour.jours : '—' }}</td>
+									<td class="pack-col d-none">{{ reservation.pack ? reservation.pack.nom : '—' }}</td>
+									<td>{{ reservation.nombrePersonnes }}</td>
+									<td>{{ reservation.prixTotal|number_format(2, '.', ',') }}
+										DT</td>
+									<td>
+										{% set statutIcon = '' %}
+										{% set iconColor = '' %}
+										{% if reservation.statut == 'ANNULE' %}
+											{% set statutIcon = 'slash' %}
+											{% set iconColor = 'text-danger' %}
+										{% elseif reservation.statut == 'EN_ATTENTE' %}
+											{% set statutIcon = 'loader' %}
+											{% set iconColor = 'text-muted' %}
+										{% elseif reservation.statut == 'CONFIRME' %}
+											{% set statutIcon = 'check-circle' %}
+											{% set iconColor = 'text-success' %}
+										{% endif %}
+										<i class="align-middle {{ iconColor }}" data-feather="{{ statutIcon }}"></i>
+									</td>
+									<td>
+										<div class="table-actions" style="display: flex; gap: 5px;">
+											mizel
+										</div>
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="11" class="text-center">Aucune réservation trouvée.</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				<div class="pagination mt-3">
+					{{ knp_pagination_render(reservations) }}
+				</div>
+			</div>
+			<div id="calendarView" style="display: none;">
+				<h1>Calendrier des Réservations</h1>
+			</div>
+		</div>
+	</main>
+	 <script>
+			document.addEventListener('DOMContentLoaded', function () {
+			    const showTousBtn = document.getElementById('showTous');
+			    const voyageBtn = document.getElementById('showVoyage');
+			    const sejourBtn = document.getElementById('showSejour');
+			    const packBtn = document.getElementById('showPack');
+			    const iconTous = document.getElementById('iconTous');
+			    const iconVoyage = document.getElementById('iconVoyage');
+			    const iconSejour = document.getElementById('iconSejour');
+			    const iconPack = document.getElementById('iconPack');
+			    const voyageCols = document.querySelectorAll('.voyage-col');
+			    const sejourCols = document.querySelectorAll('.sejour-col');
+			    const joursCols = document.querySelectorAll('.jours-col');
+			    const packCols = document.querySelectorAll('.pack-col');
+			    const reservationRows = document.querySelectorAll('.reservation-row');
+			    function updateSelection(selected) {
+			        iconTous.innerHTML = '';
+			        iconVoyage.innerHTML = '';
+			        iconSejour.innerHTML = '';
+			        iconPack.innerHTML = '';
+		        if(selected === 'tous') iconTous.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+		        if(selected === 'voyage') iconVoyage.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+		        if(selected === 'sejour') iconSejour.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+		        if(selected === 'pack') iconPack.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+		        feather.replace();
+			    }
+			    function toggleColumns(showCols, filterFn) {
+			        [voyageCols, sejourCols, joursCols, packCols].forEach(cols => {
+			            cols.forEach(col => col.classList.add('d-none'));
+			        });
+			        showCols.forEach(col => col.classList.remove('d-none'));
+			        reservationRows.forEach(row => {
+			            const voyageCell = row.querySelector('.voyage-col').textContent.trim();
+			            const sejourCell = row.querySelector('.sejour-col').textContent.trim();
+			            const packCell = row.querySelector('.pack-col').textContent.trim();
+			            row.style.display = filterFn(voyageCell, sejourCell, packCell) ? '' : 'none';
+			        });
+			    }
+			    showTousBtn.addEventListener('click', () => {
+			        updateSelection('tous');
+			        [voyageCols, sejourCols, joursCols, packCols].forEach(cols => {
+			            cols.forEach(col => col.classList.remove('d-none'));
+			        });
+			        reservationRows.forEach(row => row.style.display = '');
+			    });
+			    voyageBtn.addEventListener('click', () => {
+			        updateSelection('voyage');
+			        toggleColumns(voyageCols, (v, s, p) => v !== '—');
+			    });
+			    sejourBtn.addEventListener('click', () => {
+			        updateSelection('sejour');
+			        toggleColumns([...sejourCols, ...joursCols], (v, s, p) => s !== '—');
+			    });
+			    packBtn.addEventListener('click', () => {
+			        updateSelection('pack');
+			        toggleColumns(packCols, (v, s, p) => p !== '—');
+			    });
+			    updateSelection('tous');
+			    [voyageCols, sejourCols, joursCols, packCols].forEach(cols => {
+			        cols.forEach(col => col.classList.remove('d-none'));
+			    });
+			});
+			</script>
+
+	 <script>
+			document.addEventListener('DOMContentLoaded', function () {
+		    const tooltipElements = document.querySelectorAll('[data-toggle="tooltip"]');
+		    tooltipElements.forEach(element => {
+		        new bootstrap.Tooltip(element);
+		    });
+		
+		    const statusConfirme = document.getElementById('statusConfirme');
+		    const statusEnAttente = document.getElementById('statusEnAttente');
+		    const statusAnnule = document.getElementById('statusAnnule');
+		    const totalReservations = {{ reservations|length }};
+		    let confirmeCount = 0;
+		    let enAttenteCount = 0;
+		    let annuleCount = 0;
+		
+		    {% for reservation in reservations %}
+		        {% if reservation.statut == 'CONFIRME' %}
+		            confirmeCount += 1;
+		        {% elseif reservation.statut == 'EN_ATTENTE' %}
+		            enAttenteCount += 1;
+		        {% elseif reservation.statut == 'ANNULE' %}
+		            annuleCount += 1;
+		        {% endif %}
+		    {% endfor %}
+		
+		    const confirmePercent = (confirmeCount / totalReservations) * 100;
+		    const enAttentePercent = (enAttenteCount / totalReservations) * 100;
+		    const annulePercent = (annuleCount / totalReservations) * 100;
+		
+		    statusConfirme.style.width = `${confirmePercent}%`;
+		    statusEnAttente.style.width = `${enAttentePercent}%`;
+		    statusAnnule.style.width = `${annulePercent}%`;
+		
+			statusConfirme.setAttribute('title', `${Math.round(confirmePercent)}% - Confirmée (${confirmeCount})`);
+			statusEnAttente.setAttribute('title', `${Math.round(enAttentePercent)}% - En attente (${enAttenteCount})`);
+			statusAnnule.setAttribute('title', `${Math.round(annulePercent)}% - Annulée (${annuleCount})`);
+	
+		
+		    const updatedTooltipElements = document.querySelectorAll('[data-toggle="tooltip"]');
+		    updatedTooltipElements.forEach(element => {
+		        new bootstrap.Tooltip(element);
+		    });
+		});
+		
+		
+			</script>
+
+{% endblock %}
