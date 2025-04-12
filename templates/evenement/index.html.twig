@@ -11,7 +11,45 @@
             Participez à nos événements exceptionnels organisés dans les plus belles destinations. 
             Des expériences uniques vous attendent !
         </p>
+     <div class="filters-container mb-5">
+    <form method="get" action="{{ path('app_evenement_index') }}" class="filters-form">
+        <div class="filters d-flex flex-wrap justify-content-center gap-3">
+            <input type="text" 
+                   name="search" 
+                   class="form-control filter-input" 
+                   placeholder="Rechercher un événement..."
+                   value="{{ app.request.query.get('search') }}">
 
+            <input type="date" 
+                   name="dateDebut" 
+                   class="form-control filter-date"
+                   value="{{ app.request.query.get('dateDebut') }}">
+
+            <input type="date" 
+                   name="dateFin" 
+                   class="form-control filter-date"
+                   value="{{ app.request.query.get('dateFin') }}">
+
+            <select name="destination" class="form-select filter-select">
+                <option value="">Toutes destinations</option>
+                {% for dest in destinations %}
+                    <option value="{{ dest.id }}" 
+                        {{ app.request.query.get('destination') == dest.id ? 'selected' }}>
+                        {{ dest.ville }}, {{ dest.pays }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i> Filtrer
+            </button>
+
+            <a href="{{ path('app_evenement_index') }}" class="btn btn-secondary">
+                <i class="fas fa-undo"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
         <ul class="popular-list">
             {% for evenement in evenements.results %}
                 <li>
@@ -124,6 +162,49 @@
 </section>
 
 <style>
+
+    .filters-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.filters-form {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.filter-input, .filter-date, .filter-select {
+    min-width: 200px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+.filter-date {
+    padding: 0.375rem 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-input, .filter-date, .filter-select {
+        width: 100%;
+    }
+}
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
     /* Styles pour uniformiser les images */
     .voyage-image {
         width: 100%;

@@ -16,15 +16,31 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class EvenementController extends AbstractController
 {
     #[Route('/evenement', name: 'app_evenement_index')]
-public function index(Request $request, EvenementRepository $evenementRepository): Response
-{
-    $page = $request->query->getInt('page', 1);
-    $evenements = $evenementRepository->findPaginated($page, 6);
-
-    return $this->render('evenement/index.html.twig', [
-        'evenements' => $evenements,
-    ]);
-}
+    public function index(Request $request, EvenementRepository $evenementRepository): Response
+    {
+        $page = $request->query->getInt('page', 1);
+        $search = $request->query->get('search');
+        $dateDebut = $request->query->get('dateDebut');
+        $dateFin = $request->query->get('dateFin');
+        $destination = $request->query->get('destination');
+    
+        $evenements = $evenementRepository->findPaginatedWithFilters(
+            $page, 
+            6,
+            $search,
+            $dateDebut,
+            $dateFin,
+            $destination
+        );
+    
+        // Récupérer les destinations uniques pour le filtre
+        $destinations = $evenementRepository->findUniqueDestinations();
+    
+        return $this->render('evenement/index.html.twig', [
+            'evenements' => $evenements,
+            'destinations' => $destinations
+        ]);
+    }
 
     #[Route('/admin/evenement/new', name: 'app_evenement_new')]
 public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response

@@ -38,6 +38,64 @@ public function findPaginated(int $page, int $limit): array
         'total_items' => $total
     ];
 }
+public function findPaginatedWithFilters(
+    int $page, 
+    int $limit,
+    ?string $search = null,
+    ?string $dateDebut = null,
+    ?string $dateFin = null,
+    ?string $destination = null
+): array {
+    $query = $this->createQueryBuilder('e')
+        ->leftJoin('e.destination', 'd');
+
+    if ($search) {
+        $query->andWhere('e.titre LIKE :search')
+            ->setParameter('search', '%'.$search.'%');
+    }
+
+    if ($dateDebut) {
+        $query->andWhere('e.dateDebut >= :dateDebut')
+            ->setParameter('dateDebut', new \DateTime($dateDebut));
+    }
+
+    if ($dateFin) {
+        $query->andWhere('e.dateFin <= :dateFin')
+            ->setParameter('dateFin', new \DateTime($dateFin));
+    }
+
+    if ($destination) {
+        $query->andWhere('d.id = :destination')
+            ->setParameter('destination', $destination);
+    }
+
+    $query->orderBy('e.dateDebut', 'DESC');
+
+    $paginator = new Paginator($query);
+    $total = count($paginator);
+    $pages = ceil($total / $limit);
+
+    $query->setFirstResult(($page - 1) * $limit)
+        ->setMaxResults($limit);
+
+    return [
+        'results' => $query->getQuery()->getResult(),
+        'current_page' => $page,
+        'max_per_page' => $limit,
+        'total_pages' => $pages,
+        'total_items' => $total
+    ];
+}
+
+public function findUniqueDestinations(): array
+{
+    return $this->createQueryBuilder('e')
+        ->select('d.id, d.ville, d.pays')
+        ->leftJoin('e.destination', 'd')
+        ->groupBy('d.id')
+        ->getQuery()
+        ->getResult();
+}
     //    /**
     //     * @return Evenement[] Returns an array of Evenement objects
     //     */
