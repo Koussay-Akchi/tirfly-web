@@ -7,7 +7,6 @@
         <div class="card shadow p-4" style="width: 100%; max-width: 600px; border-radius: 1rem;">
             <h2 class="text-center mb-4">Modifier le Pack</h2>
 
-            {# Image actuelle s'il y en a une #}
             {% if pack.image %}
                 <div class="text-center mb-4">
                     <p class="mb-2">Image actuelle :</p>
@@ -43,40 +42,16 @@
                 </div>
             </div>
 
-           
-
-
-
-
-<div class="form-group mb-3">
-    <label for="pack_voyages" class="form-label required">Voyages inclus</label>
-    <select id="pack_voyages" 
-            name="pack[voyages][]" 
-            multiple="multiple" 
-            class="form-select {% if form.voyages.vars.errors|length > 0 %}is-invalid{% endif %}"
-            required>
-        {% for voyage in voyages %}
-            <option value="{{ voyage.id }}" 
-                    {% if voyage.id in selectedVoyageIds %}selected{% endif %}>
-                {{ voyage.nom }} - {{ voyage.prix }} €
-            </option>
-        {% endfor %}
-    </select>
-    {% if form.voyages.vars.errors|length > 0 %}
-        <div class="invalid-feedback">
-            {% for error in form.voyages.vars.errors %}
-                <div>{{ error.message }}</div>
-            {% endfor %}
-        </div>
-    {% endif %}
-    <small class="form-text text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs voyages</small>
-</div>
-
-
-
-
-
-
+            <div class="form-group mb-3">
+                {{ form_label(form.voyages, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.voyages, {'attr': {
+                    'class': 'form-select ' ~ (form.voyages.vars.errors|length ? 'is-invalid' : '')
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.voyages) }}
+                </div>
+                <small class="form-text text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs voyages</small>
+            </div>
 
             <div class="form-group mb-3">
                 {{ form_label(form.sejours, null, {'label_attr': {'class': 'form-label'}}) }}
@@ -108,7 +83,7 @@
                 </a>
             </div>
 
-            {{ form_end(form, {'render_rest': false}) }}
+            {{ form_end(form) }}
         </div>
     </div>
 
@@ -116,13 +91,6 @@
         .form-select-multiple {
             height: auto;
             min-height: 120px;
-        }
-        .form-select option {
-            padding: 8px 12px;
-            border-bottom: 1px solid #eee;
-        }
-        .form-select option:hover {
-            background-color: #f8f9fa;
         }
         .form-control:focus, .form-select:focus {
             border-color: #86b7fe;
@@ -149,7 +117,6 @@
             const multiSelects = document.querySelectorAll('select[multiple]');
             multiSelects.forEach(select => {
                 select.classList.add('form-select-multiple');
-                select.setAttribute('data-placeholder', 'Sélectionnez un ou plusieurs voyages');
             });
         });
     </script>

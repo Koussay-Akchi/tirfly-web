@@ -76,7 +76,6 @@ public function new(
         'voyages' => $voyages // Passez les voyages au template
     ]);
 }
-
 #[Route('/admin/pack/edit/{id}', name: 'app_pack_edit')]
 public function edit(
     Pack $pack, 
@@ -85,36 +84,15 @@ public function edit(
     SluggerInterface $slugger,
     VoyageRepository $voyageRepository
 ): Response {
-    // Récupérer les IDs des voyages actuels
-    $selectedVoyageIds = $pack->getVoyages()->map(fn($v) => $v->getId())->toArray();
-    
-    // Créer le formulaire en désactivant temporairement la validation
-    $form = $this->createForm(PackType::class, $pack, [
-        'validation_groups' => ['Default']
-    ]);
-    
+    $form = $this->createForm(PackType::class, $pack);
     $voyages = $voyageRepository->findAllWithPrice();
     
     $form->handleRequest($request);
 
-    if ($form->isSubmitted()) {
-        // Récupération manuelle des voyages sélectionnés
-        $voyageIds = $request->request->all()['pack']['voyages'] ?? [];
-        $selectedVoyages = $voyageRepository->findBy(['id' => $voyageIds]);
+    if ($form->isSubmitted() && $form->isValid()) {
+        $imageFile = $form->get('image')->getData();
         
-        // Validation manuelle
-        if (count($selectedVoyages) < 1) {
-            $this->addFlash('error', 'Veuillez sélectionner au moins un voyage.');
-        } else {
-            // Mise à jour de la collection
-            $pack->getVoyages()->clear();
-            foreach ($selectedVoyages as $voyage) {
-                $pack->addVoyage($voyage);
-            }
-
-            // Gestion de l'image
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
+        if ($imageFile) {
             $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
             $safeFilename = $slugger->slug($originalFilename);
             $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
@@ -125,7 +103,7 @@ public function edit(
                     $newFilename
                 );
                 
-                // Suppression de l'ancienne image si elle existe
+                // Suppression ancienne image
                 $oldImage = $pack->getImage();
                 if ($oldImage && file_exists($this->getParameter('packs_images_directory').'/'.$oldImage)) {
                     unlink($this->getParameter('packs_images_directory').'/'.$oldImage);
@@ -133,27 +111,23 @@ public function edit(
                 
                 $pack->setImage($newFilename);
             } catch (FileException $e) {
-                $this->addFlash('error', 'Erreur lors du téléchargement de la nouvelle image.');
-                return $this->redirectToRoute('app_pack_edit', ['id' => $pack->getId()]);
+                $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
             }
         }
 
-        if ($form->isValid()) {
-            $em->flush();
-            $this->addFlash('success', 'Pack modifié avec succès.');
-            return $this->redirectToRoute('admin_pack_list');
-        }
+        $em->flush();
+        $this->addFlash('success', 'Pack modifié avec succès.');
+        return $this->redirectToRoute('admin_pack_list');
     }
+
+    return $this->render('pack/edit.html.twig', [
+        'form' => $form->createView(),
+        'pack' => $pack,
+        'voyages' => $voyages
+    ]);
 }
 
-return $this->render('pack/edit.html.twig', [
-    'form' => $form->createView(),
-    'pack' => $pack,
-    'voyages' => $voyages,
-    'selectedVoyageIds' => $selectedVoyageIds
-]);
-}
-    #[Route('/admin/pack/delete/{id}', name: 'app_pack_delete')]
+#[Route('/admin/pack/delete/{id}', name: 'app_pack_delete')]
     public function delete(Pack $pack, EntityManagerInterface $em): Response
     {
         $em->remove($pack);
