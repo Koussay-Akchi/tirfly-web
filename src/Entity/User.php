@@ -2,29 +2,76 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Repository\UserRepository;
-
+use Symfony\Component\Security\Core\User\EquatableInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'role', type: 'string')]
 #[ORM\DiscriminatorMap([
-    'ADMIN' => User::class,
-    'CLIENT' => Client::class,
-    'SUPPORT' => User::class,
-    'VOYAGEUR' => User::class
+    'ADMIN'    => User::class,
+    'CLIENT'   => Client::class,
+    'SUPPORT'  => User::class,
+    'VOYAGEUR'=> User::class
 ])]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface,EquatableInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true, name: "dateCreation")]
+    private ?\DateTimeInterface $dateCreation = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $email = null;
+
+    #[ORM\Column(type: 'string', nullable: true, name: "MotDePasse")]
+    private ?string $motDePasse = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $nom = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $prenom = null;
+
+    // Collections (messages, notifications, clients, etc.)
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'user')]
+    private Collection $messages;
+
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user')]
+    private Collection $notifications;
+
+    #[ORM\ManyToMany(targetEntity: Client::class, inversedBy: 'users')]
+    #[ORM\JoinTable(
+        name: 'chats',
+        joinColumns: [new ORM\JoinColumn(name: 'support_id', referencedColumnName: 'id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
+    )]
+    private Collection $clients;
+
+    public function __construct()
+    {
+        $this->messages = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
+        $this->clients = new ArrayCollection();
+    }
+    public function isEqualTo(UserInterface $user): bool
+    {
+        if (!$user instanceof User) {
+            return false;
+        }
+        // Compare only the properties that should be consistent for authentication
+        return $this->getUserIdentifier() === $user->getUserIdentifier()
+            && $this->getPassword() === $user->getPassword();
+    }
+    // Getters and setters for id, dateCreation, email, motDePasse, nom, prenom
 
     public function getId(): ?int
     {
@@ -37,9 +84,6 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true, name: 'dateCreation')]
-    private ?\DateTimeInterface $dateCreation = null;
-
     public function getDateCreation(): ?\DateTimeInterface
     {
         return $this->dateCreation;
@@ -50,9 +94,6 @@ class User
         $this->dateCreation = $dateCreation;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $email = null;
 
     public function getEmail(): ?string
     {
@@ -65,9 +106,6 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true, name: 'motDePasse')]
-    private ?string $motDePasse = null;
-
     public function getMotDePasse(): ?string
     {
         return $this->motDePasse;
@@ -78,9 +116,6 @@ class User
         $this->motDePasse = $motDePasse;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $nom = null;
 
     public function getNom(): ?string
     {
@@ -93,9 +128,6 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $prenom = null;
-
     public function getPrenom(): ?string
     {
         return $this->prenom;
@@ -107,90 +139,50 @@ class User
         return $this;
     }
 
-    public function getRole(): ?string
-    {
-        return $this->role;
-    }
-
-    public function setRole(?string $role): self
-    {
-        $this->role = $role;
-        return $this;
-    }
-
-    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'user')]
-    private Collection $messages;
+    // Collection getters for messages, notifications, and clients
 
     /**
      * @return Collection<int, Message>
      */
     public function getMessages(): Collection
     {
-if (!$this->messages instanceof Collection) {
-            $this->messages = new ArrayCollection();
-        }
         return $this->messages;
     }
 
     public function addMessage(Message $message): self
     {
-        if (!$this->getMessages()->contains($message)) {
-            $this->getMessages()->add($message);
-                    }
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+        }
         return $this;
     }
 
     public function removeMessage(Message $message): self
     {
-        $this->getMessages()->removeElement($message);
+        $this->messages->removeElement($message);
         return $this;
     }
-
-    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user')]
-    private Collection $notifications;
 
     /**
      * @return Collection<int, Notification>
      */
     public function getNotifications(): Collection
     {
-if (!$this->notifications instanceof Collection) {
-            $this->notifications = new ArrayCollection();
-        }
         return $this->notifications;
     }
 
     public function addNotification(Notification $notification): self
     {
-        if (!$this->getNotifications()->contains($notification)) {
-            $this->getNotifications()->add($notification);
-                    }
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+        }
         return $this;
     }
 
     public function removeNotification(Notification $notification): self
     {
-        $this->getNotifications()->removeElement($notification);
+        $this->notifications->removeElement($notification);
         return $this;
-    }
-
-    #[ORM\ManyToMany(targetEntity: Client::class, inversedBy: 'users')]
-    #[ORM\JoinTable(
-        name: 'chats',
-        joinColumns: [
-            new ORM\JoinColumn(name: 'support_id', referencedColumnName: 'id')
-        ],
-        inverseJoinColumns: [
-            new ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')
-        ]
-    )]
-    private Collection $clients;
-
-    public function __construct()
-    {
-        $this->messages = new ArrayCollection();
-        $this->notifications = new ArrayCollection();
-        $this->clients = new ArrayCollection();
     }
 
     /**
@@ -198,24 +190,48 @@ if (!$this->notifications instanceof Collection) {
      */
     public function getClients(): Collection
     {
-if (!$this->clients instanceof Collection) {
-            $this->clients = new ArrayCollection();
-        }
         return $this->clients;
     }
 
     public function addClient(Client $client): self
     {
-        if (!$this->getClients()->contains($client)) {
-            $this->getClients()->add($client);
+        if (!$this->clients->contains($client)) {
+            $this->clients->add($client);
         }
         return $this;
     }
 
     public function removeClient(Client $client): self
     {
-        $this->getClients()->removeElement($client);
+        $this->clients->removeElement($client);
         return $this;
     }
 
+    // Do not try to access a non-existent $role property. Instead, derive the role from the actual class.
+    // This method is used by the security component.
+    public function getRoles(): array
+    {
+        // For example, if this is a Client, return ROLE_CLIENT; otherwise, a default.
+        if ($this instanceof \App\Entity\Client) {
+            return ['ROLE_CLIENT'];
+        }
+        // You can add other instanceof checks here for different subclasses.
+        return ['ROLE_USER'];
+    }
+
+    public function eraseCredentials(): void
+    {
+        // Erase any temporary, sensitive data if needed.
+        $this->motDePasse = null;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->motDePasse;
+    }
 }

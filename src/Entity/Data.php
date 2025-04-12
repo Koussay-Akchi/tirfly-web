@@ -183,7 +183,7 @@ class Data
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'integer', nullable: true,name: 'transaction_id')]
     private ?int $transaction_id = null;
 
     public function getTransaction_id(): ?int

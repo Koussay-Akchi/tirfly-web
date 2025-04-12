@@ -15,7 +15,7 @@ class Refund
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'integer',name:'transactionId')]
     private ?int $transactionId = null;
 
     public function getTransactionId(): ?int
@@ -43,7 +43,7 @@ class Refund
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true,name:'timeApproved')]
     private ?\DateTimeInterface $TimeApproved = null;
 
     public function getTimeApproved(): ?\DateTimeInterface

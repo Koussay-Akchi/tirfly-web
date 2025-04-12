@@ -97,7 +97,7 @@ class Client extends User
         return $this;
     }
 
-    #[ORM\OneToOne(targetEntity: Niveau::class, mappedBy: 'client')]
+#[ORM\OneToOne(targetEntity: Niveau::class, mappedBy: 'client', cascade: ['remove'])]
     private ?Niveau $niveau = null;
 
     public function getNiveau(): ?Niveau

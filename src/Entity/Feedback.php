@@ -58,20 +58,6 @@ class Feedback
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $description = null;
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): self
-    {
-        $this->description = $description;
-        return $this;
-    }
-
     #[ORM\Column(type: 'decimal', nullable: false)]
     private ?float $note = null;
 
