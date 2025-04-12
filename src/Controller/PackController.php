@@ -19,12 +19,15 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class PackController extends AbstractController
 {
     #[Route('/pack', name: 'app_pack_index')]
-    public function index(PackRepository $packRepository): Response
-    {
-        return $this->render('pack/index.html.twig', [
-            'packs' => $packRepository->findAll(),
-        ]);
-    }
+public function index(Request $request, PackRepository $packRepository): Response
+{
+    $page = $request->query->getInt('page', 1);
+    $packs = $packRepository->findPaginated($page, 6); // 6 packs par page
+
+    return $this->render('pack/index.html.twig', [
+        'packs' => $packs, // Changez cette ligne pour passer l'objet paginé
+    ]);
+}
 
     #[Route('/admin/pack/new', name: 'app_pack_new')]
 public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response

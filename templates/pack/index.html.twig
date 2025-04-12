@@ -3,9 +3,8 @@
 {% block title %}Packs Populaires{% endblock %}
 
 {% block body %}
-<section >
+<section>
     <div class="container">
-
         <p class="section-subtitle">Découvrez nos meilleures offres</p>
         <h2 class="h2 section-title">Packs Populaires</h2>
         <p class="section-text">
@@ -20,7 +19,7 @@
         </div>
 
         <ul class="popular-list">
-            {% for pack in packs %}
+            {% for pack in packs.results %}
                 <li>
                     <div class="popular-card">
                         <figure class="card-img">
@@ -64,6 +63,51 @@
                 <p>Aucun pack trouvé.</p>
             {% endfor %}
         </ul>
+
+        {# Pagination Centrée #}
+        {% if packs.total_pages > 1 %}
+            <div class="pagination-wrapper">
+                <div class="pagination">
+                    {% if packs.current_page > 1 %}
+                        <a href="{{ path('app_pack_index', {'page': packs.current_page - 1}) }}" class="prev">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+
+                    {% set start = max(1, packs.current_page - 2) %}
+                    {% set end = min(packs.total_pages, start + 4) %}
+
+                    {% if start > 1 %}
+                        <a href="{{ path('app_pack_index', {'page': 1}) }}" class="page">1</a>
+                        {% if start > 2 %}
+                            <span class="dots">...</span>
+                        {% endif %}
+                    {% endif %}
+
+                    {% for i in start..end %}
+                        <a href="{{ path('app_pack_index', {'page': i}) }}" 
+                           class="page {{ packs.current_page == i ? 'active' : '' }}">
+                            {{ i }}
+                        </a>
+                    {% endfor %}
+
+                    {% if end < packs.total_pages %}
+                        {% if end < packs.total_pages - 1 %}
+                            <span class="dots">...</span>
+                        {% endif %}
+                        <a href="{{ path('app_pack_index', {'page': packs.total_pages}) }}" class="page">
+                            {{ packs.total_pages }}
+                        </a>
+                    {% endif %}
+
+                    {% if packs.current_page < packs.total_pages %}
+                        <a href="{{ path('app_pack_index', {'page': packs.current_page + 1}) }}" class="next">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
 
         <div class="text-center mt-4">
             <a href="{{ path('app_pack_new') }}" class="btn btn-primary">+ Créer un nouveau Pack</a>
@@ -119,6 +163,103 @@
     }
 </script>
 
+<style>
+    /* Style de pagination */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin: 50px 0;
+    }
+    
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .pagination a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: #333;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination a.page {
+        background: #f5f5f5;
+    }
+    
+    .pagination a.page:hover {
+        background: #e0e0e0;
+    }
+    
+    .pagination a.active {
+        background: #0d6efd;
+        color: white;
+    }
+    
+    .pagination a.prev,
+    .pagination a.next {
+        background: transparent;
+        font-size: 1.2rem;
+    }
+    
+    .pagination a.prev:hover,
+    .pagination a.next:hover {
+        color: #0d6efd;
+    }
+    
+    .pagination .dots {
+        color: #999;
+    }
 
-
+    /* Styles pour les cartes de packs */
+    .voyage-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .popular-card {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+    
+    .popular-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-content {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-title {
+        margin: 10px 0;
+        font-size: 1.2rem;
+    }
+    
+    .popular-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        padding: 0;
+        list-style: none;
+        margin-bottom: 40px;
+    }
+</style>
 {% endblock %}
