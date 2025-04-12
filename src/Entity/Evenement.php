@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
+use App\Repository\EvenementRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
-use App\Repository\EvenementRepository;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Validator\Constraints as CustomAssert;
 
 #[ORM\Entity(repositoryClass: EvenementRepository::class)]
 #[ORM\Table(name: 'evenements')]
@@ -17,6 +18,56 @@ class Evenement
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'date', nullable: false, name: 'dateDebut')]
+    #[Assert\NotBlank(message: "La date de début est obligatoire")]
+    #[Assert\Type("\DateTimeInterface", message: "La date de début doit être une date valide")]
+    #[CustomAssert\DateMinimumOffset(minDays: 15)]
+    private ?\DateTimeInterface $dateDebut = null;
+
+    #[ORM\Column(type: 'date', nullable: false, name: 'dateFin')]
+    #[Assert\NotBlank(message: "La date de fin est obligatoire")]
+    #[Assert\Type("\DateTimeInterface", message: "La date de fin doit être une date valide")]
+    #[Assert\Expression(
+        "this.getDateDebut() === null || this.getDateFin() === null || this.getDateFin() >= this.getDateDebut()",
+        message: "La date de fin doit être postérieure ou égale à la date de début"
+    )]
+    private ?\DateTimeInterface $dateFin = null;
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: "La description est obligatoire")]
+    #[Assert\Length(
+        min: 10,
+        max: 2000,
+        minMessage: "La description doit faire au moins {{ limit }} caractères",
+        maxMessage: "La description ne peut pas dépasser {{ limit }} caractères"
+    )]
+    private ?string $description = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: false)]
+    #[Assert\NotBlank(message: "Le prix est obligatoire")]
+    #[Assert\Type(type: 'numeric', message: "Le prix doit être un nombre")]
+    #[Assert\Positive(message: "Le prix doit être positif")]
+    private ?float $prix = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: false)]
+    #[Assert\NotBlank(message: "Le titre est obligatoire")]
+    #[Assert\Length(
+        min: 5,
+        max: 100,
+        minMessage: "Le titre doit faire au moins {{ limit }} caractères",
+        maxMessage: "Le titre ne peut pas dépasser {{ limit }} caractères"
+    )]
+    private ?string $titre = null;
+
+    #[ORM\ManyToOne(targetEntity: Destination::class, inversedBy: 'evenements')]
+    #[ORM\JoinColumn(name: 'location_id', referencedColumnName: 'id', nullable: false)]
+    #[Assert\NotBlank(message: "La destination est obligatoire")]
+    private ?Destination $destination = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    
+    private ?string $image = null;
 
     public function getId(): ?int
     {
@@ -29,9 +80,6 @@ class Evenement
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true, name: 'dateDebut')]
-    private ?\DateTimeInterface $dateDebut = null;
-
     public function getDateDebut(): ?\DateTimeInterface
     {
         return $this->dateDebut;
@@ -42,9 +90,6 @@ class Evenement
         $this->dateDebut = $dateDebut;
         return $this;
     }
-
-    #[ORM\Column(type: 'date', nullable: true,name: 'dateFin')]
-    private ?\DateTimeInterface $dateFin = null;
 
     public function getDateFin(): ?\DateTimeInterface
     {
@@ -57,9 +102,6 @@ class Evenement
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $description = null;
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -70,9 +112,6 @@ class Evenement
         $this->description = $description;
         return $this;
     }
-
-    #[ORM\Column(type: 'decimal', nullable: false)]
-    private ?float $prix = null;
 
     public function getPrix(): ?float
     {
@@ -85,9 +124,6 @@ class Evenement
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $titre = null;
-
     public function getTitre(): ?string
     {
         return $this->titre;
@@ -98,10 +134,6 @@ class Evenement
         $this->titre = $titre;
         return $this;
     }
-
-    #[ORM\ManyToOne(targetEntity: Destination::class, inversedBy: 'evenements')]
-    #[ORM\JoinColumn(name: 'location_id', referencedColumnName: 'id')]
-    private ?Destination $destination = null;
 
     public function getDestination(): ?Destination
     {
@@ -114,9 +146,6 @@ class Evenement
         return $this;
     }
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $image = null;
-
     public function getImage(): ?string
     {
         return $this->image;
@@ -127,5 +156,4 @@ class Evenement
         $this->image = $image;
         return $this;
     }
-
 }

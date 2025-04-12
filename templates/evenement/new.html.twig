@@ -7,56 +7,90 @@
         <div class="card shadow p-4" style="width: 100%; max-width: 600px; border-radius: 1rem;">
             <h2 class="text-center mb-4">Créer un Nouvel Événement</h2>
 
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
 
             <div class="form-group mb-3">
-                {{ form_label(form.titre) }}
-                {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'placeholder': 'Titre de l\'événement'}}) }}
-                {{ form_errors(form.titre) }}
+                {{ form_label(form.titre, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.titre, {'attr': {
+                    'class': 'form-control ' ~ (form.titre.vars.errors|length ? 'is-invalid' : ''),
+                    'placeholder': 'Titre de l\'événement'
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.titre) }}
+                </div>
             </div>
 
             <div class="form-group mb-3">
-                {{ form_label(form.description) }}
-                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5}}) }}
-                {{ form_errors(form.description) }}
+                {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.description, {'attr': {
+                    'class': 'form-control ' ~ (form.description.vars.errors|length ? 'is-invalid' : ''),
+                    'rows': 5
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.description) }}
+                </div>
             </div>
 
             <div class="form-group mb-3">
-                {{ form_label(form.prix) }}
+                {{ form_label(form.prix, null, {'label_attr': {'class': 'form-label'}}) }}
                 <div class="input-group">
                     <span class="input-group-text">€</span>
-                    {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': '0.00'}}) }}
+                    {{ form_widget(form.prix, {'attr': {
+                        'class': 'form-control ' ~ (form.prix.vars.errors|length ? 'is-invalid' : ''),
+                        'placeholder': '0.00'
+                    }}) }}
                 </div>
-                {{ form_errors(form.prix) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.prix) }}
+                </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        {{ form_label(form.dateDebut) }}
-                        {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control'}}) }}
-                        {{ form_errors(form.dateDebut) }}
+                        {{ form_label(form.dateDebut, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.dateDebut, {'attr': {
+                            'class': 'form-control ' ~ (form.dateDebut.vars.errors|length ? 'is-invalid' : ''),
+                            'min': ''|date_modify('+15 days')|date('Y-m-d')
+                        }}) }}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.dateDebut) }}
+                        </div>
+                        <small class="form-text text-muted">Minimum 15 jours après aujourd'hui</small>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        {{ form_label(form.dateFin) }}
-                        {{ form_widget(form.dateFin, {'attr': {'class': 'form-control'}}) }}
-                        {{ form_errors(form.dateFin) }}
+                        {{ form_label(form.dateFin, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.dateFin, {'attr': {
+                            'class': 'form-control ' ~ (form.dateFin.vars.errors|length ? 'is-invalid' : ''),
+                            'min': ''|date_modify('+15 days')|date('Y-m-d')
+                        }}) }}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.dateFin) }}
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="form-group mb-3">
-                {{ form_label(form.destination) }}
-                {{ form_widget(form.destination, {'attr': {'class': 'form-select'}}) }}
-                {{ form_errors(form.destination) }}
+                {{ form_label(form.destination, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.destination, {'attr': {
+                    'class': 'form-select ' ~ (form.destination.vars.errors|length ? 'is-invalid' : '')
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.destination) }}
+                </div>
             </div>
 
             <div class="form-group mb-3">
-                {{ form_label(form.image) }}
-                {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.image) }}
+                {{ form_label(form.image, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.image, {'attr': {
+                    'class': 'form-control ' ~ (form.image.vars.errors|length ? 'is-invalid' : '')
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.image) }}
+                </div>
                 <small class="form-text text-muted">Formats acceptés: JPG, PNG, WEBP (max 2MB)</small>
             </div>
 
@@ -81,5 +115,27 @@
         .card { 
             border: none;
         }
+        .invalid-feedback {
+            display: block;
+        }
     </style>
+
+    <script>
+        // Validation côté client pour les dates
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateDebutInput = document.querySelector('#{{ form.dateDebut.vars.id }}');
+            const dateFinInput = document.querySelector('#{{ form.dateFin.vars.id }}');
+            
+            if (dateDebutInput && dateFinInput) {
+                dateDebutInput.addEventListener('change', function() {
+                    const minDate = this.value;
+                    dateFinInput.min = minDate;
+                    
+                    if (dateFinInput.value && dateFinInput.value < minDate) {
+                        dateFinInput.value = minDate;
+                    }
+                });
+            }
+        });
+    </script>
 {% endblock %}

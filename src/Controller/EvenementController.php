@@ -58,7 +58,7 @@ public function new(Request $request, EntityManagerInterface $em, SluggerInterfa
         $em->flush();
 
         $this->addFlash('success', 'Événement ajouté avec succès.');
-        return $this->redirectToRoute('app_evenement_index');
+        return $this->redirectToRoute('admin_evenement_list');
     }
 
     return $this->render('evenement/new.html.twig', [
