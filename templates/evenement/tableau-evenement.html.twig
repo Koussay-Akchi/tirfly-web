@@ -68,7 +68,6 @@
     <table class="table table-bordered table-hover align-middle text-center">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
                 <th>Image</th>
                 <th>Titre</th> <!-- Changement ici -->
                 <th>Description</th> <!-- Nouvelle colonne pour la description -->
@@ -81,7 +80,6 @@
         <tbody>
             {% for evenement in evenements %}
                 <tr>
-                    <td>{{ evenement.id }}</td>
                     <td>
                         {% if evenement.image %}
                             <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="Image" class="event-img">
