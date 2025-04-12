@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réserver
+	{{ type }}
+{% endblock %}
+
+{% block body %}
+	<div class="container" style="max-width: 700px; margin: auto; padding: 20px;">
+		<h2 class="text-center">
+			Réserver
+			{{ type == 'voyage' ? 'voyage' : (type == 'hebergement' ? 'hébergement' : 'pack') }}
+			:
+			{{ selected.nom }}
+		</h2>
+		{% if app.flashes('success') %}
+			<div class="alert alert-success">
+				{% for msg in app.flashes('success') %}
+					{{ msg }}
+				{% endfor %}
+			</div>
+		{% endif %}
+		{% if app.flashes('error') %}
+			<div class="alert alert-danger">
+				{% for msg in app.flashes('error') %}
+					{{ msg }}
+				{% endfor %}
+			</div>
+		{% endif %}
+
+		<form method="post">
+			<div class="form-group">
+				<label for="personCount">Nombre de personnes:</label>
+				<input type="number" id="personCount" name="personCount" class="form-control" min="1" max="10" value="{{ formData.personCount }}">
+			</div>
+
+			{% if type == 'hebergement' %}
+				<div class="form-group">
+					<label for="jours">Nombre de jours:</label>
+					<input type="number" id="jours" name="jours" class="form-control" min="1" max="30" value="{{ formData.jours }}">
+				</div>
+				<div class="form-group">
+					<label for="reservationDate">Date de réservation:</label>
+					<input type="date" id="reservationDate" name="reservationDate" class="form-control" value="{{ formData.reservationDate }}">
+				</div>
+			{% elseif type == 'voyage' %}
+				{# For voyage, the date may be set automatically. You can include hidden field if necessary. #}
+				<input type="hidden" id="reservationDate" name="reservationDate" value="{{ formData.reservationDate }}">
+			{% elseif type == 'pack' %}
+				<input type="hidden" id="reservationDate" name="reservationDate" value="{{ formData.reservationDate }}">
+			{% endif %}
+
+			<div class="form-group">
+				<label for="coupon">Coupon (facultatif):</label>
+				<input type="text" id="coupon" name="coupon" class="form-control" placeholder="Entrez le code coupon">
+			</div>
+
+			<div class="form-group">
+				<label>Prix total:</label>
+				<div id="priceDetails" style="font-weight: bold;">0.000 DT</div>
+			</div>
+
+			<button type="submit" class="btn btn-primary btn-block">Confirmer la réservation</button>
+		</form>
+	</div>
+
+	 <script>
+			// JavaScript to update total price dynamically
+			document.addEventListener("DOMContentLoaded", function() {
+			    const type = "{{ type }}";
+			    const selectedPrice = parseFloat("{{ selectedPrice }}");
+			
+			    const personCountInput = document.getElementById("personCount");
+			    const joursInput = document.getElementById("jours");
+			    const priceDetails = document.getElementById("priceDetails");
+			
+			    function updateTotalPrice() {
+			        const personCount = parseInt(personCountInput.value) || 1;
+			        let jours = 1;
+			        if (type === "hebergement" && joursInput) {
+			            jours = parseInt(joursInput.value) || 1;
+			        }
+			        const totalPrice = personCount * selectedPrice * (type === "hebergement" ? jours : 1);
+			        priceDetails.textContent = totalPrice.toFixed(3) + " DT";
+			    }
+			
+			    personCountInput.addEventListener("change", updateTotalPrice);
+			    if (joursInput) {
+			        joursInput.addEventListener("change", updateTotalPrice);
+			    }
+			    
+			    updateTotalPrice();
+			});
+			</script>
+{% endblock %}
