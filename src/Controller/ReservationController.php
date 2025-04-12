@@ -53,7 +53,6 @@ class ReservationController extends AbstractController
         ]);
     }
 
-
     #[Route('/admin/reservations', name: 'admin_liste_reservations')]
     public function adminReservations(Request $request, ReservationRepository $reservationRepository, PaginatorInterface $paginator): Response
     {
