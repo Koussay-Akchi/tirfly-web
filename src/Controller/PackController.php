@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use GuzzleHttp\Client;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 
 class PackController extends AbstractController
 {
@@ -140,6 +143,6 @@ public function show(Pack $pack): Response
     ]);
 }
 
-    
+
    
 }

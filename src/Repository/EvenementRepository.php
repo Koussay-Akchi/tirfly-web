@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Evenement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * @extends ServiceEntityRepository<Evenement>
@@ -15,7 +16,28 @@ class EvenementRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Evenement::class);
     }
+  
 
+public function findPaginated(int $page, int $limit): array
+{
+    $query = $this->createQueryBuilder('e')
+        ->orderBy('e.dateDebut', 'DESC')
+        ->getQuery()
+        ->setFirstResult(($page - 1) * $limit)
+        ->setMaxResults($limit);
+
+    $paginator = new Paginator($query);
+    $total = count($paginator);
+    $pages = ceil($total / $limit);
+
+    return [
+        'results' => $paginator,
+        'current_page' => $page,
+        'max_per_page' => $limit,
+        'total_pages' => $pages,
+        'total_items' => $total
+    ];
+}
     //    /**
     //     * @return Evenement[] Returns an array of Evenement objects
     //     */

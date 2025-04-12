@@ -5,7 +5,9 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
             packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
+            evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
 
+            
 services:
     # default configuration for services in *this* file
     _defaults:

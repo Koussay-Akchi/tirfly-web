@@ -114,8 +114,8 @@ class Evenement
         return $this;
     }
 
-    #[ORM\Column(type: 'blob', nullable: true)]
-    private $image = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $image = null;
 
     public function getImage(): ?string
     {
