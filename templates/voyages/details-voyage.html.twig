@@ -6,11 +6,17 @@
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-	
-	
+
+
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" integrity="sha512-utbX0HcOOX7GxR7Fj8JkXmStPj/paj3nX4xAw4j7Y7WInFhX5V+0/4DbZq8bOoT1uUiyWd7yDyO3ewmNudtQ==" crossorigin="anonymous" />
 
-	
+	{% set climat_icons = {
+		'2': 'sun.png',
+		'4': 'desert.png',
+		'3': 'snowflake.png',
+		'1': 'tropical.png'
+	} %}
+
 	<style>
 		@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap');
 		* {
@@ -26,16 +32,13 @@
 			padding: 1rem;
 		}
 		img { width: 100%; display: block; }
-		.img-display { overflow: hidden; }
+		.img-display { overflow: hidden; position: relative; }
 		.img-showcase {
 			display: flex;
 			width: 100%;
 			transition: all 0.5s ease;
 		}
 		.img-showcase img { min-width: 100%; }
-		.img-select { display: flex; margin-top: 0.5rem; }
-		.img-item { margin: 0.3rem; }
-		.img-item:hover { opacity: 0.8; }
 		.product-content { padding: 2rem 1rem; }
 		.product-title {
 			font-size: 2rem;
@@ -82,11 +85,29 @@
 			margin-bottom: 1rem;
 			cursor: pointer;
 			color: #fff;
-			/* Bouton Reserver en vert */
 			background: #28a745;
 		}
 		.purchase-info .btn:hover { opacity: 0.9; }
-		
+
+		.badge-climat {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 80px;
+			height: 80px;
+			background-color: #007bff;
+			border-bottom-right-radius: 100%;
+			z-index: 1;
+		}
+		.badge-climat img {
+			width: 50px;
+			height: 50px;
+			position: absolute;
+			top: 5px;
+			left: 5px;
+			object-fit: cover;
+		}
+
 		@media screen and (min-width: 992px) {
 			.card {
 				display: grid;
@@ -104,7 +125,6 @@
 		}
 	</style>
 
-	
 	<script type="module">
 		import ClimatService from '/js/ClimatService.js';
 
@@ -124,27 +144,38 @@
 	</script>
 
 	<main class="main">
-		
 		<div class="card-wrapper">
-			<div class="card">
-				
+			<div class="card">		
+				<div class="badge-climat">
+					<img src="{{ asset('images/' ~ (climat_icons[voyage.destination.climat] ?? 'default.jpg')) }}" alt="Climat">
+				</div>
 				<div class="product-imgs">
 					<div class="img-display">
+
+
 						<div class="img-showcase">
 							<img src="{{ asset(voyage.getImage() ? voyage.getImage() : 'images/default.jpg') }}" alt="Image du voyage">
 						</div>
 					</div>
-					
 				</div>
+
 				<div class="product-content">
 					<h2 class="product-title">{{ voyage.nom }}</h2>
 					<div class="product-detail">
 						<h2>Détails du Voyage :</h2>
 						<ul>
-							<li>Destination : <span>{{ voyage.destination.ville }}, {{ voyage.destination.pays }}</span></li>
-							<li>Dates : <span>{{ voyage.dateDepart|date('d/m/Y') }} - {{ voyage.dateArrive|date('d/m/Y') }}</span></li>
-							<li>Durée : <span>{{ voyage.dateDepart.diff(voyage.dateArrive).days }} jours</span></li>
-							<li>Formule : <span>{{ voyage.formule }}</span></li>
+							<li>Destination :
+								<span>{{ voyage.destination.ville }}, {{ voyage.destination.pays }}</span>
+							</li>
+							<li>Dates :
+								<span>{{ voyage.dateDepart|date('d/m/Y') }} - {{ voyage.dateArrive|date('d/m/Y') }}</span>
+							</li>
+							<li>Durée :
+								<span>{{ voyage.dateDepart.diff(voyage.dateArrive).days }} jours</span>
+							</li>
+							<li>Formule :
+								<span>{{ voyage.formule|replace({'_': ' '})|lower|capitalize }}</span>
+							</li>
 							<li>Note :
 								<span class="stars">
 									{% for i in 1..5 %}
@@ -153,13 +184,13 @@
 										{% elseif i - 0.5 == voyage.note %}
 											✬
 										{% else %}
-											☆
+											☆ 
 										{% endif %}
 									{% endfor %}
 								</span>
 							</li>
 							<li>
-								Météo actuelle : 
+								Météo actuelle :
 								<span id="current-temperature">Chargement...</span>
 								<div id="weather" data-lat="{{ voyage.destination.latitude }}" data-lon="{{ voyage.destination.longitude }}" style="display:inline;"></div>
 							</li>
@@ -167,7 +198,9 @@
 						<p>{{ voyage.description }}</p>
 					</div>
 					<div class="product-price">
-						<p class="new-price">Prix : <span>{{ voyage.prix }} DT</span></p>
+						<p class="new-price">Prix :
+							<span>{{ voyage.prix }} DT/Personne</span>
+						</p>
 					</div>
 					<div class="purchase-info">
 						<button type="button" class="btn reserver" onclick="window.location.href='{{ path('reservation_form', {'id': voyage.id}) }}'">Reserver</button>
@@ -221,28 +254,4 @@
 			</div>
 		</div>
 	</main>
-
-	
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js" integrity="sha512-3fNkMRLujk1bIkXX+6F25fxlmxY1BPKDgGrY9CewdN7L3v3Y2Nz8PVo7+ZbbIYivhhH5eEJv2PocK5b6+5uF5g==" crossorigin="anonymous"></script>
-	<script>
-		$(document).ready(function() {
-			// Initialisation du slider avec OwlCarousel
-			$('.img-showcase').owlCarousel({
-				items: 1,
-				loop: true,
-				nav: false,
-				dots: false,
-				autoplay: false,
-				autoplayTimeout: 3000,
-				smartSpeed: 600
-			});
-
-			$('.img-select a').on('click', function(e) {
-				e.preventDefault();
-				var index = $(this).data('id') - 1;
-				$('.img-showcase').trigger('to.owl.carousel',[index,600]);
-			});
-		});
-	</script>
 {% endblock %}
