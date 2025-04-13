@@ -1,0 +1,60 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Liste des Destinations
+{% endblock %}
+
+{% block body %}
+	<main class="main">
+		<div class="table-container">
+			<h1 class="table-title">Liste des destinations</h1>
+			<div class="table-responsive">
+
+				<table class="table table-striped table-hover voyage-table">
+					<thead class="table-dark">
+						<tr>
+							<th>ID</th>
+							<th>Ville</th>
+							<th>Pays</th>
+							<th>Latitude</th>
+							<th>Longitude</th>
+							<th>Climat</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for destination in destinations %}
+							<tr>
+								<td>{{ destination.id }}</td>
+								<td>{{ destination.ville }}</td>
+								<td>{{ destination.pays }}</td>
+								<td>{{ destination.latitude }}</td>
+								<td>{{ destination.longitude }}</td>
+								<td>
+									{% set climatLabels = {
+										1: 'Tropical',
+										2: 'Chaud',
+										3: 'Froid',
+										4: 'Desert'
+									} %}
+									{{ climatLabels[destination.climat] ?? 'Inconnu' }}
+								</td>
+
+								<td>
+									<div class="table-actions"  style="display: flex">
+										<button class="btn btn-success" onclick="window.location.href='{{ path('details_destination', {'id': destination.id}) }}'">Details</button>
+										<button class="btn btn-primary" onclick="window.location.href='{{ path('edit_destination', {'id': destination.id}) }}'">Modifier</button>
+										<button class="btn btn-danger" onclick="if(confirm('Supprimer ce destination ?')) window.location.href='{{ path('delete_destination', {'id': destination.id}) }}'">Supprimer</button>
+									</div>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="7" class="text-center">Aucune destination trouvée.</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</h1>
+		</div>
+	</div>
+</main>{% endblock %}

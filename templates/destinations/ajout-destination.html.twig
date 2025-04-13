@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une Destination
+{% endblock %}
+
+{% block body %}
+	<div class="destination-form-container">
+		<h2 class="text-center mb-4">Ajouter une Destination</h2>
+		{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'destination-form'}}) }}
+
+		<div class="form-group mb-3">
+			{{ form_label(form.ville) }}
+			{{ form_widget(form.ville, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom de la ville', 'id': 'villeInput'}}) }}
+			{{ form_errors(form.ville) }}
+		</div>
+
+		<div class="form-group mb-3">
+			{{ form_label(form.pays) }}
+			{{ form_widget(form.pays, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom du pays', 'id': 'paysInput'}}) }}
+			{{ form_errors(form.pays) }}
+		</div>
+
+		<div class="form-group mb-3">
+			{{ form_label(form.latitude) }}
+			{{ form_widget(form.latitude, {'attr': {'class': 'form-control', 'placeholder': 'Latitude', 'id': 'latitudeInput'}}) }}
+			{{ form_errors(form.latitude) }}
+		</div>
+
+		<div class="form-group mb-3">
+			{{ form_label(form.longitude) }}
+			{{ form_widget(form.longitude, {'attr': {'class': 'form-control', 'placeholder': 'Longitude', 'id': 'longitudeInput'}}) }}
+			{{ form_errors(form.longitude) }}
+		</div>
+
+		<div class="form-group mb-3">
+			<label for="climatSelect">Climat</label>
+            <select class="form-control" id="climatSelect" name="climatSelect">
+				<option value="1">Tropical</option>
+				<option value="2">Chaud</option>
+				<option value="3">Froid</option>
+				<option value="4">Desert</option>
+			</select>
+		</div>
+
+		<div class="map-container mb-3">
+			<div id="map" style="width:100%; height:300px;"></div>
+		</div>
+
+
+		<div class="text-center">
+			<button type="submit" class="btn btn-success">Ajouter la destination</button>
+		</div>
+
+		{{ form_end(form) }}
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css"/>
+	<script type="module">
+		import ClimatService from '/js/ClimatService.js';
+
+const climatService = new ClimatService();
+let map = L.map('map').setView([
+20, 0
+], 2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+maxZoom: 19,
+attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+let currentMarker;
+
+map.on('click', async function (e) {
+let lat = e.latlng.lat;
+let lng = e.latlng.lng;
+
+if (currentMarker) {
+map.removeLayer(currentMarker);
+}
+currentMarker = L.marker([lat, lng]).addTo(map);
+
+document.getElementById('{{ form.latitude.vars.id }}').value = lat;
+document.getElementById('{{ form.longitude.vars.id }}').value = lng;
+
+await predictClimat(lat, lng);
+});
+
+async function predictClimat(lat, lng) {
+
+    const climat = await climatService.getClimatEnum(lat, lng);
+    if (climat !== null) {
+        document.getElementById('climatSelect').value = climat;
+    }
+
+    const location = await climatService.getVilleEtPays(lat, lng);
+    if (location) {
+        document.getElementById('villeInput').value = location.ville;
+        document.getElementById('paysInput').value = location.pays;
+    }
+}
+
+document.getElementById('villeInput').addEventListener('change', async function () {
+const ville = this.value;
+if (ville.trim() === '') 
+return;
+
+
+
+const coords = await climatService.getCoordonnes(ville);
+if (! coords) 
+return;
+
+
+
+const [lat, lng] = coords;
+document.getElementById('latitudeInput').value = lat;
+document.getElementById('longitudeInput').value = lng;
+
+if (currentMarker) {
+map.removeLayer(currentMarker);
+}
+currentMarker = L.marker([lat, lng]).addTo(map);
+map.setView([
+lat, lng
+], 10);
+
+await predictClimat(lat, lng);
+});
+	</script>
+{% endblock %}

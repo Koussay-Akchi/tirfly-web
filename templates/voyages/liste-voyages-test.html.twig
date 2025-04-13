@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+
+    <main class="main">
+
+      <article>
+    
+      <section>
+        <h1>test Liste des Voyages</h1>
+        <ul id="voyage-list">
+            {% for voyage in voyages %}
+                <li>{{ voyage.nom }} - {{ voyage.prix }}€</li>
+            {% endfor %}
+        </ul>
+      </section>
+
+    </article>
+  </main>
+    <script>
+        const voyages = {{ voyages|json_encode|raw }};
+        console.log(voyages);
+    </script>
+{% endblock %}
