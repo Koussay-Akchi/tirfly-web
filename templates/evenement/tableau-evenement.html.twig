@@ -1,6 +1,6 @@
 {% extends 'base-staff.html.twig' %}
 
-{% block title %}Admin - Liste des Packs{% endblock %}
+{% block title %}Admin - Liste des Événements{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -48,57 +48,65 @@
             background-color: #bb2d3b;
             transform: scale(1.05);
         }
+
+        img.event-img {
+            width: 100px;
+            height: auto;
+            border-radius: 6px;
+        }
     </style>
 {% endblock %}
 
 {% block body %}
 <div class="container mt-5">
-    <h1 class="mb-4">📦 Gestion des Packs</h1>
+    <h1 class="mb-4">🎉 Gestion des Événements</h1>
 
     <div class="mb-4 text-end">
-        <a href="{{ path('app_pack_new') }}" class="btn-add">➕ Ajouter un nouveau Pack</a>
+        <a href="{{ path('app_evenement_new') }}" class="btn-add">➕ Ajouter un nouvel Événement</a>
     </div>
 
     <table class="table table-bordered table-hover align-middle text-center">
         <thead class="table-dark">
             <tr>
                 <th>Image</th>
-                <th>Nom</th>
+                <th>Titre</th> <!-- Changement ici -->
+                <th>Description</th> <!-- Nouvelle colonne pour la description -->
                 <th>Prix (€)</th>
-                <th>Voyages</th>
+                <th>Dates</th>
+                <th>Destination</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for pack in packs %}
+            {% for evenement in evenements %}
                 <tr>
-                    
                     <td>
-                        {% if pack.image %}
-                            <img src="{{ asset('uploads/packs/' ~ pack.image) }}" alt="Image" width="100" class="img-thumbnail">
+                        {% if evenement.image %}
+                            <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="Image" class="event-img">
                         {% else %}
                             <span class="text-muted">Aucune image</span>
                         {% endif %}
                     </td>
-                    <td>{{ pack.nom }}</td>
-                    <td>{{ pack.prix }}</td>
+                    <td>{{ evenement.titre }}</td> <!-- Changement ici -->
+                    <td>{{ evenement.description }}</td> <!-- Affichage de la description -->
+                    <td>{{ evenement.prix }}</td>
                     <td>
-                        {% for voyage in pack.voyages %}
-                            <span class="badge bg-primary">{{ voyage.nom }}</span>
-                        {% else %}
-                            <span class="text-muted">Aucun</span>
-                        {% endfor %}
+                        Du {{ evenement.dateDebut|date('d/m/Y') }}<br>
+                        au {{ evenement.dateFin|date('d/m/Y') }}
                     </td>
                     <td>
-                        <a href="{{ path('app_pack_edit', {id: pack.id}) }}" class="btn-edit me-2">✏️ Modifier</a>
-                        <a href="{{ path('app_pack_delete', {id: pack.id}) }}"
+                        {{ evenement.destination.ville }}, {{ evenement.destination.pays }}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_evenement_edit', {id: evenement.id}) }}" class="btn-edit me-2">✏️ Modifier</a>
+                        <a href="{{ path('app_evenement_delete', {id: evenement.id}) }}"
                            class="btn-delete"
-                           onclick="return confirm('Supprimer ce pack ?')">🗑️ Supprimer</a>
+                           onclick="return confirm('Supprimer cet événement ?')">🗑️ Supprimer</a>
                     </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="6" class="text-center text-muted">Aucun pack trouvé.</td>
+                    <td colspan="8" class="text-center text-muted">Aucun événement trouvé.</td>
                 </tr>
             {% endfor %}
         </tbody>

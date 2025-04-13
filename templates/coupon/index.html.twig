@@ -1,0 +1,50 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Liste des Coupons{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Liste des Coupons</h1>
+        <a href="{{ path('app_coupon_new') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle-fill"></i> Ajouter un Coupon
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <table class="table table-bordered table-hover text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Code</th>
+                        <th>Remise</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coupon in coupons %}
+                        <tr>
+                            <td>{{ coupon.code }}</td>
+                            <td>{{ coupon.remise }} %</td>
+                            <td>
+                                <a href="{{ path('app_coupon_edit', {id: coupon.id}) }}" class="btn btn-sm btn-outline-primary me-2">
+                                    <i class="bi bi-pencil-square"></i> Modifier
+                                </a>
+                                <a href="{{ path('app_coupon_delete', {id: coupon.id}) }}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce coupon ?')">
+                                    <i class="bi bi-trash-fill"></i> Supprimer
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3">Aucun coupon trouvé.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

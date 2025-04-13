@@ -23,10 +23,14 @@ class QrCodeService {
         const img = document.createElement("img");
         img.src = this.generateQrCodeUrl(data);
         img.alt = "QR Code";
-        img.width = 150;
-        img.height = 150;
+        img.width = 50;
+        img.height = 50;
         targetElement.innerHTML = ""; // Clear previous content
+        
+        targetElement.width = 10;
+        targetElement.height = 10;
         targetElement.appendChild(img);
+        
     }
 }
 
