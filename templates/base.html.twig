@@ -17,7 +17,7 @@
 
 		{% include 'main/navbar.html.twig' %}
 
-		{% if app.request.pathInfo != '/' and not app.request.pathInfo starts with '/reservations/new' %}
+		{% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
 			<div style="margin-bottom: 180px;"></div>
 		{% endif %}
 
@@ -25,7 +25,7 @@
 			{% block body %}{% endblock %}
 		</main>
 
-		{% if app.request.pathInfo != '/' and not app.request.pathInfo starts with '/reservations/new' %}
+		{% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
 			<div style="margin-bottom: 50px;"></div>
 		{% endif %}
 
