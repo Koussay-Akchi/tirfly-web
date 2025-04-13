@@ -1,16 +1,8 @@
 controllers:
-    resource: ../src/Controller/
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
     type: attribute
-chatbot_home:
-    path: /chatbot
-    controller: App\Controller\ChatBotController::index
-
-chatbot_ask:
-    path: /chatbot/ask
-    controller: App\Controller\ChatBotController::ask
-    methods: ['POST']
-    # config/routes.yaml
-feedbacks:
-  resource: '../src/Controller/FeedbackController.php'
-  type: annotation
-
+api_login_check:
+    path: /api/login
+    controller: null

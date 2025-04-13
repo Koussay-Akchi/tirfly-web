@@ -37,7 +37,7 @@ class Reclamation
     #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
     private ?Client $client = null;
 
-    #[ORM\Column(type: 'string', nullable: true, name: "videoPath")]
+    #[ORM\Column(type: 'string', nullable: false, name: "videoPath")]
     #[Assert\Regex(
         pattern: "/\.(mp4|avi|mpeg|mov)$/i",
         message: "Le fichier doit être une vidéo avec une extension valide (mp4, avi, mpeg, mov)."
@@ -117,6 +117,7 @@ class Reclamation
         return $this;
     }
 
+
     public function getVideoPath(): ?string
     {
         return $this->videoPath;
@@ -127,6 +128,7 @@ class Reclamation
         $this->videoPath = $videoPath;
         return $this;
     }
+
 
     public function getIsRed(): ?string
     {

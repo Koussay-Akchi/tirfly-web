@@ -48,8 +48,7 @@
 
 									<div class="card-price">{{ voyage.prix }}
 										DT</div>
-                            <button class="card-feedback-button" onclick="window.location.href='{{ path('ajouter_feedback', {'id': voyage.id}) }}'">Ajouter un feedback</button>
-
+                           <a href="{{ path('ajouter_feedbackk', {'id': voyage.id}) }}" class="card-feedback-button btn btn-primary">Donner un feedback</a>
 									<button class="card-reserve-button" onclick="window.location.href='{{ path('reservation_form', {'id': voyage.id}) }}'">Réserver</button>
 								</div>
 							</a>

@@ -43,7 +43,7 @@ class Payment
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true,name: 'dateSubmit')]
     private ?\DateTimeInterface $dateSubmit = null;
 
     public function getDateSubmit(): ?\DateTimeInterface

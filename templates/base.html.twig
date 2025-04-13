@@ -17,7 +17,7 @@
 	</head>
 	<body id="top">
 
-		{% include 'main/navbar.html.twig' %}
+    {% include 'main/navbar.html.twig' %}
 
 		{% if app.request.uri != app.request.schemeAndHttpHost ~ '/' %}
 			<div style="margin-bottom: 180px;"></div>
@@ -32,11 +32,11 @@
 		{% endif %}
 
 
-		{% include 'main/footer.html.twig' %}
+    {% include 'main/footer.html.twig' %}
 
-		<a href="#top" class="go-top" data-go-top>
-			<ion-icon name="chevron-up-outline"></ion-icon>
-		</a>
+    <a href="#top" class="go-top" data-go-top>
+        <ion-icon name="chevron-up-outline"></ion-icon>
+    </a>
 
 		<script src="{{ asset('js/script.js') }}"></script>
 		<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
@@ -44,5 +44,33 @@
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
-	</body>
+    <script>
+        // Dynamic navbar height adjustment
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.querySelector('.navbar');
+            if(navbar) {
+                const navbarHeight = navbar.offsetHeight;
+                document.body.style.paddingTop = `${navbarHeight}px`;
+                
+                // Update on window resize
+                window.addEventListener('resize', () => {
+                    const newHeight = navbar.offsetHeight;
+                    document.body.style.paddingTop = `${newHeight}px`;
+                });
+            }
+        });
+    </script>
+	<style>
+	.navbar {
+    transition: all 0.3s ease;
+}
+
+.go-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+	</style>
+</body>
 </html>

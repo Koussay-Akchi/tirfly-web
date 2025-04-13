@@ -29,7 +29,7 @@ class Message
         return $this;
     }
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true, name:"dateEnvoi")]
     private ?\DateTimeInterface $dateEnvoi = null;
 
     public function getDateEnvoi(): ?\DateTimeInterface
@@ -43,19 +43,6 @@ class Message
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $expediteur = null;
-
-    public function getExpediteur(): ?string
-    {
-        return $this->expediteur;
-    }
-
-    public function setExpediteur(?string $expediteur): self
-    {
-        $this->expediteur = $expediteur;
-        return $this;
-    }
 
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $message = null;
@@ -71,19 +58,6 @@ class Message
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $recepteur = null;
-
-    public function getRecepteur(): ?string
-    {
-        return $this->recepteur;
-    }
-
-    public function setRecepteur(?string $recepteur): self
-    {
-        $this->recepteur = $recepteur;
-        return $this;
-    }
 
     #[ORM\ManyToOne(targetEntity: Chat::class, inversedBy: 'messages')]
     #[ORM\JoinColumn(name: 'chat_id', referencedColumnName: 'id')]

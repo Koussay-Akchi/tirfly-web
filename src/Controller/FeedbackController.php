@@ -15,26 +15,45 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Security\Core\Security;
+use Knp\Component\Pager\PaginatorInterface;
 
 class FeedbackController extends AbstractController
-{
+{ 
+    private $security;
+
+    public function __construct( Security $security )
+    {
+        $this->security = $security;
+       
+    }
     // Route pour afficher tous les feedbacks
     #[Route('/feedbacks', name: 'liste_feedbacks')]
-    public function index(FeedbackRepository $feedbackRepository): Response
+    public function index(FeedbackRepository $feedbackRepository, Request $request, PaginatorInterface $paginator): Response
     {
-        $feedbacks = $feedbackRepository->findAll();
-
+        $feedbacksQuery = $feedbackRepository->createQueryBuilder('f')
+            ->orderBy('f.dateFeedback', 'DESC')
+            ->getQuery();
+    
+        $pagination = $paginator->paginate(
+            $feedbacksQuery,
+            $request->query->getInt('page', 1), // page actuelle
+            5 // nombre de feedbacks par page
+        );
+    
         return $this->render('feedbacks/liste.html.twig', [
-            'feedbacks' => $feedbacks,
+            'feedbacks' => $pagination,
         ]);
     }
 
     // Route pour ajouter un feedback à un voyage spécifique
-    #[Route('/voyage/{id}/feedback', name: 'ajouter_feedback')]
+    #[Route('/voyage/{id}/feedback', name: 'ajouter_feedbackk')]
+
     public function ajout(int $id, Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
     {
         $voyage = $entityManager->getRepository(Voyage::class)->find($id);
-        $client = $entityManager->getRepository(Client::class)->find(2);
+        $client = $this->security->getUser();
+
     
         if (!$voyage) {
             throw $this->createNotFoundException('Voyage introuvable.');

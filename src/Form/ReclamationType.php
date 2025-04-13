@@ -57,19 +57,6 @@ class ReclamationType extends AbstractType
                         'mimeTypesMessage' => 'Veuillez télécharger une vidéo valide (MP4, MPEG, MOV).',
                     ])
                 ],
-            ])
-            // Use HiddenType for isRed to hide it
-            ->add('isRed', HiddenType::class, [
-                'data' => '0',  // Set default value to '0'
-                'mapped' => false,  // Not mapped to the entity
-            ])
-            ->add('client', EntityType::class, [
-                'class' => Client::class,
-                'choice_label' => function (Client $client) {
-                    return $client->getNom();  // Display the client name instead of ID
-                },
-                'label' => 'Client :',
-                'placeholder' => 'Sélectionnez un client',
             ]);
     }
 

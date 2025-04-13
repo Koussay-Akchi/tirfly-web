@@ -7,14 +7,15 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+        public: false
         bind:
-            $geminiApiKey: '%google_api_key%'  # Liaison globale pour les arguments string nommés $geminiApiKey
-
-    App\Service\BadWordsFilterService: ~
-    
+            $geminiApiKey: '%google_api_key%'
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+    App\Controller\ClientController:
+        arguments:
+            $passwordHasher: '@security.user_password_hasher'

@@ -24,7 +24,8 @@ class Voyage
     private ?\DateTimeInterface $dateDepart = null;
 
     #[ORM\Column(type: 'string', nullable: true, name: 'description')]
-    private ?string $description = null;
+       private ?string $description = null;
+
 
     #[ORM\Column(type: 'blob', nullable: true, name: 'image')]
     private $image = null;

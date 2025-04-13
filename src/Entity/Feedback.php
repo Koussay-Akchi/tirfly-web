@@ -71,6 +71,10 @@ class Feedback
         return $this;
     }
 
+    
+
+
+
     public function getNote(): ?float
     {
         return $this->note;
