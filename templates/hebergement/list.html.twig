@@ -1,0 +1,188 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Liste des hébergements{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .badge-hotel {
+            background-color: #0d6efd;
+        }
+        .badge-logement {
+            background-color: #198754;
+        }
+        .badge-foyer {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .action-buttons .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        @media (max-width: 768px) {
+            .action-buttons .btn {
+                display: block;
+                width: 100%;
+            }
+        }
+        .star-rating {
+            white-space: nowrap;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">
+            <i class="fas fa-hotel me-2"></i>Liste des hébergements
+        </h1>
+        <a href="{{ path('app_hebergement_add') }}" class="btn btn-success">
+            <i class="fas fa-plus me-2"></i>Ajouter
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#ID</th>
+                            <th>Nom</th>
+                            <th class="text-center">Classement</th>
+                            <th>Type</th>
+                            <th>Destination</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hebergement in hebergements %}
+                            <tr>
+                                <td class="fw-bold">{{ hebergement.id }}</td>
+                                <td>
+                                    <a href="{{ path('hebergement_show', {'id': hebergement.id}) }}" class="text-decoration-none">
+                                        {{ hebergement.nom }}
+                                    </a>
+                                </td>
+                                <td class="text-center star-rating">
+                                    {% for i in 1..5 %}
+                                        {% if i <= hebergement.classement %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if hebergement.hotels is not empty %}
+                                        <span class="badge badge-hotel rounded-pill">
+                                            <i class="fas fa-hotel me-1"></i>Hôtel
+                                        </span>
+                                    {% elseif hebergement.logements is not empty %}
+                                        <span class="badge badge-logement rounded-pill">
+                                            <i class="fas fa-home me-1"></i>Logement
+                                        </span>
+                                    {% elseif hebergement.foyers is not empty %}
+                                        <span class="badge badge-foyer rounded-pill">
+                                            <i class="fas fa-users me-1"></i>Foyer
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if hebergement.destination %}
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            {{ hebergement.destination.pays }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end action-buttons">
+                                    <a href="{{ path('hebergement_show', {'id': hebergement.id}) }}" 
+                                       class="btn btn-sm btn-info" 
+                                       data-bs-toggle="tooltip" 
+                                       data-bs-placement="top"
+                                       title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('edit_hebergement', {'id': hebergement.id}) }}" 
+                                       class="btn btn-sm btn-warning"
+                                       data-bs-toggle="tooltip" 
+                                       data-bs-placement="top"
+                                       title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="post" 
+                                          action="{{ path('delete_hebergement', {'id': hebergement.id}) }}" 
+                                          class="d-inline" 
+                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet hébergement ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ hebergement.id) }}">
+                                        <button class="btn btn-sm btn-danger" 
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-placement="top"
+                                                title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                                        <h5>Aucun hébergement trouvé</h5>
+                                        <a href="{{ path('app_hebergement_add') }}" class="btn btn-primary mt-2">
+                                            <i class="fas fa-plus me-2"></i>Ajouter un hébergement
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if hebergements|length > 0 %}
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted">
+                Affichage de <strong>{{ hebergements|length }}</strong> hébergement(s)
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltipTriggerList.forEach(tooltipTriggerEl => {
+                new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'hover focus'
+                });
+            });
+
+            // Add confirmation for delete actions
+            const deleteForms = document.querySelectorAll('form[onsubmit]');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Êtes-vous sûr de vouloir supprimer cet hébergement ?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

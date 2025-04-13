@@ -76,9 +76,20 @@ class Hebergement
 
     public function getImage(): ?string
     {
+        if ($this->image === null) {
+            return null;
+        }
+        
+        if (is_resource($this->image)) {
+            // If it's a resource (when freshly fetched from DB)
+            rewind($this->image);
+            return stream_get_contents($this->image);
+        }
+        
+        // If it's already a string (when cached)
         return $this->image;
     }
-
+    
     public function setImage(?string $image): self
     {
         $this->image = $image;
@@ -238,6 +249,8 @@ class Hebergement
         $this->logements = new ArrayCollection();
         $this->reservations = new ArrayCollection();
         $this->packs = new ArrayCollection();
+        $this->services = new ArrayCollection();
+
     }
 
     /**
@@ -301,5 +314,41 @@ class Hebergement
         $this->getPacks()->removeElement($pack);
         return $this;
     }
+    #[ORM\OneToMany(mappedBy: 'hebergement', targetEntity: Service::class, cascade: ['persist', 'remove'])]
+private Collection $services;
+/**
+ * @return Collection<int, Service>
+ */
+public function getServices(): Collection
+{
+    return $this->services;
+}
+
+public function addService(Service $service): self
+{
+    if (!$this->services->contains($service)) {
+        $this->services[] = $service;
+        $service->setHebergement($this);
+    }
+
+    return $this;
+}
+
+public function removeService(Service $service): self
+{
+    if ($this->services->removeElement($service)) {
+        // Set the owning side to null (unless already changed)
+        if ($service->getHebergement() === $this) {
+            $service->setHebergement(null);
+        }
+    }
+
+    return $this;
+}
+
+
+
+
+
 
 }
