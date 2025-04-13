@@ -23,7 +23,7 @@ class PackController extends AbstractController
 public function index(Request $request, PackRepository $packRepository): Response
 {
     $page = $request->query->getInt('page', 1);
-    $packs = $packRepository->findPaginated($page, 6); // 6 packs par page
+    $packs = $packRepository->findPaginated($page, 6);
 
     return $this->render('pack/index.html.twig', [
         'packs' => $packs, // Changez cette ligne pour passer l'objet paginé
