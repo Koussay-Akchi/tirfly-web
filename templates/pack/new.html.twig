@@ -45,7 +45,7 @@
                 <small class="form-text text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs voyages</small>
             </div>
 
-            <div class="form-group mb-3">
+<div class="form-group mb-3">
                 {{ form_label(form.sejours, null, {'label_attr': {'class': 'form-label'}}) }}
                 {{ form_widget(form.sejours, {'attr': {
                     'class': 'form-select ' ~ (form.sejours.vars.errors|length ? 'is-invalid' : '')

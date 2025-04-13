@@ -43,11 +43,12 @@ class PackType extends AbstractType
     ])
     ->add('sejours', EntityType::class, [
         'class' => Sejour::class,
-        'choice_label' => 'id',
+        'choice_label' => 'hebergement.nom',
         'multiple' => true,
-        'expanded' => true,
+        'expanded' => false,
         'label' => 'Séjours inclus :',
     ])
+    
     ->add('image', FileType::class, [
         'label' => 'Image du Pack :',
         'mapped' => false,

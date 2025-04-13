@@ -40,4 +40,14 @@ class HebergementRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    // src/Repository/HebergementRepository.php
+
+public function findAllWithDetails(): array
+{
+    return $this->createQueryBuilder('h')
+        ->leftJoin('h.destination', 'd')->addSelect('d')
+        ->getQuery()
+        ->getResult();
+}
+
 }
