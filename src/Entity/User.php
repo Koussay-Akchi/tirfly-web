@@ -222,8 +222,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
 
     public function eraseCredentials(): void
     {
-        // Erase any temporary, sensitive data if needed.
-        $this->motDePasse = null;
     }
 
     public function getUserIdentifier(): string

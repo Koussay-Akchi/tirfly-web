@@ -42,7 +42,7 @@ class SecurityController extends AbstractController
         $cookie = new Cookie(
             'BEARER',           // Cookie name
             $token,             // Cookie value (JWT)
-            time() + 3600,      // Expires in 1 hour
+            time() + 3600*24,     // Expiration time (1 day)
             '/',                // Path
             null,               // Domain (null for current domain)
             false,              // Secure (false for HTTP; set to true for HTTPS)
