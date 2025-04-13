@@ -128,12 +128,33 @@ body { background: var(--white); }
   transition: var(--transition);
 }
 
+.navbar-btn {
+  color: var(--white);
+  text-transform: uppercase;
+  font-size: var(--fs-5);
+  border-radius: 100px;
+  padding: var(--padding, 8px 18px);
+  border: var(--border-width, 2px) solid transparent;
+  transition: var(--transition);
+}
+
 .btn-primary {
   background: var(--bright-navy-blue);
   border-color: var(--bright-navy-blue);
 }
 
 .btn-primary:is(:hover, :focus) {
+  background: var(--yale-blue);
+  border-color: var(--yale-blue);
+}
+
+
+.navbar-btn-primary {
+  background: var(--bright-navy-blue);
+  border-color: var(--bright-navy-blue);
+}
+
+.navbar-btn-primary:is(:hover, :focus) {
   background: var(--yale-blue);
   border-color: var(--yale-blue);
 }
@@ -318,13 +339,13 @@ body { background: var(--white); }
 
 .nav-close-btn ion-icon { --ionicon-stroke-width: 80px; }
 
-.navbar-list { border-top: 1px solid hsla(0, 0%, 0%, 0.1);
+.tir-navbar-list { border-top: 1px solid hsla(0, 0%, 0%, 0.1);
   z-index: 30; }
 
-.navbar-list li { border-bottom: 1px solid hsla(0, 0%, 0%, 0.1); 
+.tir-navbar-list li { border-bottom: 1px solid hsla(0, 0%, 0%, 0.1); 
   z-index: 30;}
 
-.navbar-link {
+.tir-navbar-link {
   padding: 15px 20px;
   color: var(--jet);
   font-weight: var(--fw-500);
@@ -333,7 +354,7 @@ body { background: var(--white); }
   text-transform: capitalize;
 }
 
-.navbar-link:is(:hover, :focus) { color: var(--bright-navy-blue); }
+.tir-navbar-link:is(:hover, :focus) { color: var(--bright-navy-blue); }
 
 .overlay {
   position: fixed;
@@ -1148,7 +1169,7 @@ address {
 
   .header .navbar { all: unset; }
 
-  .navbar-list {
+  .tir-navbar-list {
     border-top: none;
     display: flex;
     justify-content: center;
@@ -1156,12 +1177,12 @@ address {
     z-index: 30;
   }
 
-  .navbar-list li { 
+  .tir-navbar-list li { 
     border-bottom: none; 
     z-index: 30;
   }
 
-  .navbar-link {
+  .tir-navbar-link {
     color: var(--white);
     --fs-4: 16px;
     font-weight: unset;
@@ -1169,9 +1190,9 @@ address {
     padding: 20px 15px;
   }
 
-  .header.active .navbar-link { color: var(--onyx); }
+  .header.active .tir-navbar-link { color: var(--onyx); }
 
-  .header.active .navbar-link:is(:hover, :focus) { color: var(--bright-navy-blue); }
+  .header.active .tir-navbar-link:is(:hover, :focus) { color: var(--bright-navy-blue); }
 
   .header.active .social-link {
     color: var(--onyx);
