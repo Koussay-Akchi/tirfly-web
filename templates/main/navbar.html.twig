@@ -1,71 +1,94 @@
 <header class="header" data-header data-home-url="{{ path('home') }}" style="margin-bottom: 150px;">
-  <div class="overlay" data-overlay></div>
-  
-  <div class="header-top">
-    <div class="container" style="margin-bottom: 30px;">
-      
-      <a href="tel:+01123456790" class="helpline-box">
-        <div class="icon-box">
-          <ion-icon name="call-outline"></ion-icon>
-        </div>
-        <div class="wrapper">
-          <p class="helpline-title">Téléphone :</p>
-          <p class="helpline-number">(+214) 40 862 777</p>
-        </div>
-      </a>
+	<div class="overlay" data-overlay></div>
 
-      <a href="{{ path('home') }}" class="logo">
-        <img src="{{ asset('images/logo.svg') }}" alt="Logo TirFly" height="80">
-      </a>
+	<div class="header-top">
+		<div class="container" style="margin-bottom: 30px;">
 
-      <div class="header-btn-group">
-        <button class="search-btn" aria-label="Rechercher">
-          <ion-icon name="search"></ion-icon>
-        </button>
-        <button class="nav-open-btn" aria-label="Ouvrir le menu" data-nav-open-btn>
-          <ion-icon name="menu-outline"></ion-icon>
-        </button>
-      </div>
+			<a href="tel:+01123456790" class="helpline-box">
+				<div class="icon-box">
+					<ion-icon name="call-outline"></ion-icon>
+				</div>
+				<div class="wrapper">
+					<p class="helpline-title">Téléphone :</p>
+					<p class="helpline-number">(+214) 40 862 777</p>
+				</div>
+			</a>
 
-    </div>
-  </div>
+			<a href="{{ path('home') }}" class="logo">
+				<img src="{{ asset('images/logo.svg') }}" alt="Logo TirFly" height="80">
+			</a>
 
-  <div class="header-bottom">
-    <div class="container">
+			<div class="header-btn-group">
+				<button class="search-btn" aria-label="Rechercher">
+					<ion-icon name="search"></ion-icon>
+				</button>
+				<button class="nav-open-btn" aria-label="Ouvrir le menu" data-nav-open-btn>
+					<ion-icon name="menu-outline"></ion-icon>
+				</button>
+			</div>
 
-      <ul class="social-list">
-        <li><a href="#" class="social-link"><ion-icon name="logo-facebook"></ion-icon></a></li>
-        <li><a href="#" class="social-link"><ion-icon name="logo-twitter"></ion-icon></a></li>
-        <li><a href="#" class="social-link"><ion-icon name="logo-youtube"></ion-icon></a></li>
-      </ul>
+		</div>
+	</div>
 
-      <nav class="navbar" data-navbar>
-        <div class="navbar-top">
-          <a href="{{ path('home') }}" class="logo">
-            <img src="{{ asset('images/logo-blue.svg') }}" alt="Logo TirFly">
-          </a>
-          <button class="nav-close-btn" aria-label="Fermer le menu" data-nav-close-btn>
-            <ion-icon name="close-outline"></ion-icon>
-          </button>
-        </div>
+	<div class="header-bottom">
+		<div class="container">
 
-        <ul class="navbar-list">
-          <li><a href="{{ path('home') }}" class="navbar-link" data-nav-link>Accueil</a></li>
-          <li><a href="{{ path('liste_voyages') }}" class="navbar-link" data-nav-link>Voyages</a></li>  
-          <li><a href="{{ path('liste_destinations') }}" class="navbar-link" data-nav-link>Destinations</a></li>
-          <li><a href="{{ path('app_pack_index') }}" class="navbar-link" data-nav-link>Pack</a></li>
-          <li><a href="{{ path('contact') }}" class="navbar-link" data-nav-link>Contact</a></li>
-        </ul>
+			<ul class="social-list">
+				<li>
+					<a href="#" class="social-link">
+						<ion-icon name="logo-facebook"></ion-icon>
+					</a>
+				</li>
+				<li>
+					<a href="#" class="social-link">
+						<ion-icon name="logo-twitter"></ion-icon>
+					</a>
+				</li>
+				<li>
+					<a href="#" class="social-link">
+						<ion-icon name="logo-youtube"></ion-icon>
+					</a>
+				</li>
+			</ul>
 
-      </nav>
+			<nav class="navbar" data-navbar>
+				<div class="navbar-top">
+					<a href="{{ path('home') }}" class="logo">
+						<img src="{{ asset('images/logo-blue.svg') }}" alt="Logo TirFly">
+					</a>
+					<button class="nav-close-btn" aria-label="Fermer le menu" data-nav-close-btn>
+						<ion-icon name="close-outline"></ion-icon>
+					</button>
+				</div>
+				<ul class="tir-navbar-list">
+					<li>
+						<button onclick="window.location.href='{{ path('home') }}'" class="tir-navbar-link" data-nav-link>Accueil</button>
+					</li>
+					<li>
+						<button onclick="window.location.href='{{ path('liste_voyages') }}'" class="tir-navbar-link" data-nav-link>Voyages</button>
+					</li>
+					<li>
+						<button onclick="window.location.href='{{ path('liste_destinations') }}'" class="tir-navbar-link" data-nav-link>Destinations</button>
+					</li>
+					<li>
+						<button onclick="window.location.href='{{ path('app_pack_index') }}'" class="tir-navbar-link" data-nav-link>Pack</button>
+					</li>
+					<li>
+						<button onclick="window.location.href='{{ path('contact') }}'" class="tir-navbar-link" data-nav-link>Contact</button>
+					</li>
+				</ul>
 
-      <button class="btn btn-primary">Réserver maintenant</button>
+			</nav>
 
-    </div>
-  </div>
+			<a href="{{ path('historique_reservations') }}" style="z-index: 100;">
+				<button class="navbar-btn navbar-btn-primary">Mes Reservations</button>
+			</a>
+
+		</div>
+	</div>
 </header>
 
-<script>
+ <script>
   document.addEventListener("DOMContentLoaded", function() {
     const currentUrl = window.location.pathname;
     const homeUrl = document.querySelector('.header').getAttribute('data-home-url');
