@@ -57,6 +57,21 @@ class Panier
         $this->client = $client;
         return $this;
     }
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $etat = null;
+
+    public function getEtat(): ?string
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(?string $etat): self
+    {
+        $this->etat = $etat;
+        return $this;
+    }
+
     #[ORM\OneToMany(targetEntity: Article::class, mappedBy: 'panier')]
     private Collection $articles;
 

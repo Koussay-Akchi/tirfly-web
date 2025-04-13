@@ -13,6 +13,8 @@ use App\Form\VoyageType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Repository\ReservationRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class VoyageController extends AbstractController
 {
@@ -34,7 +36,7 @@ class VoyageController extends AbstractController
     }
 
     #[Route('/voyage/{id}', name: 'details_voyage')]
-    public function details(int $id, VoyageRepository $voyageRepository): Response
+    public function details(int $id, VoyageRepository $voyageRepository, ReservationRepository $reservationRepository, Security $security): Response
     {
         $voyage = $voyageRepository->find($id);
 
@@ -42,8 +44,20 @@ class VoyageController extends AbstractController
             throw $this->createNotFoundException('Voyage not found.');
         }
 
+        $client = $security->getUser();
+        $dejaReserve = false;
+
+        if ($client) {
+            $dejaReserve = $reservationRepository->findOneBy([
+                'client' => $client,
+                'voyage' => $voyage,
+                'statut' => 'EN_ATTENTE',
+            ]) !== null;
+        }
+
         return $this->render('voyages/details-voyage.html.twig', [
-            'voyage' => $voyage
+            'voyage' => $voyage,
+            'dejaReserve' => $dejaReserve
         ]);
     }
 
@@ -145,7 +159,7 @@ class VoyageController extends AbstractController
         ]);
     }
 
-    
+
     #[Route('/admin/voyages/edit/{id}', name: 'edit_voyage')]
     public function edit(Voyage $voyage, Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
     {
