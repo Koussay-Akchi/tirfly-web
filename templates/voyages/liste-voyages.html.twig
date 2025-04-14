@@ -48,7 +48,6 @@
 
 									<div class="card-price">{{ voyage.prix }}
 										DT</div>
-
 									<button class="card-reserve-button">Détails</button>
 								</div>
 							</a>
@@ -60,29 +59,29 @@
 	</main>
 
 	 <script>
-			function filterVoyages() {
-	let searchText = document.getElementById("searchField").value.toLowerCase();
-	let departDate = document.getElementById("dateDepartPicker").value;
-	let arriveDate = document.getElementById("dateArrivePicker").value;
-	let selectedCountry = document.getElementById("countryComboBox").value;
-	
-	let url = new URL(window.location.href);
-	url.searchParams.set('search', searchText);
-	if (departDate) 
-	url.searchParams.set('depart', departDate);
-	
-	if (arriveDate) 
-	url.searchParams.set('arrive', arriveDate);
-	
-	if (selectedCountry) 
-	url.searchParams.set('country', selectedCountry);
-	
-	
-	window.location.href = url.toString();
-	}
-	
-	function clearFilters() {
-	window.location.href = window.location.pathname;
-	}
-		</script>
+				function filterVoyages() {
+		let searchText = document.getElementById("searchField").value.toLowerCase();
+		let departDate = document.getElementById("dateDepartPicker").value;
+		let arriveDate = document.getElementById("dateArrivePicker").value;
+		let selectedCountry = document.getElementById("countryComboBox").value;
+		
+		let url = new URL(window.location.href);
+		url.searchParams.set('search', searchText);
+		if (departDate) 
+		url.searchParams.set('depart', departDate);
+		
+		if (arriveDate) 
+		url.searchParams.set('arrive', arriveDate);
+		
+		if (selectedCountry) 
+		url.searchParams.set('country', selectedCountry);
+		
+		
+		window.location.href = url.toString();
+		}
+		
+		function clearFilters() {
+		window.location.href = window.location.pathname;
+		}
+			</script>
 {% endblock %}

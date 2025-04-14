@@ -28,7 +28,7 @@ class Niveau
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true, name: 'MaxNiveauXP')]
+    #[ORM\Column(type: 'integer', nullable: true,name:"MaxNiveauXP")]
     private ?int $MaxNiveauXP = null;
 
     public function getMaxNiveauXP(): ?int
@@ -42,7 +42,7 @@ class Niveau
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'integer', nullable: true,name:"Niveau")]
     private ?int $niveau = null;
 
     public function getNiveau(): ?int
@@ -56,7 +56,7 @@ class Niveau
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true, name: 'niveauXP')]
+    #[ORM\Column(type: 'integer', nullable: true,name:"NiveauXP")]
     private ?int $niveauXP = null;
 
     public function getNiveauXP(): ?int
@@ -71,6 +71,7 @@ class Niveau
     }
 
     #[ORM\OneToOne(inversedBy: 'niveau', targetEntity: Client::class)]
+
     #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Client $client = null;
 

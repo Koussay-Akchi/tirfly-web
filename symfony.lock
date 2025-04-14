@@ -26,6 +26,9 @@
             "./migrations/.gitignore"
         ]
     },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v6.7.0"
+    },
     "lexik/jwt-authentication-bundle": {
         "version": "2.18",
         "recipe": {
@@ -49,9 +52,6 @@
         "files": [
             "./config/packages/nelmio_cors.yaml"
         ]
-    },
-    "knplabs/knp-paginator-bundle": {
-        "version": "v6.7.0"
     },
     "phpunit/phpunit": {
         "version": "9.6",

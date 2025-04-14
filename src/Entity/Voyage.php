@@ -6,7 +6,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
 use App\Repository\VoyageRepository;
 
 #[ORM\Entity(repositoryClass: VoyageRepository::class)]
@@ -17,6 +16,56 @@ class Voyage
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'date', nullable: true, name: 'dateArrive')]
+    private ?\DateTimeInterface $dateArrive = null;
+
+    #[ORM\Column(type: 'date', nullable: true, name: 'dateDepart')]
+    private ?\DateTimeInterface $dateDepart = null;
+
+    #[ORM\Column(type: 'string', nullable: true, name: 'description')]
+       private ?string $description = null;
+
+
+    #[ORM\Column(type: 'blob', nullable: true, name: 'image')]
+    private $image = null;
+
+    #[ORM\Column(type: 'string', nullable: true, name: 'nom')]
+    private ?string $nom = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: false, name: 'prix')]
+    private ?float $prix = null;
+
+    #[ORM\Column(type: 'string', nullable: true, name: 'formule')]
+    private ?string $formule = null;
+
+    #[ORM\Column(type: 'float', nullable: false, name: 'note')]
+    private float $note = 0.0;
+
+    #[ORM\ManyToOne(targetEntity: Destination::class, inversedBy: 'voyages')]
+    #[ORM\JoinColumn(name: 'destination_id', referencedColumnName: 'id')]
+    private ?Destination $destination = null;
+
+    #[ORM\OneToMany(targetEntity: Feedback::class, mappedBy: 'voyage')]
+    private Collection $feedbacks;
+
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'voyage')]
+    private Collection $reservations;
+
+    #[ORM\ManyToMany(targetEntity: Pack::class, inversedBy: 'voyages')]
+    #[ORM\JoinTable(
+        name: 'packs_voyages',
+        joinColumns: [new ORM\JoinColumn(name: 'voyages_id', referencedColumnName: 'id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'Pack_id', referencedColumnName: 'id')]
+    )]
+    private Collection $packs;
+
+    public function __construct()
+    {
+        $this->feedbacks = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
+        $this->packs = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -29,9 +78,6 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true, name: 'dateArrive')]
-    private ?\DateTimeInterface $dateArrive = null;
-
     public function getDateArrive(): ?\DateTimeInterface
     {
         return $this->dateArrive;
@@ -42,9 +88,6 @@ class Voyage
         $this->dateArrive = $dateArrive;
         return $this;
     }
-
-    #[ORM\Column(type: 'date', nullable: true, name: 'dateDepart')]
-    private ?\DateTimeInterface $dateDepart = null;
 
     public function getDateDepart(): ?\DateTimeInterface
     {
@@ -57,9 +100,6 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true, name: 'description')]
-    private ?string $description = null;
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -71,66 +111,34 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'blob', nullable: true, name: 'image')]
-    private $image = null;
-
-    /*
-    public function getImage(): ?string
-    {
-        if ($this->image === null) {
-            return null;
-        }
-
-        if (is_resource($this->image)) {
-            $imageData = stream_get_contents($this->image);
-            return base64_encode($imageData);
-        }
-
-        return base64_encode($this->image);
-    }
-
-    public function getImageBase64(): ?string {
-        if ($this->image === null) {
-            return null;
-        }
-
-        return 'data:image/jpeg;base64,' . base64_encode(stream_get_contents($this->image));
-    }
-
-    public function getImageUrl(): ?string
-{
-    if ($this->image === null) {
-        return null;
-    }
-    $uploadDir = 'uploads/voyages/';
-    $fileName = uniqid('voyage_', true) . '.jpg';
-    $filePath = $uploadDir . $fileName;
-
-    // Write the BLOB data to the file system
-    $imageData = stream_get_contents($this->image);
-    $result = file_put_contents($filePath, $imageData);
-
-        if ($result === false) {
-            throw new \RuntimeException('Failed to save the image.');
-        }
-        return 'uploads/voyages/' . $fileName;
-}
-
-    */
-
-    public function getImage(): ?string
+    public function getImage()
     {
         return $this->image;
     }
 
-    public function setImage(?string $image): self
+    public function setImage($image): self
     {
+        if (is_string($image) && str_contains($image, 'base64')) {
+            $image = base64_decode(explode(',', $image)[1]);
+        }
         $this->image = $image;
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true, name: 'nom')]
-    private ?string $nom = null;
+    public function getImageUrl(): ?string
+    {
+        if (!$this->image) {
+            return null;
+        }
+
+        if (is_resource($this->image)) {
+            rewind($this->image);
+            $content = stream_get_contents($this->image);
+            return 'data:image/jpeg;base64,'.base64_encode($content);
+        }
+
+        return 'data:image/jpeg;base64,'.base64_encode($this->image);
+    }
 
     public function getNom(): ?string
     {
@@ -143,9 +151,6 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: false, name: 'prix')]
-    private ?float $prix = null;
-
     public function getPrix(): ?float
     {
         return $this->prix;
@@ -156,9 +161,6 @@ class Voyage
         $this->prix = $prix;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true, name: 'formule')]
-    private ?string $formule = null;
 
     public function getFormule(): ?string
     {
@@ -171,10 +173,7 @@ class Voyage
         return $this;
     }
 
-    #[ORM\Column(type: 'float', nullable: false, name: 'note')]
-    private ?float $note = null;
-
-    public function getNote(): ?float
+    public function getNote(): float
     {
         return $this->note;
     }
@@ -185,9 +184,20 @@ class Voyage
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: Destination::class, inversedBy: 'voyages')]
-    #[ORM\JoinColumn(name: 'destination_id', referencedColumnName: 'id')]
-    private ?Destination $destination = null;
+    public function updateNote(): self
+    {
+        $total = 0;
+        $count = $this->feedbacks->count();
+
+        if ($count > 0) {
+            foreach ($this->feedbacks as $feedback) {
+                $total += $feedback->getNote();
+            }
+            $this->note = round($total / $count, 1);
+        }
+
+        return $this;
+    }
 
     public function getDestination(): ?Destination
     {
@@ -200,79 +210,58 @@ class Voyage
         return $this;
     }
 
-    #[ORM\OneToMany(targetEntity: Feedback::class, mappedBy: 'voyage')]
-    private Collection $feedbacks;
-
     /**
      * @return Collection<int, Feedback>
      */
     public function getFeedbacks(): Collection
     {
-        if (!$this->feedbacks instanceof Collection) {
-            $this->feedbacks = new ArrayCollection();
-        }
         return $this->feedbacks;
     }
 
     public function addFeedback(Feedback $feedback): self
     {
-        if (!$this->getFeedbacks()->contains($feedback)) {
-            $this->getFeedbacks()->add($feedback);
+        if (!$this->feedbacks->contains($feedback)) {
+            $this->feedbacks->add($feedback);
+            $feedback->setVoyage($this);
         }
         return $this;
     }
 
     public function removeFeedback(Feedback $feedback): self
     {
-        $this->getFeedbacks()->removeElement($feedback);
+        if ($this->feedbacks->removeElement($feedback)) {
+            if ($feedback->getVoyage() === $this) {
+                $feedback->setVoyage(null);
+            }
+        }
         return $this;
     }
-
-    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'voyage')]
-    private Collection $reservations;
 
     /**
      * @return Collection<int, Reservation>
      */
     public function getReservations(): Collection
     {
-        if (!$this->reservations instanceof Collection) {
-            $this->reservations = new ArrayCollection();
-        }
         return $this->reservations;
     }
 
     public function addReservation(Reservation $reservation): self
     {
-        if (!$this->getReservations()->contains($reservation)) {
-            $this->getReservations()->add($reservation);
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setVoyage($this);
         }
         return $this;
     }
 
     public function removeReservation(Reservation $reservation): self
     {
-        $this->getReservations()->removeElement($reservation);
+        if ($this->reservations->removeElement($reservation)) {
+            if ($reservation->getVoyage() === $this) {
+                $reservation->setVoyage(null);
+            }
+        }
         return $this;
-    }
-
-    #[ORM\ManyToMany(targetEntity: Pack::class, inversedBy: 'voyages')]
-    #[ORM\JoinTable(
-        name: 'packs_voyages',
-        joinColumns: [
-            new ORM\JoinColumn(name: 'voyages_id', referencedColumnName: 'id')
-        ],
-        inverseJoinColumns: [
-            new ORM\JoinColumn(name: 'Pack_id', referencedColumnName: 'id')
-        ]
-    )]
-    private Collection $packs;
-
-    public function __construct()
-    {
-        $this->feedbacks = new ArrayCollection();
-        $this->reservations = new ArrayCollection();
-        $this->packs = new ArrayCollection();
     }
 
     /**
@@ -280,23 +269,23 @@ class Voyage
      */
     public function getPacks(): Collection
     {
-        if (!$this->packs instanceof Collection) {
-            $this->packs = new ArrayCollection();
-        }
         return $this->packs;
     }
 
     public function addPack(Pack $pack): self
     {
-        if (!$this->getPacks()->contains($pack)) {
-            $this->getPacks()->add($pack);
+        if (!$this->packs->contains($pack)) {
+            $this->packs->add($pack);
+            $pack->addVoyage($this);
         }
         return $this;
     }
 
     public function removePack(Pack $pack): self
     {
-        $this->getPacks()->removeElement($pack);
+        if ($this->packs->removeElement($pack)) {
+            $pack->removeVoyage($this);
+        }
         return $this;
     }
 }

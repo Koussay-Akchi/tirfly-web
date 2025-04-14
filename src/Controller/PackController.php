@@ -161,6 +161,5 @@ public function show(Pack $pack): Response
     ]);
 }
 
-
    
 }
