@@ -1,5 +1,5 @@
 {# templates/feedbacks/liste.html.twig #}
-{% extends 'base-staff.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Gestion des Feedbacks{% endblock %}
 
@@ -13,6 +13,7 @@
     <div class="card shadow-lg border-0">
         <div class="card-header bg-primary text-white text-center">
             <h2 class="h5 m-0"><i class="fas fa-comments"></i> Feedbacks</h2>
+            	  <link rel="stylesheet" href="{{ asset('styles/style.css') }}">
         </div>
         <div class="card-body">
             <table class="table table-hover">

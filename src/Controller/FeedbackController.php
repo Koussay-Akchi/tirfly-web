@@ -40,16 +40,22 @@ class FeedbackController extends AbstractController
             $request->query->getInt('page', 1), // page actuelle
             5 // nombre de feedbacks par page
         );
-    
+        if(!$this->isGranted("ROLE_CLIENT")){
+            $feedbacks = $feedbackRepository->findAll();
+            return $this->render('feedbacks/liste.feedbackadmin.html.twig',['feedbacks' => $feedbacks]);
+
+    }
+else{
         return $this->render('feedbacks/liste.html.twig', [
             'feedbacks' => $pagination,
         ]);
     }
+}
 
     // Route pour ajouter un feedback à un voyage spécifique
     #[Route('/voyage/{id}/feedback', name: 'ajouter_feedbackk')]
 
-    public function ajout(int $id, Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
+    public function ajout(int $id, Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator,FeedbackRepository $feedbackRepository): Response
     {
         $voyage = $entityManager->getRepository(Voyage::class)->find($id);
         $client = $this->security->getUser();
@@ -94,8 +100,16 @@ class FeedbackController extends AbstractController
             $entityManager->flush();
     
             $this->addFlash('success', 'Feedback ajouté avec succès.');
-            return $this->redirectToRoute('liste_feedbacks');
+            if(!$this->isGranted("ROLE_CLIENT")){
+                $feedbacks = $feedbackRepository->findAll();
+                return $this->render('feedbacks/liste.feedbackadmin.html.twig',['feedbacks' => $feedbacks]);
+
         }
+        else{
+            return $this->redirectToRoute('liste_feedbacks');
+
+        }
+    }
     
         return $this->render('feedbacks/ajout.html.twig', [
             'form' => $form->createView(),
