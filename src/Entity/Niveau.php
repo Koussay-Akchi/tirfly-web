@@ -71,6 +71,7 @@ class Niveau
     }
 
     #[ORM\OneToOne(inversedBy: 'niveau', targetEntity: Client::class)]
+
     #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Client $client = null;
 

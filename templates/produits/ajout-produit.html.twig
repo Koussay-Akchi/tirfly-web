@@ -1,0 +1,116 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Ajouter un Produit{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h1 class="h4 mb-0">Ajouter un nouveau produit</h1>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                {{ form_label(form.nom, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.nom, {'attr': {'class': 'form-control' ~ (form.nom.vars.errors|length ? ' is-invalid' : '')}}) }}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(form.nom) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                {{ form_label(form.categorie, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.categorie, {'attr': {'class': 'form-control' ~ (form.categorie.vars.errors|length ? ' is-invalid' : '')}}) }}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(form.categorie) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-group">
+                            {{ form_label(form.description, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.description, {'attr': {
+                                'class': 'form-control' ~ (form.description.vars.errors|length ? ' is-invalid' : ''),
+                                'rows': 4
+                            }}) }}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.description) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.prixUnitaire, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                <div class="input-group">
+                                    {{ form_widget(form.prixUnitaire, {'attr': {
+                                        'class': 'form-control' ~ (form.prixUnitaire.vars.errors|length ? ' is-invalid' : ''),
+                                        'step': '0.01'
+                                    }}) }}
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="invalid-feedback">
+                                    {{ form_errors(form.prixUnitaire) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.quantiteStock, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.quantiteStock, {'attr': {
+                                    'class': 'form-control' ~ (form.quantiteStock.vars.errors|length ? ' is-invalid' : ''),
+                                    'min': 0
+                                }}) }}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(form.quantiteStock) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ form_widget(form.ecoFriendly, {'attr': {
+                                'class': 'form-check-input' ~ (form.ecoFriendly.vars.errors|length ? ' is-invalid' : '')
+                            }}) }}
+                            {{ form_label(form.ecoFriendly, null, {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.ecoFriendly) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-group">
+                            {{ form_label(form.image, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.image, {'attr': {
+                                'class': 'form-control' ~ (form.image.vars.errors|length ? ' is-invalid' : '')
+                            }}) }}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.image) }}
+                            </div>
+                            <small class="form-text text-muted">Formats acceptés: JPG, PNG, WEBP. Taille max: 2MB</small>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ path('admin_liste_produits') }}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Enregistrer
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}  
