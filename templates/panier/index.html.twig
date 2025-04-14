@@ -1,0 +1,73 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Mon Panier{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Mon Panier</h1>
+
+        {% if articles|length > 0 %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Prix unitaire</th>
+                            <th>Quantité</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in articles %}
+                            <tr>
+                                <td>{{ article.produit.nom }}</td>
+                                <td>{{ article.produit.prixUnitaire|number_format(2, ',', ' ') }} €</td>
+                                <td>
+                                    <form method="post" action="{{ path('modifier_quantite_article', {'id': article.id}) }}" class="form-inline">
+                                        <input type="number" name="quantite" value="{{ article.quantite }}" min="1" max="{{ article.produit.quantiteStock }}" class="form-control form-control-sm">
+                                        <button type="submit" class="btn btn-sm btn-primary ml-2">Mettre à jour</button>
+                                    </form>
+                                </td>
+                                <td>{{ article.total|number_format(2, ',', ' ') }} €</td>
+                                <td>
+                                    <form method="post" action="{{ path('supprimer_article', {'id': article.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article?')">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>Total :</strong></td>
+                            <td><strong>{{ total|number_format(2, ',', ' ') }} €</strong></td>
+                            <td>
+                                <form method="post" action="{{ path('vider_panier') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir vider votre panier?')">
+                                    <button type="submit" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-trash-alt"></i> Vider le panier
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="text-right mt-4">
+                <a href="{{ path('checkout') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-credit-card"></i> Passer la commande
+                </a>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Votre panier est vide.
+            </div>
+            <a href="{{ path('liste_produits') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag"></i> Continuer vos achats
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}

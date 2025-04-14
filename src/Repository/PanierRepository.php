@@ -15,7 +15,22 @@ class PanierRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Panier::class);
     }
+    // src/Repository/PanierRepository.php
 
+public function findActivePanierForUser($user)
+{
+    return $this->createQueryBuilder('p')
+        ->leftJoin('p.articles', 'a')  // Join with articles
+        ->addSelect('a')               // Select articles
+        ->leftJoin('a.produit', 'pr')  // Join with products
+        ->addSelect('pr')              // Select products
+        ->where('p.client = :user')
+        ->andWhere('p.etat = :state')
+        ->setParameter('user', $user)
+        ->setParameter('state', 'active')  // Changed from 'en cours' to 'active'
+        ->getQuery()
+        ->getOneOrNullResult();
+}
     //    /**
     //     * @return Panier[] Returns an array of Panier objects
     //     */
