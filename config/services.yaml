@@ -15,3 +15,8 @@ services:
     App\Controller\ClientController:
         arguments:
             $passwordHasher: '@security.user_password_hasher'
+    App\Service\EmailService:
+        class: App\Service\EmailService
+        arguments:
+            $mailer: '@mailer'
+    

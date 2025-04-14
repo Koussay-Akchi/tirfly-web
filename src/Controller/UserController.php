@@ -12,14 +12,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-
+use Symfony\Component\Security\Core\Security;
 class UserController extends AbstractController
 {
     private UserRepository $userRepository;
     private EntityManagerInterface $entityManager;
+    private Security $security;
 
-    public function __construct(UserRepository $userRepository, EntityManagerInterface $entityManager)
-    {
+    public function __construct(UserRepository $userRepository, EntityManagerInterface $entityManager, Security $security)
+    {   $this->security = $security;
         $this->userRepository = $userRepository;
         $this->entityManager = $entityManager;
     }
@@ -133,19 +134,40 @@ class UserController extends AbstractController
             'user' => $user ? $user->getUserIdentifier() : null,
         ]);
     }
-    #[Route('/login', name: 'login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
-    {
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
-    
-        return $this->render('security/login.html.twig', [
-            'last_username' => $lastUsername,
-            'error' => $error,
-        ]);
+#[Route('/login', name: 'login')]
+public function login(AuthenticationUtils $authenticationUtils, Request $request): Response
+{
+    $request->headers->remove('Authorization');
+    $response = new Response();
+    $response->headers->clearCookie('BEARER');
+    if ($this->getUser()) {
+        $this->addFlash('success', 'You are already logged in!');
+        if ($this->isGranted('ROLE_CLIENT')) {
+            return $this->redirectToRoute('home');
+        }
+        return $this->redirectToRoute('client_index');
+    }
+    $error = $authenticationUtils->getLastAuthenticationError();
+    $lastUsername = $authenticationUtils->getLastUsername();
+    return $this->render('security/login.html.twig', [
+        'last_username' => $lastUsername,
+        'error' => $error,
+    ], $response);
+}
 
+    #[Route('/signup', name: 'signup')]
+    public function signup(Request $request): Response
+    {
+        if ($this->security->getUser()) {
+            if ($this->isGranted('ROLE_CLIENT')){
+                return $this->redirectToRoute('home');
+            }
+            else {
+                return $this->redirectToRoute('client_index');
+            }
+            return $this->redirectToRoute('home');
+        }
+        return $this->render('security/SignUp.html.twig');
     }
     #[Route('/logout', name: 'logout')]
     public function logout(): Response
@@ -153,5 +175,19 @@ class UserController extends AbstractController
         $response = new RedirectResponse($this->generateUrl('login'));
         $response->headers->clearCookie('BEARER');
         return $response;
+    }
+    #[Route('/forgot-password', name: 'forgot_password')]
+    public function forgotPassword(Request $request): Response
+    {
+        if ($this->security->getUser()) {
+            if ($this->isGranted('ROLE_CLIENT')){
+                return $this->redirectToRoute('home');
+            }
+            else {
+                return $this->redirectToRoute('client_index');
+            }
+            return $this->redirectToRoute('home');
+        }
+        return $this->render('security/forgot_password.html.twig');
     }
 }

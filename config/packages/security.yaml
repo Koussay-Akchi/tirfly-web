@@ -14,17 +14,24 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
+        public:
+            pattern: ^/api/(login|signup|forgot-password|reset-password)
+            security: false
         api:
             pattern: ^/
-            stateless: false
+            stateless: true
             provider: app_user_provider
-            jwt: ~  # Enable JWT authentication
-            # Remove "path" and "target"
+            jwt: ~
 
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/signup, roles: PUBLIC_ACCESS }
+        - { path: ^/api/forgot-password, roles: PUBLIC_ACCESS }
+        - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
+        - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+        - { path: "^/api/reset-password/{token}", roles: PUBLIC_ACCESS }  # Quoted the path to avoid issues with curly braces
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/signup, roles: PUBLIC_ACCESS }
         - { path: ^/client/, roles: ROLE_CLIENT }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

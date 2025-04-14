@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block body %}
+<section class="section about-section gray-bg">
+    <div class="container">
+        <div class="row align-items-center flex-row-reverse">
+            <div class="col-lg-6">
+                <div class="about-text go-to">
+                    <h3 class="dark-color">Edit Your Profile</h3>
+                    <h6 class="theme-color lead">Update your personal information</h6>
+
+                    {{ form_start(form) }}
+                    <div class="row about-list">
+                        <div class="col-md-6">
+                            <div class="media form-group">
+                                <label>{{ form_label(form.nom) }}</label>
+                                {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="media form-group">
+                                <label>{{ form_label(form.prenom) }}</label>
+                                {{ form_widget(form.prenom, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="media form-group">
+                                <label>{{ form_label(form.adresse) }}</label>
+                                {{ form_widget(form.adresse, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="media form-group">
+                                <label>{{ form_label(form.age) }}</label>
+                                {{ form_widget(form.age, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="media form-group">
+                                <label>{{ form_label(form.email) }}</label>
+                                {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="media form-group">
+                                <label>{{ form_label(form.phoneNumber) }}</label>
+                                {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="media form-group">
+                                <label>{{ form_label(form.sexe) }}</label>
+                                {{ form_widget(form.sexe, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn theme-button">Save Changes</button>
+                        <a href="{{ path('client_profile') }}" class="btn theme-secondary">Cancel</a>
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative" style="max-width: 300px; margin: 0 auto;">
+                    <div class="progress-circle position-relative">
+                        <svg class="progress-svg" width="300" height="300">
+                            <circle class="progress-bg" cx="150" cy="150" r="130"/>
+                            <circle class="progress-bar" cx="150" cy="150" r="130" 
+                                    stroke-dasharray="{{ (user.niveau.NiveauXP / user.niveau.MaxNiveauXP * 816) | default(0) }} 816"
+                                    data-percentage="{{ (user.niveau.NiveauXP / user.niveau.MaxNiveauXP * 100) | default(0)|round }}"/>
+                        </svg>
+                        <div class="about-avatar position-absolute top-50 start-50 translate-middle">
+                            <img src="https://bootdey.com/img/Content/avatar/avatar7.png" 
+                                 alt="Your Avatar" 
+                                 class="rounded-circle"
+                                 style="width: 200px; height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <h4 class="theme-color mb-1">
+                            Level {{ user.niveau.niveau|default('N/A') }}
+                        </h4>
+                        <p class="mb-0">
+                            <span class="xp-current">{{ user.niveau.NiveauXP|default(0) }}</span> / 
+                            <span class="xp-max">{{ user.niveau.MaxNiveauXP|default(1000) }}</span> XP
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .form-control {
+        border: 2px solid #e6e6e6;
+        border-radius: 8px;
+        padding: 8px 15px;
+        width: 100%;
+        transition: border-color 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #fc5356;
+        box-shadow: none;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-group label {
+        color: #20247b;
+        font-weight: 600;
+        width: 88px;
+        margin: 0;
+        position: relative;
+        padding-right: 20px;
+    }
+    .form-group label:after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 11px;
+        width: 1px;
+        height: 12px;
+        background: #20247b;
+        transform: rotate(15deg);
+        opacity: 0.5;
+    }
+    {{ include('client/styles.css.twig') }}
+</style>
+{% endblock %}

@@ -5,7 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\ClientRepository;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
@@ -13,6 +13,17 @@ use App\Repository\ClientRepository;
 class Client extends User
 {
     #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\NotBlank(message: "Adresse is required")]
+    #[Assert\Length(
+        min: 5,
+        max: 255,
+        minMessage: 'Adresse must be at least {{ limit }} characters long',
+        maxMessage: 'Adresse cannot be longer than {{ limit }} characters',
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\s,.-]+$/',
+        message: 'Adresse can only contain letters, numbers, spaces, commas, periods, and hyphens.',
+    )]
     private ?string $adresse = null;
 
     public function getAdresse(): ?string
@@ -27,6 +38,12 @@ class Client extends User
     }
 
     #[ORM\Column(type: 'integer', nullable: false)]
+    #[Assert\NotBlank(message: "Age is required")]
+    #[Assert\Range(
+        min: 18,
+        max: 100,
+        notInRangeMessage: 'Age must be between {{ min }} and {{ max }}',
+    )]
     private ?int $age = null;
 
     public function getAge(): ?int
@@ -56,6 +73,12 @@ class Client extends User
 
 
     #[ORM\Column(type: 'string', nullable: true,name:"PhoneNumber")]
+    #[Assert\NotBlank(message: "Phone number is required")]
+    #[Assert\Length(
+        min: 8,
+        max: 8,
+        exactMessage: 'Phone number must be exactly {{ limit }} digits.',
+    )]
     private ?string $phoneNumber = null;
 
     public function getPhoneNumber(): ?string

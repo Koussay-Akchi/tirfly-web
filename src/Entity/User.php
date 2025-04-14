@@ -9,15 +9,16 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\User\EquatableInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'role', type: 'string')]
 #[ORM\DiscriminatorMap([
-    'ADMIN'    => User::class,
+    'VOYAGEUR' => User::class,
     'CLIENT'   => Client::class,
     'SUPPORT'  => User::class,
-    'VOYAGEUR'=> User::class
+    'ADMIN'=> User::class
 ])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface,EquatableInterface
 {
@@ -30,16 +31,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
     private ?\DateTimeInterface $dateCreation = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
+    //assert of mail
+    #[Assert\NotBlank(message: "Email is required")]
+    #[Assert\Email(message: "The email '{{ value }}' is not a valid email.")]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', nullable: true, name: "MotDePasse")]
+    #[Assert\NotBlank(message: "Mot de passe is required")]
+    #[Assert\Length(
+        min: 8,
+        max: 255,
+        minMessage: 'Mot de passe must be at least {{ limit }} characters long',
+        maxMessage: 'Mot de passe cannot be longer than {{ limit }} characters',
+    )]
     private ?string $motDePasse = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\NotBlank(message: "Nom is required")]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Nom must be at least {{ limit }} characters long',
+        maxMessage: 'Nom cannot be longer than {{ limit }} characters',
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s]+$/',
+        message: 'Nom can only contain letters and spaces.',
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\NotBlank(message: "Prenom is required")]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Prenom must be at least {{ limit }} characters long',
+        maxMessage: 'Prenom cannot be longer than {{ limit }} characters',
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s]+$/',
+        message: 'Prenom can only contain letters and spaces.',
+    )]
     private ?string $prenom = null;
+
+    #[ORM\Column(length: 255, nullable: true, name : 'resetToken')]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true , name : 'resetTokenExpiresAt')]
+    private ?\DateTimeInterface $resetTokenExpiresAt = null;
 
     // Collections (messages, notifications, clients, etc.)
     #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'user')]
@@ -204,6 +243,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
     public function removeClient(Client $client): self
     {
         $this->clients->removeElement($client);
+        return $this;
+    }
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): self
+    {
+        $this->resetToken = $resetToken;
+        return $this;
+    }
+
+    public function getResetTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->resetTokenExpiresAt;
+    }
+
+    public function setResetTokenExpiresAt(?\DateTimeInterface $resetTokenExpiresAt): self
+    {
+        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
         return $this;
     }
 
