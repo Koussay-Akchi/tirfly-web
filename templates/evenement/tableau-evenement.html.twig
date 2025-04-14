@@ -1,0 +1,115 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Admin - Liste des Événements{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .btn-add {
+            background-color: #198754;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add:hover {
+            background-color: #157347;
+            transform: scale(1.05);
+        }
+
+        .btn-edit {
+            background-color: #ffc107;
+            color: black;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+            transform: scale(1.05);
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background-color: #bb2d3b;
+            transform: scale(1.05);
+        }
+
+        img.event-img {
+            width: 100px;
+            height: auto;
+            border-radius: 6px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">🎉 Gestion des Événements</h1>
+
+    <div class="mb-4 text-end">
+        <a href="{{ path('app_evenement_new') }}" class="btn-add">➕ Ajouter un nouvel Événement</a>
+    </div>
+
+    <table class="table table-bordered table-hover align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Image</th>
+                <th>Titre</th> <!-- Changement ici -->
+                <th>Description</th> <!-- Nouvelle colonne pour la description -->
+                <th>Prix (€)</th>
+                <th>Dates</th>
+                <th>Destination</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for evenement in evenements %}
+                <tr>
+                    <td>
+                        {% if evenement.image %}
+                            <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="Image" class="event-img">
+                        {% else %}
+                            <span class="text-muted">Aucune image</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ evenement.titre }}</td> <!-- Changement ici -->
+                    <td>{{ evenement.description }}</td> <!-- Affichage de la description -->
+                    <td>{{ evenement.prix }}</td>
+                    <td>
+                        Du {{ evenement.dateDebut|date('d/m/Y') }}<br>
+                        au {{ evenement.dateFin|date('d/m/Y') }}
+                    </td>
+                    <td>
+                        {{ evenement.destination.ville }}, {{ evenement.destination.pays }}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_evenement_edit', {id: evenement.id}) }}" class="btn-edit me-2">✏️ Modifier</a>
+                        <a href="{{ path('app_evenement_delete', {id: evenement.id}) }}"
+                           class="btn-delete"
+                           onclick="return confirm('Supprimer cet événement ?')">🗑️ Supprimer</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">Aucun événement trouvé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

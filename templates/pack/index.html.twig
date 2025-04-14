@@ -1,81 +1,259 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Packs Populaires{% endblock %}
+{% block title %}Packs Populaires
+{% endblock %}
 
 {% block body %}
-<section class="popular" id="packs">
-    <div class="container">
+	<section>
+		<div class="container">
+			<p class="section-subtitle">Découvrez nos meilleures offres</p>
+			<h2 class="h2 section-title">Packs Populaires</h2>
+			<p class="section-text">
+				Choisissez parmi une sélection de packs de voyage complets incluant transport, hébergement et activités. Parfait pour vos prochaines aventures !
+			</p>
 
-        <p class="section-subtitle">Découvrez nos meilleures offres</p>
+			<!-- Champ pour le code coupon -->
+			<div class="mb-4">
+				<input type="text" id="coupon-input" class="form-control" placeholder="Entrez un code promo">
+				<button class="btn btn-success mt-2" onclick="applyCoupon()">Appliquer le coupon</button>
+				<p id="coupon-feedback" class="mt-2 text-info"></p>
+			</div>
 
-        <h2 class="h2 section-title">Packs Populaires</h2>
+			<ul class="popular-list">
+				{% for pack in packs.results %}
+					<li>
+						<div class="popular-card">
+							<figure>
+								{% if pack.image %}
+									<img src="{{ asset('uploads/packs/' ~ pack.image) }}" alt="Image du pack" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;">
+								{% else %}
+									<img src="{{ asset('images/default-pack.jpg') }}" alt="Image par défaut" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;">
+								{% endif %}
+							</figure>
 
-        <p class="section-text">
-            Choisissez parmi une sélection de packs de voyage complets incluant transport, hébergement et activités. Parfait pour vos prochaines aventures !
-        </p>
+							<div class="card-content">
+								<div class="card-rating">
+									Prix original :
+									<strong class="original-price">{{ pack.prix }}
+										€</strong><br>
+									<span class="discounted-price text-success fw-bold"></span>
+								</div>
 
-        <ul class="popular-list">
-            {% for pack in packs %}
-                <li>
-                    <div class="popular-card">
-                        <figure class="card-img">
-                            {% if pack.image %}
-                                <img src="{{ asset('uploads/packs/' ~ pack.image) }}" alt="Image du pack" class="voyage-image">
-                            {% else %}
-                                <img src="{{ asset('images/default-pack.jpg') }}" alt="Image par défaut" class="voyage-image">
-                            {% endif %}
-                        </figure>
+								<p class="card-subtitle">
+									{% if pack.voyages|length > 0 %}
+										{{ pack.voyages[0].nom }}
+									{% else %}
+										Aucun voyage associé
+									{% endif %}
+								</p>
 
-                        <div class="card-content">
-                            <div class="card-rating">
-                                Prix : <strong>{{ pack.prix }} €</strong>
-                            </div>
+								<h3 class="h3 card-title">
+									<a href="#">{{ pack.nom }}</a>
+								</h3>
 
-                            <p class="card-subtitle">
-                                {% if pack.voyages|length > 0 %}
-                                    {{ pack.voyages[0].nom }}
-                                {% else %}
-                                    Aucun voyage associé
-                                {% endif %}
-                            </p>
+								<div style="margin-left: 4em;">
+									<div class="qr-container" data-url="trifly.com{{ path('app_pack_show', {id: pack.id}) }}" style="display: flex; justify:center; margin-left: 50px;"></div>
 
-                            <h3 class="h3 card-title">
-                                <a href="#">{{ pack.nom }}</a>
-                            </h3>
+									<div class="mt-3" style="display: flex; justify-content: space-between; align-items: center;">
+											<button type="button" class="btn btn-info btn-sm" style="margin-left: 2em;" onclick="window.location.href='{{ path('ajout_reservation', {'type': 'pack', 'id': pack.id}) }}'">
+												Réserver
+											</button>
+									</div>
+								</div>
+							</div>
+				</div>
+			</li>
+		{% else %}
+			<p>Aucun pack trouvé.</p>
+		{% endfor %}
+	</ul>
 
-                            <!-- Emplacement QR Code -->
-                            <div class="qr-container" data-url="trifly.com/{{ path('app_pack_show', {id: pack.id}) }}"></div>
+	{# Pagination Centrée #}
+	{% if packs.total_pages > 1 %}
+		<div class="pagination-wrapper">
+			<div class="pagination">
+				{% if packs.current_page > 1 %}
+					<a href="{{ path('app_pack_index', {'page': packs.current_page - 1}) }}" class="prev">
+						<i class="fas fa-chevron-left"></i>
+					</a>
+				{% endif %}
 
-                            <div class="mt-3">
-                                <a href="{{ path('app_pack_edit', {id: pack.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
-                                <a href="{{ path('app_pack_delete', {id: pack.id}) }}" class="btn btn-sm btn-danger"
-                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce pack ?')">Supprimer</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            {% else %}
-                <p>Aucun pack trouvé.</p>
-            {% endfor %}
-        </ul>
+				{% set start = max(1, packs.current_page - 2) %}
+				{% set end = min(packs.total_pages, start + 4) %}
 
-        <div class="text-center mt-4">
-            <a href="{{ path('app_pack_new') }}" class="btn btn-primary">+ Créer un nouveau Pack</a>
-        </div>
-    </div>
-</section>
+				{% if start > 1 %}
+					<a href="{{ path('app_pack_index', {'page': 1}) }}" class="page">1</a>
+					{% if start > 2 %}
+						<span class="dots">...</span>
+					{% endif %}
+				{% endif %}
 
-{# Script JS pour afficher les QR codes #}
-<script type="module">
-    import QrCodeService from '/js/QrCodeService.js';
+				{% for i in start..end %}
+					<a href="{{ path('app_pack_index', {'page': i}) }}" class="page {{ packs.current_page == i ? 'active' : '' }}">
+						{{ i }}
+					</a>
+				{% endfor %}
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const qrService = new QrCodeService();
+				{% if end < packs.total_pages %}
+					{% if end < packs.total_pages - 1 %}
+						<span class="dots">...</span>
+					{% endif %}
+					<a href="{{ path('app_pack_index', {'page': packs.total_pages}) }}" class="page">
+						{{ packs.total_pages }}
+					</a>
+				{% endif %}
 
-        document.querySelectorAll('.qr-container').forEach(container => {
-        const data = container.dataset.url;  // <-- ici
-            qrService.renderQrCode(data, container);
-        });
-    });
-</script>
-{% endblock %}
+				{% if packs.current_page < packs.total_pages %}
+					<a href="{{ path('app_pack_index', {'page': packs.current_page + 1}) }}" class="next">
+						<i class="fas fa-chevron-right"></i>
+					</a>
+				{% endif %}
+			</div>
+		</div>
+	{% endif %}
+
+	<div class="text-center mt-4">
+		<a href="{{ path('app_pack_new') }}" class="btn btn-primary">+ Créer un nouveau Pack</a>
+	</div>
+</div></section><!-- Script QR Code --> <script type="module">
+			    import QrCodeService from '/js/QrCodeService.js';
+			
+			    document.addEventListener('DOMContentLoaded', () => {
+			        const qrService = new QrCodeService();
+			        document.querySelectorAll('.qr-container').forEach(container => {
+			            const data = container.dataset.url;
+			            qrService.renderQrCode(data, container);
+			        });
+			    });
+			</script><!-- Script coupon --> <script>
+			    async function applyCoupon() {
+			        const code = document.getElementById("coupon-input").value.trim();
+			        const feedback = document.getElementById("coupon-feedback");
+			
+			        if (!code) {
+			            feedback.textContent = "Veuillez entrer un code promo.";
+			            return;
+			        }
+			
+			        try {
+			            const response = await fetch(`/api/coupon/${code}`);
+			            const data = await response.json();
+			
+			            if (data.valid) {
+			                feedback.textContent = `Code appliqué : -${data.remise}%`;
+			
+			                // Appliquer la réduction aux prix
+			                console.log(data);
+			                document.querySelectorAll('.original-price').forEach((priceEl, index) => {
+			                    const original = parseFloat(priceEl.textContent.replace('€', '').trim());
+			                    const discounted = original - (original * data.remise / 100);
+			                    document.querySelectorAll('.discounted-price')[index].textContent = `Nouveau prix : ${discounted.toFixed(2)} €`;
+			                });
+			            } else {
+			                feedback.textContent = "Code invalide !";
+			            }
+			        } catch (err) {
+			            feedback.textContent = "Erreur lors de l'application du coupon.";
+			            console.error(err);
+			        }
+			    }
+			</script>
+
+<style>
+/* Style de pagination */
+.pagination-wrapper {
+	display: flex;
+	justify-content: center;
+	margin: 50px 0;
+}
+
+.pagination {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.pagination a {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	color: #333;
+	text-decoration: none;
+	font-weight: 500;
+	transition: all 0.3s ease;
+}
+
+.pagination a.page {
+	background: #f5f5f5;
+}
+
+.pagination a.page:hover {
+	background: #e0e0e0;
+}
+
+.pagination a.active {
+	background: #0d6efd;
+	color: white;
+}
+
+.pagination a.prev,
+.pagination a.next {
+	background: transparent;
+	font-size: 1.2rem;
+}
+
+.pagination a.prev:hover,
+.pagination a.next:hover {
+	color: #0d6efd;
+}
+
+.pagination .dots {
+	color: #999;
+}
+
+/* Styles pour les cartes de packs */
+.voyage-image {
+	width: 100%;
+	height: 200px;
+	object-fit: cover;
+	border-radius: 8px 8px 0 0;
+}
+
+.popular-card {
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	transition: transform 0.3s ease;
+	height: 500px;
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+}
+
+.popular-card:hover {
+	transform: translateY(-5px);
+}
+
+.card-content {
+	padding: 15px;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.card-title {
+	margin: 10px 0;
+	font-size: 1.2rem;
+}
+
+.popular-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 25px;
+	padding: 0;
+	list-style: none;
+	margin-bottom: 40px;
+}</style>{% endblock %}

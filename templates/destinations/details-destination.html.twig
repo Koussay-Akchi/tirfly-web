@@ -6,37 +6,73 @@
 {% block body %}
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-	<script type="module">
+	 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+	<link href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" rel="stylesheet">  <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/js/jsvectormap.min.js"></script>
+	 <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+
+	 <script type="module">
 		import ClimatService from '/js/ClimatService.js';
-
-document.addEventListener('DOMContentLoaded', async () => {
-const climatService = new ClimatService();
-
-const weatherDiv = document.getElementById('weather');
-const lat = weatherDiv.dataset.lat;
-const lon = weatherDiv.dataset.lon;
-
-const temperature = await climatService.getTemperature(lat, lon);
-
-const tempDisplay = document.getElementById('current-temperature');
-if (temperature !== null) {
-tempDisplay.textContent = `${temperature}°C`;
-} else {
-tempDisplay.textContent = 'Indisponible';
-}
-});
+	
+		document.addEventListener('DOMContentLoaded', async () => {
+			const climatService = new ClimatService();
+			const weatherDiv = document.getElementById('weather');
+			const lat = weatherDiv.dataset.lat;
+			const lon = weatherDiv.dataset.lon;
+			const temperature = await climatService.getTemperature(lat, lon);
+			const tempDisplay = document.getElementById('current-temperature');
+			if (temperature !== null) {
+				tempDisplay.textContent = `${temperature}°C`;
+			} else {
+				tempDisplay.textContent = 'Indisponible';
+			}
+		});
+	
+		document.addEventListener("DOMContentLoaded", function () {
+			const map = new jsVectorMap({
+				map: "world",
+				selector: "#destination_map",
+				zoomButtons: true,
+				markers: [{
+					coords: [{{ destination.latitude }}, {{ destination.longitude }}],
+					name: "{{ destination.ville }} - {{ destination.pays }}"
+				}],
+				markerStyle: {
+					initial: {
+						r: 9,
+						strokeWidth: 7,
+						strokeOpacity: .4,
+						fill: "#0d6efd"
+					},
+					hover: {
+						fill: "#0d6efd",
+						stroke: "#0d6efd"
+					}
+				},
+				zoomOnScroll: false
+			});
+			window.addEventListener("resize", () => {
+				map.updateSize();
+			});
+		});
 	</script>
 
+		<style>
+#destination_map {
+	height: 300px;
+	border: 1px solid #ccc;
+	border-radius: 12px;
+}
+	</style>
 
-	<main class="main">
-		<div class="content-box">
-			<h1 class="voyage-details-title">
+		<main class="main"> <div class="content-box container py-4">
+			<h1 class="voyage-details-title mb-4">
 				{{ destination.ville }},
 				{{ destination.pays }}
 			</h1>
-			<div class="voyage-details-grid-container">
 
+			<div
+				class="voyage-details-grid-container">
 				<div class="voyage-details-grid-image">
 					{% if false %}
 						<img src="{{ asset(destination.getImage()) }}" alt="Image du destination" class="voyage-image">
@@ -44,45 +80,35 @@ tempDisplay.textContent = 'Indisponible';
 						<img src="{{ asset('images/default-destination.jpg') }}" alt="Image par défaut"/>
 					{% endif %}
 				</div>
+
+				<!-- Texte -->
 				<div class="voyage-details-grid-text">
 					<div class="voyage-details-details-grid">
 						<div>
-							<strong>
-								Climat :
-							</strong>
+							<strong>Climat :</strong>
 						</div>
+						<div>{{ climat_names[destination.climat] ?? 'Inconnu' }}</div>
 						<div>
-
-							{{ climat_names[destination.climat] ?? 'Inconnu' }}
+							<strong>Latitude :</strong>
 						</div>
+						<div>{{ destination.latitude }}</div>
 						<div>
-							<strong>
-								Latitude :
-							</strong>
+							<strong>Longitude :</strong>
 						</div>
+						<div>{{ destination.longitude }}</div>
 						<div>
-							{{ destination.latitude }}
-						</div>
-						<div>
-							<strong>
-								Longitude :
-							</strong>
-						</div>
-						<div>
-							{{ destination.longitude }}
-						</div>
-						<div>
-							<strong>
-								Météo actuelle :
-							</strong>
+							<strong>Météo actuelle :</strong>
 						</div>
 						<div id="weather" data-lat="{{ destination.latitude }}" data-lon="{{ destination.longitude }}">
 							<span id="current-temperature">Chargement...</span>
 						</div>
 					</div>
 				</div>
-			</div>
 
+				<div>
+					<div id="destination_map"></div>
+				</div>
+			</div>
 
 			<h2 class="mb-3">Voyages disponibles</h2>
 

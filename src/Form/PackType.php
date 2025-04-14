@@ -31,18 +31,24 @@ class PackType extends AbstractType
     ])
     ->add('voyages', EntityType::class, [
         'class' => Voyage::class,
-        'choice_label' => 'nom',  // Assurez-vous que 'nom' est bien une propriété de l'entité Voyage
-        'multiple' => true,       // Permet de sélectionner plusieurs voyages
-        'expanded' => true,       // Affiche sous forme de cases à cocher
-        'label' => 'Voyages inclus :',
+        'choice_label' => function(Voyage $voyage) {
+            return $voyage->getNom() . ' - ' . $voyage->getPrix() . ' €';
+        },
+        'multiple' => true,
+        'expanded' => false,
+        'attr' => [
+            'class' => 'form-select select2-multiple',
+            'data-placeholder' => 'Sélectionnez un ou plusieurs voyages'
+        ]
     ])
     ->add('sejours', EntityType::class, [
         'class' => Sejour::class,
-        'choice_label' => 'id',
+        'choice_label' => 'hebergement.nom',
         'multiple' => true,
-        'expanded' => true,
+        'expanded' => false,
         'label' => 'Séjours inclus :',
     ])
+    
     ->add('image', FileType::class, [
         'label' => 'Image du Pack :',
         'mapped' => false,

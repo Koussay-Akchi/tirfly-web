@@ -2,6 +2,8 @@ parameters:
     packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
     google_api_key: 'AIzaSyDpxgIqCekHbOLgUL6fyHdavfAGr1KijcQ'
     video_directory: '%kernel.project_dir%/public/uploads/videos'
+    evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
+
 
 services:
     _defaults:
