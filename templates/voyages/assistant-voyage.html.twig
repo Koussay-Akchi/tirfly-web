@@ -1,159 +1,168 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Assistant Voyage{% endblock %}
+{% block title %}Assistant Voyage
+{% endblock %}
 
 {% block body %}
-<div class="container my-4">
-    <h1 class="mb-4">Assistant de Recherche de Voyages</h1>
+	<div class="container my-4">
+		<h1 class="mb-4">Assistant de Recherche de Voyages</h1>
 
-    <!-- Filter Form -->
-    <form method="get" action="{{ path('assistant_voyage') }}">
-        <div class="card mb-4">
-            <div class="card-body">
-                <!-- Durée -->
-                <div class="mb-3">
-                    <label for="maxDuree" class="form-label">Durée max (jours)</label>
-                    <input type="range" class="form-range" id="maxDuree" name="maxDuree"
-                           min="0" max="90" value="{{ filters.maxDuree }}">
-                    <span id="maxDureeLabel">{{ filters.maxDuree }} jours</span>
-                    {% if suggestions.suggestionDuree %}
-                        <div class="alert alert-info mt-2">
-                            Suggestion basée sur vos précédents voyages : environ {{ suggestions.suggestionDuree|number_format(0) }} jours.
-                            <button type="button" class="btn btn-sm btn-primary ms-2"
-                                    onclick="document.getElementById('maxDuree').value='{{ suggestions.suggestionDuree|number_format(0) }}'; document.getElementById('maxDureeLabel').innerText='{{ suggestions.suggestionDuree|number_format(0) }} jours';">
-                                Appliquer
-                            </button>
-                        </div>
-                    {% endif %}
-                </div>
+		<!-- Filter Form -->
+		<form method="get" action="{{ path('assistant_voyage') }}">
+			<div class="card mb-4">
+				<div
+					class="card-body">
+					<!-- Durée -->
+					<div class="mb-3">
+						<label for="maxDuree" class="form-label">Durée max (jours)</label>
+						<input type="range" class="form-range" id="maxDuree" name="maxDuree" min="0" max="90" value="{{ filters.maxDuree }}">
+						<span id="maxDureeLabel">{{ filters.maxDuree }}
+							jours</span>
+						{% if suggestions.suggestionDuree %}
+							<div class="alert alert-info mt-2">
+								Suggestion basée sur vos précédents voyages : environ
+								{{ suggestions.suggestionDuree|number_format(0) }}
+								jours.
+								<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.getElementById('maxDuree').value='{{ suggestions.suggestionDuree|number_format(0) }}'; document.getElementById('maxDureeLabel').innerText='{{ suggestions.suggestionDuree|number_format(0) }} jours';">
+									Appliquer
+								</button>
+							</div>
+						{% endif %}
+					</div>
 
-                <!-- Pays de Destination -->
-                <div class="mb-3">
-                    <label for="selectedPays" class="form-label">Pays de Destination</label>
-                    <select class="form-select" id="selectedPays" name="selectedPays">
-                        <option value="">-- Choisir un pays --</option>
-                        {% for pays in allCountries %}
-                            <option value="{{ pays }}" {{ pays == filters.selectedPays ? 'selected' : '' }}>{{ pays }}</option>
-                        {% endfor %}
-                    </select>
-                    {% if suggestions.suggestionPays %}
-                        <div class="alert alert-info mt-2">
-                            Destination la plus fréquente : {{ suggestions.suggestionPays }}.
-                            <button type="button" class="btn btn-sm btn-primary ms-2"
-                                    onclick="document.getElementById('selectedPays').value='{{ suggestions.suggestionPays }}';">
-                                Appliquer
-                            </button>
-                        </div>
-                    {% endif %}
-                    <!-- AI consultation inputs -->
-                    <div class="mt-3 d-flex">
-                        <input type="text" class="form-control me-2" id="aiDescription" name="aiDescription" placeholder="Donnez une description" value="{{ filters.aiDescription }}">
-                        <button type="button" class="btn btn-secondary me-2" id="tirflyAiBtn">Consulter Tirfly AI</button>
-                        <button type="button" class="btn btn-secondary" id="geminiBtn">Consulter Gemini</button>
-                    </div>
-                </div>
+					<!-- Pays de Destination -->
+					<div class="mb-3">
+						<label for="selectedPays" class="form-label">Pays de Destination</label>
+						<select class="form-select" id="selectedPays" name="selectedPays">
+							<option value="">-- Choisir un pays --</option>
+							{% for pays in allCountries %}
+								<option value="{{ pays }}" {{ pays == filters.selectedPays ? 'selected' : '' }}>{{ pays }}</option>
+							{% endfor %}
+						</select>
+						{% if suggestions.suggestionPays %}
+							<div class="alert alert-info mt-2">
+								Destination la plus fréquente :
+								{{ suggestions.suggestionPays }}.
+								<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.getElementById('selectedPays').value='{{ suggestions.suggestionPays }}';">
+									Appliquer
+								</button>
+							</div>
+						{% endif %}
+						<!-- AI consultation inputs -->
+						<div class="mt-3 d-flex">
+							<input type="text" class="form-control me-2" id="aiDescription" name="aiDescription" placeholder="Donnez une description" value="{{ filters.aiDescription }}">
+							<button type="button" class="btn btn-secondary me-2" id="tirflyAiBtn">Consulter Tirfly AI</button>
+							<button type="button" class="btn btn-secondary" id="geminiBtn">Consulter Gemini</button>
+						</div>
+					</div>
 
-                <!-- Budget -->
-                <div class="mb-3">
-                    <label for="maxBudget" class="form-label">Budget maximal</label>
-                    <input type="range" class="form-range" id="maxBudget" name="maxBudget"
-                           min="0" max="10000" step="100"
-                           value="{{ filters.maxBudget is defined ? filters.maxBudget : 1000 }}">
-                    <span id="maxBudgetLabel">{{ filters.maxBudget is defined ? filters.maxBudget : 1000 }} DT</span>
-                    {% if suggestions.suggestionBudget %}
-                        <div class="alert alert-info mt-2">
-                            Budget moyen précédent : {{ suggestions.suggestionBudget|number_format(2) }} DT.
-                            <button type="button" class="btn btn-sm btn-primary ms-2"
-                                    onclick="document.getElementById('maxBudget').value='{{ suggestions.suggestionBudget|number_format(0) }}'; document.getElementById('maxBudgetLabel').innerText='{{ suggestions.suggestionBudget|number_format(2) }} DT';">
-                                Appliquer
-                            </button>
-                        </div>
-                    {% endif %}
-                </div>
+					<!-- Budget -->
+					<div class="mb-3">
+						<label for="maxBudget" class="form-label">Budget maximal</label>
+						<input type="range" class="form-range" id="maxBudget" name="maxBudget" min="0" max="10000" step="100" value="{{ filters.maxBudget is defined ? filters.maxBudget : 1000 }}">
+						<span id="maxBudgetLabel">{{ filters.maxBudget is defined ? filters.maxBudget : 1000 }}
+							DT</span>
+						{% if suggestions.suggestionBudget %}
+							<div class="alert alert-info mt-2">
+								Budget moyen précédent :
+								{{ suggestions.suggestionBudget|number_format(2) }}
+								DT.
+								<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.getElementById('maxBudget').value='{{ suggestions.suggestionBudget|number_format(0) }}'; document.getElementById('maxBudgetLabel').innerText='{{ suggestions.suggestionBudget|number_format(2) }} DT';">
+									Appliquer
+								</button>
+							</div>
+						{% endif %}
+					</div>
 
-                <!-- Formules -->
-                <div class="mb-3">
-                    <label class="form-label">Formule(s)</label>
-                    <div class="mb-2">
-                        {% for formule in allFormules %}
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="formules[]" value="{{ formule }}"
-                                       id="formule_{{ formule }}"
-                                       {% if filters.formules is defined and formule in filters.formules %} checked {% endif %}>
-                                <label class="form-check-label" for="formule_{{ formule }}">{{ formule }}</label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    {% if suggestions.suggestionFormule %}
-                        <div class="alert alert-info mt-2">
-                            Formule la plus fréquente : {{ suggestions.suggestionFormule }}.
-                            <button type="button" class="btn btn-sm btn-primary ms-2"
-                                    onclick="document.querySelector('input[value=\'{{ suggestions.suggestionFormule }}\']').checked = true;">
-                                Appliquer
-                            </button>
-                        </div>
-                    {% endif %}
-                </div>
+					<!-- Formules -->
+					<div class="mb-3">
+						<label class="form-label">Formule(s)</label>
+						<div class="mb-2">
+							{% for formule in allFormules %}
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="checkbox" name="formules[]" value="{{ formule }}" id="formule_{{ formule }}" {% if filters.formules is defined and formule in filters.formules %} checked {% endif %}>
+									<label class="form-check-label" for="formule_{{ formule }}">{{ formule }}</label>
+								</div>
+							{% endfor %}
+						</div>
+						{% if suggestions.suggestionFormule %}
+							<div class="alert alert-info mt-2">
+								Formule la plus fréquente :
+								{{ suggestions.suggestionFormule }}.
+								<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.querySelector('input[value=\'{{ suggestions.suggestionFormule }}\']').checked = true;">
+									Appliquer
+								</button>
+							</div>
+						{% endif %}
+					</div>
 
-                <!-- Note -->
-                <div class="mb-3">
-                    <label for="minNote" class="form-label">Note minimale</label>
-                    <input type="range" class="form-range" id="minNote" name="minNote"
-                           min="0" max="5" step="0.5"
-                           value="{{ filters.minNote }}">
-                    <span id="minNoteLabel">{{ filters.minNote }} ⭐</span>
-                    {% if suggestions.suggestionNote %}
-                        <div class="alert alert-info mt-2">
-                            Note moyenne : {{ suggestions.suggestionNote|number_format(1) }} ⭐.
-                            <button type="button" class="btn btn-sm btn-primary ms-2"
-                                    onclick="document.getElementById('minNote').value='{{ suggestions.suggestionNote|number_format(1) }}'; document.getElementById('minNoteLabel').innerText='{{ suggestions.suggestionNote|number_format(1) }} ⭐';">
-                                Appliquer
-                            </button>
-                        </div>
-                    {% endif %}
-                </div>
+					<!-- Note -->
+					<div class="mb-3">
+						<label for="minNote" class="form-label">Note minimale</label>
+						<input type="range" class="form-range" id="minNote" name="minNote" min="0" max="5" step="0.5" value="{{ filters.minNote }}">
+						<span id="minNoteLabel">{{ filters.minNote }}
+							⭐</span>
+						{% if suggestions.suggestionNote %}
+							<div class="alert alert-info mt-2">
+								Note moyenne :
+								{{ suggestions.suggestionNote|number_format(1) }}
+								⭐.
+								<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.getElementById('minNote').value='{{ suggestions.suggestionNote|number_format(1) }}'; document.getElementById('minNoteLabel').innerText='{{ suggestions.suggestionNote|number_format(1) }} ⭐';">
+									Appliquer
+								</button>
+							</div>
+						{% endif %}
+					</div>
 
-                <button type="submit" class="btn btn-primary">Appliquer les filtres</button>
-                <a href="{{ path('assistant_voyage') }}" class="btn btn-outline-secondary">Réinitialiser</a>
-            </div>
-        </div>
-    </form>
+					<button type="submit" class="btn btn-primary">Appliquer les filtres</button>
+					<a href="{{ path('assistant_voyage') }}" class="btn btn-outline-secondary">Réinitialiser</a>
+				</div>
+			</div>
+		</form>
 
-    <!-- Results -->
-    <div class="row">
-        {% if voyages is empty %}
-            <div class="col-12">
-                <div class="alert alert-danger text-center">
-                    Aucun voyage disponible.
-                </div>
-            </div>
-        {% else %}
-            {% for voyage in voyages %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        {% if voyage.image %}
-                            <img src="{{ voyage.getImageUrl() }}" class="card-img-top" alt="{{ voyage.nom }}">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ voyage.nom }}</h5>
-                            <p class="card-text">
-                                Départ : {{ voyage.dateDepart|date('d/m/Y') }}<br>
-                                Arrivée : {{ voyage.dateArrive|date('d/m/Y') }}<br>
-                                Destination : {{ voyage.destination.ville }}, {{ voyage.destination.pays }}<br>
-                                Note : {{ voyage.note }} ⭐<br>
-                                Prix : {{ voyage.prix|number_format(2) }} DT
-                            </p>
-                            <a href="{{ path('details_voyage', {'id': voyage.id}) }}" class="btn btn-primary">Consulter</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
-</div>
+		<!-- Results -->
+		<div class="row">
+			{% if voyages is empty %}
+				<div class="col-12">
+					<div class="alert alert-danger text-center">
+						Aucun voyage disponible.
+					</div>
+				</div>
+			{% else %}
+				<div class="voyage-grid">
+					{% for voyage in voyages %}
+						<a href="{{ path('details_voyage', {'id': voyage.id}) }}" class="voyage-card-link">
+							<div class="voyage-card">
+								{% if voyage.image %}
+									<img src="{{ voyage.getImageUrl() }}" alt="Image du voyage" class="card-image">
+								{% else %}
+									<img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image"/>
+								{% endif %}
 
-<!-- Optional: add some JavaScript to update label texts dynamically -->
-<script>
+								<div class="card-title">{{ voyage.nom }}</div>
+
+								<div class="card-details">
+									{{ voyage.dateDepart | date('Y-m-d') }}
+									-
+									{{ voyage.dateArrive | date('Y-m-d') }}<br>
+									{{ voyage.destination.ville }},
+									{{ voyage.destination.pays }}
+								</div>
+
+								<div class="card-price">{{ voyage.prix }}
+									DT</div>
+
+								<button class="card-reserve-button">Détails</button>
+							</div>
+						</a>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+
+	<!-- Optional: add some JavaScript to update label texts dynamically -->
+ <script>
     // Update range labels
     const maxDureeInput = document.getElementById('maxDuree');
     const maxDureeLabel = document.getElementById('maxDureeLabel');
@@ -174,7 +183,7 @@
     });
 </script>
 
-<!-- Include external JavaScript files to handle AI suggestions -->
-<script src="{{ asset('js/tirflyAi.js') }}"></script>
-<script src="{{ asset('js/gemini.js') }}"></script>
+	<!-- Include external JavaScript files to handle AI suggestions -->
+	 <script src="{{ asset('js/tirflyAi.js') }}"></script>
+	 <script src="{{ asset('js/gemini.js') }}"></script>
 {% endblock %}
