@@ -21,6 +21,14 @@ final class NiveauController extends AbstractController{
             'niveaux' => $niveauRepository->findAll(),
         ]);
     }
+    #[Route('/leaderboard', name: 'app_niveau_leaderboard', methods: ['GET'])]
+    public function leaderboard(NiveauRepository $niveauRepository): Response
+    {
+        $niveaux = $niveauRepository->findBy([], ['niveauXP' => 'DESC'], 10);
+        return $this->render('niveau/leaderboard.html.twig', [
+            'niveaux' => $niveaux,
+        ]);
+    }
 
     #[Route('/new', name: 'app_niveau_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
