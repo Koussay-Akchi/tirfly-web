@@ -255,4 +255,143 @@ class VoyageController extends AbstractController
         ]);
     }
 
+
+    #[Route('/voyages/assistant', name: 'assistant_voyage')]
+    public function assistant(
+        Request $request,
+        VoyageRepository $voyageRepository,
+        ReservationRepository $reservationRepository
+    ): Response {
+        // Retrieve filters from query parameters
+        $maxDuree = $request->query->getInt('maxDuree', 0);
+        $selectedPays = $request->query->get('selectedPays');
+        $maxBudget = $request->query->get('maxBudget');
+        $formules = $request->query->all('formules');
+        $minNote = $request->query->get('minNote', 0);
+        // The AI description is passed to the view, but processing is moved to JS.
+        $aiDescription = $request->query->get('aiDescription');
+
+        // Get the currently logged-in client (adjust according to your security setup)
+        $client = $this->getUser();
+
+        // Calculate suggestion values based on the client's past reservations.
+        $suggestions = [
+            'suggestionDuree' => null,
+            'suggestionPays' => null,
+            'suggestionBudget' => null,
+            'suggestionFormule' => null,
+            'suggestionNote' => null,
+        ];
+
+        if ($client) {
+            $reservations = $reservationRepository->findBy(['client' => $client]);
+            $voyagesClient = [];
+            foreach ($reservations as $reservation) {
+                $voyage = $reservation->getVoyage();
+                if ($voyage) {
+                    $voyagesClient[] = $voyage;
+                }
+            }
+
+            if (count($voyagesClient) > 0) {
+                $totalDuree = 0;
+                $totalBudget = 0;
+                $totalNote = 0;
+                $paysCount = [];
+                $formuleCount = [];
+
+                foreach ($voyagesClient as $voyage) {
+                    if ($voyage->getDateDepart() && $voyage->getDateArrive()) {
+                        $interval = $voyage->getDateDepart()->diff($voyage->getDateArrive());
+                        $jours = (int)$interval->format('%a');
+                        $totalDuree += $jours;
+                    }
+                    $totalBudget += $voyage->getPrix();
+                    $totalNote += $voyage->getNote();
+
+                    if ($voyage->getDestination()) {
+                        $pays = $voyage->getDestination()->getPays();
+                        if ($pays) {
+                            $paysCount[$pays] = ($paysCount[$pays] ?? 0) + 1;
+                        }
+                    }
+                    $formule = $voyage->getFormule();
+                    if ($formule) {
+                        $formuleCount[$formule] = ($formuleCount[$formule] ?? 0) + 1;
+                    }
+                }
+                $suggestions['suggestionDuree'] = $totalDuree / count($voyagesClient);
+                $suggestions['suggestionBudget'] = $totalBudget / count($voyagesClient);
+                $suggestions['suggestionNote'] = $totalNote / count($voyagesClient);
+
+                arsort($paysCount);
+                $suggestions['suggestionPays'] = key($paysCount);
+
+                if (!empty($formuleCount)) {
+                    arsort($formuleCount);
+                    $suggestions['suggestionFormule'] = key($formuleCount);
+                }
+            }
+        }
+
+        // Build a query for voyages with the filters.
+        $qb = $voyageRepository->createQueryBuilder('v')
+            ->join('v.destination', 'd')
+            ->addSelect('d');
+
+        if ($maxDuree > 0) {
+            $qb->andWhere('DATEDIFF(v.dateArrive, v.dateDepart) <= :maxDuree')
+                ->setParameter('maxDuree', $maxDuree);
+        }
+        if ($selectedPays) {
+            $qb->andWhere('LOWER(d.pays) = LOWER(:selectedPays)')
+                ->setParameter('selectedPays', $selectedPays);
+        }
+        if ($maxBudget) {
+            $qb->andWhere('v.prix <= :maxBudget')
+                ->setParameter('maxBudget', $maxBudget);
+        }
+        if (!empty($formules) && is_array($formules)) {
+            $qb->andWhere('v.formule IN (:formules)')
+                ->setParameter('formules', $formules);
+        }
+        if ($minNote) {
+            $qb->andWhere('v.note >= :minNote')
+                ->setParameter('minNote', $minNote);
+        }
+
+        $qb->orderBy('v.dateDepart', 'ASC');
+
+        $voyages = $qb->getQuery()->getResult();
+
+        // Get all distinct countries among voyages
+        $allVoyages = $voyageRepository->findAll();
+        $allCountries = [];
+        foreach ($allVoyages as $voyage) {
+            if ($voyage->getDestination() && $voyage->getDestination()->getPays()) {
+                $allCountries[] = $voyage->getDestination()->getPays();
+            }
+        }
+        $allCountries = array_unique($allCountries);
+        sort($allCountries);
+
+        // For the formule checkboxes, assume a predefined list (adjust as needed)
+        $allFormules = ['FORMULE1', 'FORMULE2', 'FORMULE3'];
+
+        return $this->render('voyages/assistant-voyage.html.twig', [
+            'voyages'         => $voyages,
+            'allCountries'    => $allCountries,
+            'allFormules'     => $allFormules,
+            'filters'         => [
+                'maxDuree'      => $maxDuree,
+                'selectedPays'  => $selectedPays,
+                'maxBudget'     => $maxBudget,
+                'formules'      => $formules,
+                'minNote'       => $minNote,
+                'aiDescription' => $aiDescription,
+            ],
+            'suggestions'     => $suggestions,
+        ]);
+    }
+
 }
