@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block body %}
+<section class="section about-section gray-bg">
+    <div class="container">
+        <div class="row align-items-center flex-row-reverse">
+            <div class="col-lg-6">
+                <div class="about-text go-to">
+                    <h3 class="dark-color">{{ user.nom|default('') }} {{ user.prenom|default('') }}</h3>
+                    <h6 class="theme-color lead">Your Profile Overview</h6>
+                    
+                    <div class="row about-list">
+                        <div class="col-md-6">
+                            <div class="media">
+                                <label>Email</label>
+                                <p>{{ user.email|default('Not provided') }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Phone</label>
+                                <p>{{ user.phoneNumber|default('Not provided') }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Address</label>
+                                <p>{{ user.adresse|default('Not provided') }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="media">
+                                <label>Age</label>
+                                <p>{{ user.age|default('Not provided') }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Gender</label>
+                                <p>{{ user.sexe|default('Not provided') }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Member Since</label>
+                                <p>{{ user.dateCreation ? user.dateCreation|date('Y-m-d') : 'Not provided' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ path('client_profile_edit') }}" class="btn theme-button">Edit Profile</a>
+                        <a href="{{ path('client_change_password') }}" class="btn theme-secondary">Change Password</a>
+                        <form method="post" action="{{ path('client_profile_delete') }}" onsubmit="return confirm('Are you sure you want to delete your account?');" style="display: inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                            <button type="submit" class="btn btn-danger">Delete Account</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative" style="max-width: 300px; margin: 0 auto;">
+                    <div class="progress-circle position-relative">
+                        <svg class="progress-svg" width="300" height="300">
+                            <circle class="progress-bg" cx="150" cy="150" r="130"/>
+                            <circle class="progress-bar" cx="150" cy="150" r="130" 
+                                    stroke-dasharray="{{ user.niveau ? (user.niveau.NiveauXP / user.niveau.MaxNiveauXP * 816) : 0 }} 816"
+                                    data-percentage="{{ user.niveau ? (user.niveau.NiveauXP / user.niveau.MaxNiveauXP * 100)|round : 0 }}"/>
+                        </svg>
+                        <div class="about-avatar position-absolute top-50 start-50 translate-middle">
+                            <img src="https://bootdey.com/img/Content/avatar/avatar7.png" 
+                                 alt="Your Avatar" 
+                                 class="rounded-circle"
+                                 style="width: 200px; height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <h4 class="theme-color mb-1">
+                            Level {{ user.niveau ? user.niveau.niveau : 'N/A' }}
+                        </h4>
+                        <p class="mb-0">
+                            <span class="xp-current">{{ user.niveau ? user.niveau.NiveauXP : 0 }}</span> / 
+                            <span class="xp-max">{{ user.niveau ? user.niveau.MaxNiveauXP : 1000 }}</span> XP
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+    {{ include('client/styles.css.twig') }}
+</style>
+{% endblock %}

@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Psr\Log\LoggerInterface;
 #[Route('/niveau')]
@@ -85,23 +86,81 @@ final class NiveauController extends AbstractController{
 
         return $this->redirectToRoute('app_niveau_index', [], Response::HTTP_SEE_OTHER);
     }
-    public function AddXPToNiveau(Niveau $niveau, int $xpToAdd): void
+    #[Route('/{id}/addXP/{xpToAdd}', name: 'app_niveau_add_xp', methods: ['POST'])]
+    public function AddXPToNiveau(Request $request, Niveau $niveau = null, int $xpToAdd, EntityManagerInterface $entityManager, LoggerInterface $logger): JsonResponse
     {
-        $niveau->setNiveauXP($niveau->getNiveauXP() + $xpToAdd);
-        while ($niveau->getNiveauXP() >= $niveau->getMaxNiveauXP()) {
-            $niveau->setNiveau($niveau->getNiveau() + 1);
-            $niveau->setNiveauXP($niveau->getNiveauXP() - $niveau->getMaxNiveauXP());
-            $niveau->setMaxNiveauXP($niveau->getMaxNiveauXP() + 100);
+        $logger->info('AddXPToNiveau called', [
+            'id' => $request->attributes->get('id'),
+            'xpToAdd' => $xpToAdd,
+        ]);
+
+        if (!$niveau) {
+            $logger->error('Niveau not found', ['id' => $request->attributes->get('id')]);
+            return new JsonResponse(['message' => 'Level not found'], 404);
         }
-        $this->getDoctrine()->getManager()->persist($niveau);
-        $this->getDoctrine()->getManager()->flush();
+
+        try {
+            // Initialize with defaults if null
+            $currentXP = $niveau->getNiveauXP() ?? 0;
+            $maxXP = $niveau->getMaxNiveauXP() ?? 1000;
+            $currentLevel = $niveau->getNiveau() ?? 1;
+
+            $logger->debug('Current state', [
+                'currentXP' => $currentXP,
+                'maxXP' => $maxXP,
+                'currentLevel' => $currentLevel,
+            ]);
+
+            $newXP = $currentXP + $xpToAdd;
+            $niveau->setNiveauXP($newXP);
+
+            while ($newXP >= $maxXP) {
+                $currentLevel++;
+                $newXP -= $maxXP;
+                $maxXP += 100;
+                $niveau->setNiveau($currentLevel);
+                $niveau->setNiveauXP($newXP);
+                $niveau->setMaxNiveauXP($maxXP);
+            }
+            
+            $entityManager->persist($niveau);
+            $entityManager->flush();
+
+            $logger->info('XP added successfully', [
+                'niveau' => $niveau->getNiveau(),
+                'niveauXP' => $niveau->getNiveauXP(),
+                'maxNiveauXP' => $niveau->getMaxNiveauXP(),
+            ]);
+
+            // Explicitly cast to integers
+            $responseData = [
+                'niveau' => (int)($niveau->getNiveau() ?? 1),
+                'niveauXP' => (int)($niveau->getNiveauXP() ?? 0),
+                'maxNiveauXP' => (int)($niveau->getMaxNiveauXP() ?? 1000),
+            ];
+
+            $logger->debug('Response data', [
+                'response' => $responseData,
+            ]);
+
+            return new JsonResponse($responseData, 200);
+        } catch (\Exception $e) {
+            $logger->error('Error adding XP', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return new JsonResponse(['message' => 'Server error: ' . $e->getMessage()], 500);
+        }
     }
-    public function AddLevelToNiveau(Niveau $niveau, int $levelToAdd): void
+
+    #[Route('/add-level/{id}/{levelToAdd}', name: 'app_niveau_add_level', methods: ['POST'])]
+    public function AddLevelToNiveau(Niveau $niveau, int $levelToAdd,EntityManagerInterface $entityManager): void
     {
         $niveau->setNiveau($niveau->getNiveau() + $levelToAdd);
         $niveau->setNiveauXP(0);
         $niveau->setMaxNiveauXP($niveau->getMaxNiveauXP() + 100 * $levelToAdd);
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->persist($niveau);
+        $entityManager->flush();
     }
 
 }

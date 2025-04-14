@@ -290,7 +290,8 @@
         })
         .then(data => {
             alert("Login success!");
-            window.location.href = "/client/"; // Redirect after success
+        
+            window.location.href = "/"; // Redirect after success
         })
         .catch(error => {
             alert("Login failed: " + error.message);

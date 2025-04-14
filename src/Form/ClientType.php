@@ -25,7 +25,7 @@ class ClientType extends AbstractType
             ->add('motDePasse', PasswordType::class, [
                 'label' => 'Password',
                 'attr' => ['class' => 'form-control'],
-                'required' => true,
+                'required' => false, // Allow optional password for edit
                 'mapped' => false,
             ])
             ->add('nom', TextType::class, [
@@ -74,7 +74,7 @@ class ClientType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Client::class,
-            'csrf_protection' => false, // Disable CSRF // Unique token ID for this form
+            'csrf_protection' => true,
         ]);
     }
 }

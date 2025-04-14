@@ -62,7 +62,6 @@
     <table class="table table-bordered table-hover align-middle text-center">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
                 <th>Image</th>
                 <th>Nom</th>
                 <th>Prix (€)</th>
@@ -73,7 +72,7 @@
         <tbody>
             {% for pack in packs %}
                 <tr>
-                    <td>{{ pack.id }}</td>
+                    
                     <td>
                         {% if pack.image %}
                             <img src="{{ asset('uploads/packs/' ~ pack.image) }}" alt="Image" width="100" class="img-thumbnail">
