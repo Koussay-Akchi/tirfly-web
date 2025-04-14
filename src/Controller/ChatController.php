@@ -4,154 +4,79 @@ namespace App\Controller;
 
 use App\Entity\Chat;
 use App\Entity\Message;
-use App\Entity\User;
+use App\Form\MessageType;
 use App\Repository\ChatRepository;
 use App\Repository\MessageRepository;
-use App\Repository\UserRepository;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ChatController extends AbstractController
 {
-    private EntityManagerInterface $em;
-    private ChatRepository $chatRepository;
-    private MessageRepository $messageRepository;
-    private UserRepository $userRepository;
-
-    // Emails des utilisateurs prédéfinis
-    private const FIXED_CLIENT_EMAIL = 'manar@email.com';
-    private const FIXED_SUPPORT_EMAIL = 'support@email.com';
-
-    public function __construct(
+    #[Route('/chat', name: 'chat_index')]
+    public function chat(
+        Request $request,
         EntityManagerInterface $em,
         ChatRepository $chatRepository,
-        MessageRepository $messageRepository,
-        UserRepository $userRepository
+        MessageRepository $messageRepository
     ) {
-        $this->em = $em;
-        $this->chatRepository = $chatRepository;
-        $this->messageRepository = $messageRepository;
-        $this->userRepository = $userRepository;
-    }
+        // Get the current logged-in user
+        $user = $this->getUser();
 
-    #[Route('/chat', name: 'chat_index')]
-    public function index(): Response
-    {
-        // Récupérer les utilisateurs prédéfinis
-        $client = $this->getFixedClient();
-        $support = $this->getFixedSupport();
+        // Ensure the user is authenticated
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in to access the chat.');
+        }
 
-        // S'assurer qu'un chat existe entre eux
-        $chat = $this->ensureChatExists($client, $support);
+        // Fetch all chats where the user is either the client or support
+        $chats = $chatRepository->findChatsForUser($user);
 
+        // Get the selected chat ID from the query parameter (e.g., /chat?chat=1)
+        $chatId = $request->query->get('chat');
+        $selectedChat = null;
+        $messages = [];
+        $formView = null;
+
+        // If a chat is selected, fetch its details and messages
+        if ($chatId) {
+            $selectedChat = $chatRepository->find($chatId);
+
+            // Verify that the user is part of the selected chat
+            if ($selectedChat && ($selectedChat->getClient() === $user || $selectedChat->getSupport() === $user)) {
+                // Fetch all messages for the selected chat, ordered by date
+                $messages = $messageRepository->findBy(['chat' => $selectedChat], ['dateEnvoi' => 'ASC']);
+
+                // Create a form for sending a new message
+                $message = new Message();
+                $form = $this->createForm(MessageType::class, $message);
+                $form->handleRequest($request);
+
+                // Handle form submission
+                if ($form->isSubmitted() && $form->isValid()) {
+                    $message->setChat($selectedChat);
+                    $message->setExpediteur($user);
+                    $message->setDateEnvoi(new \DateTime());
+                    $em->persist($message);
+                    $em->flush();
+
+                    // Redirect to the same chat after sending the message
+                    return $this->redirectToRoute('chat_index', ['chat' => $selectedChat->getId()]);
+                }
+
+                $formView = $form->createView();
+            } else {
+                // If the chat doesn't exist or the user isn't authorized, reset the selection
+                $selectedChat = null;
+            }
+        }
+
+        // Render the chat interface
         return $this->render('chat/index.html.twig', [
-            'chats' => [$chat], // On passe seulement le chat fixe
-            'currentUser' => $client, // On considère que l'utilisateur actuel est le client
-        ]);
-    }
-
-    #[Route('/chat/{id}', name: 'chat_show')]
-    public function show(Chat $chat): Response
-    {
-        $client = $this->getFixedClient();
-        
-        if (!$this->isUserPartOfChat($chat, $client)) {
-            throw $this->createAccessDeniedException('Vous ne pouvez pas accéder à cette conversation.');
-        }
-
-        $messages = $this->messageRepository->findBy(['chat' => $chat], ['dateMessage' => 'ASC']);
-
-        return $this->render('chat/show.html.twig', [
-            'chat' => $chat,
+            'chats' => $chats,
+            'selectedChat' => $selectedChat,
             'messages' => $messages,
-            'currentUser' => $client,
+            'form' => $formView,
         ]);
-    }
-
-    #[Route('/chat/{id}/send', name: 'chat_send', methods: ['POST'])]
-    public function send(Request $request, Chat $chat): Response
-    {
-        $client = $this->getFixedClient();
-
-        if (!$this->isUserPartOfChat($chat, $client)) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $content = trim($request->request->get('message'));
-        if (!empty($content)) {
-            $message = new Message();
-            $message->setMessage($content);
-            $message->setExpediteur($client);
-            $message->setDateMessage(new DateTime());
-            $message->setChat($chat);
-
-            $this->em->persist($message);
-            $this->em->flush();
-        }
-
-        return $this->redirectToRoute('chat_show', ['id' => $chat->getId()]);
-    }
-
-    /**
-     * Récupère l'utilisateur client prédéfini
-     */
-    private function getFixedClient(): User
-    {
-        $client = $this->userRepository->findOneBy(['email' => self::FIXED_CLIENT_EMAIL]);
-        
-        if (!$client) {
-            throw $this->createNotFoundException('Client fixe non trouvé!');
-        }
-
-        return $client;
-    }
-
-    /**
-     * Récupère l'utilisateur support prédéfini
-     */
-    private function getFixedSupport(): User
-    {
-        $support = $this->userRepository->findOneBy(['email' => self::FIXED_SUPPORT_EMAIL]);
-        
-        if (!$support) {
-            throw $this->createNotFoundException('Support fixe non trouvé!');
-        }
-
-        return $support;
-    }
-
-    /**
-     * Vérifie si l'utilisateur fait partie du chat
-     */
-    private function isUserPartOfChat(Chat $chat, User $user): bool
-    {
-        return $chat->getClient()->getId() === $user->getId() 
-            || $chat->getSupport()->getId() === $user->getId();
-    }
-
-    /**
-     * S'assure qu'un chat existe entre le client et le support
-     */
-    private function ensureChatExists(User $client, User $support): Chat
-    {
-        $chat = $this->chatRepository->findOneBy([
-            'client' => $client,
-            'support' => $support
-        ]);
-
-        if (!$chat) {
-            $chat = new Chat();
-            $chat->setClient($client);
-            $chat->setSupport($support);
-            
-            $this->em->persist($chat);
-            $this->em->flush();
-        }
-
-        return $chat;
     }
 }

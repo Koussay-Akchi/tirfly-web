@@ -16,6 +16,7 @@ use App\Service\BadWordsFilterService;
 use Symfony\Component\Security\Core\Security;
 use Psr\Log\LoggerInterface;
 
+
 class ReclamationController extends AbstractController
 {
     private BadWordsFilterService $filterService;
@@ -28,28 +29,35 @@ class ReclamationController extends AbstractController
     }
 
     #[Route('/reclamations', name: 'liste_reclamations')]
-    public function index(ReclamationRepository $reclamationRepository): Response
+    public function index(Request $request, ReclamationRepository $reclamationRepository, \Knp\Component\Pager\PaginatorInterface $paginator): Response
     {
-        $reclamations = $reclamationRepository->findAll();
+        $query = $reclamationRepository->createQueryBuilder('r')->orderBy('r.dateCreation', 'DESC')->getQuery();
     
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1), // Numéro de la page
+            5 // Limite par page
+        );
+    
+        // Stats pour le graphique
+        $reclamationsAll = $reclamationRepository->findAll();
         $stats = [
-            'total' => count($reclamations),
+            'total' => count($reclamationsAll),
             'etat' => []
         ];
-    
-        foreach ($reclamations as $reclamation) {
+        foreach ($reclamationsAll as $reclamation) {
             $etat = $reclamation->getEtat();
             $stats['etat'][$etat] = ($stats['etat'][$etat] ?? 0) + 1;
         }
     
         return $this->render('reclamations/liste.html.twig', [
-            'reclamations' => $reclamations,
+            'reclamations' => $pagination,
             'stats' => $stats,
             'chart_labels' => array_keys($stats['etat']),
             'chart_data' => array_values($stats['etat']),
         ]);
     }
-
+    
     #[Route('/reclamation/add', name: 'ajout_reclamation')]
     public function add(
         Request $request,

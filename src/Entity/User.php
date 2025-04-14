@@ -207,16 +207,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
         $this->clients->removeElement($client);
         return $this;
     }
-
-    // Do not try to access a non-existent $role property. Instead, derive the role from the actual class.
-    // This method is used by the security component.
+    public function getRole(EntityManagerInterface $em): ?string
+    {
+        $classMetadata = $em->getClassMetadata(get_class($this));
+        $discriminatorValue = $classMetadata->discriminatorValue;
+        return $discriminatorValue;
+    }
+    
+    // Line ~225, in getRoles()
     public function getRoles(): array
     {
-        // For example, if this is a Client, return ROLE_CLIENT; otherwise, a default.
         if ($this instanceof \App\Entity\Client) {
             return ['ROLE_CLIENT'];
         }
-        // You can add other instanceof checks here for different subclasses.
+        // Default role for ADMIN, SUPPORT, VOYAGEUR
+        // Use getRole() in controllers/services where EntityManager is available
         return ['ROLE_USER'];
     }
 
