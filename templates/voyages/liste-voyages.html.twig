@@ -28,28 +28,30 @@
 
 					<div class="voyage-grid">
 						{% for voyage in voyages %}
-							<div class="voyage-card">
-								{% if false %}
-									<img src="{{ asset(voyage.getImage()) }}" alt="Image du voyage" class="card-image">
-								{% else %}
-									<img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image"/>
-								{% endif %}
+							<a href="{{ path('details_voyage', {'id': voyage.id}) }}" class="voyage-card-link">
+								<div class="voyage-card">
+									{% if false %}
+										<img src="{{ asset(voyage.getImage()) }}" alt="Image du voyage" class="card-image">
+									{% else %}
+										<img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image"/>
+									{% endif %}
 
-								<div class="card-title">{{ voyage.nom }}</div>
+									<div class="card-title">{{ voyage.nom }}</div>
 
-								<div class="card-details">
-									{{ voyage.dateDepart | date('Y-m-d') }}
-									-
-									{{ voyage.dateArrive | date('Y-m-d') }}<br>
-									{{ voyage.destination.ville }},
-									{{ voyage.destination.pays }}
+									<div class="card-details">
+										{{ voyage.dateDepart | date('Y-m-d') }}
+										-
+										{{ voyage.dateArrive | date('Y-m-d') }}<br>
+										{{ voyage.destination.ville }},
+										{{ voyage.destination.pays }}
+									</div>
+
+									<div class="card-price">{{ voyage.prix }}
+										DT</div>
+
+									<button class="card-reserve-button">Détails</button>
 								</div>
-
-								<div class="card-price">{{ voyage.prix }}
-									DT</div>
-
-								<button class="card-reserve-button" onclick="window.location.href='{{ path('reservation_form', {'id': voyage.id}) }}'">Réserver</button>
-							</div>
+							</a>
 						{% endfor %}
 					</div>
 				</div>
@@ -57,30 +59,30 @@
 		</article>
 	</main>
 
-	<script>
-		function filterVoyages() {
-let searchText = document.getElementById("searchField").value.toLowerCase();
-let departDate = document.getElementById("dateDepartPicker").value;
-let arriveDate = document.getElementById("dateArrivePicker").value;
-let selectedCountry = document.getElementById("countryComboBox").value;
-
-let url = new URL(window.location.href);
-url.searchParams.set('search', searchText);
-if (departDate) 
-url.searchParams.set('depart', departDate);
-
-if (arriveDate) 
-url.searchParams.set('arrive', arriveDate);
-
-if (selectedCountry) 
-url.searchParams.set('country', selectedCountry);
-
-
-window.location.href = url.toString();
-}
-
-function clearFilters() {
-window.location.href = window.location.pathname;
-}
-	</script>
+	 <script>
+			function filterVoyages() {
+	let searchText = document.getElementById("searchField").value.toLowerCase();
+	let departDate = document.getElementById("dateDepartPicker").value;
+	let arriveDate = document.getElementById("dateArrivePicker").value;
+	let selectedCountry = document.getElementById("countryComboBox").value;
+	
+	let url = new URL(window.location.href);
+	url.searchParams.set('search', searchText);
+	if (departDate) 
+	url.searchParams.set('depart', departDate);
+	
+	if (arriveDate) 
+	url.searchParams.set('arrive', arriveDate);
+	
+	if (selectedCountry) 
+	url.searchParams.set('country', selectedCountry);
+	
+	
+	window.location.href = url.toString();
+	}
+	
+	function clearFilters() {
+	window.location.href = window.location.pathname;
+	}
+		</script>
 {% endblock %}

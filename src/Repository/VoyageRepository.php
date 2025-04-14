@@ -44,6 +44,13 @@ class VoyageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function findAllWithPrice()
+{
+    return $this->createQueryBuilder('v')
+        ->select('v.id, v.nom, v.prix')
+        ->getQuery()
+        ->getResult();
+}
     //    /**
     //     * @return Voyage[] Returns an array of Voyage objects
     //     */

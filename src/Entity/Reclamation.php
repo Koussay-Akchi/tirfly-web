@@ -72,7 +72,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true,name : 'dateCreation')]
+    #[ORM\Column(type: 'date', nullable: true, name: 'dateCreation')]
     private ?\DateTimeInterface $dateCreation = null;
 
     public function getDateCreation(): ?\DateTimeInterface

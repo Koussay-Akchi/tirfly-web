@@ -53,7 +53,7 @@
                                             <div class="candidate-list-option">
                                                 <ul class="list-unstyled">
                                                     <li><i class="fas fa-user pr-1"></i>ID: {{ client.id }}</li>
-                                                    <li><i class="fas fa-map-marker-alt pr-1"></i>{{ client.adresse }}</li>
+                                                    <li><i class="fas fa-map-marker-alt pr-1"></i>{{ client.adresse ?? '-' }}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -61,7 +61,7 @@
                                 </td>
                                 <td class="candidate-list-favourite-time text-center">
                                     <span class="candidate-list-time order-1">
-                                        <i class="fas fa-phone pr-1"></i>{{ client.phoneNumber }}<br>
+                                        <i class="fas fa-phone pr-1"></i>{{ client.phoneNumber ?? '-' }}<br>
                                         <i class="fas fa-envelope pr-1"></i>{{ client.email }}
                                     </span>
                                 </td>

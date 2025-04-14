@@ -21,12 +21,6 @@ final class MainController extends AbstractController
         return $this->render('main/about.html.twig');
     }  
     */
-
-    #[Route('/destinations', name: 'liste_destinations')]
-    public function listeDestinations(): Response
-    {
-        return $this->render('main/destination.html.twig');
-    }
     
     /*
     #[Route('/voyages', name: 'liste_voyages')]

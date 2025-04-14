@@ -1,5 +1,8 @@
 parameters:
+            packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
+            evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
 
+            
 services:
     _defaults:
         autowire: true

@@ -1,0 +1,42 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Détails du Service{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Détails du Service</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ service.id }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ service.nom }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ service.description }}</td>
+            </tr>
+            <tr>
+                <th>Prix</th>
+                <td>{{ service.prix }} €</td>
+            </tr>
+            <tr>
+                <th>Hébergement</th>
+                <td>{{ service.hebergement.nom }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_service_index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+
+    <a href="{{ path('app_service_edit', {'id': service.id}) }}" class="btn btn-warning">
+        <i class="fas fa-edit"></i> Modifier
+    </a>
+</div>
+{% endblock %}
