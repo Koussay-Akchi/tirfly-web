@@ -47,7 +47,6 @@ class ClientController extends AbstractController
             'user' => $user,
         ]);
     }
-
     #[Route('/new', name: 'client_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
@@ -66,7 +65,6 @@ class ClientController extends AbstractController
                 $hashedPassword = $this->passwordHasher->hashPassword($client, $plainPassword);
                 $client->setMotDePasse($hashedPassword);
                 $client->setDateCreation(new \DateTime());
-
                 $niveau = new Niveau();
                 $niveau->setNiveau(1);
                 $niveau->setNiveauXP(100);
@@ -87,7 +85,6 @@ class ClientController extends AbstractController
                 }
             }
         }
-
         return $this->render('client/new.html.twig', [
             'client' => $client,
             'form' => $form->createView(),

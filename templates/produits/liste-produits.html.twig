@@ -1,0 +1,426 @@
+{% block title %}Liste des Produits - TirFly Shop{% endblock %}
+
+{% block stylesheets %}
+<link href="{{ asset('css/app.css') }}" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.gstatic.com"/>
+<link rel="shortcut icon" href="{{ asset('favicon.svg') }}"/>
+
+<style>
+    :root {
+        --primary: #1a4b8c;
+        --primary-dark: #0d3a73;
+        --primary-light: #e8f1fa;
+        --success: #2e7d32;
+        --success-light: #e8f5e9;
+        --info: #1565c0;
+        --info-light: #e3f2fd;
+        --danger: #c62828;
+        --danger-light: #ffebee;
+        --warning: #ff8f00;
+        --warning-light: #fff8e1;
+        --gray-100: #f5f5f5;
+        --gray-200: #e0e0e0;
+        --gray-500: #757575;
+        --gray-700: #2c3e50;
+        --space-sm: 0.5rem;
+        --space-md: 1rem;
+        --space-lg: 1.5rem;
+        --space-xl: 2rem;
+        --radius-sm: 0.25rem;
+        --radius-md: 0.5rem;
+        --radius-lg: 1rem;
+        --radius-full: 50px;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
+        --transition: all 0.2s ease-in-out;
+    }
+
+    /* Product Listing */
+    .product-listing-container {
+        padding: var(--space-xl) 0;
+        position: relative;
+        margin-bottom: 5rem;
+    }
+
+    /* Filter Section */
+    .product-filter {
+        background: white;
+        padding: var(--space-lg);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+        margin-bottom: var(--space-xl);
+    }
+
+    .product-filter .form-select, .product-filter .form-control {
+        border-radius: var(--radius-md);
+    }
+
+    /* Product Grid */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--space-xl);
+        padding: var(--space-sm);
+    }
+
+    /* Product Card */
+    .product-card {
+        background: white;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        transition: var(--transition);
+        border: 1px solid var(--gray-200);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .product-card:hover {
+        transform: translateY(-0.25rem);
+        box-shadow: var(--shadow-lg);
+    }
+
+    /* Product Image */
+    .product-image {
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-100);
+        padding: var(--space-lg);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-image img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        transition: var(--transition);
+    }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    /* Product Info */
+    .product-info {
+        padding: var(--space-lg);
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: var(--space-sm);
+        color: var(--gray-700);
+    }
+
+    .product-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin: var(--space-sm) 0;
+    }
+
+    /* Badges */
+    .product-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+        margin-bottom: var(--space-md);
+    }
+
+    .badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .eco-badge {
+        background: var(--success-light);
+        color: var(--success);
+    }
+
+    .stock-badge {
+        background: var(--info-light);
+        color: var(--info);
+    }
+
+    .out-of-stock {
+        background: var(--danger-light);
+        color: var(--danger);
+    }
+
+    /* Add to Cart */
+    .add-to-cart-form {
+        padding: 0 var(--space-lg) var(--space-lg);
+        margin-top: auto;
+    }
+
+    .quantity-selector {
+        margin-bottom: var(--space-md);
+    }
+
+    .quantity-selector input {
+        width: 100%;
+        text-align: center;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        padding: var(--space-md);
+        font-size: 1rem;
+    }
+
+    .add-to-cart-btn {
+        width: 100%;
+        padding: var(--space-md);
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .add-to-cart-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .add-to-cart-btn:disabled {
+        background: var(--gray-200);
+        cursor: not-allowed;
+    }
+
+    /* Login Prompt */
+    .login-prompt {
+        text-align: center;
+        padding: var(--space-md);
+        background: var(--gray-100);
+        border-radius: var(--radius-md);
+    }
+
+    .login-prompt a {
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .login-prompt a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    /* Empty State */
+    .no-products {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: var(--space-xl);
+        background: white;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+    }
+
+    .no-products i {
+        font-size: 3rem;
+        color: var(--gray-500);
+    }
+
+    /* Cart Button */
+    .cart-button {
+        position: fixed;
+        bottom: var(--space-xl);
+        right: var(--space-xl);
+        z-index: 1000;
+        transition: var(--transition);
+    }
+
+    .cart-button:hover {
+        transform: translateY(-3px);
+    }
+
+    .cart-button .btn {
+        border-radius: var(--radius-full);
+        padding: var(--space-md) var(--space-lg);
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        position: relative;
+        font-weight: 600;
+    }
+
+    .cart-count {
+        background: var(--danger);
+        color: white;
+        border-radius: var(--radius-full);
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        }
+
+        .product-image {
+            height: 180px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .product-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cart-button {
+            bottom: var(--space-lg);
+            right: var(--space-lg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container product-listing-container">
+    <h1 class="mb-4">Nos Produits</h1>
+
+    <div class="product-filter">
+        <form method="get" action="{{ path('liste_produits') }}" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Rechercher..." 
+                       value="{{ app.request.query.get('search')|e }}">
+            </div>
+            
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">Toutes les catégories</option>
+                    {% for category in categories %}
+                        <option value="{{ category|e }}" 
+                            {% if app.request.query.get('category') == category %}selected{% endif %}>
+                            {{ category|e }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3 d-flex align-items-center">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="ecoFriendly" 
+                           id="ecoFilter" value="1" {% if app.request.query.get('ecoFriendly') %}checked{% endif %}>
+                    <label class="form-check-label" for="ecoFilter">
+                        Éco-responsable
+                    </label>
+                </div>
+            </div>
+            
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="product-grid">
+        {% for produit in produits %}
+            <div class="product-card">
+                <div class="product-image">
+                    <a href="{{ path('details_produit', {id: produit.id}) }}">
+                        {% if produit.image %}
+                            <img src="{{ path('produit_image', {id: produit.id}) }}" 
+                                 alt="{{ produit.nom|e }}" 
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.src='{{ asset('images/default-product.png') }}'">
+                        {% else %}
+                            <img src="{{ asset('images/default-product.png') }}" 
+                                 alt="Produit par défaut"
+                                 loading="lazy">
+                        {% endif %}
+                    </a>
+                </div>
+
+                <div class="product-info">
+                    <div class="product-badges">
+                        {% if produit.ecoFriendly %}
+                            <span class="badge eco-badge">🌱 Éco-responsable</span>
+                        {% endif %}
+                        <span class="badge {% if produit.quantiteStock > 0 %}stock-badge{% else %}out-of-stock{% endif %}">
+                            {% if produit.quantiteStock > 0 %}En stock ({{ produit.quantiteStock }}){% else %}Rupture{% endif %}
+                        </span>
+                    </div>
+
+                    <a href="{{ path('details_produit', {id: produit.id}) }}" class="text-decoration-none">
+                        <h3 class="product-title">{{ produit.nom|e }}</h3>
+                    </a>
+                    <div class="product-price">{{ produit.prixUnitaire|number_format(2, ',', ' ') }} €</div>
+                </div>
+
+                {% if produit.quantiteStock > 0 %}
+                    <div class="add-to-cart-form">
+                        {% if app.user %}
+                            <form action="{{ path('ajouter_article', {produitId: produit.id}) }}" method="post">
+                                <div class="quantity-selector">
+                                    <input type="number" 
+                                           name="quantite" 
+                                           value="1" 
+                                           min="1" 
+                                           max="{{ produit.quantiteStock }}" 
+                                           class="form-control"
+                                           aria-label="Quantité">
+                                </div>
+                                <button type="submit" class="add-to-cart-btn">
+                                    <i class="fas fa-cart-plus"></i> Ajouter au panier
+                                </button>
+                                <input type="hidden" name="_token" value="{{ csrf_token('add_to_cart_' ~ produit.id) }}">
+                            </form>
+                        {% else %}
+                            <div class="login-prompt">
+                                <a href="{{ path('app_login') }}" class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Connectez-vous pour acheter
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="add-to-cart-form">
+                        <div class="login-prompt">
+                            <span class="text-muted">Produit indisponible</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="no-products">
+                <i class="fas fa-box-open"></i>
+                <h4>Aucun produit trouvé</h4>
+                <p>Essayez de modifier vos critères de recherche</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if app.user %}
+    {% set activePanier = app.user.paniers|filter(p => p.etat == 'active')|first %}
+    {% set cartCount = activePanier ? activePanier.articles|length : 0 %}
+    <div class="cart-button">
+        <a href="{{ path('panier') }}" class="btn btn-primary">
+            <i class="fas fa-shopping-cart"></i> Panier
+            {% if cartCount > 0 %}
+                <span class="cart-count">{{ cartCount }}</span>
+            {% endif %}
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

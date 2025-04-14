@@ -80,37 +80,34 @@
 						<button onclick="window.location.href='{{ path('app_evenement_index') }}'" class="tir-navbar-link" data-nav-link>Evenements</a>
 					</li>
 					<li>
-						<button onclick="window.location.href='{{ path('app_hebergement_index') }}'" class="tir-navbar-link" data-nav-link>hebergement</a>
-					</li>
-					<li>
-						<button onclick="window.location.href='{{ path('app_evenement_index') }}'" class="tir-navbar-link" data-nav-link>Evenements</a>
-					</li>
-					<li>
 						<button onclick="window.location.href='{{ path('ajout_reclamation') }}'" class="tir-navbar-link" data-nav-link>reclamations</button>
+					</li>
+					<li>
+						<button onclick="window.location.href='{{ path('liste_produits') }}'" class="tir-navbar-link" data-nav-link>Shop</a>
 					</li>
 					<li>
 						<button onclick="window.location.href='{{ path('chat_index') }}'" class="tir-navbar-link" data-nav-link>chat</button>
 					</li>
 				</ul>
-				</ul>
+			</ul>
 
-			</nav>
+		</nav>
 
-			<a href="{{ path('historique_reservations') }}" style="z-index: 100;">
-				<button class="navbar-btn navbar-btn-primary">Mes Reservations</button>
-			</a>
+		<a href="{{ path('historique_reservations') }}" style="z-index: 100;">
+			<button class="navbar-btn navbar-btn-primary">Mes Reservations</button>
+		</a>
 
-		</div>
+	</div>
 	</div>
 </header>
 
  <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const currentUrl = window.location.pathname;
-    const homeUrl = document.querySelector('.header').getAttribute('data-home-url');
-
-    if (currentUrl !== homeUrl) {
-      document.querySelector('.header').style.background = 'var(--yale-blue)';
-    }
-  });
-</script>
+	  document.addEventListener("DOMContentLoaded", function() {
+	    const currentUrl = window.location.pathname;
+	    const homeUrl = document.querySelector('.header').getAttribute('data-home-url');
+	
+	    if (currentUrl !== homeUrl) {
+	      document.querySelector('.header').style.background = 'var(--yale-blue)';
+	    }
+	  });
+	</script>
