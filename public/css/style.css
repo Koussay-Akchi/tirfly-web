@@ -117,6 +117,7 @@ body { background: var(--white); }
 \*-----------------------------------*/
 
 .container { padding-inline: 15px; }
+.tir-container { padding-inline: 15px; }
 
 .btn {
   color: var(--white);
@@ -226,7 +227,6 @@ body { background: var(--white); }
   left: 0;
   width: 100%;
   transition: var(--transition);
-  border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
   padding-block: 15px;
   z-index: 3O;
 }
@@ -242,6 +242,14 @@ body { background: var(--white); }
   justify-items: flex-start;
   align-items: center;
 }
+
+.header-top .tir-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  justify-items: flex-start;
+  align-items: center;
+}
+
 
 .helpline-box .wrapper { display: none; }
 
@@ -277,6 +285,13 @@ body { background: var(--white); }
 .header-bottom { border-bottom: 1px solid hsla(0, 0%, 100%, 0.1); }
 
 .header-bottom .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-block: 15px;
+}
+
+.header-bottom .tir-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -865,7 +880,12 @@ address {
    * REUSED STYLE
    */
 
-  .container {
+   .container {
+    max-width: 580px;
+    margin-inline: auto;
+  }
+  
+  .tir-container {
     max-width: 580px;
     margin-inline: auto;
   }
@@ -1003,6 +1023,8 @@ address {
 
   .container { max-width: 800px; }
 
+  .tir-container { max-width: 800px; }
+
   .section-text {
     max-width: 60ch;
     margin-inline: auto;
@@ -1093,7 +1115,13 @@ address {
    * CTA
    */
 
-  .cta .container {
+   .cta .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cta .tir-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1136,7 +1164,8 @@ address {
    * REUSED STYLE
    */
 
-  .container { max-width: 1050px; }
+   .container { max-width: 1050px; }
+   .tir-container { max-width: 1050px; }
 
 
 
@@ -1166,6 +1195,7 @@ address {
   }
 
   .header-bottom .container { padding-block: 0; }
+  .header-bottom .tir-container { padding-block: 0; }
 
   .header .navbar { all: unset; }
 
@@ -1296,7 +1326,8 @@ address {
    * REUSED STYLE
    */
 
-  .container { max-width: 1180px; } 
+   .container { max-width: 1180px; } 
+   .tir-container { max-width: 1180px; } 
 
 }
 

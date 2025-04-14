@@ -107,114 +107,114 @@
 		</div>
 	</main>
 	 <script>
-						document.addEventListener('DOMContentLoaded', function () {
-						    const showTousBtn = document.getElementById('showTous');
-						    const voyageBtn = document.getElementById('showVoyage');
-						    const sejourBtn = document.getElementById('showSejour');
-						    const packBtn = document.getElementById('showPack');
-						    const iconTous = document.getElementById('iconTous');
-						    const iconVoyage = document.getElementById('iconVoyage');
-						    const iconSejour = document.getElementById('iconSejour');
-						    const iconPack = document.getElementById('iconPack');
-						    const voyageCols = document.querySelectorAll('.voyage-col');
-						    const sejourCols = document.querySelectorAll('.sejour-col');
-						    const joursCols = document.querySelectorAll('.jours-col');
-						    const packCols = document.querySelectorAll('.pack-col');
-						    const reservationRows = document.querySelectorAll('.reservation-row');
-						    function updateSelection(selected) {
-						        iconTous.innerHTML = '';
-						        iconVoyage.innerHTML = '';
-						        iconSejour.innerHTML = '';
-						        iconPack.innerHTML = '';
-					        if(selected === 'tous') iconTous.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
-					        if(selected === 'voyage') iconVoyage.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
-					        if(selected === 'sejour') iconSejour.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
-					        if(selected === 'pack') iconPack.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
-					        feather.replace();
-						    }
-						    function toggleColumns(showCols, filterFn) {
-						        [voyageCols, sejourCols, joursCols, packCols].forEach(cols => {
-						            cols.forEach(col => col.classList.add('d-none'));
-						        });
-						        showCols.forEach(col => col.classList.remove('d-none'));
-						        reservationRows.forEach(row => {
-						            const voyageCell = row.querySelector('.voyage-col').textContent.trim();
-						            const sejourCell = row.querySelector('.sejour-col').textContent.trim();
-						            const packCell = row.querySelector('.pack-col').textContent.trim();
-						            row.style.display = filterFn(voyageCell, sejourCell, packCell) ? '' : 'none';
-						        });
-						    }
-						    showTousBtn.addEventListener('click', () => {
-						        updateSelection('tous');
-						        [voyageCols, sejourCols, joursCols, packCols].forEach(cols => {
-						            cols.forEach(col => col.classList.remove('d-none'));
-						        });
-						        reservationRows.forEach(row => row.style.display = '');
-						    });
-						    voyageBtn.addEventListener('click', () => {
-						        updateSelection('voyage');
-						        toggleColumns(voyageCols, (v, s, p) => v !== '—');
-						    });
-						    sejourBtn.addEventListener('click', () => {
-						        updateSelection('sejour');
-						        toggleColumns([...sejourCols, ...joursCols], (v, s, p) => s !== '—');
-						    });
-						    packBtn.addEventListener('click', () => {
-						        updateSelection('pack');
-						        toggleColumns(packCols, (v, s, p) => p !== '—');
-						    });
-						    updateSelection('tous');
-						    [voyageCols, sejourCols, joursCols, packCols].forEach(cols => {
-						        cols.forEach(col => col.classList.remove('d-none'));
-						    });
-						});
-						</script>
+							document.addEventListener('DOMContentLoaded', function () {
+							    const showTousBtn = document.getElementById('showTous');
+							    const voyageBtn = document.getElementById('showVoyage');
+							    const sejourBtn = document.getElementById('showSejour');
+							    const packBtn = document.getElementById('showPack');
+							    const iconTous = document.getElementById('iconTous');
+							    const iconVoyage = document.getElementById('iconVoyage');
+							    const iconSejour = document.getElementById('iconSejour');
+							    const iconPack = document.getElementById('iconPack');
+							    const voyageCols = document.querySelectorAll('.voyage-col');
+							    const sejourCols = document.querySelectorAll('.sejour-col');
+							    const joursCols = document.querySelectorAll('.jours-col');
+							    const packCols = document.querySelectorAll('.pack-col');
+							    const reservationRows = document.querySelectorAll('.reservation-row');
+							    function updateSelection(selected) {
+							        iconTous.innerHTML = '';
+							        iconVoyage.innerHTML = '';
+							        iconSejour.innerHTML = '';
+							        iconPack.innerHTML = '';
+						        if(selected === 'tous') iconTous.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+						        if(selected === 'voyage') iconVoyage.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+						        if(selected === 'sejour') iconSejour.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+						        if(selected === 'pack') iconPack.innerHTML = '<i class="align-middle" data-feather="arrow-down-circle"></i>';
+						        feather.replace();
+							    }
+							    function toggleColumns(showCols, filterFn) {
+							        [voyageCols, sejourCols, joursCols, packCols].forEach(cols => {
+							            cols.forEach(col => col.classList.add('d-none'));
+							        });
+							        showCols.forEach(col => col.classList.remove('d-none'));
+							        reservationRows.forEach(row => {
+							            const voyageCell = row.querySelector('.voyage-col').textContent.trim();
+							            const sejourCell = row.querySelector('.sejour-col').textContent.trim();
+							            const packCell = row.querySelector('.pack-col').textContent.trim();
+							            row.style.display = filterFn(voyageCell, sejourCell, packCell) ? '' : 'none';
+							        });
+							    }
+							    showTousBtn.addEventListener('click', () => {
+							        updateSelection('tous');
+							        [voyageCols, sejourCols, joursCols, packCols].forEach(cols => {
+							            cols.forEach(col => col.classList.remove('d-none'));
+							        });
+							        reservationRows.forEach(row => row.style.display = '');
+							    });
+							    voyageBtn.addEventListener('click', () => {
+							        updateSelection('voyage');
+							        toggleColumns(voyageCols, (v, s, p) => v !== '—');
+							    });
+							    sejourBtn.addEventListener('click', () => {
+							        updateSelection('sejour');
+							        toggleColumns([...sejourCols, ...joursCols], (v, s, p) => s !== '—');
+							    });
+							    packBtn.addEventListener('click', () => {
+							        updateSelection('pack');
+							        toggleColumns(packCols, (v, s, p) => p !== '—');
+							    });
+							    updateSelection('tous');
+							    [voyageCols, sejourCols, joursCols, packCols].forEach(cols => {
+							        cols.forEach(col => col.classList.remove('d-none'));
+							    });
+							});
+							</script>
 
 	 <script>
-						document.addEventListener('DOMContentLoaded', function () {
-					    const tooltipElements = document.querySelectorAll('[data-toggle="tooltip"]');
-					    tooltipElements.forEach(element => {
-					        new bootstrap.Tooltip(element);
-					    });
+							document.addEventListener('DOMContentLoaded', function () {
+						    const tooltipElements = document.querySelectorAll('[data-toggle="tooltip"]');
+						    tooltipElements.forEach(element => {
+						        new bootstrap.Tooltip(element);
+						    });
+						
+						    const statusConfirme = document.getElementById('statusConfirme');
+						    const statusEnAttente = document.getElementById('statusEnAttente');
+						    const statusAnnule = document.getElementById('statusAnnule');
+						    const totalReservations = {{ reservations|length }};
+						    let confirmeCount = 0;
+						    let enAttenteCount = 0;
+						    let annuleCount = 0;
+						
+						    {% for reservation in reservations %}
+						        {% if reservation.statut == 'CONFIRME' %}
+						            confirmeCount += 1;
+						        {% elseif reservation.statut == 'EN_ATTENTE' %}
+						            enAttenteCount += 1;
+						        {% elseif reservation.statut == 'ANNULE' %}
+						            annuleCount += 1;
+						        {% endif %}
+						    {% endfor %}
+						
+						    const confirmePercent = (confirmeCount / totalReservations) * 100;
+						    const enAttentePercent = (enAttenteCount / totalReservations) * 100;
+						    const annulePercent = (annuleCount / totalReservations) * 100;
+						
+						    statusConfirme.style.width = `${confirmePercent}%`;
+						    statusEnAttente.style.width = `${enAttentePercent}%`;
+						    statusAnnule.style.width = `${annulePercent}%`;
+						
+							statusConfirme.setAttribute('title', `${Math.round(confirmePercent)}% - Confirmée (${confirmeCount})`);
+							statusEnAttente.setAttribute('title', `${Math.round(enAttentePercent)}% - En attente (${enAttenteCount})`);
+							statusAnnule.setAttribute('title', `${Math.round(annulePercent)}% - Annulée (${annuleCount})`);
 					
-					    const statusConfirme = document.getElementById('statusConfirme');
-					    const statusEnAttente = document.getElementById('statusEnAttente');
-					    const statusAnnule = document.getElementById('statusAnnule');
-					    const totalReservations = {{ reservations|length }};
-					    let confirmeCount = 0;
-					    let enAttenteCount = 0;
-					    let annuleCount = 0;
-					
-					    {% for reservation in reservations %}
-					        {% if reservation.statut == 'CONFIRME' %}
-					            confirmeCount += 1;
-					        {% elseif reservation.statut == 'EN_ATTENTE' %}
-					            enAttenteCount += 1;
-					        {% elseif reservation.statut == 'ANNULE' %}
-					            annuleCount += 1;
-					        {% endif %}
-					    {% endfor %}
-					
-					    const confirmePercent = (confirmeCount / totalReservations) * 100;
-					    const enAttentePercent = (enAttenteCount / totalReservations) * 100;
-					    const annulePercent = (annuleCount / totalReservations) * 100;
-					
-					    statusConfirme.style.width = `${confirmePercent}%`;
-					    statusEnAttente.style.width = `${enAttentePercent}%`;
-					    statusAnnule.style.width = `${annulePercent}%`;
-					
-						statusConfirme.setAttribute('title', `${Math.round(confirmePercent)}% - Confirmée (${confirmeCount})`);
-						statusEnAttente.setAttribute('title', `${Math.round(enAttentePercent)}% - En attente (${enAttenteCount})`);
-						statusAnnule.setAttribute('title', `${Math.round(annulePercent)}% - Annulée (${annuleCount})`);
-				
-					
-					    const updatedTooltipElements = document.querySelectorAll('[data-toggle="tooltip"]');
-					    updatedTooltipElements.forEach(element => {
-					        new bootstrap.Tooltip(element);
-					    });
-					});
-					
-					
-						</script>
+						
+						    const updatedTooltipElements = document.querySelectorAll('[data-toggle="tooltip"]');
+						    updatedTooltipElements.forEach(element => {
+						        new bootstrap.Tooltip(element);
+						    });
+						});
+						
+						
+							</script>
 
 {% endblock %}
