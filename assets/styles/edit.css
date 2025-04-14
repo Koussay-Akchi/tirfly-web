@@ -1,0 +1,78 @@
+/* Modifier Réclamation Form Styles */
+h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+form .form-row {
+    margin-bottom: 15px;
+}
+
+form .form-row label {
+    font-weight: bold;
+    color: #34495e;
+}
+
+form .form-row input,
+form .form-row textarea,
+form .form-row select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    background-color: #fff;
+    color: #34495e;
+}
+
+form .form-row input[type="file"] {
+    padding: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+a.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #95a5a6;
+    color: #fff;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+a.btn:hover {
+    background-color: #7f8c8d;
+}
+
+.mt-3 {
+    margin-top: 1em;
+}

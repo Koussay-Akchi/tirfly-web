@@ -2,82 +2,52 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-
 use App\Repository\ChatRepository;
+use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChatRepository::class)]
-#[ORM\Table(name: 'chats')]
+#[ORM\Table(name: 'chats')] 
 class Chat
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $client = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $support = null;
+
+    // === Getters/Setters ===
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(int $id): self
+    public function getClient(): ?User
     {
-        $this->id = $id;
+        return $this->client;
+    }
+
+    public function setClient(?User $client): static
+    {
+        $this->client = $client;
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $client_id = null;
-
-    public function getClient_id(): ?int
+    public function getSupport(): ?User
     {
-        return $this->client_id;
+        return $this->support;
     }
 
-    public function setClient_id(?int $client_id): self
+    public function setSupport(?User $support): static
     {
-        $this->client_id = $client_id;
+        $this->support = $support;
         return $this;
     }
-
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $support_id = null;
-
-    public function getSupport_id(): ?int
-    {
-        return $this->support_id;
-    }
-
-    public function setSupport_id(?int $support_id): self
-    {
-        $this->support_id = $support_id;
-        return $this;
-    }
-
-    public function getClientId(): ?int
-    {
-        return $this->client_id;
-    }
-
-    public function setClientId(?int $client_id): static
-    {
-        $this->client_id = $client_id;
-
-        return $this;
-    }
-
-    public function getSupportId(): ?int
-    {
-        return $this->support_id;
-    }
-
-    public function setSupportId(?int $support_id): static
-    {
-        $this->support_id = $support_id;
-
-        return $this;
-    }
-
 }

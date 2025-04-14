@@ -68,8 +68,7 @@ class VoyageType extends AbstractType
                         'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, JPEG, PNG)',
                     ])
                 ],
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
