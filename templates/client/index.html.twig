@@ -8,200 +8,479 @@
 {% block head %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 {% endblock %}
+
 {% block body %}
-<div class="container mt-3 mb-4">
-    <div class="col-lg-9 mt-4 mt-lg-0">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="user-dashboard-info-box table-responsive mb-0 bg-white p-4 shadow-sm">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1>Clients List</h1>
-                        <a href="{{ path('client_new') }}" class="btn btn-primary">Create New Client</a>
+<div class="dashboard-wrapper">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
+            min-height: 100vh;
+        }
+
+        /* Full Width Wrapper */
+        .dashboard-wrapper {
+            width: 100%;
+            padding: 30px;
+        }
+
+        /* Header Section */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            font-size: 2.5em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            border: none;
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1e3a8a);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* User Info */
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #374151;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        /* Table Styling */
+        .manage-candidates-top {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: slideUp 1s ease-out;
+        }
+
+        .manage-candidates-top thead {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 0.95em;
+            letter-spacing: 1px;
+        }
+
+        .manage-candidates-top th,
+        .manage-candidates-top td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .manage-candidates-top th {
+            font-weight: 700;
+        }
+
+        .manage-candidates-top tbody tr {
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .manage-candidates-top tbody tr:nth-child(even) {
+            background: #f1f5f9;
+        }
+
+        .manage-candidates-top tbody tr:hover {
+            background: #e0e7ff;
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Thumb and Candidate Info */
+        .thumb {
+            margin-right: 15px;
+        }
+
+        .thumb img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .candidate-list-details {
+            flex: 1;
+        }
+
+        .candidate-list-title h5 {
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .candidate-list-title a {
+            color: #1f2937;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .candidate-list-title a:hover {
+            color: #3b82f6;
+        }
+
+        .candidate-list-option ul {
+            color: #969696;
+            font-size: 0.9em;
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+        }
+
+        .candidate-list-option ul li {
+            margin-bottom: 5px;
+        }
+
+        .candidate-list-option ul li i {
+            margin-right: 5px;
+        }
+
+        /* Contact Info */
+        .candidate-list-favourite-time {
+            text-align: center;
+        }
+
+        .candidate-list-favourite-time span {
+            display: block;
+            margin: 5px auto;
+            color: #374151;
+            font-size: 0.95em;
+        }
+
+        .candidate-list-favourite-time span i {
+            margin-right: 5px;
+        }
+
+        /* Actions */
+        .list-unstyled.mb-0.d-flex.justify-content-end li {
+            margin: 0 8px;
+        }
+
+        .list-unstyled.mb-0.d-flex.justify-content-end li a,
+        .list-unstyled.mb-0.d-flex.justify-content-end li button {
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .list-unstyled.mb-0.d-flex.justify-content-end li a.text-primary:hover {
+            color: #1e3a8a !important;
+            transform: scale(1.2);
+        }
+
+        .list-unstyled.mb-0.d-flex.justify-content-end li a.text-info:hover {
+            color: #2563eb !important;
+            transform: scale(1.2);
+        }
+
+        .list-unstyled.mb-0.d-flex.justify-content-end li button.text-danger:hover {
+            color: #b91c1c !important;
+            transform: scale(1.2);
+        }
+
+        /* Pagination */
+        .pagination-wrapper {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .pagination {
+            display: inline-flex;
+            gap: 5px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .pagination .page-item {
+            margin: 0;
+        }
+
+        .pagination .page-link {
+            padding: 10px 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 5px;
+            color: #3b82f6;
+            background: #fff;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .pagination .page-link:hover {
+            background: #e0e7ff;
+            color: #1e3a8a;
+            border-color: #3b82f6;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #3b82f6;
+            color: #fff;
+            border-color: #3b82f6;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #6b7280;
+            background: #f1f5f9;
+            border-color: #e5e7eb;
+            pointer-events: none;
+        }
+
+        .pagination-info {
+            margin-top: 15px;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-wrapper {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .manage-candidates-top th,
+            .manage-candidates-top td {
+                padding: 15px;
+                font-size: 0.9em;
+            }
+
+            .thumb img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .btn-primary {
+                padding: 8px 20px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-wrapper {
+                padding: 15px;
+            }
+
+            .header-section {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .manage-candidates-top th,
+            .manage-candidates-top td {
+                padding: 10px;
+                font-size: 0.8em;
+            }
+
+            .thumb img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .candidate-list-title h5 {
+                font-size: 1em;
+            }
+
+            .pagination .page-link {
+                padding: 8px 12px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+
+    <div class="header-section">
+        <h1>Clients List</h1>
+        <a href="{{ path('client_new') }}" class="btn btn-primary">Create New Client</a>
+    </div>
+
+    <div class="user-info">
+        <span>Welcome, {{ user.nom }} {{ user.prenom }}</span>
+        <span>{{ user.email }}</span>
+    </div>
+
+    {# Pagination logic #}
+    {% set itemsPerPage = 5 %}
+    {% set currentPage = app.request.query.get('page', 1)|default(1)|number_format %}
+    {% set totalItems = clients|length %}
+    {% set totalPages = (totalItems / itemsPerPage)|round(0, 'ceil') %}
+    {% set startIndex = (currentPage - 1) * itemsPerPage %}
+    {% set endIndex = min(startIndex + itemsPerPage - 1, totalItems - 1) %}
+    {% set paginatedClients = clients|slice(startIndex, itemsPerPage) %}
+
+    <table class="table manage-candidates-top mb-0">
+        <thead>
+            <tr>
+                <th>Client Name</th>
+                <th class="text-center">Contact Info</th>
+                <th class="action text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in paginatedClients %}
+            <tr class="candidates-list">
+                <td class="title">
+                    <div class="thumb">
+                        <img class="img-fluid avatar-img" alt="Random Avatar">
                     </div>
-
-                    <div class="d-flex justify-content-between mb-3">
-                        <span>Welcome, {{ user.nom }} {{ user.prenom }}</span>
-                        <span>{{ user.email }}</span>
-                    </div>
-
-                    {# Pagination logic #}
-                    {% set itemsPerPage = 5 %}
-                    {% set currentPage = app.request.query.get('page', 1)|default(1)|number_format %}
-                    {% set totalItems = clients|length %}
-                    {% set totalPages = (totalItems / itemsPerPage)|round(0, 'ceil') %}
-                    {% set startIndex = (currentPage - 1) * itemsPerPage %}
-                    {% set endIndex = min(startIndex + itemsPerPage - 1, totalItems - 1) %}
-                    {% set paginatedClients = clients|slice(startIndex, itemsPerPage) %}
-
-                    <table class="table manage-candidates-top mb-0">
-                        <thead>
-                            <tr>
-                                <th>Client Name</th>
-                                <th class="text-center">Contact Info</th>
-                                <th class="action text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for client in paginatedClients %}
-                            <tr class="candidates-list">
-                                <td class="title">
-                                    <div class="thumb">
-                                        <img class="img-fluid avatar-img" alt="Random Avatar">
-                                    </div>
-                                    <div class="candidate-list-details">
-                                        <div class="candidate-list-info">
-                                            <div class="candidate-list-title">
-                                                <h5 class="mb-0"><a href="#">{{ client.nom }} {{ client.prenom }}</a></h5>
-                                            </div>
-                                            <div class="candidate-list-option">
-                                                <ul class="list-unstyled">
-                                                    <li><i class="fas fa-user pr-1"></i>ID: {{ client.id }}</li>
-                                                    <li><i class="fas fa-map-marker-alt pr-1"></i>{{ client.adresse ?? '-' }}</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="candidate-list-favourite-time text-center">
-                                    <span class="candidate-list-time order-1">
-                                        <i class="fas fa-phone pr-1"></i>{{ client.phoneNumber ?? '-' }}<br>
-                                        <i class="fas fa-envelope pr-1"></i>{{ client.email }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <ul class="list-unstyled mb-0 d-flex justify-content-end">
-                                        <li>
-                                            <a href="{{ path('client_show', {'id': client.id}) }}" class="text-primary" data-toggle="tooltip" title="View">
-                                                <i class="far fa-eye"></i>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ path('client_edit', {'id': client.id}) }}" class="text-info" data-toggle="tooltip" title="Edit">
-                                                <i class="fas fa-pencil-alt"></i>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <form method="post" action="{{ path('client_delete', {'id': client.id}) }}" class="d-inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ client.id) }}">
-                                                <button type="submit" class="btn btn-link text-danger p-0" data-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure?')">
-                                                    <i class="far fa-trash-alt"></i>
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-
-                    {# Pagination display #}
-                    {% if totalPages > 1 %}
-                    <div class="text-center mt-3 mt-sm-3">
-                        <ul class="pagination justify-content-center mb-0">
-                            {# Previous button #}
-                            <li class="page-item {{ currentPage == 1 ? 'disabled' : '' }}">
-                                <a class="page-link" href="{{ path('client_index', {'page': currentPage - 1}) }}"
-                                   {% if currentPage == 1 %}tabindex="-1" aria-disabled="true"{% endif %}>
-                                    Prev
-                                </a>
-                            </li>
-
-                            {# Page numbers #}
-                            {% set adjacentPages = 2 %}
-                            {% if currentPage > (adjacentPages + 1) %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ path('client_index', {'page': 1}) }}">1</a>
-                                </li>
-                                {% if currentPage > (adjacentPages + 2) %}
-                                    <li class="page-item disabled"><span class="page-link">...</span></li>
-                                {% endif %}
-                            {% endif %}
-
-                            {% for page in max(1, currentPage - adjacentPages)..min(totalPages, currentPage + adjacentPages) %}
-                                <li class="page-item {{ currentPage == page ? 'active' : '' }}">
-                                    <a class="page-link" href="{{ path('client_index', {'page': page}) }}">{{ page }}</a>
-                                </li>
-                            {% endfor %}
-
-                            {% if currentPage < (totalPages - adjacentPages) %}
-                                {% if currentPage < (totalPages - adjacentPages - 1) %}
-                                    <li class="page-item disabled"><span class="page-link">...</span></li>
-                                {% endif %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ path('client_index', {'page': totalPages}) }}">{{ totalPages }}</a>
-                                </li>
-                            {% endif %}
-
-                            {# Next button #}
-                            <li class="page-item {{ currentPage == totalPages ? 'disabled' : '' }}">
-                                <a class="page-link" href="{{ path('client_index', {'page': currentPage + 1}) }}"
-                                   {% if currentPage == totalPages %}tabindex="-1" aria-disabled="true"{% endif %}>
-                                    Next
-                                </a>
-                            </li>
-                        </ul>
-
-                        {# Showing range info #}
-                        <div class="mt-2 text-muted">
-                            Showing {{ startIndex + 1 }} to {{ endIndex + 1 }} of {{ totalItems }} entries
+                    <div class="candidate-list-details">
+                        <div class="candidate-list-info">
+                            <div class="candidate-list-title">
+                                <h5 class="mb-0"><a href="#">{{ client.nom }} {{ client.prenom }}</a></h5>
+                            </div>
+                            <div class="candidate-list-option">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-user pr-1"></i>ID: {{ client.id }}</li>
+                                    <li><i class="fas fa-map-marker-alt pr-1"></i>{{ client.adresse ?? '-' }}</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                    {% endif %}
-                </div>
-            </div>
+                </td>
+                <td class="candidate-list-favourite-time text-center">
+                    <span class="candidate-list-time order-1">
+                        <i class="fas fa-phone pr-1"></i>{{ client.phoneNumber ?? '-' }}<br>
+                        <i class="fas fa-envelope pr-1"></i>{{ client.email }}
+                    </span>
+                </td>
+                <td>
+                    <ul class="list-unstyled mb-0 d-flex justify-content-end">
+                        <li>
+                            <a href="{{ path('client_show', {'id': client.id}) }}" class="text-primary" data-toggle="tooltip" title="View">
+                                <i class="far fa-eye"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ path('client_edit', {'id': client.id}) }}" class="text-info" data-toggle="tooltip" title="Edit">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <form method="post" action="{{ path('client_delete', {'id': client.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ client.id) }}">
+                                <button type="submit" class="btn btn-link text-danger p-0" data-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure?')">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {# Pagination display #}
+    {% if totalPages > 1 %}
+    <div class="pagination-wrapper">
+        <ul class="pagination justify-content-center mb-0">
+            {# Previous button #}
+            <li class="page-item {{ currentPage == 1 ? 'disabled' : '' }}">
+                <a class="page-link" href="{{ path('client_index', {'page': currentPage - 1}) }}"
+                   {% if currentPage == 1 %}tabindex="-1" aria-disabled="true"{% endif %}>
+                    Prev
+                </a>
+            </li>
+
+            {# Page numbers #}
+            {% set adjacentPages = 2 %}
+            {% if currentPage > (adjacentPages + 1) %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('client_index', {'page': 1}) }}">1</a>
+                </li>
+                {% if currentPage > (adjacentPages + 2) %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endif %}
+
+            {% for page in max(1, currentPage - adjacentPages)..min(totalPages, currentPage + adjacentPages) %}
+                <li class="page-item {{ currentPage == page ? 'active' : '' }}">
+                    <a class="page-link" href="{{ path('client_index', {'page': page}) }}">{{ page }}</a>
+                </li>
+            {% endfor %}
+
+            {% if currentPage < (totalPages - adjacentPages) %}
+                {% if currentPage < (totalPages - adjacentPages - 1) %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('client_index', {'page': totalPages}) }}">{{ totalPages }}</a>
+                </li>
+            {% endif %}
+
+            {# Next button #}
+            <li class="page-item {{ currentPage == totalPages ? 'disabled' : '' }}">
+                <a class="page-link" href="{{ path('client_index', {'page': currentPage + 1}) }}"
+                   {% if currentPage == totalPages %}tabindex="-1" aria-disabled="true"{% endif %}>
+                    Next
+                </a>
+            </li>
+        </ul>
+
+        {# Showing range info #}
+        <div class="pagination-info">
+            Showing {{ startIndex + 1 }} to {{ endIndex + 1 }} of {{ totalItems }} entries
         </div>
     </div>
+    {% endif %}
 </div>
-
-<style>
-    .user-dashboard-info-box .candidates-list .thumb img {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 50%;
-    }
-
-    .user-dashboard-info-box .title {
-        display: flex;
-        align-items: center;
-        padding: 30px 0;
-    }
-
-    .candidate-list-details ul {
-        color: #969696;
-    }
-
-    .candidates-list:hover {
-        box-shadow: 0 0 34px 4px rgba(33, 37, 41, 0.06);
-        position: relative;
-        z-index: 99;
-    }
-
-    .candidate-list-favourite-time span {
-        display: block;
-        margin: 0 auto;
-    }
-
-    .list-unstyled.mb-0.d-flex.justify-content-end li {
-        margin: 0 5px;
-    }
-
-    .pagination .page-link {
-        color: #007bff;
-    }
-    
-    .pagination .page-item.active .page-link {
-        background-color: #007bff;
-        border-color: #007bff;
-    }
-    
-    .pagination .page-item.disabled .page-link {
-        color: #6c757d;
-        pointer-events: none;
-        background-color: #fff;
-    }
-</style>
 
 <script>
     document.querySelectorAll('.avatar-img').forEach(function(img) {
