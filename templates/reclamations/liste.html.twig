@@ -42,11 +42,7 @@
                                     {{ reclamation.titre|escape }}
                                 </td>
                                 <td>
-                                    <span class="badge 
-                                        {% if reclamation.etat == 'Qualité de service' %}badge-warning
-                                        {% elseif reclamation.etat == 'Retard' %}badge-danger
-                                        {% elseif reclamation.etat == 'Annulation' %}badge-info
-                                        {% else %}badge-secondary{% endif %}">
+                                    <span>
                                         {{ reclamation.etat }}
                                     </span>
                                 </td>
