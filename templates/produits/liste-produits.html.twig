@@ -1,0 +1,352 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Liste des Produits - TirFly Shop{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Main Container */
+        .product-listing-container {
+            padding: 2rem 0;
+            position: relative;
+            margin-bottom: 80px; /* Space for floating cart button */
+        }
+        
+        /* Filter Section */
+        .product-filter {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        /* Product Card */
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        /* Product Image */
+        .product-image {
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            position: relative;
+        }
+        .product-image img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+        
+        /* Product Info */
+        .product-info {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--yale-blue);
+            margin: 0.5rem 0;
+        }
+        
+        /* Badges */
+        .product-badges {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .eco-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .stock-badge {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .out-of-stock {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        /* Add to Cart Form */
+        .add-to-cart-form {
+            padding: 0 1.5rem 1.5rem;
+            margin-top: auto;
+        }
+        .quantity-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .quantity-selector input {
+            width: 70px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 0.5rem;
+        }
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--yale-blue);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .add-to-cart-btn:hover {
+            background: #1a3658;
+        }
+        .login-prompt {
+            text-align: center;
+            padding: 0.75rem;
+            background: #f5f5f5;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .login-prompt a {
+            color: var(--yale-blue);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        /* Empty State */
+        .no-products {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .no-products i {
+            font-size: 3rem;
+            color: #b0bec5;
+            margin-bottom: 1rem;
+        }
+        .no-products h4 {
+            color: #546e7a;
+            margin-bottom: 0.5rem;
+        }
+        .no-products p {
+            color: #90a4ae;
+        }
+
+        /* Cart Button */
+        .cart-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        .cart-button:hover {
+            transform: scale(1.05);
+        }
+        .cart-button .btn {
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+        .cart-count {
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            margin-left: 0.25rem;
+        }
+        
+        /* Stock warning */
+        .stock-warning {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container product-listing-container">
+        <h1 class="mb-4">Nos Produits</h1>
+
+        <div class="product-filter">
+            <form method="get" action="{{ path('liste_produits') }}" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Rechercher..." 
+                           value="{{ app.request.query.get('search') }}">
+                </div>
+                
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">Toutes les catégories</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}" 
+                                {% if app.request.query.get('category') == category %}selected{% endif %}>
+                                {{ category }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3 d-flex align-items-center">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="ecoFriendly" 
+                               id="ecoFilter" value="1" {% if app.request.query.get('ecoFriendly') %}checked{% endif %}>
+                        <label class="form-check-label" for="ecoFilter">
+                            Éco-responsable
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="product-grid">
+            {% for produit in produits %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <a href="{{ path('details_produit', {id: produit.id}) }}">
+                            {% if produit.image %}
+                                <img src="{{ path('produit_image', {id: produit.id}) }}" 
+                                     alt="{{ produit.nom }}" 
+                                     onerror="this.onerror=null;this.src='{{ asset('images/default-product.png') }}'">
+                            {% else %}
+                                <img src="{{ asset('images/default-product.png') }}" 
+                                     alt="Produit par défaut">
+                            {% endif %}
+                        </a>
+                    </div>
+
+                    <div class="product-info">
+                        <div class="product-badges">
+                            {% if produit.ecoFriendly %}
+                                <span class="badge eco-badge">🌱 Éco-responsable</span>
+                            {% endif %}
+                            <span class="badge {% if produit.quantiteStock > 0 %}stock-badge{% else %}out-of-stock{% endif %}">
+                                {% if produit.quantiteStock > 0 %}En stock ({{ produit.quantiteStock }}){% else %}Rupture{% endif %}
+                            </span>
+                        </div>
+
+                        <a href="{{ path('details_produit', {id: produit.id}) }}" class="text-decoration-none">
+                            <h3 class="product-title">{{ produit.nom }}</h3>
+                        </a>
+                        <div class="product-price">{{ produit.prixUnitaire|number_format(2, ',', ' ') }} €</div>
+                    </div>
+
+                    {% if produit.quantiteStock > 0 %}
+                        <div class="add-to-cart-form">
+                            {% if app.user %}
+                                <form action="{{ path('ajouter_article', {produitId: produit.id}) }}" method="post">
+                                    <div class="quantity-selector">
+                                        <input type="number" 
+                                               name="quantite" 
+                                               value="1" 
+                                               min="1" 
+                                               max="{{ produit.quantiteStock }}" 
+                                               class="form-control"
+                                               aria-label="Quantité">
+                                    </div>
+                                    <button type="submit" class="add-to-cart-btn">
+                                        <i class="fas fa-cart-plus"></i> Ajouter au panier
+                                    </button>
+                                    <input type="hidden" name="_token" value="{{ csrf_token('add_to_cart_' ~ produit.id) }}">
+                                </form>
+                            {% else %}
+                                <div class="login-prompt">
+                                    <a href="{{ path('app_login') }}" class="d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-sign-in-alt me-2"></i> Connectez-vous pour acheter
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="add-to-cart-form">
+                            <div class="login-prompt">
+                                <span class="text-muted">Produit indisponible</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="no-products">
+                    <i class="fas fa-box-open"></i>
+                    <h4>Aucun produit trouvé</h4>
+                    <p>Essayez de modifier vos critères de recherche</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if app.user %}
+        {% set activePanier = app.user.paniers|filter(p => p.etat == 'active')|first %}
+        {% set cartCount = activePanier ? activePanier.articles|length : 0 %}
+        <div class="cart-button">
+            <a href="{{ path('panier') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-cart"></i> Panier
+                {% if cartCount > 0 %}
+                    <span class="cart-count">{{ cartCount }}</span>
+                {% endif %}
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}

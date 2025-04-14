@@ -1,0 +1,59 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Modifier un Voyage{% endblock %}
+
+{% block body %}
+<div class="form-container">
+    <h2 class="text-center mb-4">Modifier un Voyage</h2>
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'form-vertical'}}) }}
+
+    <div class="form-group mb-3">
+        {{ form_label(form.nom) }}
+        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Donner le nom du voyage'}}) }}
+        {{ form_errors(form.nom) }}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form_label(form.destination) }}
+        {{ form_widget(form.destination, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.destination) }}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form_label(form.dateDepart) }}
+        {{ form_widget(form.dateDepart, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.dateDepart) }}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form_label(form.dateArrive) }}
+        {{ form_widget(form.dateArrive, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.dateArrive) }}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form_label(form.prix) }}
+        {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Donner le prix'}}) }}
+        {{ form_errors(form.prix) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.description) }}
+        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Donner une description'}}) }}
+        {{ form_errors(form.description) }}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form_label(form. ) }}
+        {{ form_widget(form.formule, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.formule) }}
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-success">Modifier le voyage</button>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}

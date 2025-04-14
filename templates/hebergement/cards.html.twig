@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hébergements
+{% endblock %}
+
+{% block body %}
+	<section id="hebergements">
+		<div class="container">
+
+			<p class="section-subtitle">Découvrez nos hébergements</p>
+
+			<h2 class="h2 section-title">Nos Hébergements</h2>
+
+			<p class="section-text">
+				Explorez notre sélection d'hébergements de qualité pour votre prochain voyage. Nous proposons des lieux uniques adaptés à tous les budgets.
+			</p>
+
+			<ul class="popular-list">
+				{% for hebergement in hebergements %}
+					<li>
+						<a href="{{ path('hebergement_show', {id: hebergement.id}) }}">
+							<div class="popular-card">
+								<figure class="card-img">
+									{% if hebergement.image %}
+										{# Smart image detection #}
+										{% if hebergement.image matches '{^[a-zA-Z0-9/._-]+\.(jpg|jpeg|png|gif|webp)$}' %}
+											{# It's a filename #}
+											<img src="{{ asset('uploads/hebergements/' ~ hebergement.image) }}" alt="{{ hebergement.nom }}" class="voyage-image" loading="lazy">
+										{% elseif hebergement.image starts with '/uploads/' %}
+											{# It's a full upload path #}
+											<img src="{{ asset(hebergement.image) }}" alt="{{ hebergement.nom }}" class="voyage-image" loading="lazy">
+										{% elseif hebergement.image starts with 'http' %}
+											{# It's an external URL #}
+											<img src="{{ hebergement.image }}" alt="{{ hebergement.nom }}" class="voyage-image" loading="lazy">
+										{% else %}
+											{# Assume it's binary data - use the imageData if passed, otherwise try to encode #}
+											{% if imageData is defined and imageData[hebergement.id] is defined %}
+												<img src="data:image/jpeg;base64,{{ imageData[hebergement.id] }}" alt="{{ hebergement.nom }}" class="voyage-image" loading="lazy">
+											{% else %}
+												<img src="data:image/jpeg;base64,{{ hebergement.image }}" alt="{{ hebergement.nom }}" class="voyage-image" loading="lazy">
+											{% endif %}
+										{% endif %}
+									{% else %}
+										{# No image available #}
+										<img src="{{ asset('images/default-hebergement.jpg') }}" alt="Hébergement par défaut" class="voyage-image" loading="lazy"/>
+									{% endif %}
+								</figure>
+								<div class="card-content">
+									<div class="card-rating">
+										{% if hebergement.hotels is not empty %}
+											<span class="badge bg-primary">
+												<i class="fas fa-hotel me-1"></i>Hôtel
+											</span>
+										{% elseif hebergement.logements is not empty %}
+											<span class="badge bg-success">
+												<i class="fas fa-home me-1"></i>Logement
+											</span>
+										{% elseif hebergement.foyers is not empty %}
+											<span class="badge bg-warning text-dark">
+												<i class="fas fa-users me-1"></i>Foyer
+											</span>
+										{% endif %}
+									</div>
+									
+									<p class="card-subtitle">
+										{% if hebergement.destination %}
+											<i class="fas fa-map-marker-alt"></i> {{ hebergement.destination.pays }}
+										{% elseif hebergement.localisation %}
+											<i class="fas fa-map-marker-alt"></i> {{ hebergement.localisation }}
+										{% else %}
+											<i class="fas fa-map-marker-alt"></i> Localisation non spécifiée
+										{% endif %}
+									</p>
+									
+									<h3 class="h3 card-title">
+										{{ hebergement.nom }}
+									</h3>
+									
+									<p class="card-text">
+										{% if hebergement.hotels is not empty %}
+											<i class="fas fa-euro-sign"></i> À partir de {{ hebergement.hotels[0].prix|number_format(2, ',', ' ') }} €/nuit
+										{% elseif hebergement.logements is not empty %}
+											<i class="fas fa-euro-sign"></i> {{ hebergement.logements[0].prix|number_format(2, ',', ' ') }} €/nuit
+										{% elseif hebergement.foyers is not empty %}
+											<i class="fas fa-euro-sign"></i> Frais: {{ hebergement.foyers[0].frais|number_format(2, ',', ' ') }} €
+										{% endif %}
+									</p>
+									
+									<div class="star-rating">
+										{% set rating = hebergement.classement ?? 0 %}
+										{% for i in 1..5 %}
+											{% if i <= rating %}
+												<i class="fas fa-star text-warning"></i>
+											{% else %}
+												<i class="far fa-star text-muted"></i>
+											{% endif %}
+										{% endfor %}
+										<span class="ms-2 small text-muted">({{ rating }}/5)</span>
+									</div>
+								</div>
+							</div>
+						</a>
+					</li>
+				{% else %}
+					<li class="text-center py-5">
+						<div class="empty-state">
+							<i class="fas fa-hotel fa-3x text-muted mb-3"></i>
+							<h4 class="h4">Aucun hébergement disponible</h4>
+							<p class="text-muted">Nous n'avons trouvé aucun hébergement à afficher.</p>
+							{% if is_granted('ROLE_ADMIN') %}
+								<a href="{{ path('app_hebergement_add') }}" class="btn btn-primary mt-3">
+									<i class="fas fa-plus"></i> Ajouter un hébergement
+								</a>
+							{% endif %}
+						</div>
+					</li>
+				{% endfor %}
+			</ul>
+
+			{% if is_granted('ROLE_ADMIN') %}
+				<div class="text-center mt-4">
+					<a href="{{ path('admin_liste_hebergements') }}" class="btn btn-outline-primary">
+						<i class="fas fa-cog me-2"></i>Gérer les hébergements
+					</a>
+				</div>
+			{% endif %}
+
+		</div>
+	</section>
+{% endblock %}

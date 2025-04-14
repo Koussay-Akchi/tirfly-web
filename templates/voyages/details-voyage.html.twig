@@ -1,0 +1,285 @@
+{% extends 'base.html.twig' %}
+{% block title %}
+	Détails du Voyage
+{% endblock %}
+{% block body %}
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" integrity="sha512-utbX0HcOOX7GxR7Fj8JkXmStPj/paj3nX4xAw4j7Y7WInFhX5V+0/4DbZq8bOoT1uUiyWd7yDyO3ewmNudtQ==" crossorigin="anonymous" />
+
+	{% set climat_icons = {
+		'2': 'sun.png',
+		'4': 'desert.png',
+		'3': 'snowflake.png',
+		'1': 'tropical.png'
+	} %}
+
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap');
+		* {
+			box-sizing: border-box;
+			padding: 0;
+			margin: 0;
+			font-family: 'Open Sans', sans-serif;
+		}
+		body { line-height: 1.5; }
+		.card-wrapper {
+			max-width: 1100px;
+			margin: 0 auto;
+			padding: 1rem;
+		}
+		img { width: 100%; display: block; }
+		.img-display { overflow: hidden; position: relative; }
+		.img-showcase {
+			display: flex;
+			width: 100%;
+			transition: all 0.5s ease;
+		}
+		.img-showcase img { min-width: 100%; }
+		.product-content { padding: 2rem 1rem; }
+		.product-title {
+			font-size: 2rem;
+			text-transform: capitalize;
+			font-weight: 700;
+			position: relative;
+			color: #12263a;
+			margin: 1rem 0;
+		}
+		.product-title::after {
+			content: "";
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			height: 4px;
+			width: 80px;
+			background: #12263a;
+		}
+		.product-detail h2 { text-transform: capitalize; color: #12263a; padding-bottom: 0.6rem; }
+		.product-detail ul {
+			margin: 1rem 0;
+			font-size: 0.9rem;
+		}
+		.product-detail ul li {
+			list-style: none;
+			background: url(https://fadzrinmadu.github.io/hosted-assets/product-detail-page-design-with-image-slider-html-css-and-javascript/checked.png) left center no-repeat;
+			background-size: 18px;
+			padding-left: 1.7rem;
+			margin: 0.4rem 0;
+			font-weight: 600;
+			opacity: 0.9;
+		}
+		.product-detail ul li span { font-weight: 400; }
+		.product-price { margin: 1rem 0; font-size: 1rem; font-weight: 700; }
+		.product-price span { font-weight: 400; }
+		.purchase-info { margin: 1.5rem 0; }
+		.purchase-info .btn {
+			border: 1.5px solid #ddd;
+			border-radius: 25px;
+			text-align: center;
+			padding: 0.45rem 0.8rem;
+			outline: 0;
+			margin-right: 0.2rem;
+			margin-bottom: 1rem;
+			cursor: pointer;
+			color: #fff;
+			background: #28a745;
+		}
+		.purchase-info .btn:hover { opacity: 0.9; }
+
+		.badge-climat {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 80px;
+			height: 80px;
+			background-color: #007bff;
+			border-bottom-right-radius: 100%;
+			z-index: 1;
+		}
+		.badge-climat img {
+			width: 50px;
+			height: 50px;
+			position: absolute;
+			top: 5px;
+			left: 5px;
+			object-fit: cover;
+		}
+
+		@media screen and (min-width: 992px) {
+			.card {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				grid-gap: 1.5rem;
+			}
+			.card-wrapper {
+				height: 100vh;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.product-imgs { display: flex; flex-direction: column; justify-content: center; }
+			.product-content { padding-top: 0; }
+		}
+	</style>
+
+	 <script type="module">
+					import ClimatService from '/js/ClimatService.js';
+			
+					document.addEventListener('DOMContentLoaded', async () => {
+						const weatherDiv = document.getElementById('weather');
+						const lat = weatherDiv.dataset.lat;
+						const lon = weatherDiv.dataset.lon;
+						const climatService = new ClimatService();
+						const temperature = await climatService.getTemperature(lat, lon);
+						const tempDisplay = document.getElementById('current-temperature');
+						if (temperature !== null) {
+							tempDisplay.textContent = `${temperature}°C`;
+						} else {
+							tempDisplay.textContent = 'Indisponible';
+						}
+					});
+				</script>
+
+	<main class="main">
+		<div class="card-wrapper">
+			<div class="card">
+				<div class="badge-climat">
+					<img src="{{ asset('images/' ~ (climat_icons[voyage.destination.climat] ?? 'default.jpg')) }}" alt="Climat">
+				</div>
+				<div class="product-imgs">
+					<div class="img-display">
+
+
+						<div class="img-showcase">
+							<img src="{{ asset(voyage.getImage() ? voyage.getImage() : 'images/default.jpg') }}" alt="Image du voyage">
+						</div>
+					</div>
+				</div>
+
+				<div class="product-content">
+					<h2 class="product-title">{{ voyage.nom }}</h2>
+					<div class="product-detail">
+						<h2>Détails du Voyage :</h2>
+						<ul>
+							<li>Destination :
+								<span>{{ voyage.destination.ville }},
+									{{ voyage.destination.pays }}</span>
+							</li>
+							<li>Dates :
+								<span>{{ voyage.dateDepart|date('d/m/Y') }}
+									-
+									{{ voyage.dateArrive|date('d/m/Y') }}</span>
+							</li>
+							<li>Durée :
+								<span>{{ voyage.dateDepart.diff(voyage.dateArrive).days }}
+									jours</span>
+							</li>
+							<li>Formule :
+								<span>{{ voyage.formule|replace({'_': ' '})|lower|capitalize }}</span>
+							</li>
+							<li>Note :
+								<span class="stars">
+									{% for i in 1..5 %}
+										{% if i <= voyage.note %}
+											⭐
+										{% elseif i - 0.5 == voyage.note %}
+											✬
+										{% else %}
+											☆
+										{% endif %}
+									{% endfor %}
+								</span>
+							</li>
+							<li>
+								Météo actuelle :
+								<span id="current-temperature">Chargement...</span>
+								<div id="weather" data-lat="{{ voyage.destination.latitude }}" data-lon="{{ voyage.destination.longitude }}" style="display:inline;"></div>
+							</li>
+						</ul>
+						<p>{{ voyage.description }}</p>
+					</div>
+					<div class="product-price">
+						<p class="new-price">Prix :
+							<span>{{ voyage.prix }}
+								DT/Personne</span>
+						</p>
+					</div>
+					<div class="purchase-info">
+						{% if dejaReserve %}
+							<span data-bs-toggle="tooltip" data-bs-placement="top" title="Vous avez déjà une réservation en attente pour ce voyage." style="display: inline-block; position: relative;">
+								<button type="button" class="btn reserver" style="background-color: grey; cursor: not-allowed; pointer-events: none;" disabled>
+									Réserver
+								</button>
+							</span>
+						{% else %}
+							<button type="button" class="btn reserver" onclick="window.location.href='{{ path('ajout_reservation', {'type': 'voyage', 'id': voyage.id}) }}'">
+								Réserver
+							</button>
+						{% endif %}
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+
+		<div class="voyage-details-feedback-container mt-4">
+			<h2>Avis des voyageurs</h2>
+			<form method="post" class="voyage-details-feedback-form">
+				<div class="rating-input">
+					<label for="note">Note :</label>
+					<div class="star-rating">
+						<input type="radio" id="star5" name="note" value="5">
+						<label for="star5">★</label>
+						<input type="radio" id="star4" name="note" value="4">
+						<label for="star4">★</label>
+						<input type="radio" id="star3" name="note" value="3">
+						<label for="star3">★</label>
+						<input type="radio" id="star2" name="note" value="2">
+						<label for="star2">★</label>
+						<input type="radio" id="star1" name="note" value="1">
+						<label for="star1">★</label>
+					</div>
+				</div>
+				<label for="comment">Avis :</label>
+				<textarea name="comment" required class="feedback-textarea"></textarea>
+				<button type="submit" class="submit-feedback-btn">Envoyer</button>
+			</form>
+
+			<div class="voyage-details-feedback-list">
+				{% for feedback in voyage.feedbacks %}
+					<div class="voyage-details-feedback-item">
+						<div class="feedback-header">
+							<strong>{{ feedback.client.nom }}
+								{{ feedback.client.prenom }}</strong>
+							<span class="feedback-date">{{ feedback.dateFeedback|date('d/m/Y') }}</span>
+						</div>
+						<div class="feedback-rating">
+							{% for i in 1..5 %}
+								{% if i <= feedback.note %}
+									<span class="filled-star">★</span>
+								{% else %}
+									<span class="empty-star">☆</span>
+								{% endif %}
+							{% endfor %}
+						</div>
+						<p class="feedback-content">{{ feedback.contenu }}</p>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</main>
+
+	 <script>
+		document.addEventListener('DOMContentLoaded', function () {
+			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+			tooltipTriggerList.map(function (tooltipTriggerEl) {
+				return new bootstrap.Tooltip(tooltipTriggerEl);
+			});
+		});
+	</script>
+
+{% endblock %}

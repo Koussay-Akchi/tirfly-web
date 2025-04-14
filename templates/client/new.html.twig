@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-0">Create New Client</h1>
+                        <a href="{{ path('client_index') }}" class="btn btn-light">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.nom.vars.id }}" class="form-label text-primary fw-bold">
+                                <i class="fas fa-user me-2"></i>First Name
+                            </label>
+                            {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {{ form_errors(form.nom) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.prenom.vars.id }}" class="form-label text-primary fw-bold">
+                                <i class="fas fa-user me-2"></i>Last Name
+                            </label>
+                            {{ form_widget(form.prenom, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {{ form_errors(form.prenom) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email.vars.id }}" class="form-label text-primary fw-bold">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.phoneNumber.vars.id }}" class="form-label text-primary fw-bold">
+                                <i class="fas fa-phone me-2"></i>Phone Number
+                            </label>
+                            {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {{ form_errors(form.phoneNumber) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="{{ form.adresse.vars.id }}" class="form-label text-primary fw-bold">
+                                <i class="fas fa-map-marker-alt me-2"></i>Address
+                            </label>
+                            {{ form_widget(form.adresse, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {{ form_errors(form.adresse) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.age.vars.id }}" class="form-label text-primary fw-bold">
+                                <i class="fas fa-calendar me-2"></i>Age
+                            </label>
+                            {{ form_widget(form.age, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {{ form_errors(form.age) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.sexe.vars.id }}" class="form-label text-primary fw-bold">
+                                <i class="fas fa-venus-mars me-2"></i>Gender
+                            </label>
+                            {{ form_widget(form.sexe, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {{ form_errors(form.sexe) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="{{ form.motDePasse.vars.id }}" class="form-label text-primary fw-bold">
+                                <i class="fas fa-lock me-2"></i>Password
+                            </label>
+                            {{ form_widget(form.motDePasse, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {{ form_errors(form.motDePasse) }}
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                            <i class="fas fa-check-circle me-2"></i>Create Client
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card { border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 1.5rem; }
+    .form-control-lg {
+        height: calc(2.5em + 1rem + 2px);
+        padding: 0.75rem 1rem;
+        font-size: 1.1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+    }
+    .form-control-lg:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    }
+    .form-label { font-weight: 600; color: #4b4b4b; }
+    .btn-lg { padding: 0.75rem 2rem; font-size: 1.2rem; border-radius: 8px; }
+    .text-primary { color: #007bff !important; }
+    .invalid-feedback { display: block; font-size: 0.9rem; color: #dc3545; }
+</style>
+{% endblock %}

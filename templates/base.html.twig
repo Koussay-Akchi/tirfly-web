@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>
+			{% block title %}TirFly
+			{% endblock %}
+		</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+		<link rel="shortcut icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+		<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	</head>
+	<body id="top">
+
+		{% include 'main/navbar.html.twig' %}
+
+		{% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
+			<div style="margin-bottom: 180px;"></div>
+		{% endif %}
+
+		<main>
+			{% block body %}{% endblock %}
+		</main>
+
+		{% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
+			<div style="margin-bottom: 50px;"></div>
+		{% endif %}
+
+
+		{% include 'main/footer.html.twig' %}
+
+		<a href="#top" class="go-top" data-go-top>
+			<ion-icon name="chevron-up-outline"></ion-icon>
+		</a>
+
+		 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+		 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+		 <script src="{{ asset('js/script.js') }}"></script>
+		 <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+		 <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+			<style>
+.navbar {
+	transition: all 0.3s ease;
+}
+
+.go-top {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	z-index: 1000;
+}
+	</style>
+</body></html>

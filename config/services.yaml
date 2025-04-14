@@ -1,0 +1,18 @@
+parameters:
+            packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+    App\Controller\ClientController:
+        arguments:
+            $passwordHasher: '@security.user_password_hasher'

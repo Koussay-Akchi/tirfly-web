@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un Nouveau Pack{% endblock %}
+
+{% block body %}
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="card shadow p-4" style="width: 100%; max-width: 600px; border-radius: 1rem;">
+            <h2 class="text-center mb-4">Créer un nouveau Pack</h2>
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="form-group mb-3">
+                {{ form_label(form.nom) }}
+                {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom du pack'}}) }}
+                {{ form_errors(form.nom) }}
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form_label(form.prix) }}
+                {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Prix en €'}}) }}
+                {{ form_errors(form.prix) }}
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form_label(form.voyages) }}
+                {{ form_widget(form.voyages, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.voyages) }}
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form_label(form.sejours) }}
+                {{ form_widget(form.sejours, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.sejours) }}
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form_label(form.image) }}
+                {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.image) }}
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success px-4">Créer le pack</button>
+            </div>
+
+            {{ form_end(form) }}
+
+            <div class="text-center mt-3">
+                <a href="{{ path('app_pack_index') }}" class="btn btn-outline-secondary">← Retour à la liste</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
