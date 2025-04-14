@@ -126,22 +126,22 @@
 	</style>
 
 	 <script type="module">
-					import ClimatService from '/js/ClimatService.js';
-			
-					document.addEventListener('DOMContentLoaded', async () => {
-						const weatherDiv = document.getElementById('weather');
-						const lat = weatherDiv.dataset.lat;
-						const lon = weatherDiv.dataset.lon;
-						const climatService = new ClimatService();
-						const temperature = await climatService.getTemperature(lat, lon);
-						const tempDisplay = document.getElementById('current-temperature');
-						if (temperature !== null) {
-							tempDisplay.textContent = `${temperature}°C`;
-						} else {
-							tempDisplay.textContent = 'Indisponible';
-						}
-					});
-				</script>
+						import ClimatService from '/js/ClimatService.js';
+				
+						document.addEventListener('DOMContentLoaded', async () => {
+							const weatherDiv = document.getElementById('weather');
+							const lat = weatherDiv.dataset.lat;
+							const lon = weatherDiv.dataset.lon;
+							const climatService = new ClimatService();
+							const temperature = await climatService.getTemperature(lat, lon);
+							const tempDisplay = document.getElementById('current-temperature');
+							if (temperature !== null) {
+								tempDisplay.textContent = `${temperature}°C`;
+							} else {
+								tempDisplay.textContent = 'Indisponible';
+							}
+						});
+					</script>
 
 	<main class="main">
 		<div class="card-wrapper">
@@ -219,6 +219,7 @@
 								Réserver
 							</button>
 						{% endif %}
+						<a href="{{ path('ajouter_feedbackk', {'id': voyage.id}) }}" class="card-feedback-button btn btn-primary">Donner un feedback</a>
 					</div>
 
 
@@ -274,12 +275,12 @@
 	</main>
 
 	 <script>
-		document.addEventListener('DOMContentLoaded', function () {
-			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-			tooltipTriggerList.map(function (tooltipTriggerEl) {
-				return new bootstrap.Tooltip(tooltipTriggerEl);
+			document.addEventListener('DOMContentLoaded', function () {
+				var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+				tooltipTriggerList.map(function (tooltipTriggerEl) {
+					return new bootstrap.Tooltip(tooltipTriggerEl);
+				});
 			});
-		});
-	</script>
+		</script>
 
 {% endblock %}
