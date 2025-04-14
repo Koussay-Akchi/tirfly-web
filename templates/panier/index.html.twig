@@ -25,7 +25,7 @@
                                 <td>{{ article.produit.prixUnitaire|number_format(2, ',', ' ') }} €</td>
                                 <td>
                                     <form method="post" action="{{ path('modifier_quantite_article', {'id': article.id}) }}" class="form-inline">
-                                        <input type="number" name="quantite" value="{{ article.quantite }}" min="1" max="{{ article.produit.quantiteStock }}" class="form-control form-control-sm">
+                                        <input type="number" name="quantite" value="{{ article.quantite }}" class="form-control form-control-sm">
                                         <button type="submit" class="btn btn-sm btn-primary ml-2">Mettre à jour</button>
                                     </form>
                                 </td>
