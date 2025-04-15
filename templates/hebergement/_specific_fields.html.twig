@@ -1,5 +1,5 @@
     {% if type == 'hotel' %}
-        <!-- Hotel specific fields -->
+        
         <div class="row">
             <div class="col-md-6">
                 {{ form_row(form.prix, {
@@ -9,7 +9,7 @@
             </div>
         </div>
     {% elseif type == 'logement' %}
-        <!-- Logement specific fields -->
+        
         <div class="row g-3">
             <div class="col-md-6">
                 {{ form_row(form.prix, {
@@ -25,7 +25,7 @@
             </div>
         </div>
     {% elseif type == 'foyer' %}
-        <!-- Foyer specific fields -->
+        
         <div class="row g-3">
             <div class="col-md-4">
                 {{ form_row(form.frais, {
@@ -48,7 +48,7 @@
         </div>
     {% endif %}
 
-    <!-- Services display section -->
+    
     <div class="row mt-4">
         <div class="col-12">
             <h4>Services associés</h4>
@@ -80,7 +80,7 @@
             {% endif %}
         </div>
     </div>
-    <!-- Enhanced Services Display -->
+    
 <div class="row mt-4">
     <div class="col-12">
         <h4 class="section-title">
@@ -127,7 +127,7 @@
             </div>
         {% endif %}
         
-        <!-- Add Service Button -->
+        
         <div class="mt-3">
             <button class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>Ajouter un service

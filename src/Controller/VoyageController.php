@@ -193,7 +193,7 @@ class VoyageController extends AbstractController
                 return $this->redirectToRoute('modifier_voyage', ['id' => $voyage->getId()]);
             }
 
-            // Handle image upload logic (if needed)
+            
             /*
             $imageFile = $form->get('image')->getData();
             
@@ -248,7 +248,7 @@ class VoyageController extends AbstractController
     #[Route('/admin/voyages/feedback/{id}', name: 'admin_voyage_feedbacks')]
     public function listFeedbacks(Voyage $voyage): Response
     {
-        $feedbacks = $voyage->getFeedbacks(); // assuming the relation is properly set
+        $feedbacks = $voyage->getFeedbacks(); 
 
         return $this->json([
             'feedbacks' => $feedbacks
@@ -262,19 +262,16 @@ class VoyageController extends AbstractController
         VoyageRepository $voyageRepository,
         ReservationRepository $reservationRepository
     ): Response {
-        // Retrieve filters from query parameters
+        
         $maxDuree = $request->query->getInt('maxDuree', 0);
         $selectedPays = $request->query->get('selectedPays');
         $maxBudget = $request->query->get('maxBudget');
         $formules = $request->query->all('formules');
         $minNote = $request->query->get('minNote', 0);
-        // The AI description is passed to the view, but processing is moved to JS.
         $aiDescription = $request->query->get('aiDescription');
 
-        // Get the currently logged-in client (adjust according to your security setup)
         $client = $this->getUser();
 
-        // Calculate suggestion values based on the client's past reservations.
         $suggestions = [
             'suggestionDuree' => null,
             'suggestionPays' => null,
@@ -303,7 +300,7 @@ class VoyageController extends AbstractController
                 foreach ($voyagesClient as $voyage) {
                     if ($voyage->getDateDepart() && $voyage->getDateArrive()) {
                         $interval = $voyage->getDateDepart()->diff($voyage->getDateArrive());
-                        $jours = (int)$interval->format('%a');
+                        $jours = (int) $interval->format('%a');
                         $totalDuree += $jours;
                     }
                     $totalBudget += $voyage->getPrix();
@@ -334,40 +331,73 @@ class VoyageController extends AbstractController
             }
         }
 
-        // Build a query for voyages with the filters.
         $qb = $voyageRepository->createQueryBuilder('v')
             ->join('v.destination', 'd')
             ->addSelect('d');
 
+        $allVoyages = [];
         if ($maxDuree > 0) {
-            $qb->andWhere('DATEDIFF(v.dateArrive, v.dateDepart) <= :maxDuree')
-                ->setParameter('maxDuree', $maxDuree);
-        }
-        if ($selectedPays) {
-            $qb->andWhere('LOWER(d.pays) = LOWER(:selectedPays)')
-                ->setParameter('selectedPays', $selectedPays);
-        }
-        if ($maxBudget) {
-            $qb->andWhere('v.prix <= :maxBudget')
-                ->setParameter('maxBudget', $maxBudget);
-        }
-        if (!empty($formules) && is_array($formules)) {
-            $qb->andWhere('v.formule IN (:formules)')
-                ->setParameter('formules', $formules);
-        }
-        if ($minNote) {
-            $qb->andWhere('v.note >= :minNote')
-                ->setParameter('minNote', $minNote);
+            $tempQb = clone $qb;
+
+            if ($selectedPays) {
+                $tempQb->andWhere('LOWER(d.pays) = LOWER(:selectedPays)')
+                    ->setParameter('selectedPays', $selectedPays);
+            }
+            if ($maxBudget) {
+                $tempQb->andWhere('v.prix <= :maxBudget')
+                    ->setParameter('maxBudget', $maxBudget);
+            }
+            if (!empty($formules) && is_array($formules)) {
+                $tempQb->andWhere('v.formule IN (:formules)')
+                    ->setParameter('formules', $formules);
+            }
+            if ($minNote) {
+                $tempQb->andWhere('v.note >= :minNote')
+                    ->setParameter('minNote', $minNote);
+            }
+
+            $tempVoyages = $tempQb->getQuery()->getResult();
+
+            foreach ($tempVoyages as $voyage) {
+                if ($voyage->getDateDepart() && $voyage->getDateArrive()) {
+                    $interval = $voyage->getDateDepart()->diff($voyage->getDateArrive());
+                    $duree = (int) $interval->format('%a');
+
+                    if ($duree <= $maxDuree) {
+                        $allVoyages[] = $voyage;
+                    }
+                }
+            }
+
+            $voyages = $allVoyages;
+            usort($voyages, function ($a, $b) {
+                return $a->getDateDepart() <=> $b->getDateDepart();
+            });
+        } else {
+            if ($selectedPays) {
+                $qb->andWhere('LOWER(d.pays) = LOWER(:selectedPays)')
+                    ->setParameter('selectedPays', $selectedPays);
+            }
+            if ($maxBudget) {
+                $qb->andWhere('v.prix <= :maxBudget')
+                    ->setParameter('maxBudget', $maxBudget);
+            }
+            if (!empty($formules) && is_array($formules)) {
+                $qb->andWhere('v.formule IN (:formules)')
+                    ->setParameter('formules', $formules);
+            }
+            if ($minNote) {
+                $qb->andWhere('v.note >= :minNote')
+                    ->setParameter('minNote', $minNote);
+            }
+
+            $qb->orderBy('v.dateDepart', 'ASC');
+            $voyages = $qb->getQuery()->getResult();
         }
 
-        $qb->orderBy('v.dateDepart', 'ASC');
-
-        $voyages = $qb->getQuery()->getResult();
-
-        // Get all distinct countries among voyages
-        $allVoyages = $voyageRepository->findAll();
+        $allVoyagesList = $voyageRepository->findAll();
         $allCountries = [];
-        foreach ($allVoyages as $voyage) {
+        foreach ($allVoyagesList as $voyage) {
             if ($voyage->getDestination() && $voyage->getDestination()->getPays()) {
                 $allCountries[] = $voyage->getDestination()->getPays();
             }
@@ -375,22 +405,21 @@ class VoyageController extends AbstractController
         $allCountries = array_unique($allCountries);
         sort($allCountries);
 
-        // For the formule checkboxes, assume a predefined list (adjust as needed)
         $allFormules = ['FORMULE1', 'FORMULE2', 'FORMULE3'];
 
         return $this->render('voyages/assistant-voyage.html.twig', [
-            'voyages'         => $voyages,
-            'allCountries'    => $allCountries,
-            'allFormules'     => $allFormules,
-            'filters'         => [
-                'maxDuree'      => $maxDuree,
-                'selectedPays'  => $selectedPays,
-                'maxBudget'     => $maxBudget,
-                'formules'      => $formules,
-                'minNote'       => $minNote,
+            'voyages' => $voyages,
+            'allCountries' => $allCountries,
+            'allFormules' => $allFormules,
+            'filters' => [
+                'maxDuree' => $maxDuree,
+                'selectedPays' => $selectedPays,
+                'maxBudget' => $maxBudget,
+                'formules' => $formules,
+                'minNote' => $minNote,
                 'aiDescription' => $aiDescription,
             ],
-            'suggestions'     => $suggestions,
+            'suggestions' => $suggestions,
         ]);
     }
 

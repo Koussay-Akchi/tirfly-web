@@ -12,7 +12,7 @@
 				Choisissez parmi une sélection de packs de voyage complets incluant transport, hébergement et activités. Parfait pour vos prochaines aventures !
 			</p>
 
-			<!-- Champ pour le code coupon -->
+			
 			<div class="mb-4">
 				<input type="text" id="coupon-input" class="form-control" placeholder="Entrez un code promo">
 				<button class="btn btn-success mt-2" onclick="applyCoupon()">Appliquer le coupon</button>
@@ -115,7 +115,7 @@
 	<div class="text-center mt-4">
 		<a href="{{ path('app_pack_new') }}" class="btn btn-primary">+ Créer un nouveau Pack</a>
 	</div>
-</div></section><!-- Script QR Code --> <script type="module">
+</div></section> <script type="module">
 			    import QrCodeService from '/js/QrCodeService.js';
 			
 			    document.addEventListener('DOMContentLoaded', () => {
@@ -125,7 +125,7 @@
 			            qrService.renderQrCode(data, container);
 			        });
 			    });
-			</script><!-- Script coupon --> <script>
+			</script> <script>
 			    async function applyCoupon() {
 			        const code = document.getElementById("coupon-input").value.trim();
 			        const feedback = document.getElementById("coupon-feedback");
