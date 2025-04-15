@@ -5,7 +5,10 @@
 
 {% block body %}
 	<div class="container my-4">
-		<h1 class="mb-4">Assistant TirFly AI</h1>
+	<div style="text-align: center; display: flex;">
+			<h1 class="mb-4">Assistant TirFly AI</h1>
+			<img src="{{ asset('images/ai.png') }}" alt="Logo" style="width: 50px; height: 50px;">
+	</div>
 
 
 		<form method="get" action="{{ path('assistant_voyage') }}" id="filter-form">
@@ -196,7 +199,7 @@
 	</div>
 
 	<style>
-		.container {
+		.container {	
 			max-width: 800px;
 			margin: 0 auto;
 			padding: 20px;
@@ -210,8 +213,14 @@
 		form {
 			background: #fff;
 			border-radius: 8px;
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 			padding: 30px;
+		}
+		#filter-form {
+			transition: box-shadow 0.3s ease;
+		}
+
+		#filter-form[style*="display: none"] {
+			box-shadow: none !important;
 		}
 		.form-label {
 			font-weight: 600;
@@ -356,114 +365,118 @@
 	</style>
 
 	 <script>
-					document.addEventListener('DOMContentLoaded', function() {
-						const maxDureeInput = document.getElementById('maxDuree');
-						const maxDureeLabel = document.getElementById('maxDureeLabel');
-						maxDureeInput.addEventListener('input', function () {
-							maxDureeLabel.innerText = this.value + " jours";
-						});
-						const maxBudgetInput = document.getElementById('maxBudget');
-						const maxBudgetLabel = document.getElementById('maxBudgetLabel');
-						maxBudgetInput.addEventListener('input', function () {
-							maxBudgetLabel.innerText = this.value + " DT";
-						});
-						const minNoteInput = document.getElementById('minNote');
-						const minNoteLabel = document.getElementById('minNoteLabel');
-						minNoteInput.addEventListener('input', function () {
-							minNoteLabel.innerText = this.value + " ⭐";
-						});
-						const carouselApplyButtons = document.querySelectorAll('.carousel-apply');
-						const carouselSkipButtons = document.querySelectorAll('.carousel-skip');
-						const carouselItems = document.querySelectorAll('.carousel-item');
-						const filterSteps = document.querySelectorAll('.filter-step');
-						const applyAllFiltersBtn = document.getElementById('apply-all-filters');
-						const resetFiltersBtn = document.getElementById('reset-filters');
-						const filterForm = document.getElementById('filter-form');
-						const voyagesResults = document.getElementById('voyages-results');
-						const filtersContainer = document.getElementById('filters-carousel-container');
-						const showFiltersBtn = document.getElementById('show-filters');
-						function showStep(step) {
-							carouselItems.forEach(item => {
-								item.classList.remove('active');
+						document.addEventListener('DOMContentLoaded', function() {
+							const maxDureeInput = document.getElementById('maxDuree');
+							const maxDureeLabel = document.getElementById('maxDureeLabel');
+							maxDureeInput.addEventListener('input', function () {
+								maxDureeLabel.innerText = this.value + " jours";
 							});
-							const currentItem = document.querySelector(`.carousel-item[data-step="${step}"]`);
-							if (currentItem) {
-								currentItem.classList.add('active');
+							const maxBudgetInput = document.getElementById('maxBudget');
+							const maxBudgetLabel = document.getElementById('maxBudgetLabel');
+							maxBudgetInput.addEventListener('input', function () {
+								maxBudgetLabel.innerText = this.value + " DT";
+							});
+							const minNoteInput = document.getElementById('minNote');
+							const minNoteLabel = document.getElementById('minNoteLabel');
+							minNoteInput.addEventListener('input', function () {
+								minNoteLabel.innerText = this.value + " ⭐";
+							});
+							const carouselApplyButtons = document.querySelectorAll('.carousel-apply');
+							const carouselSkipButtons = document.querySelectorAll('.carousel-skip');
+							const carouselItems = document.querySelectorAll('.carousel-item');
+							const filterSteps = document.querySelectorAll('.filter-step');
+							const applyAllFiltersBtn = document.getElementById('apply-all-filters');
+							const resetFiltersBtn = document.getElementById('reset-filters');
+							const filterForm = document.getElementById('filter-form');
+							const voyagesResults = document.getElementById('voyages-results');
+							const filtersContainer = document.getElementById('filters-carousel-container');
+							const showFiltersBtn = document.getElementById('show-filters');
+							function showStep(step) {
+								carouselItems.forEach(item => {
+									item.classList.remove('active');
+								});
+								const currentItem = document.querySelector(`.carousel-item[data-step="${step}"]`);
+								if (currentItem) {
+									currentItem.classList.add('active');
+								}
+								filterSteps.forEach(stepIndicator => {
+									stepIndicator.classList.remove('active');
+									if (parseInt(stepIndicator.dataset.step) === step) {
+										stepIndicator.classList.add('active');
+									} else if (parseInt(stepIndicator.dataset.step) < step) {
+										stepIndicator.classList.add('completed');
+									}
+								});
 							}
-							filterSteps.forEach(stepIndicator => {
-								stepIndicator.classList.remove('active');
-								if (parseInt(stepIndicator.dataset.step) === step) {
-									stepIndicator.classList.add('active');
-								} else if (parseInt(stepIndicator.dataset.step) < step) {
-									stepIndicator.classList.add('completed');
-								}
-							});
-						}
-						carouselApplyButtons.forEach(button => {
-							button.addEventListener('click', function() {
-								const currentStep = parseInt(this.dataset.step);
-								const nextStep = currentStep + 1;
-								const currentStepIndicator = document.querySelector(`.filter-step[data-step="${currentStep}"]`);
-								currentStepIndicator.classList.add('completed');
-								if (nextStep <= 5) {
-									showStep(nextStep);
-								}
-							});
-						});
-						carouselSkipButtons.forEach(button => {
-							button.addEventListener('click', function() {
-								const currentStep = parseInt(this.dataset.step);
-								const nextStep = currentStep + 1;
-								if (nextStep <= 5) {
-									showStep(nextStep);
-								}
-							});
-						});
-						applyAllFiltersBtn.addEventListener('click', function() {
-							filterForm.submit();
-						});
-						resetFiltersBtn.addEventListener('click', function() {
-							window.location.href = "{{ path('assistant_voyage') }}";
-						});
-						showFiltersBtn.addEventListener('click', function() {
-							voyagesResults.style.display = 'none';
-							filtersContainer.style.display = 'block';
-							showStep(1);
-						});
-						const urlParams = new URLSearchParams(window.location.search);
-						if (urlParams.toString()) {
-							filtersContainer.style.display = 'none';
-							voyagesResults.style.display = 'block';
-						}
-						const tirflyAiBtn = document.getElementById('tirflyAiBtn');
-						const geminiBtn = document.getElementById('geminiBtn');
-						const aiDescriptionInput = document.getElementById('aiDescription');
-						if (tirflyAiBtn) {
-							tirflyAiBtn.addEventListener('click', function() {
-								const description = aiDescriptionInput.value;
-								if (description) {
-									if (typeof consultTirflyAI === 'function') {
-										consultTirflyAI(description);
+							carouselApplyButtons.forEach(button => {
+								button.addEventListener('click', function() {
+									const currentStep = parseInt(this.dataset.step);
+									const nextStep = currentStep + 1;
+									const currentStepIndicator = document.querySelector(`.filter-step[data-step="${currentStep}"]`);
+									currentStepIndicator.classList.add('completed');
+									if (nextStep <= 5) {
+										showStep(nextStep);
 									}
-								} else {
-									alert('Veuillez entrer une description pour consulter Tirfly AI');
-								}
+								});
 							});
-						}
-						if (geminiBtn) {
-							geminiBtn.addEventListener('click', function() {
-								const description = aiDescriptionInput.value;
-								if (description) {
-									if (typeof consultGemini === 'function') {
-										consultGemini(description);
+							carouselSkipButtons.forEach(button => {
+								button.addEventListener('click', function() {
+									const currentStep = parseInt(this.dataset.step);
+									const nextStep = currentStep + 1;
+									if (nextStep <= 5) {
+										showStep(nextStep);
 									}
-								} else {
-									alert('Veuillez entrer une description pour consulter Gemini');
-								}
+								});
 							});
-						}
-					});
-				</script>
+							applyAllFiltersBtn.addEventListener('click', function() {
+								filterForm.submit();
+							});
+							resetFiltersBtn.addEventListener('click', function() {
+								window.location.href = "{{ path('assistant_voyage') }}";
+							});
+							showFiltersBtn.addEventListener('click', function() {
+								voyagesResults.style.display = 'none';
+								filtersContainer.style.display = 'block';
+								filterForm.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+								showStep(1);
+							});
+							const urlParams = new URLSearchParams(window.location.search);
+							if (urlParams.toString()) {
+								filtersContainer.style.display = 'none';
+								filterForm.style.boxShadow = 'none';
+								voyagesResults.style.display = 'block';
+							}else{
+								filterForm.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+							}
+							const tirflyAiBtn = document.getElementById('tirflyAiBtn');
+							const geminiBtn = document.getElementById('geminiBtn');
+							const aiDescriptionInput = document.getElementById('aiDescription');
+							if (tirflyAiBtn) {
+								tirflyAiBtn.addEventListener('click', function() {
+									const description = aiDescriptionInput.value;
+									if (description) {
+										if (typeof consultTirflyAI === 'function') {
+											consultTirflyAI(description);
+										}
+									} else {
+										alert('Veuillez entrer une description pour consulter Tirfly AI');
+									}
+								});
+							}
+							if (geminiBtn) {
+								geminiBtn.addEventListener('click', function() {
+									const description = aiDescriptionInput.value;
+									if (description) {
+										if (typeof consultGemini === 'function') {
+											consultGemini(description);
+										}
+									} else {
+										alert('Veuillez entrer une description pour consulter Gemini');
+									}
+								});
+							}
+						});
+					</script>
 
  <script src="{{ asset('js/tirflyAi.js') }}"></script>
 	 <script src="{{ asset('js/gemini.js') }}"></script>
