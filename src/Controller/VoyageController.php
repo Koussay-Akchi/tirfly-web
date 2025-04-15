@@ -193,7 +193,7 @@ class VoyageController extends AbstractController
                 return $this->redirectToRoute('modifier_voyage', ['id' => $voyage->getId()]);
             }
 
-            
+
             /*
             $imageFile = $form->get('image')->getData();
             
@@ -248,7 +248,7 @@ class VoyageController extends AbstractController
     #[Route('/admin/voyages/feedback/{id}', name: 'admin_voyage_feedbacks')]
     public function listFeedbacks(Voyage $voyage): Response
     {
-        $feedbacks = $voyage->getFeedbacks(); 
+        $feedbacks = $voyage->getFeedbacks();
 
         return $this->json([
             'feedbacks' => $feedbacks
@@ -262,7 +262,7 @@ class VoyageController extends AbstractController
         VoyageRepository $voyageRepository,
         ReservationRepository $reservationRepository
     ): Response {
-        
+
         $maxDuree = $request->query->getInt('maxDuree', 0);
         $selectedPays = $request->query->get('selectedPays');
         $maxBudget = $request->query->get('maxBudget');
@@ -405,7 +405,7 @@ class VoyageController extends AbstractController
         $allCountries = array_unique($allCountries);
         sort($allCountries);
 
-        $allFormules = ['FORMULE1', 'FORMULE2', 'FORMULE3'];
+        $allFormules = ['REPAS_SEUL', 'BOISSONS_SEULES', 'AUCUN', 'LES_DEUX'];
 
         return $this->render('voyages/assistant-voyage.html.twig', [
             'voyages' => $voyages,
