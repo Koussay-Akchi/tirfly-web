@@ -1,0 +1,332 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Voyage Leaderboard{% endblock %}
+
+{% block body %}
+    <div class="leaderboard-container">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f5f7fa 100%);
+            padding: 30px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Leaderboard Container */
+        .leaderboard-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeIn 1.2s ease-in;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Leaderboard Table */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: slideUp 1s ease-out;
+        }
+
+        .leaderboard-table thead {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 0.95em;
+            letter-spacing: 1px;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .leaderboard-table th {
+            font-weight: 700;
+        }
+
+        .leaderboard-table tbody tr {
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .leaderboard-table tbody tr:nth-child(even) {
+            background: #f1f5f9;
+        }
+
+        .leaderboard-table tbody tr:hover {
+            background: #e0e7ff;
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Top 3 Highlight */
+        .leaderboard-table tbody tr:nth-child(1) {
+            background: linear-gradient(90deg, #fff9e6, #fff4cc);
+        }
+
+        .leaderboard-table tbody tr:nth-child(2) {
+            background: linear-gradient(90deg, #f0f4f5, #e6ebed);
+        }
+
+        .leaderboard-table tbody tr:nth-child(3) {
+            background: linear-gradient(90deg, #f5efe6, #ede4d9);
+        }
+
+        /* Client Info */
+        .client-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .client-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        .client-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 1.1em;
+        }
+
+        /* Metrics */
+        .metric {
+            font-weight: 500;
+            color: #374151;
+            font-size: 1em;
+        }
+
+        /* Level Icon with Medals */
+        .level-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+            color: #fff;
+            border-radius: 20px;
+            font-size: 0.95em;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            animation: pulse 2s infinite;
+        }
+
+        .level-icon.gold {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #3f2a1d;
+        }
+
+        .level-icon.silver {
+            background: linear-gradient(135deg, #c0c0c0, #a9a9a9);
+            color: #3f3f3f;
+        }
+
+        .level-icon.bronze {
+            background: linear-gradient(135deg, #cd7f32, #b87333);
+            color: #3f2a1d;
+        }
+
+        .level-icon i {
+            font-size: 1.2em;
+        }
+
+        /* Level Progress Bar */
+        .level-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: linear-gradient(to right, #3b82f6, #1e3a8a);
+            border-radius: 6px;
+            transition: width 0.5s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-progress span {
+            font-weight: 600;
+            color: #1e3a8a;
+            font-size: 0.95em;
+        }
+
+        /* No Records */
+        .no-records {
+            text-align: center;
+            color: #6b7280;
+            font-style: italic;
+            padding: 30px;
+            font-size: 1.2em;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .leaderboard-table th,
+            .leaderboard-table td {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+
+            .client-avatar {
+                width: 40px;
+                height: 40px;
+            }
+
+            .client-name {
+                font-size: 1em;
+            }
+
+            .level-icon {
+                padding: 5px 10px;
+                font-size: 0.85em;
+            }
+
+            .progress-bar {
+                height: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .leaderboard-table th,
+            .leaderboard-table td {
+                padding: 8px;
+                font-size: 0.8em;
+            }
+
+            .client-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .client-avatar {
+                width: 35px;
+                height: 35px;
+            }
+
+            .level-progress {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Client</th>
+                    <th>Level</th>
+                    <th>Current XP</th>
+                    <th>Max XP</th>
+                    <th>Level Progress</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, niveau in niveaux|sort((a, b) => (b.niveau <=> a.niveau) ?: (b.niveauXP <=> a.niveauXP)) %}
+                    {% set progressPercentage = niveau.MaxNiveauXP > 0 ? (niveau.niveauXP / niveau.MaxNiveauXP * 100) | number_format(0) : 0 %}
+                    <tr class="leaderboard-row">
+                        <td>{{ index + 1 }}</td>
+                        <td>
+                            <div class="client-info">
+                                <img class="client-avatar avatar-img" data-sexe="{{ niveau.client.sexe }}" src="" alt="Client Avatar">
+                                <span class="client-name">{{ niveau.client.nom }} {{ niveau.client.prenom }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="level-icon {{ index == 0 ? 'gold' : (index == 1 ? 'silver' : (index == 2 ? 'bronze' : '')) }}">
+                                <i class="fas {{ index == 0 ? 'fa-medal' : (index == 1 ? 'fa-medal' : (index == 2 ? 'fa-medal' : 'fa-trophy')) }}"></i>
+                                <span>{{ niveau.niveau }}</span>
+                            </div>
+                        </td>
+                        <td class="metric">{{ niveau.niveauXP }}</td>
+                        <td class="metric">{{ niveau.MaxNiveauXP }}</td>
+                        <td>
+                            <div class="level-progress">
+                                <div class="progress-bar" style="width: {{ progressPercentage }}%"></div>
+                                <span>{{ progressPercentage }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="no-records">No clients found on the leaderboard</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.querySelectorAll('.avatar-img').forEach(function(img) {
+            const sexe = img.getAttribute('data-sexe');
+            let avatarNum;
+
+            if (sexe === 'Homme') {
+                const maleAvatars = [1, 2, 4, 5, 6, 7];
+                avatarNum = maleAvatars[Math.floor(Math.random() * maleAvatars.length)];
+            } else if (sexe === 'Femme') {
+                const femaleAvatars = [3, 8];
+                avatarNum = femaleAvatars[Math.floor(Math.random() * femaleAvatars.length)];
+            } else {
+                // Fallback for unknown sexe
+                avatarNum = Math.floor(Math.random() * 8) + 1;
+            }
+
+            img.src = `https://bootdey.com/img/Content/avatar/avatar${avatarNum}.png`;
+        });
+    </script>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
