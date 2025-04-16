@@ -500,9 +500,12 @@
 				filterForm.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
 			}
 			
-			// Import and use AiService
-			import('/js/AiService.js').then(module => {
-				const aiService = new module.default();
+			Promise.all([
+				import('/js/AiService.js'),
+				import('/js/geminiClient.js')
+			]).then(([aiServiceModule, geminiModule]) => {
+				const aiService = new aiServiceModule.default();
+				const geminiClient = new geminiModule.default();
 				
 				const tirflyAiBtn = document.getElementById('tirflyAiBtn');
 				const geminiBtn = document.getElementById('geminiBtn');
@@ -524,13 +527,13 @@
 						const description = aiDescriptionInput.value;
 						if (description) {
 							aiSuggestionBox.style.display = 'block';
-							aiSuggestionContent.innerHTML = '<div class="text-center"><span class="spinner-border" role="status"></span> Consultation en cours...</div>';
+							aiSuggestionContent.innerHTML = '<div class="text-center"><span class="spinner-border" role="status"></span> Consultation de TirFly AI en cours...</div>';
 							applySuggestionBtn.style.display = 'none';
 
 							try {
 								const countries = getAllCountries();
 								const result = await aiService.getSuggestion(countries, description);
-								console.log('AI Suggestion:', result);
+								console.log('TirFly AI Suggestion:', result);
 								
 								const { suggestion, raw_model_output } = result;
 
@@ -551,20 +554,45 @@
 									};
 								}
 							} catch (error) {
-								aiSuggestionContent.textContent = "Erreur lors de la consultation de l'IA. Veuillez réessayer.";
+								aiSuggestionContent.textContent = "Erreur lors de la consultation de TirFly AI. Veuillez réessayer.";
 							}
 						} else {
-							alert('Veuillez entrer une description pour consulter Tirfly AI');
+							alert('Veuillez entrer une description pour consulter TirFly AI');
 						}
 					});
 				}
 				
 				if (geminiBtn) {
-					geminiBtn.addEventListener('click', function() {
+					geminiBtn.addEventListener('click', async function() {
 						const description = aiDescriptionInput.value;
 						if (description) {
-							if (typeof consultGemini === 'function') {
-								consultGemini(description);
+							aiSuggestionBox.style.display = 'block';
+							aiSuggestionContent.innerHTML = '<div class="text-center"><span class="spinner-border" role="status"></span> Consultation de Gemini en cours...</div>';
+							applySuggestionBtn.style.display = 'none';
+
+							try {
+								const countries = getAllCountries();
+								const suggestionText = await geminiClient.getSuggestedCity(countries, description);
+								console.log('Gemini Suggestion:', suggestionText);
+								
+								aiSuggestionContent.textContent = suggestionText;
+
+								const matchingCountry = countries.find(country => 
+									suggestionText.toLowerCase().includes(country.toLowerCase())
+								);
+								
+								applySuggestionBtn.style.display = 'block';
+								if (matchingCountry) {
+									applySuggestionBtn.onclick = function() {
+										selectedPaysSelect.value = matchingCountry;
+									};
+								} else {
+									applySuggestionBtn.onclick = function() {
+										selectedPaysSelect.value = countries[0];
+									};
+								}
+							} catch (error) {
+								aiSuggestionContent.textContent = "Erreur lors de la consultation de Gemini. Veuillez réessayer.";
 							}
 						} else {
 							alert('Veuillez entrer une description pour consulter Gemini');
@@ -572,18 +600,10 @@
 					});
 				}
 			}).catch(error => {
-				console.error('Failed to load AiService module:', error);
+				console.error('Failed to load AI service modules:', error);
 			});
 		});
 	</script>
 
-	<script type="module">
-		const script = document.createElement('script');
-		script.type = 'module';
-		script.textContent = `
-			import AiService from '/js/AiService.js';
-			window.AiService = AiService;
-		`;
-		document.head.appendChild(script);
-	</script>
+
 {% endblock %}
