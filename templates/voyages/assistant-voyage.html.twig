@@ -68,8 +68,8 @@
 									{% endif %}
 									<div class="mt-3 d-flex">
 										<input type="text" class="form-control me-2" id="aiDescription" name="aiDescription" placeholder="Donnez une description" value="{{ filters.aiDescription }}">
-										<button type="button" class="btn btn-secondary me-2" id="tirflyAiBtn">Consulter Tirfly AI</button>
-										<button type="button" class="btn btn-secondary" id="geminiBtn">Consulter Gemini</button>
+										<button type="button" class="ai-btn ai-btn-secondary me-2" id="tirflyAiBtn">Consulter Tirfly AI</button>
+										<button type="button" class="ai-btn ai-btn-secondary" id="geminiBtn">Consulter Gemini</button>
 									</div>
 									<div id="aiSuggestionBox" class="alert alert-info mt-2" style="display: none;">
 										<div id="aiSuggestionContent"></div>
@@ -255,6 +255,22 @@
 			transition: background 0.3s;
 			margin-top: 10px;
 		}
+		
+		.ai-btn {
+			padding: 10px 20px;
+			border-radius: 5px;
+			font-size: 1rem;
+			transition: background 0.3s;
+			margin-top: 10px;
+		}
+
+		#tirflyAiBtn,
+		#geminiBtn {
+			display: inline-block !important;
+			visibility: visible !important;
+			opacity: 1 !important;
+		}
+
 		.btn-primary {
 			background: #0d6efd;
 			color: #fff;
@@ -266,9 +282,20 @@
 			background: #6c757d;
 			color: #fff;
 		}
+
+		.ai-btn-secondary {
+			background: #6c757d;
+			color: #fff;
+		}
+
 		.btn-secondary:hover {
 			background: #5a6268;
 		}
+		
+		.ai-btn-secondary:hover {
+			background: #5a6268;
+		}
+
 		.btn-outline-primary {
 			background: transparent;
 			border: 2px solid #0d6efd;
