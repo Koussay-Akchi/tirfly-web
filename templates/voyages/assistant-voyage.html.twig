@@ -512,7 +512,6 @@
 				const applySuggestionBtn = document.getElementById('applySuggestionBtn');
 				const selectedPaysSelect = document.getElementById('selectedPays');
 				
-				// Function to get all countries from the select element
 				function getAllCountries() {
 					const options = Array.from(selectedPaysSelect.options);
 					return options
@@ -521,29 +520,35 @@
 				}
 				
 				if (tirflyAiBtn) {
-					tirflyAiBtn.addEventListener('click', async function() {
+					tirflyAiBtn.addEventListener('click', async function () {
 						const description = aiDescriptionInput.value;
 						if (description) {
 							aiSuggestionBox.style.display = 'block';
 							aiSuggestionContent.innerHTML = '<div class="text-center"><span class="spinner-border" role="status"></span> Consultation en cours...</div>';
 							applySuggestionBtn.style.display = 'none';
-							
+
 							try {
 								const countries = getAllCountries();
-								const suggestion = await aiService.getRawSuggestion(countries, description);
-								aiSuggestionContent.textContent = suggestion;
+								const result = await aiService.getSuggestion(countries, description);
+								console.log('AI Suggestion:', result);
 								
+								const { suggestion, raw_model_output } = result;
+
+								aiSuggestionContent.textContent = raw_model_output;
+
 								const matchingCountry = countries.find(country => 
 									suggestion.toLowerCase().includes(country.toLowerCase())
 								);
 								
+								applySuggestionBtn.style.display = 'block';
 								if (matchingCountry) {
-									applySuggestionBtn.style.display = 'block';
 									applySuggestionBtn.onclick = function() {
 										selectedPaysSelect.value = matchingCountry;
 									};
 								} else {
-									applySuggestionBtn.style.display = 'none';
+									applySuggestionBtn.onclick = function() {
+										selectedPaysSelect.value = countries[0];
+									};
 								}
 							} catch (error) {
 								aiSuggestionContent.textContent = "Erreur lors de la consultation de l'IA. Veuillez réessayer.";

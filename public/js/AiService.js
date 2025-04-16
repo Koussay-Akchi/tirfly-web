@@ -3,7 +3,7 @@ export default class AiService {
         this.apiUrl = apiUrl;
     }
 
-    async getRawSuggestion(pays, description) {
+    async getSuggestion(pays, description) {
         try {
             const response = await fetch(this.apiUrl, {
                 method: 'POST',
@@ -20,7 +20,10 @@ export default class AiService {
             //console.log("response : ", response);
             const data = await response.json();
             //console.log("resultat : ", data);
-            return data.raw_model_output;
+            return {
+                suggestion: data.suggestion,
+                raw_model_output: data.raw_model_output
+            };
         } catch (error) {
             console.error('Failed to get AI suggestion:', error);
             throw error;
