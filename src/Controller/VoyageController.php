@@ -255,7 +255,6 @@ class VoyageController extends AbstractController
         ]);
     }
 
-
     #[Route('/voyages/assistant', name: 'assistant_voyage')]
     public function assistant(
         Request $request,

@@ -13,10 +13,11 @@
                     <div class="filters d-flex flex-wrap justify-content-center gap-3">
                         <input type="text" id="searchField" class="form-control filter-input" placeholder="Rechercher un voyage...">
                         <input type="date" id="dateDepartPicker" class="form-control filter-date">
+                        <span class="mx-2" style="color: grey;">➜</span>
                         <input type="date" id="dateArrivePicker" class="form-control filter-date">
                         <select id="countryComboBox" class="form-select filter-select">
                             <option value="">Pays</option>
-                            {% for country in allCountries %}
+                            {% for country in countries %}
                                 <option value="{{ country }}">{{ country }}</option>
                             {% endfor %}
                         </select>
