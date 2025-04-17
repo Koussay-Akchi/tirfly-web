@@ -54,7 +54,7 @@
 						<div class="img-showcase">
 							<img src="{{ asset(voyage.getImage() ? voyage.getImage() : 'images/default.jpg') }}" alt="Image du voyage">
 						</div>
-						<div id="voyage-map" style="height: 400px; margin-top: 10px; border-radius: 10px; overflow: hidden;"></div>			
+						<div id="voyage-map" style="height: 300px; margin-top: 10px; border-radius: 10px; overflow: hidden;"></div>			
 					</div>
 				</div>
 
@@ -191,7 +191,15 @@
 		const destinationLat = parseFloat("{{ voyage.destination.latitude }}");
 		const destinationLon = parseFloat("{{ voyage.destination.longitude }}");
 
-		const map = L.map('voyage-map').setView([(fixedLat + destinationLat) / 2, (fixedLon + destinationLon) / 2], 5);
+		const map = L.map('voyage-map');
+
+		const fixedLatLng = [fixedLat, fixedLon];
+		const destLatLng = [destinationLat, destinationLon];
+
+		map.fitBounds([fixedLatLng, destLatLng], {
+			padding: [50, 50]
+		});
+
 
 		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; OpenStreetMap contributors'
