@@ -14,8 +14,9 @@
 
 
 
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" integrity="sha512-utbX0HcOOX7GxR7Fj8JkXmStPj/paj3nX4xAw4j7Y7WInFhX5V+0/4DbZq8bOoT1uUiyWd7yDyO3ewmNudtQ==" crossorigin="anonymous" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" crossorigin="anonymous" />
 
+	<script src="https://unpkg.com/leaflet-rotatedmarker@0.2.0/leaflet.rotatedMarker.js"></script>
 	{% set climat_icons = {
 		'1': 'tropical.png',
 		'2': 'sun.png',
@@ -185,43 +186,82 @@
 
 	<script>
 	document.addEventListener('DOMContentLoaded', function () {
-		const fixedLat = 36.78465142459926;
-		const fixedLon = 10.061385612792224;
+        const fixedLat = 36.78465142459926;
+        const fixedLon = 10.061385612792224;
+        const destinationLat = parseFloat("{{ voyage.destination.latitude }}");
+        const destinationLon = parseFloat("{{ voyage.destination.longitude }}");
 
-		const destinationLat = parseFloat("{{ voyage.destination.latitude }}");
-		const destinationLon = parseFloat("{{ voyage.destination.longitude }}");
+        const fixedLatLng = [fixedLat, fixedLon];
+        const destLatLng  = [destinationLat, destinationLon];
 
-		const map = L.map('voyage-map');
+        const map = L.map('voyage-map');
+        map.fitBounds([fixedLatLng, destLatLng], { padding: [50, 50] });
 
-		const fixedLatLng = [fixedLat, fixedLon];
-		const destLatLng = [destinationLat, destinationLon];
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
-		map.fitBounds([fixedLatLng, destLatLng], {
-			padding: [50, 50]
-		});
+        L.marker(fixedLatLng).addTo(map).bindPopup("Point de départ");
+        L.marker(destLatLng).addTo(map).bindPopup("Destination : {{ voyage.destination.ville }}");
 
+        const controlPoint = [
+            (fixedLat + destinationLat) / 2 + 5,
+            (fixedLon + destinationLon) / 2
+        ];
+        const curveLatlngs = [
+            'M', fixedLatLng,
+            'Q', controlPoint, destLatLng
+        ];
+        L.curve(curveLatlngs, {
+            color: '#f00',
+            weight: 3,
+            dashArray: '5, 5',
+            opacity: 0.8
+        }).addTo(map);
 
-		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			attribution: '&copy; OpenStreetMap contributors'
-		}).addTo(map);
+        const planeIcon = L.icon({
+            iconUrl: '{{ asset("images/plane-icon.png") }}',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+        const planeMarker = L.marker(fixedLatLng, {
+            icon: planeIcon,
+            rotationAngle: 0,
+            rotationOrigin: 'center center'
+        }).addTo(map);
 
-		const fixedMarker = L.marker([fixedLat, fixedLon]).addTo(map);
+        function getPoint(t, p0, p1, p2) {
+            return [
+                (1 - t)*(1 - t)*p0[0] + 2*(1 - t)*t*p1[0] + t*t*p2[0],
+                (1 - t)*(1 - t)*p0[1] + 2*(1 - t)*t*p1[1] + t*t*p2[1]
+            ];
+        }
+        function getDerivative(t, p0, p1, p2) {
+            return [
+                2*(1 - t)*(p1[0] - p0[0]) + 2*t*(p2[0] - p1[0]),
+                2*(1 - t)*(p1[1] - p0[1]) + 2*t*(p2[1] - p1[1])
+            ];
+        }
 
-		const destMarker = L.marker([destinationLat, destinationLon]).addTo(map);
+        let t = 0;
+        function animatePlane() {
+            t += 0.005;
+            if (t > 1) t = 0;
 
-		const latlngs = [
-			'M', [fixedLat, fixedLon],
-			'Q', [(fixedLat + destinationLat) / 2 + 5, (fixedLon + destinationLon) / 2], [destinationLat, destinationLon]
-		];
+            const pos = getPoint(t, fixedLatLng, controlPoint, destLatLng);
+            planeMarker.setLatLng(pos);
 
-		const curvedPath = L.curve(latlngs, {
-			color: '#f00',
-			weight: 3,
-			dashArray: '5, 5',
-			opacity: 0.8
-		}).addTo(map);
-	});
+            const deriv = getDerivative(t, fixedLatLng, controlPoint, destLatLng);
+            const angle = Math.atan2(deriv[1], deriv[0]) * 180 / Math.PI;
+            planeMarker.setRotationAngle(angle);
+
+            requestAnimationFrame(animatePlane);
+        }
+
+        animatePlane();
+    });
 </script>
+
 
 
 {% endblock %}
