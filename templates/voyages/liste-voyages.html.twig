@@ -31,7 +31,7 @@
                         <a href="{{ path('details_voyage', {'id': voyage.id}) }}" class="voyage-card-link">
                             <div class="voyage-card">
                                 {% if voyage.image %}
-                                    <img src="{{ voyage.getImageUrl() }}" alt="Image du voyage" class="card-image">
+                                    <img src="{{ asset('uploads/voyages/' ~ voyage.image) }}" height="100px" alt="Image du voyage" class="card-image">
                                 {% else %}
                                     <img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image" />
                                 {% endif %}

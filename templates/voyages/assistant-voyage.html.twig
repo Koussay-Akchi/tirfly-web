@@ -5,11 +5,10 @@
 
 {% block body %}
 	<div class="container my-4">
-	<div style="text-align: center; display: flex;">
+		<div style="text-align: center; display: flex;">
 			<h1 class="mb-4">Assistant TirFly AI</h1>
 			<img src="{{ asset('images/ai.png') }}" alt="Logo" style="width: 50px; height: 50px;">
-	</div>
-
+		</div>
 
 		<form method="get" action="{{ path('assistant_voyage') }}" id="filter-form">
 			<div class="card mb-4" id="filters-carousel-container">
@@ -181,7 +180,7 @@
 						<a href="{{ path('details_voyage', {'id': voyage.id}) }}" class="voyage-card-link">
 							<div class="voyage-card">
 								{% if voyage.image %}
-									<img src="{{ voyage.getImageUrl() }}" alt="Image du voyage" class="card-image">
+									<img src="{{ asset('uploads/voyages/' ~ voyage.image) }}" alt="Image du voyage" class="card-image">
 								{% else %}
 									<img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image"/>
 								{% endif %}
@@ -205,7 +204,7 @@
 	</div>
 
 	<style>
-		.container {	
+		.container {
 			max-width: 800px;
 			margin: 0 auto;
 			padding: 20px;
@@ -255,7 +254,7 @@
 			transition: background 0.3s;
 			margin-top: 10px;
 		}
-		
+
 		.ai-btn {
 			padding: 10px 20px;
 			border-radius: 5px;
@@ -291,7 +290,7 @@
 		.btn-secondary:hover {
 			background: #5a6268;
 		}
-		
+
 		.ai-btn-secondary:hover {
 			background: #5a6268;
 		}

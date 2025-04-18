@@ -26,24 +26,24 @@
 
 
 	 <script type="module">
-						import ClimatService from '/js/ClimatService.js';
-				
-						document.addEventListener('DOMContentLoaded', async () => {
-							const weatherDiv = document.getElementById('weather');
-							const lat = weatherDiv.dataset.lat;
-							const lon = weatherDiv.dataset.lon;
-							const climatService = new ClimatService();
-							const temperature = await climatService.getTemperature(lat, lon);
-							const tempDisplay = document.getElementById('current-temperature');
-							if (temperature !== null) {
-								tempDisplay.textContent = `${temperature}°C`;
-							} else {
-								tempDisplay.textContent = 'Indisponible';
-							}
-						});
-					</script>
+		import ClimatService from '/js/ClimatService.js';
 
-	<main class="main" style="margin-top: 250px;">
+		document.addEventListener('DOMContentLoaded', async () => {
+			const weatherDiv = document.getElementById('weather');
+			const lat = weatherDiv.dataset.lat;
+			const lon = weatherDiv.dataset.lon;
+			const climatService = new ClimatService();
+			const temperature = await climatService.getTemperature(lat, lon);
+			const tempDisplay = document.getElementById('current-temperature');
+			if (temperature !== null) {
+				tempDisplay.textContent = `${temperature}°C`;
+			} else {
+				tempDisplay.textContent = 'Indisponible';
+			}
+		});
+	</script>
+
+	<main class="main" style="margin-top: 200px;">
 		<div class="card-wrapper">
 			<div class="card">
 				<div class="badge-climat">
@@ -53,9 +53,17 @@
 					<div class="img-display">
 
 						<div class="img-showcase">
-							<img src="{{ asset(voyage.getImage() ? voyage.getImage() : 'images/default.jpg') }}" alt="Image du voyage">
+							{% if voyage.image %}
+								<span class="text-muted">
+									<img src="{{ asset('uploads/voyages/' ~ voyage.image) }}" height="400px" alt="Image par défaut"/>
+								</span>
+							{% else %}
+								<span class="text-muted">
+									<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut"/>
+								</span>
+							{% endif %}
 						</div>
-						<div id="voyage-map" style="height: 300px; margin-top: 10px; border-radius: 10px; overflow: hidden;"></div>			
+						<div id="voyage-map" style="height: 300px; margin-top: 10px; border-radius: 10px; overflow: hidden;"></div>
 					</div>
 				</div>
 
@@ -261,7 +269,5 @@
         animatePlane();
     });
 </script>
-
-
 
 {% endblock %}

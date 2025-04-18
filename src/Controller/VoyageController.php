@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\ReservationRepository;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class VoyageController extends AbstractController
 {
@@ -62,8 +64,12 @@ class VoyageController extends AbstractController
     }
 
     #[Route('/voyages/ajout', name: 'ajout_voyage')]
-    public function add(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
-    {
+    public function add(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        SluggerInterface $slugger,
+    ): Response {
         $voyage = new Voyage();
         $form = $this->createForm(VoyageType::class, $voyage);
         $form->handleRequest($request);
@@ -96,37 +102,25 @@ class VoyageController extends AbstractController
                 return $this->redirectToRoute('ajout_voyage');
             }
 
-            // n5allouha mba3ed image
-            /*
+
             $imageFile = $form->get('image')->getData();
-            
+
             if ($imageFile) {
-                $imageErrors = $validator->validate($imageFile, [
-                    new Assert\File([
-                        'maxSize' => '2M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/jpg'],
-                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, JPEG, PNG)',
-                    ])
-                ]);
-
-                if (count($imageErrors) > 0) {
-                    $this->addFlash('error', 'Image invalide.');
-                    return $this->redirectToRoute('ajout_voyage');
-                }
-
-                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
                     $imageFile->move(
-                        $this->getParameter('voyage_images_directory'),
+                        $this->getParameter('voyages_images_directory'),
                         $newFilename
                     );
-                    $voyage->setImage($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
                 }
+
+                $voyage->setImage($newFilename);
             }
-            */
 
             $voyage->setNote(0);
             $entityManager->persist($voyage);
@@ -161,8 +155,13 @@ class VoyageController extends AbstractController
 
 
     #[Route('/admin/voyages/edit/{id}', name: 'edit_voyage')]
-    public function edit(Voyage $voyage, Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
-    {
+    public function edit(
+        Voyage $voyage,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        SluggerInterface $slugger
+    ): Response {
         $form = $this->createForm(VoyageType::class, $voyage);
         $form->handleRequest($request);
 
@@ -193,37 +192,23 @@ class VoyageController extends AbstractController
                 return $this->redirectToRoute('modifier_voyage', ['id' => $voyage->getId()]);
             }
 
-
-            /*
             $imageFile = $form->get('image')->getData();
-            
             if ($imageFile) {
-                $imageErrors = $validator->validate($imageFile, [
-                    new Assert\File([
-                        'maxSize' => '2M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/jpg'],
-                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, JPEG, PNG)',
-                    ])
-                ]);
-
-                if (count($imageErrors) > 0) {
-                    $this->addFlash('error', 'Image invalide.');
-                    return $this->redirectToRoute('modifier_voyage', ['id' => $voyage->getId()]);
-                }
-
-                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
                     $imageFile->move(
-                        $this->getParameter('voyage_images_directory'),
+                        $this->getParameter('voyages_images_directory'),
                         $newFilename
                     );
-                    $voyage->setImage($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
                 }
+
+                $voyage->setImage($newFilename);
             }
-            */
 
             $entityManager->flush();
 

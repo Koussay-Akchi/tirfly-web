@@ -24,7 +24,15 @@
 						<td>{{ voyage.prix }}
 							DT</td>
 						<td>
-							<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut" class="table-image" height="50" width="50"/>
+							{% if voyage.image %}
+								<span class="text-muted">
+									<img src="{{ asset('uploads/voyages/' ~ voyage.image) }}" alt="Image par défaut" class="table-image" height="50" width="50" style="border-radius: 8px;"/>
+								</span>
+							{% else %}
+								<span class="text-muted">
+									<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut" class="table-image" height="50" width="50" style="border-radius: 8px;"/>
+								</span>
+							{% endif %}
 						</td>
 						<td>
 							<div class="table-actions" style="display: flex; gap: 5px">
