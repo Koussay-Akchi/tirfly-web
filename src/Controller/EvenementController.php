@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\String\Slugger\SluggerInterface;
-
+use Symfony\Component\HttpFoundation\JsonResponse;
 class EvenementController extends AbstractController
 {
     #[Route('/evenement', name: 'app_evenement_index')]
@@ -146,5 +146,28 @@ public function edit(Evenement $evenement, Request $request, EntityManagerInterf
         return $this->render('evenement/tableau-evenement.html.twig', [
             'evenements' => $evenementRepository->findAll(),
         ]);
+    }
+    
+
+    #[Route('/api/evenements', name: 'api_evenement_list')]
+    public function apiList(EvenementRepository $evenementRepository): JsonResponse
+    {
+        $evenements = $evenementRepository->findAll();
+        $data = [];
+
+        foreach ($evenements as $evenement) {
+            $data[] = [
+                'id' => $evenement->getId(),
+                'title' => $evenement->getTitre(),
+                'start' => $evenement->getDateDebut()->format('Y-m-d'),
+                'end' => $evenement->getDateFin()->format('Y-m-d'),
+                'description' => $evenement->getDescription(),
+                'price' => $evenement->getPrix(),
+                'destination' => $evenement->getDestination()->getVille() . ', ' . $evenement->getDestination()->getPays(),
+                'image' => $evenement->getImage() ? $this->generateUrl('app_evenement_index', [], true) . 'uploads/evenements/' . $evenement->getImage() : null,
+            ];
+        }
+
+        return new JsonResponse($data);
     }
 }

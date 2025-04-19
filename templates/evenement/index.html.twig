@@ -11,52 +11,56 @@
             Participez à nos événements exceptionnels organisés dans les plus belles destinations. 
             Des expériences uniques vous attendent !
         </p>
-     <div class="filters-container mb-5">
-    <form method="get" action="{{ path('app_evenement_index') }}" class="filters-form">
-        <div class="filters d-flex flex-wrap justify-content-center gap-3">
-            <input type="text" 
-                   name="search" 
-                   class="form-control filter-input" 
-                   placeholder="Rechercher un événement..."
-                   value="{{ app.request.query.get('search') }}">
 
-            <input type="date" 
-                   name="dateDebut" 
-                   class="form-control filter-date"
-                   value="{{ app.request.query.get('dateDebut') }}">
+        <!-- Conteneur pour le calendrier -->
+        <div id="calendar" class="mb-5"></div>
 
-            <input type="date" 
-                   name="dateFin" 
-                   class="form-control filter-date"
-                   value="{{ app.request.query.get('dateFin') }}">
+        <div class="filters-container mb-5">
+            <form method="get" action="{{ path('app_evenement_index') }}" class="filters-form">
+                <div class="filters d-flex flex-wrap justify-content-center gap-3">
+                    <input type="text" 
+                           name="search" 
+                           class="form-control filter-input" 
+                           placeholder="Rechercher un événement..."
+                           value="{{ app.request.query.get('search') }}">
 
-            <select name="destination" class="form-select filter-select">
-                <option value="">Toutes destinations</option>
-                {% for dest in destinations %}
-                    <option value="{{ dest.id }}" 
-                        {{ app.request.query.get('destination') == dest.id ? 'selected' }}>
-                        {{ dest.ville }}, {{ dest.pays }}
-                    </option>
-                {% endfor %}
-            </select>
+                    <input type="date" 
+                           name="dateDebut" 
+                           class="form-control filter-date"
+                           value="{{ app.request.query.get('dateDebut') }}">
 
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-filter"></i> Filtrer
-            </button>
+                    <input type="date" 
+                           name="dateFin" 
+                           class="form-control filter-date"
+                           value="{{ app.request.query.get('dateFin') }}">
 
-            <a href="{{ path('app_evenement_index') }}" class="btn btn-secondary">
-                <i class="fas fa-undo"></i> Annuler
-            </a>
+                    <select name="destination" class="form-select filter-select">
+                        <option value="">Toutes destinations</option>
+                        {% for dest in destinations %}
+                            <option value="{{ dest.id }}" 
+                                {{ app.request.query.get('destination') == dest.id ? 'selected' }}>
+                                {{ dest.ville }}, {{ dest.pays }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filtrer
+                    </button>
+
+                    <a href="{{ path('app_evenement_index') }}" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Annuler
+                    </a>
+                </div>
+            </form>
         </div>
-    </form>
-</div>
         <ul class="popular-list">
             {% for evenement in evenements.results %}
                 <li>
                     <div class="popular-card">
                         <figure class="card-img">
                             {% if evenement.image %}
-                                <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" 
+                                <img src="{{ asset('Uploads/evenements/' ~ evenement.image) }}" 
                                      alt="{{ evenement.titre }}" 
                                      class="voyage-image">
                             {% else %}
@@ -162,49 +166,50 @@
 </section>
 
 <style>
-
     .filters-container {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-}
-
-.filters-form {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.filter-input, .filter-date, .filter-select {
-    min-width: 200px;
-    border-radius: 4px;
-    border: 1px solid #ced4da;
-}
-
-.filter-date {
-    padding: 0.375rem 0.75rem;
-}
-
-@media (max-width: 768px) {
-    .filters {
-        flex-direction: column;
-        align-items: stretch;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
     }
-    
+
+    .filters-form {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
     .filter-input, .filter-date, .filter-select {
-        width: 100%;
+        min-width: 200px;
+        border-radius: 4px;
+        border: 1px solid #ced4da;
     }
-}
-.btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color: white;
-}
 
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-}
+    .filter-date {
+        padding: 0.375rem 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-input, .filter-date, .filter-select {
+            width: 100%;
+        }
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
     /* Styles pour uniformiser les images */
     .voyage-image {
         width: 100%;
@@ -327,5 +332,16 @@
         background-color: #17a2b8;
         border-color: #17a2b8;
     }
+
+    /* Styles pour FullCalendar */
+    #calendar {
+        max-width: 900px;
+        margin: 0 auto 40px auto;
+    }
 </style>
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="{{ asset('js/calendar.js') }}"></script>
+{% endblock %}
 {% endblock %}
