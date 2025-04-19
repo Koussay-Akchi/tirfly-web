@@ -147,7 +147,16 @@ public function edit(Evenement $evenement, Request $request, EntityManagerInterf
             'evenements' => $evenementRepository->findAll(),
         ]);
     }
-    
+    #[Route('/admin/evenement/statistiques', name: 'app_evenement_stats')]
+public function stats(EvenementRepository $evenementRepository): Response
+{
+    // Récupérer les données pour les stats
+    $stats = $evenementRepository->getEventsCountByDestination();
+
+    return $this->render('evenement/stats.html.twig', [
+        'stats' => $stats,
+    ]);
+}
 
     #[Route('/api/evenements', name: 'api_evenement_list')]
     public function apiList(EvenementRepository $evenementRepository): JsonResponse

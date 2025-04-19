@@ -62,6 +62,7 @@
     <h1 class="mb-4">🎉 Gestion des Événements</h1>
 
     <div class="mb-4 text-end">
+        <a href="{{ path('app_evenement_stats') }}" class="btn-add me-2">📊 Voir les Statistiques</a>
         <a href="{{ path('app_evenement_new') }}" class="btn-add">➕ Ajouter un nouvel Événement</a>
     </div>
 
@@ -69,8 +70,8 @@
         <thead class="table-dark">
             <tr>
                 <th>Image</th>
-                <th>Titre</th> <!-- Changement ici -->
-                <th>Description</th> <!-- Nouvelle colonne pour la description -->
+                <th>Titre</th>
+                <th>Description</th>
                 <th>Prix (€)</th>
                 <th>Dates</th>
                 <th>Destination</th>
@@ -82,13 +83,13 @@
                 <tr>
                     <td>
                         {% if evenement.image %}
-                            <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="Image" class="event-img">
+                            <img src="{{ asset('Uploads/evenements/' ~ evenement.image) }}" alt="Image" class="event-img">
                         {% else %}
                             <span class="text-muted">Aucune image</span>
                         {% endif %}
                     </td>
-                    <td>{{ evenement.titre }}</td> <!-- Changement ici -->
-                    <td>{{ evenement.description }}</td> <!-- Affichage de la description -->
+                    <td>{{ evenement.titre }}</td>
+                    <td>{{ evenement.description }}</td>
                     <td>{{ evenement.prix }}</td>
                     <td>
                         Du {{ evenement.dateDebut|date('d/m/Y') }}<br>
