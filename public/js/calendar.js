@@ -5,29 +5,42 @@ document.addEventListener('DOMContentLoaded', function() {
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'fr',
-            events: '/api/evenements', // Appelle l'API pour récupérer les événements
+            events: '/api/evenements',
+            height: 'auto', // Hauteur dynamique
+            contentHeight: 'auto', // Pas de défilement inutile
+            aspectRatio: 1.5, // Ratio pour un look compact
             eventClick: function(info) {
-                // Afficher les détails de l'événement dans une alerte ou une modale
-                alert(
-                    'Événement: ' + info.event.title + '\n' +
-                    'Description: ' + info.event.extendedProps.description + '\n' +
-                    'Prix: ' + info.event.extendedProps.price + ' €\n' +
-                    'Destination: ' + info.event.extendedProps.destination + '\n' +
-                    'Du: ' + info.event.start.toLocaleDateString() + '\n' +
-                    'Au: ' + (info.event.end ? info.event.end.toLocaleDateString() : info.event.start.toLocaleDateString())
-                );
+                // Remplir la modale avec les détails
+                document.getElementById('eventTitle').textContent = info.event.title;
+                document.getElementById('eventDescription').textContent = info.event.extendedProps.description;
+                document.getElementById('eventPrice').textContent = info.event.extendedProps.price + ' €';
+                document.getElementById('eventDestination').textContent = info.event.extendedProps.destination;
+                document.getElementById('eventDates').textContent = 
+                    'Du ' + info.event.start.toLocaleDateString('fr-FR') + 
+                    ' au ' + (info.event.end ? info.event.end.toLocaleDateString('fr-FR') : info.event.start.toLocaleDateString('fr-FR'));
+
+                // Afficher la modale
+                var modal = new bootstrap.Modal(document.getElementById('eventModal'));
+                modal.show();
             },
             eventContent: function(arg) {
-                // Personnaliser l'affichage des événements
+                // Affichage ultra-compact
                 return {
                     html: `
-                        <div class="fc-event-main">
-                            <strong>${arg.event.title}</strong><br>
-                            <small>${arg.event.extendedProps.destination}</small><br>
+                        <div class="fc-event-main" title="${arg.event.title}">
+                            <strong>${arg.event.title.slice(0, 15)}${arg.event.title.length > 15 ? '...' : ''}</strong>
                             <small>${arg.event.extendedProps.price} €</small>
                         </div>
                     `
                 };
+            },
+            dayMaxEvents: 2, // Max 2 événements par jour
+            moreLinkContent: '+', // Lien "plus" minimaliste
+            moreLinkClassNames: 'fc-more-link',
+            eventTimeFormat: {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
             }
         });
 
