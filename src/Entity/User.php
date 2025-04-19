@@ -36,14 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
     #[Assert\Email(message: "The email '{{ value }}' is not a valid email.")]
     private ?string $email = null;
 
-    #[ORM\Column(type: 'string', nullable: true, name: "MotDePasse")]
-    #[Assert\NotBlank(message: "Mot de passe is required")]
-    #[Assert\Length(
-        min: 8,
-        max: 255,
-        minMessage: 'Mot de passe must be at least {{ limit }} characters long',
-        maxMessage: 'Mot de passe cannot be longer than {{ limit }} characters',
-    )]
+    #[ORM\Column(type: 'string', nullable: false, name: "MotDePasse")]
     private ?string $motDePasse = null;
 
     #[ORM\Column(type: 'string', nullable: true)]

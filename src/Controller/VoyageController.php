@@ -12,6 +12,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Form\VoyageType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Knp\Component\Pager\PaginatorInterface;
+use App\Repository\ReservationRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class VoyageController extends AbstractController
 {
@@ -29,6 +32,32 @@ class VoyageController extends AbstractController
         return $this->render('voyages/liste-voyages.html.twig', [
             'voyages' => $voyages,
             'countries' => $countries
+        ]);
+    }
+
+    #[Route('/voyage/{id}', name: 'details_voyage')]
+    public function details(int $id, VoyageRepository $voyageRepository, ReservationRepository $reservationRepository, Security $security): Response
+    {
+        $voyage = $voyageRepository->find($id);
+
+        if (!$voyage) {
+            throw $this->createNotFoundException('Voyage not found.');
+        }
+
+        $client = $security->getUser();
+        $dejaReserve = false;
+
+        if ($client) {
+            $dejaReserve = $reservationRepository->findOneBy([
+                'client' => $client,
+                'voyage' => $voyage,
+                'statut' => 'EN_ATTENTE',
+            ]) !== null;
+        }
+
+        return $this->render('voyages/details-voyage.html.twig', [
+            'voyage' => $voyage,
+            'dejaReserve' => $dejaReserve
         ]);
     }
 
@@ -104,7 +133,7 @@ class VoyageController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Voyage ajouté avec succès.');
-            return $this->redirectToRoute('liste_voyages');
+            return $this->redirectToRoute('admin_liste_voyages');
         }
 
         return $this->render('voyages/ajout-voyage.html.twig', [
@@ -113,12 +142,20 @@ class VoyageController extends AbstractController
     }
 
     #[Route('/admin/voyages', name: 'admin_liste_voyages')]
-    public function adminVoyages(VoyageRepository $voyageRepository): Response
+    public function adminVoyages(Request $request, VoyageRepository $voyageRepository, PaginatorInterface $paginator): Response
     {
+        $query = $voyageRepository->createQueryBuilder('v')->getQuery();
         $voyages = $voyageRepository->findAll();
 
-        return $this->render('voyages/tableau-voyages.html.twig', [
-            'voyages' => $voyages,
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        return $this->render('voyages/admin-voyages.html.twig', [
+            'voyages' => $pagination,
+            'voyagesAll' => $voyages,
         ]);
     }
 

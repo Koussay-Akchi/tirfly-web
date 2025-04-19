@@ -6,7 +6,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
 use App\Repository\PanierRepository;
 
 #[ORM\Entity(repositoryClass: PanierRepository::class)]
@@ -17,6 +16,33 @@ class Panier
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'decimal', nullable: false, name: 'PrixTotal')]
+    private ?float $PrixTotal = null;
+
+    #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'paniers')]
+    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
+    private ?Client $client = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $etat = null;
+
+    #[ORM\OneToMany(targetEntity: Article::class, mappedBy: 'panier', cascade: ['persist', 'remove'])]
+    private Collection $articles;
+
+    #[ORM\ManyToMany(targetEntity: Produit::class, inversedBy: 'paniers')]
+    #[ORM\JoinTable(
+        name: 'panier_produits',
+        joinColumns: [new ORM\JoinColumn(name: 'panier_id', referencedColumnName: 'id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'produit_id', referencedColumnName: 'id')]
+    )]
+    private Collection $produits;
+
+    public function __construct()
+    {
+        $this->articles = new ArrayCollection();
+        $this->produits = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -29,9 +55,6 @@ class Panier
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: false ,name: 'PrixTotal')]
-    private ?float $PrixTotal = null;
-
     public function getPrixTotal(): ?float
     {
         return $this->PrixTotal;
@@ -43,10 +66,6 @@ class Panier
         return $this;
     }
 
-    #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'paniers')]
-    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
-    private ?Client $client = null;
-
     public function getClient(): ?Client
     {
         return $this->client;
@@ -57,50 +76,43 @@ class Panier
         $this->client = $client;
         return $this;
     }
-    #[ORM\OneToMany(targetEntity: Article::class, mappedBy: 'panier')]
-    private Collection $articles;
+
+    public function getEtat(): ?string
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(?string $etat): self
+    {
+        $this->etat = $etat;
+        return $this;
+    }
 
     /**
      * @return Collection<int, Article>
      */
     public function getArticles(): Collection
     {
-        if (!$this->articles instanceof Collection) {
-            $this->articles = new ArrayCollection();
-        }
         return $this->articles;
     }
 
     public function addArticle(Article $article): self
     {
-        if (!$this->getArticles()->contains($article)) {
-            $this->getArticles()->add($article);
+        if (!$this->articles->contains($article)) {
+            $this->articles->add($article);
+            $article->setPanier($this);
         }
         return $this;
     }
 
     public function removeArticle(Article $article): self
     {
-        $this->getArticles()->removeElement($article);
+        if ($this->articles->removeElement($article)) {
+            if ($article->getPanier() === $this) {
+                $article->setPanier(null);
+            }
+        }
         return $this;
-    }
-
-    #[ORM\ManyToMany(targetEntity: Produit::class, inversedBy: 'paniers')]
-    #[ORM\JoinTable(
-        name: 'panier_produits',
-        joinColumns: [
-            new ORM\JoinColumn(name: 'panier_id', referencedColumnName: 'id')
-        ],
-        inverseJoinColumns: [
-            new ORM\JoinColumn(name: 'produit_id', referencedColumnName: 'id')
-        ]
-    )]
-    private Collection $produits;
-
-    public function __construct()
-    {
-        $this->articles = new ArrayCollection();
-        $this->produits = new ArrayCollection();
     }
 
     /**
@@ -108,24 +120,20 @@ class Panier
      */
     public function getProduits(): Collection
     {
-        if (!$this->produits instanceof Collection) {
-            $this->produits = new ArrayCollection();
-        }
         return $this->produits;
     }
 
     public function addProduit(Produit $produit): self
     {
-        if (!$this->getProduits()->contains($produit)) {
-            $this->getProduits()->add($produit);
+        if (!$this->produits->contains($produit)) {
+            $this->produits->add($produit);
         }
         return $this;
     }
 
     public function removeProduit(Produit $produit): self
     {
-        $this->getProduits()->removeElement($produit);
+        $this->produits->removeElement($produit);
         return $this;
     }
-
 }

@@ -1,0 +1,209 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ChatcontrollerController!{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-color: #333;
+            --dark-primary: #0056b3; /* Remplacement de darken() pour CSS pur */
+        }
+
+        .chat-container {
+            display: flex;
+            height: 80vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .chat-list {
+            width: 30%;
+            background: var(--secondary-color);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+
+        .chat-list h3 {
+            padding: 20px;
+            margin: 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        .chat-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .chat-list li {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        .chat-list li:hover {
+            background: rgba(0,123,255,0.1);
+        }
+
+        .chat-list a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .chat-messages {
+            width: 70%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .chat-messages h2 {
+            margin: 0 0 20px;
+            font-size: 1.3rem;
+            color: var(--text-color);
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .messages p {
+            margin: 8px 0;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .messages p.me {
+            background: var(--primary-color);
+            color: white;
+            margin-left: auto;
+        }
+
+        .messages p.other {
+            background: var(--secondary-color);
+            color: var(--text-color);
+            margin-right: auto;
+        }
+
+        .messages small {
+            display: block;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        form textarea {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            resize: none;
+            font-size: 1rem;
+        }
+
+        form button {
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        form button:hover {
+            background: var(--dark-primary);
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .chat-list, .chat-messages {
+                width: 100%;
+            }
+            
+            .chat-list {
+                max-height: 30vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-list">
+            <h3>Your Chats</h3>
+            <ul>
+                {% for chat in chats %}
+                    <li>
+                        <a href="{{ path('chat_index', {'chat': chat.id}) }}">
+                            {% if chat.client.id == app.user.id %}
+                                {{ chat.support.prenom }} {{ chat.support.nom }}
+                            {% else %}
+                                {{ chat.client.prenom }} {{ chat.client.nom }}
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="chat-messages">
+            {% if selectedChat %}
+                <h2>Chat with 
+                    {% if selectedChat.client.id == app.user.id %}
+                        {{ selectedChat.support.prenom }} {{ selectedChat.support.nom }}
+                    {% else %}
+                        {{ selectedChat.client.prenom }} {{ selectedChat.client.nom }}
+                    {% endif %}
+                </h2>
+                <div class="messages">
+                    {% for message in messages %}
+                        <p class="{{ message.expediteur.id == app.user.id ? 'me' : 'other' }}">
+                            {{ message.expediteur.prenom }} {{ message.expediteur.nom }}: 
+                            {{ message.message }} 
+                            <small>({{ message.dateEnvoi|date('Y-m-d H:i') }})</small>
+                        </p>
+                    {% endfor %}
+                </div>
+                {% if form %}
+                    {{ form_start(form) }}
+                        {{ form_widget(form.message, {'attr': {'rows': '2'}}) }}
+                        <button type="submit">Send</button>
+                    {{ form_end(form) }}
+                {% endif %}
+            {% else %}
+                <p>Select a chat to start messaging.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

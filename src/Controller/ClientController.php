@@ -47,7 +47,6 @@ class ClientController extends AbstractController
             'user' => $user,
         ]);
     }
-
     #[Route('/new', name: 'client_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
@@ -63,10 +62,30 @@ class ClientController extends AbstractController
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $plainPassword = $form->get('motDePasse')->getData();
+                // validators 
+                if (strlen($plainPassword) < 8) {
+                    $this->addFlash('error', 'Password must be at least 8 characters long.');
+                    return $this->redirectToRoute('client_new');
+                }
+                if (!preg_match('/[A-Z]/', $plainPassword)) {
+                    $this->addFlash('error', 'Password must contain at least one uppercase letter.');
+                    return $this->redirectToRoute('client_new');
+                }
+                if (!preg_match('/[a-z]/', $plainPassword)) {
+                    $this->addFlash('error', 'Password must contain at least one lowercase letter.');
+                    return $this->redirectToRoute('client_new');
+                }
+                if (!preg_match('/[0-9]/', $plainPassword)) {
+                    $this->addFlash('error', 'Password must contain at least one number.');
+                    return $this->redirectToRoute('client_new');
+                }
+                if (!preg_match('/[\W_]/', $plainPassword)) {
+                    $this->addFlash('error', 'Password must contain at least one special character.');
+                    return $this->redirectToRoute('client_new');
+                }
                 $hashedPassword = $this->passwordHasher->hashPassword($client, $plainPassword);
                 $client->setMotDePasse($hashedPassword);
                 $client->setDateCreation(new \DateTime());
-
                 $niveau = new Niveau();
                 $niveau->setNiveau(1);
                 $niveau->setNiveauXP(100);
@@ -87,7 +106,6 @@ class ClientController extends AbstractController
                 }
             }
         }
-
         return $this->render('client/new.html.twig', [
             'client' => $client,
             'form' => $form->createView(),

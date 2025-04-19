@@ -284,72 +284,71 @@ input:focus + .fa-lock + .toggle-password {
     </style>
 </head>
 <body>
-    <div class="bg-decor">
-        <i class="fas fa-cloud cloud" style="top: 15%; left: 0;"></i>
-        <i class="fas fa-cloud cloud" style="top: 35%; left: 25%; animation-delay: -8s;"></i>
-        <i class="fas fa-cloud cloud" style="top: 65%; left: 10%; animation-delay: -15s;"></i>
-        <i class="fas fa-plane plane" style="top: 45%; left: 15%;"></i>
-        <i class="fas fa-plane plane" style="top: 75%; left: 55%; animation-delay: -4s;"></i>
-    </div>
+<div class="bg-decor">
+    <i class="fas fa-cloud cloud" style="top: 15%; left: 0;"></i>
+    <i class="fas fa-cloud cloud" style="top: 35%; left: 25%; animation-delay: -8s;"></i>
+    <i class="fas fa-cloud cloud" style="top: 65%; left: 10%; animation-delay: -15s;"></i>
+    <i class="fas fa-plane plane" style="top: 45%; left: 15%;"></i>
+    <i class="fas fa-plane plane" style="top: 75%; left: 55%; animation-delay: -4s;"></i>
+</div>
 
-    <div class="signup-container">
-        <div class="logo-container">
-            <img src="images/logo.svg" alt="TirFly Logo" class="logo-img">
+<div class="signup-container">
+    <div class="logo-container">
+        <img src="images/logo.svg" alt="Logo TirFly" class="logo-img">
+    </div>
+    <form id="signup-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <input type="email" name="email" id="email" placeholder="Votre e-mail" >
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" id="password" placeholder="Mot de passe" >
+                <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+            <div class="form-group">
+                <input type="text" name="nom" id="nom" placeholder="Nom" >
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="form-group">
+                <input type="text" name="prenom" id="prenom" placeholder="Prénom" >
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="form-group">
+                <input type="text" name="adresse" id="adresse" placeholder="Adresse" >
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="form-group">
+                <input type="number" name="age" id="age" placeholder="Âge">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="form-group">
+                <select name="sexe" id="sexe" >
+                    <option value="" disabled selected>Choisir le genre</option>
+                    <option value="Homme">Homme</option>
+                    <option value="Femme">Femme</option>
+                </select>
+                <i class="fas fa-venus-mars"></i>
+            </div>
+            <div class="form-group">
+                <input type="tel" name="phoneNumber" id="phoneNumber" placeholder="Numéro de téléphone"  >
+                <i class="fas fa-phone"></i>
+            </div>
         </div>
-        <form id="signup-form">
-            <div class="form-grid">
-                <div class="form-group">
-                    <input type="email" name="email" id="email" placeholder="Your Email" required>
-                    <i class="fas fa-envelope"></i>
-                </div>
-                <div class="form-group">
-                    <input type="password" name="password" id="password" placeholder="Password" required>
-                    <i class="fas fa-eye toggle-password" id="togglePassword"></i>
-                </div>
-                <div class="form-group">
-                    <input type="text" name="nom" id="nom" placeholder="Last Name" required>
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="form-group">
-                    <input type="text" name="prenom" id="prenom" placeholder="First Name" required>
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="form-group">
-                    <input type="text" name="adresse" id="adresse" placeholder="Address" required>
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <div class="form-group">
-                    <input type="number" name="age" id="age" placeholder="Age" required min="1">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <div class="form-group">
-                    <select name="sexe" id="sexe" required>
-                        <option value="" disabled selected>Select Gender</option>
-                        <option value="Homme">Male</option>
-                        <option value="Femme">Female</option>
-                    </select>
-                    <i class="fas fa-venus-mars"></i>
-                </div>
-                <div class="form-group">
-                    <input type="tel" name="phoneNumber" id="phoneNumber" placeholder="Phone Number" required pattern="[0-9]{8,15}">
-                    <i class="fas fa-phone"></i>
-                </div>
-            </div>
-            <button type="submit">Join TirFly</button>
-            <div class="error-message" id="error-message"></div>
-            <div class="links">
-                <a href="/login">Already a Member?</a>
-                <a href="/forgot-password">Lost Boarding Pass?</a>
-            </div>
-        </form>
-    </div>
+        <button type="submit">Rejoindre TirFly</button>
+        <div class="error-message" id="error-message"></div>
+        <div class="links">
+            <a href="/login">Déjà membre ?</a>
+            <a href="/forgot-password">Mot de passe oublié ?</a>
+        </div>
+    </form>
+</div>
 
-    <script>
-    document.getElementById('togglePassword').addEventListener('click', function () {
+<script>
+document.getElementById('togglePassword').addEventListener('click', function () {
     const passwordInput = document.getElementById('password');
     const toggleIcon = this;
 
-    // Toggle the input type between password and text
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
         toggleIcon.classList.add('active');
@@ -358,47 +357,49 @@ input:focus + .fa-lock + .toggle-password {
         toggleIcon.classList.remove('active');
     }
 });
-        document.getElementById("signup-form").addEventListener("submit", function(e) {
-            e.preventDefault();
 
-            const payload = {
-                email: document.getElementById("email").value,
-                password: document.getElementById("password").value,
-                nom: document.getElementById("nom").value,
-                prenom: document.getElementById("prenom").value,
-                adresse: document.getElementById("adresse").value,
-                age: parseInt(document.getElementById("age").value),
-                sexe: document.getElementById("sexe").value,
-                phoneNumber: document.getElementById("phoneNumber").value,
-                role: "CLIENT"
-            };
+document.getElementById("signup-form").addEventListener("submit", function(e) {
+    e.preventDefault();
 
-            fetch("http://127.0.0.1:8000/api/signup", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            })
-            .then(res => {
-                if (!res.ok) {
-                    return res.json().then(data => {
-                        throw new Error(data.error || 'Unknown error');
-                    });
-                }
-                return res.json();
-            })
-            .then(data => {
-                alert("Signup successful! Welcome to TirFly!");
-                window.location.href = "/login";
-            })
-            .catch(error => {
-                const errorMessage = document.getElementById("error-message");
-                errorMessage.textContent = "Signup failed: " + error.message;
-                errorMessage.style.display = "block";
-                setTimeout(() => {
-                    errorMessage.style.display = "none";
-                }, 5000);
+    const payload = {
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        nom: document.getElementById("nom").value,
+        prenom: document.getElementById("prenom").value,
+        adresse: document.getElementById("adresse").value,
+        age: parseInt(document.getElementById("age").value),
+        sexe: document.getElementById("sexe").value,
+        phoneNumber: document.getElementById("phoneNumber").value,
+        role: "CLIENT"
+    };
+
+    fetch("http://127.0.0.1:8000/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(data => {
+                throw new Error(data.error || 'Erreur inconnue');
             });
-        });
-    </script>
+        }
+        return res.json();
+    })
+    .then(data => {
+        alert("Inscription réussie ! Bienvenue chez TirFly !");
+        window.location.href = "/login";
+    })
+    .catch(error => {
+        const errorMessage = document.getElementById("error-message");
+        errorMessage.textContent = "Échec de l'inscription : " + error.message;
+        errorMessage.style.display = "block";
+        setTimeout(() => {
+            errorMessage.style.display = "none";
+        }, 5000);
+    });
+});
+</script>
+
 </body>
 </html>

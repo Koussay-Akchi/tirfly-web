@@ -1,0 +1,168 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Gestion des Réclamations{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+            <h2 class="h5 mb-0"><i class="fas fa-tasks mr-2"></i>Réclamations</h2>
+            <a href="{{ path('ajout_reclamation') }}" class="btn btn-light btn-sm">
+                    <link rel="stylesheet" href="{{ asset('styles/style.css') }}">
+                
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+            <!-- Section du graphique -->
+            <div class="mb-4 p-4 border-bottom">
+                <h5 class="mb-3"><i class="fas fa-chart-pie mr-2"></i>Statistiques des réclamations</h5>
+                <div class="chart-container" style="position: relative; height:400px; width:100%">
+                    <canvas id="statsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Section du tableau -->
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width: 10%">ID</th>
+                            <th style="width: 20%">Titre</th>
+                            <th style="width: 15%">État</th>
+                            <th style="width: 35%">Description</th>
+                            <th style="width: 10%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reclamation in reclamations %}
+                            <tr>
+                                <td class="font-weight-bold text-primary">#{{ reclamation.id }}</td>
+                                <td class="text-truncate" style="max-width: 200px;">
+                                    {{ reclamation.titre|escape }}
+                                </td>
+                                <td>
+                                    <span>
+                                        {{ reclamation.etat }}
+                                    </span>
+                                </td>
+                                <td class="text-truncate" style="max-width: 300px;">
+                                    {{ reclamation.description|escape }}
+                                </td>
+                                
+                                <td>
+                                    <div class="d-flex">
+                                        <a href="{{ path('details_reclamation', {'id': reclamation.id}) }}" 
+                                           class="btn btn-sm btn-info mr-2"
+                                           title="Voir les détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('edit_reclamation', {'id': reclamation.id}) }}" 
+                                           class="btn btn-sm btn-warning mr-2"
+                                           title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{{ path('delete_reclamation', {'id': reclamation.id}) }}" 
+                                           class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?')"
+                                           title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 bg-light">
+                                    <div class="text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-3"></i><br>
+                                        Aucune réclamation trouvée
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    Total : {{ reclamations.getTotalItemCount }} réclamations
+                </small>
+                {{ knp_pagination_render(reclamations) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Intégration de Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    
+    const chartConfig = {
+        type: 'pie',
+        data: {
+            labels: {{ chart_labels|json_encode|raw }},
+            datasets: [{
+                label: 'Répartition des réclamations',
+                data: {{ chart_data|json_encode|raw }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 2,
+                hoverOffset: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: '#333',
+                        font: {
+                            size: 14
+                        },
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleFont: { size: 16 },
+                    bodyFont: { size: 14 },
+                    callbacks: {
+                        label: function(context) {
+                            const total = {{ stats.total }};
+                            const value = context.parsed;
+                            const percentage = ((value / total) * 100).toFixed(1) + '%';
+                            return ` ${context.label}: ${value} (${percentage})`;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    new Chart(ctx, chartConfig);
+});
+</script>
+{% endblock %}

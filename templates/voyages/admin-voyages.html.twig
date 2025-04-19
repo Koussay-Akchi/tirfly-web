@@ -1,0 +1,40 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Liste des Voyages
+{% endblock %}
+
+{% block body %}
+	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.css" rel="stylesheet"/>
+
+	<div class="btn-group btn-group-lg mb-3 d-flex justify-content-center" role="group" aria-label="Large button group">
+		<button type="button" class="btn btn-primary" id="showTable">Table</button>
+		<button type="button" class="btn btn-info" id="showCalendar">Calendrier</button>
+	</div>
+
+	<div id="tableContainer" style="display: block;">
+		{% include 'voyages/tableau-voyages.html.twig' %}
+	</div>
+
+	<div id="calendarContainer">
+		{% include 'voyages/calendrier-voyages.html.twig' %}
+	</div>
+
+	 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.js"></script>
+ <script>
+		document.getElementById('showTable').addEventListener('click', function () {
+			document.getElementById('tableContainer').style.display = 'block';
+			document.getElementById('calendarContainer').style.display = 'none';
+		});
+
+		document.getElementById('showCalendar').addEventListener('click', function () {
+			document.getElementById('tableContainer').style.display = 'none';
+			document.getElementById('calendarContainer').style.display = 'block';
+		});
+	</script>
+
+	 <script>
+				document.addEventListener('DOMContentLoaded', function () {
+					document.getElementById('calendarContainer').style.display = 'none';
+				});
+			</script>
+{% endblock %}

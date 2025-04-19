@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use App\Repository\PackRepository;
 
@@ -18,6 +19,50 @@ class Pack
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $image = null;
+
+    #[ORM\Column(type: 'string', nullable: true, name: 'nom')]
+    #[Assert\NotBlank(message: 'Le nom ne doit pas être vide.')]
+    #[Assert\Length(min: 3, max: 255, minMessage: 'Le nom doit comporter au moins {{ limit }} caractères.')]
+    private ?string $nom = null;
+
+    #[ORM\Column(type: 'decimal', nullable: false)]
+    #[Assert\NotBlank(message: 'Le prix est requis.')]
+    #[Assert\Positive(message: 'Le prix doit être supérieur à 0.')]
+    private ?float $prix = null;
+
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'pack')]
+    private Collection $reservations;
+
+    #[ORM\ManyToMany(targetEntity: Sejour::class, inversedBy: 'packs')]
+    #[ORM\JoinTable(
+        name: 'packs_sejours',
+        joinColumns: [new ORM\JoinColumn(name: 'Pack_id', referencedColumnName: 'id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'sejours_id', referencedColumnName: 'id')]
+    )]
+    #[Assert\Count(min: 1, minMessage: 'Veuillez sélectionner au moins un séjour.')]
+    private Collection $sejours;
+
+    #[ORM\ManyToMany(targetEntity: Voyage::class, inversedBy: 'packs')]
+    #[ORM\JoinTable(
+        name: 'packs_voyages',
+        joinColumns: [new ORM\JoinColumn(name: 'Pack_id', referencedColumnName: 'id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'voyages_id', referencedColumnName: 'id')]
+    )]
+    #[Assert\Count(min: 1, minMessage: 'Veuillez sélectionner au moins un voyage.')]
+    private Collection $voyages;
+
+    public function __construct()
+    {
+        $this->reservations = new ArrayCollection();
+        $this->sejours = new ArrayCollection();
+        $this->voyages = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -28,9 +73,6 @@ class Pack
         $this->id = $id;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $description = null;
 
     public function getDescription(): ?string
     {
@@ -43,9 +85,6 @@ class Pack
         return $this;
     }
 
-    #[ORM\Column(type: 'blob', nullable: true, name: 'image')]
-    private $image = null;
-
     public function getImage(): ?string
     {
         return $this->image;
@@ -56,9 +95,6 @@ class Pack
         $this->image = $image;
         return $this;
     }
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $nom = null;
 
     public function getNom(): ?string
     {
@@ -71,9 +107,6 @@ class Pack
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: false)]
-    private ?float $prix = null;
-
     public function getPrix(): ?float
     {
         return $this->prix;
@@ -85,151 +118,60 @@ class Pack
         return $this;
     }
 
-    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'pack')]
-    private Collection $reservations;
-
-    /**
-     * @return Collection<int, Reservation>
-     */
     public function getReservations(): Collection
     {
-        if (!$this->reservations instanceof Collection) {
-            $this->reservations = new ArrayCollection();
-        }
         return $this->reservations;
     }
 
     public function addReservation(Reservation $reservation): self
     {
-        if (!$this->getReservations()->contains($reservation)) {
-            $this->getReservations()->add($reservation);
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
         }
         return $this;
     }
 
     public function removeReservation(Reservation $reservation): self
     {
-        $this->getReservations()->removeElement($reservation);
+        $this->reservations->removeElement($reservation);
         return $this;
     }
 
-    #[ORM\ManyToMany(targetEntity: Hebergement::class, inversedBy: 'packs')]
-    #[ORM\JoinTable(
-        name: 'packs_hebergements',
-        joinColumns: [
-            new ORM\JoinColumn(name: 'Pack_id', referencedColumnName: 'id')
-        ],
-        inverseJoinColumns: [
-            new ORM\JoinColumn(name: 'hebergements_id', referencedColumnName: 'id')
-        ]
-    )]
-    private Collection $hebergements;
-
-    /**
-     * @return Collection<int, Hebergement>
-     */
-    public function getHebergements(): Collection
-    {
-        if (!$this->hebergements instanceof Collection) {
-            $this->hebergements = new ArrayCollection();
-        }
-        return $this->hebergements;
-    }
-
-    public function addHebergement(Hebergement $hebergement): self
-    {
-        if (!$this->getHebergements()->contains($hebergement)) {
-            $this->getHebergements()->add($hebergement);
-        }
-        return $this;
-    }
-
-    public function removeHebergement(Hebergement $hebergement): self
-    {
-        $this->getHebergements()->removeElement($hebergement);
-        return $this;
-    }
-
-    #[ORM\ManyToMany(targetEntity: Sejour::class, inversedBy: 'packs')]
-    #[ORM\JoinTable(
-        name: 'packs_sejours',
-        joinColumns: [
-            new ORM\JoinColumn(name: 'Pack_id', referencedColumnName: 'id')
-        ],
-        inverseJoinColumns: [
-            new ORM\JoinColumn(name: 'sejours_id', referencedColumnName: 'id')
-        ]
-    )]
-    private Collection $sejours;
-
-    /**
-     * @return Collection<int, Sejour>
-     */
     public function getSejours(): Collection
     {
-        if (!$this->sejours instanceof Collection) {
-            $this->sejours = new ArrayCollection();
-        }
         return $this->sejours;
     }
 
     public function addSejour(Sejour $sejour): self
     {
-        if (!$this->getSejours()->contains($sejour)) {
-            $this->getSejours()->add($sejour);
+        if (!$this->sejours->contains($sejour)) {
+            $this->sejours->add($sejour);
         }
         return $this;
     }
 
     public function removeSejour(Sejour $sejour): self
     {
-        $this->getSejours()->removeElement($sejour);
+        $this->sejours->removeElement($sejour);
         return $this;
     }
 
-    #[ORM\ManyToMany(targetEntity: Voyage::class, inversedBy: 'packs')]
-    #[ORM\JoinTable(
-        name: 'packs_voyages',
-        joinColumns: [
-            new ORM\JoinColumn(name: 'Pack_id', referencedColumnName: 'id')
-        ],
-        inverseJoinColumns: [
-            new ORM\JoinColumn(name: 'voyages_id', referencedColumnName: 'id')
-        ]
-    )]
-    private Collection $voyages;
-
-    public function __construct()
-    {
-        $this->reservations = new ArrayCollection();
-        $this->hebergements = new ArrayCollection();
-        $this->sejours = new ArrayCollection();
-        $this->voyages = new ArrayCollection();
-    }
-
-    /**
-     * @return Collection<int, Voyage>
-     */
     public function getVoyages(): Collection
     {
-        if (!$this->voyages instanceof Collection) {
-            $this->voyages = new ArrayCollection();
-        }
         return $this->voyages;
     }
 
     public function addVoyage(Voyage $voyage): self
     {
-        if (!$this->getVoyages()->contains($voyage)) {
-            $this->getVoyages()->add($voyage);
+        if (!$this->voyages->contains($voyage)) {
+            $this->voyages->add($voyage);
         }
         return $this;
     }
 
     public function removeVoyage(Voyage $voyage): self
     {
-        $this->getVoyages()->removeElement($voyage);
+        $this->voyages->removeElement($voyage);
         return $this;
     }
-
 }

@@ -1,0 +1,331 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Événements{% endblock %}
+
+{% block body %}
+<section>
+    <div class="container">
+        <p class="section-subtitle">Découvrez nos événements</p>
+        <h2 class="h2 section-title">Nos Événements</h2>
+        <p class="section-text">
+            Participez à nos événements exceptionnels organisés dans les plus belles destinations. 
+            Des expériences uniques vous attendent !
+        </p>
+     <div class="filters-container mb-5">
+    <form method="get" action="{{ path('app_evenement_index') }}" class="filters-form">
+        <div class="filters d-flex flex-wrap justify-content-center gap-3">
+            <input type="text" 
+                   name="search" 
+                   class="form-control filter-input" 
+                   placeholder="Rechercher un événement..."
+                   value="{{ app.request.query.get('search') }}">
+
+            <input type="date" 
+                   name="dateDebut" 
+                   class="form-control filter-date"
+                   value="{{ app.request.query.get('dateDebut') }}">
+
+            <input type="date" 
+                   name="dateFin" 
+                   class="form-control filter-date"
+                   value="{{ app.request.query.get('dateFin') }}">
+
+            <select name="destination" class="form-select filter-select">
+                <option value="">Toutes destinations</option>
+                {% for dest in destinations %}
+                    <option value="{{ dest.id }}" 
+                        {{ app.request.query.get('destination') == dest.id ? 'selected' }}>
+                        {{ dest.ville }}, {{ dest.pays }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i> Filtrer
+            </button>
+
+            <a href="{{ path('app_evenement_index') }}" class="btn btn-secondary">
+                <i class="fas fa-undo"></i> Annuler
+            </a>
+        </div>
+    </form>
+</div>
+        <ul class="popular-list">
+            {% for evenement in evenements.results %}
+                <li>
+                    <div class="popular-card">
+                        <figure class="card-img">
+                            {% if evenement.image %}
+                                <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" 
+                                     alt="{{ evenement.titre }}" 
+                                     class="voyage-image">
+                            {% else %}
+                                <img src="{{ asset('images/default-event.jpg') }}" 
+                                     alt="Image par défaut" 
+                                     class="voyage-image">
+                            {% endif %}
+                        </figure>
+
+                        <div class="card-content">
+                            <div class="card-rating">
+                                <strong>{{ evenement.prix }} €</strong>
+                            </div>
+
+                            <p class="card-subtitle">
+                                {{ evenement.destination.ville }}, {{ evenement.destination.pays }}
+                            </p>
+
+                            <h3 class="h3 card-title">
+                                <a href="#">{{ evenement.titre }}</a>
+                            </h3>
+
+                            <p class="card-text">
+                                {{ evenement.description|length > 100 ? evenement.description|slice(0, 100) ~ '...' : evenement.description }}
+                            </p>
+
+                            <div class="date-info">
+                                <small>
+                                    Du {{ evenement.dateDebut|date('d/m/Y') }} 
+                                    au {{ evenement.dateFin|date('d/m/Y') }}
+                                </small>
+                            </div>
+
+                            <div class="mt-3">
+                                <a href="#" class="btn btn-info btn-sm">Réserver</a>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_evenement_edit', {id: evenement.id}) }}" 
+                                       class="btn btn-warning btn-sm">Modifier</a>
+                                    <a href="{{ path('app_evenement_delete', {id: evenement.id}) }}" 
+                                       class="btn btn-danger btn-sm" 
+                                       onclick="return confirm('Supprimer cet événement ?')">Supprimer</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {% else %}
+                <p class="text-center">Aucun événement disponible pour le moment.</p>
+            {% endfor %}
+        </ul>
+
+        {# Nouvelle Pagination Centrée #}
+        {% if evenements.total_pages > 1 %}
+            <div class="pagination-wrapper">
+                <div class="pagination">
+                    {% if evenements.current_page > 1 %}
+                        <a href="{{ path('app_evenement_index', {'page': evenements.current_page - 1}) }}" class="prev">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+
+                    {% set start = max(1, evenements.current_page - 2) %}
+                    {% set end = min(evenements.total_pages, start + 4) %}
+
+                    {% if start > 1 %}
+                        <a href="{{ path('app_evenement_index', {'page': 1}) }}" class="page">1</a>
+                        {% if start > 2 %}
+                            <span class="dots">...</span>
+                        {% endif %}
+                    {% endif %}
+
+                    {% for i in start..end %}
+                        <a href="{{ path('app_evenement_index', {'page': i}) }}" 
+                           class="page {{ evenements.current_page == i ? 'active' : '' }}">
+                            {{ i }}
+                        </a>
+                    {% endfor %}
+
+                    {% if end < evenements.total_pages %}
+                        {% if end < evenements.total_pages - 1 %}
+                            <span class="dots">...</span>
+                        {% endif %}
+                        <a href="{{ path('app_evenement_index', {'page': evenements.total_pages}) }}" class="page">
+                            {{ evenements.total_pages }}
+                        </a>
+                    {% endif %}
+
+                    {% if evenements.current_page < evenements.total_pages %}
+                        <a href="{{ path('app_evenement_index', {'page': evenements.current_page + 1}) }}" class="next">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="text-center mt-4">
+                <a href="{{ path('app_evenement_new') }}" class="btn btn-primary">+ Créer un nouvel événement</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+
+    .filters-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.filters-form {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.filter-input, .filter-date, .filter-select {
+    min-width: 200px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+.filter-date {
+    padding: 0.375rem 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-input, .filter-date, .filter-select {
+        width: 100%;
+    }
+}
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+    /* Styles pour uniformiser les images */
+    .voyage-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .popular-card {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+    
+    .popular-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-content {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-title {
+        margin: 10px 0;
+        font-size: 1.2rem;
+    }
+    
+    .date-info {
+        margin-top: auto;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .popular-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        padding: 0;
+        list-style: none;
+        margin-bottom: 40px;
+    }
+    
+    .section-title {
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .section-text {
+        margin-bottom: 30px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        color: #666;
+    }
+
+    /* Nouveau Style de Pagination */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin: 50px 0;
+    }
+    
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .pagination a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: #333;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination a.page {
+        background: #f5f5f5;
+    }
+    
+    .pagination a.page:hover {
+        background: #e0e0e0;
+    }
+    
+    .pagination a.active {
+        background: #0d6efd;
+        color: white;
+    }
+    
+    .pagination a.prev,
+    .pagination a.next {
+        background: transparent;
+        font-size: 1.2rem;
+    }
+    
+    .pagination a.prev:hover,
+    .pagination a.next:hover {
+        color: #0d6efd;
+    }
+    
+    .pagination .dots {
+        color: #999;
+    }
+    
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+</style>
+{% endblock %}
