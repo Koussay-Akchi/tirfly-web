@@ -1,447 +1,547 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Packs Populaires
-{% endblock %}
+{% block title %}Packs Populaires{% endblock %}
 
 {% block body %}
-	<section>
-		<div class="container">
-			<p class="section-subtitle">Découvrez nos meilleures offres</p>
-			<h2 class="h2 section-title">Packs Populaires</h2>
-			<p class="section-text">
-				Choisissez parmi une sélection de packs de voyage complets incluant transport, hébergement et activités. Parfait pour vos prochaines aventures !
-			</p>
+<section>
+    <div class="container">
+        <p class="section-subtitle">Découvrez nos meilleures offres</p>
+        <h2 class="h2 section-title">Packs Populaires</h2>
+        <p class="section-text">
+            Choisissez parmi une sélection de packs de voyage complets incluant transport, hébergement et activités. Parfait pour vos prochaines aventures !
+        </p>
 
-			<!-- Champ pour le code coupon -->
-			<div class="mb-4">
-				<input type="text" id="coupon-input" class="form-control" placeholder="Entrez un code promo">
-				<button class="btn btn-success mt-2" onclick="applyCoupon()">Appliquer le coupon</button>
-				<p id="coupon-feedback" class="mt-2 text-info"></p>
-			</div>
+        <!-- Champ pour le code coupon -->
+        <div class="mb-4">
+            <input type="text" id="coupon-input" class="form-control" placeholder="Entrez un code promo">
+            <button class="btn btn-success mt-2" onclick="applyCoupon()">Appliquer le coupon</button>
+            <p id="coupon-feedback" class="mt-2 text-info"></p>
+        </div>
 
-			<ul class="popular-list">
-				{% for pack in packs.results %}
-					<li>
-						<div class="popular-card">
-							<figure>
-								{% if pack.image %}
-									<img src="{{ asset('uploads/packs/' ~ pack.image) }}" alt="Image du pack" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;">
-								{% else %}
-									<img src="{{ asset('images/default-pack.jpg') }}" alt="Image par défaut" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;">
-								{% endif %}
-							</figure>
+        <ul class="popular-list">
+            {% for pack in packs.results %}
+                <li>
+                    <div class="popular-card" data-pack-id="{{ pack.id }}">
+                        <figure>
+                            {% if pack.image %}
+                                <img src="{{ asset('Uploads/packs/' ~ pack.image) }}" alt="Image du pack" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;">
+                            {% else %}
+                                <img src="{{ asset('images/default-pack.jpg') }}" alt="Image par défaut" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;">
+                            {% endif %}
+                        </figure>
 
-							<div class="card-content">
-								<div class="card-rating">
-									Prix original :
-									<strong class="original-price">{{ pack.prix }}
-										€</strong><br>
-									<span class="discounted-price text-success fw-bold"></span>
-								</div>
+                        <div class="card-content">
+                            <div class="card-rating">
+                                Prix original : <strong class="original-price">{{ pack.prix }} €</strong><br>
+                                <span class="discounted-price text-success fw-bold"></span>
+                            </div>
 
-								<p class="card-subtitle">
-									{% if pack.voyages|length > 0 %}
-										{{ pack.voyages[0].nom }}
-									{% else %}
-										Aucun voyage associé
-									{% endif %}
-								</p>
+                            <p class="card-subtitle">
+                                {% if pack.voyages|length > 0 %}
+                                    {{ pack.voyages[0].nom }}
+                                {% else %}
+                                    Aucun voyage associé
+                                {% endif %}
+                            </p>
 
-								<h3 class="h3 card-title">
-									<a href="#">{{ pack.nom }}</a>
-								</h3>
+                            <h3 class="h3 card-title">
+                                <a href="#">{{ pack.nom }}</a>
+                            </h3>
 
-								<div style="margin-left: 4em;">
-									<div class="qr-container" data-url="trifly.com{{ path('app_pack_show', {id: pack.id}) }}" style="display: flex; justify:center; margin-left: 50px;"></div>
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="qr-container" data-url="trifly.com{{ path('app_pack_show', {id: pack.id}) }}" style="margin: 15px 0;"></div>
+                                <a href="#" class="btn btn-info btn-sm mt-2">Réserver</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {% else %}
+                <p>Aucun pack trouvé.</p>
+            {% endfor %}
+        </ul>
 
-									<div class="mt-3" style="display: flex; justify-content: space-between; align-items: center;">
-										<a href="#" class="btn btn-info btn-sm" style="margin-left: 2em;">Réserver</a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</li>
-				{% else %}
-					<p>Aucun pack trouvé.</p>
-				{% endfor %}
-			</ul>
+        {# Pagination Centrée #}
+        {% if packs.total_pages > 1 %}
+            <div class="pagination-wrapper">
+                <div class="pagination">
+                    {% if packs.current_page > 1 %}
+                        <a href="{{ path('app_pack_index', {'page': packs.current_page - 1}) }}" class="prev">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
 
-			{# Pagination Centrée #}
-			{% if packs.total_pages > 1 %}
-				<div class="pagination-wrapper">
-					<div class="pagination">
-						{% if packs.current_page > 1 %}
-							<a href="{{ path('app_pack_index', {'page': packs.current_page - 1}) }}" class="prev">
-								<i class="fas fa-chevron-left"></i>
-							</a>
-						{% endif %}
+                    {% set start = max(1, packs.current_page - 2) %}
+                    {% set end = min(packs.total_pages, start + 4) %}
 
-						{% set start = max(1, packs.current_page - 2) %}
-						{% set end = min(packs.total_pages, start + 4) %}
+                    {% if start > 1 %}
+                        <a href="{{ path('app_pack_index', {'page': 1}) }}" class="page">1</a>
+                        {% if start > 2 %}
+                            <span class="dots">...</span>
+                        {% endif %}
+                    {% endif %}
 
-						{% if start > 1 %}
-							<a href="{{ path('app_pack_index', {'page': 1}) }}" class="page">1</a>
-							{% if start > 2 %}
-								<span class="dots">...</span>
-							{% endif %}
-						{% endif %}
+                    {% for i in start..end %}
+                        <a href="{{ path('app_pack_index', {'page': i}) }}" class="page {{ packs.current_page == i ? 'active' : '' }}">
+                            {{ i }}
+                        </a>
+                    {% endfor %}
 
-						{% for i in start..end %}
-							<a href="{{ path('app_pack_index', {'page': i}) }}" class="page {{ packs.current_page == i ? 'active' : '' }}">
-								{{ i }}
-							</a>
-						{% endfor %}
+                    {% if end < packs.total_pages %}
+                        {% if end < packs.total_pages - 1 %}
+                            <span class="dots">...</span>
+                        {% endif %}
+                        <a href="{{ path('app_pack_index', {'page': packs.total_pages}) }}" class="page">
+                            {{ packs.total_pages }}
+                        </a>
+                    {% endif %}
 
-						{% if end < packs.total_pages %}
-							{% if end < packs.total_pages - 1 %}
-								<span class="dots">...</span>
-							{% endif %}
-							<a href="{{ path('app_pack_index', {'page': packs.total_pages}) }}" class="page">
-								{{ packs.total_pages }}
-							</a>
-						{% endif %}
+                    {% if packs.current_page < packs.total_pages %}
+                        <a href="{{ path('app_pack_index', {'page': packs.current_page + 1}) }}" class="next">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
 
-						{% if packs.current_page < packs.total_pages %}
-							<a href="{{ path('app_pack_index', {'page': packs.current_page + 1}) }}" class="next">
-								<i class="fas fa-chevron-right"></i>
-							</a>
-						{% endif %}
-					</div>
-				</div>
-			{% endif %}
+        <div class="text-center mt-4">
+            <a href="{{ path('app_pack_new') }}" class="btn btn-primary">+ Créer un nouveau Pack</a>
+        </div>
+    </div>
 
-			<div class="text-center mt-4">
-				<a href="{{ path('app_pack_new') }}" class="btn btn-primary">+ Créer un nouveau Pack</a>
-			</div>
-		</div>
+    {# Section Assistant AI - Version organisée et stylée #}
+    <div class="ai-pack-helper mt-5 mb-5">
+        <div class="chat-container shadow-lg" style="border-radius: 20px; overflow: hidden; background: #ffffff;">
+            <div class="chat-header bg-gradient-ai text-white d-flex justify-content-between align-items-center p-4">
+                <h5 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-robot me-3 animate-icon"></i>
+                    Assistant Packs Trifly
+                </h5>
+                <small class="opacity-75">Explorez nos offres avec l'IA</small>
+            </div>
+            <div class="chat-body p-4" style="max-height: 400px; overflow-y: auto; background: #f9fbfd;">
+                <div id="chatMessages" class="d-flex flex-column gap-3">
+                    <!-- Messages seront ajoutés dynamiquement ici -->
+                </div>
+            </div>
+            <div class="chat-footer p-4 border-top">
+                <div class="d-flex align-items-center gap-3">
+                    <textarea 
+                        class="form-control shadow-sm animate-input" 
+                        id="packQuestionInput" 
+                        placeholder="Posez une question, ex: Quel est le pack le plus cher ?"
+                        style="height: 60px; resize: none; border-radius: 10px; transition: all 0.3s ease;"
+                        aria-label="Votre question sur les packs"></textarea>
+                    <button 
+                        id="askPackAiBtn" 
+                        class="btn btn-gradient-ai py-3 px-4 fw-bold d-flex align-items-center justify-content-center animate-btn"
+                        style="border-radius: 10px; transition: all 0.3s ease;"
+                        aria-label="Envoyer la question à l'assistant">
+                        <span class="normal-text">
+                            <i class="fas fa-paper-plane"></i>
+                        </span>
+                        <span class="loading-text d-none">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <style>
+        /* Style pour la section Assistant AI (Chat) */
+        .ai-pack-helper {
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 15px;
+        }
 
+        .chat-container {
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
 
-		{# Section Assistant AI - À placer où vous voulez dans votre template #}
- <div class="ai-pack-helper mt-5 mb-5">
-     <div class="card border-primary">
-         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-             <h5 class="mb-0">
-                 <i class="fas fa-robot me-2"></i>Assistant Packs Trifly
-             </h5>
-             <small class="opacity-75">Poser des questions sur nos offres</small>
-         </div>
-         <div class="card-body">
-             <div class="form-floating mb-3">
-                 <textarea class="form-control" id="packQuestionInput" 
-                           placeholder="Ex: Quels sont les packs avec séjour en montagne ?"
-                           style="height: 100px"></textarea>
-                 <label for="packQuestionInput">Votre question sur nos packs</label>
-             </div>
-             
-             <button id="askPackAiBtn" class="btn btn-primary w-100">
-                 <span class="normal-text">
-                     <i class="fas fa-paper-plane me-2"></i>Envoyer à l'Assistant
-                 </span>
-                 <span class="loading-text d-none">
-                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                     Analyse en cours...
-                 </span>
-             </button>
-             
-             <div id="packAiResponse" class="mt-3 p-3 bg-light rounded d-none">
-                 <div class="d-flex justify-content-between align-items-center mb-2">
-                     <h6 class="mb-0 text-primary">
-                         <i class="fas fa-lightbulb me-2"></i>Réponse de l'Assistant
-                     </h6>
-                     <button id="copyAiBtn" class="btn btn-sm btn-outline-primary">
-                         <i class="far fa-copy"></i>
-                     </button>
-                 </div>
-                 <div id="packAiResponseContent" class="pt-2"></div>
-             </div>
-         </div>
-     </div>
- </div>
- 
- <style>
-     .ai-pack-helper {
-         max-width: 800px;
-         margin-left: auto;
-         margin-right: auto;
-     }
-     
-     #packAiResponseContent {
-         line-height: 1.7;
-     }
-     
-     .highlighted-pack {
-         animation: highlight 2s ease-in-out;
-         box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.5);
-         border-radius: 8px;
-     }
-     
-     @keyframes highlight {
-         0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
-         50% { box-shadow: 0 0 0 10px rgba(13, 110, 253, 0.2); }
-         100% { box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.5); }
-     }
- </style>
- 
- 
- 
- <script type="module">
-     import PackAiService from '/js/PackAiService.js';
- 
-     document.addEventListener('DOMContentLoaded', async () => {
-         // Debug
-         const DEBUG = true;
-         const debugLog = (...args) => DEBUG && console.log('[DEBUG]', ...args);
- 
-         // Init service
-         const aiService = new PackAiService();
-         
-         // Load packs data
-         const packsData = [
-             {% for pack in packs.results %}
-             {
-                 id: {{ pack.id }},
-                 nom: "{{ pack.nom|escape('js') }}",
-                 prix: {{ pack.prix }},
-                 description: "{{ pack.description|escape('js') }}",
-                 sejours: [
-                     {% for sejour in pack.sejours %}
-                     { 
-                         nomHebergement: "{{ sejour.hebergement.nom|default('Non spécifié')|escape('js') }}",
-                         typeHebergement: "{{ sejour.hebergement.type|default('')|escape('js') }}"
-                     },
-                     {% endfor %}
-                 ]
-             },
-             {% endfor %}
-         ];
- 
-         debugLog('Données brutes:', packsData);
- 
-         try {
-             await aiService.initialize(packsData);
-             debugLog('Service initialisé');
-         } catch (error) {
-             console.error('Init failed:', error);
-             document.getElementById('packAiResponseContent').innerHTML = `
-                 <div class="alert alert-danger">
-                     Erreur d'initialisation: ${error.message}
-                 </div>
-             `;
-             document.getElementById('packAiResponse').classList.remove('d-none');
-             return;
-         }
- 
-         // Gestion du formulaire
-         document.getElementById('askPackAiBtn').addEventListener('click', async () => {
-             const question = document.getElementById('packQuestionInput').value.trim();
-             const responseContainer = document.getElementById('packAiResponse');
-             const responseContent = document.getElementById('packAiResponseContent');
- 
-             if (!question) {
-                 responseContent.innerHTML = `
-                     <div class="alert alert-warning">
-                         Veuillez poser une question valide
-                     </div>
-                 `;
-                 responseContainer.classList.remove('d-none');
-                 return;
-             }
- 
-             // Loading state
-             const btn = document.getElementById('askPackAiBtn');
-             btn.disabled = true;
-             btn.innerHTML = `
-                 <span class="spinner-border spinner-border-sm me-2"></span>
-                 Analyse en cours...
-             `;
- 
-             try {
-                 debugLog('Envoi question:', question);
-                 const startTime = performance.now();
-                 
-                 const { text, mentionedPackIds } = await aiService.getPackRecommendation(question);
-                 
-                 debugLog(`Temps de réponse: ${(performance.now() - startTime).toFixed(0)}ms`);
-                 debugLog('Réponse:', text);
-                 debugLog('Packs mentionnés:', mentionedPackIds);
- 
-                 responseContent.innerHTML = text || '<em>Aucune réponse générée</em>';
-                 responseContainer.classList.remove('d-none');
- 
-                 // Highlight packs
-                 mentionedPackIds.forEach(id => {
-                     const el = document.querySelector(`[data-pack-id="${id}"]`);
-                     if (el) {
-                         el.classList.add('highlighted-pack');
-                         setTimeout(() => el.classList.remove('highlighted-pack'), 3000);
-                     }
-                 });
- 
-             } catch (error) {
-                 console.error('Error:', error);
-                 responseContent.innerHTML = `
-                     <div class="alert alert-danger">
-                         Erreur: ${error.message}
-                     </div>
-                 `;
-                 responseContainer.classList.remove('d-none');
-             } finally {
-                 btn.disabled = false;
-                 btn.innerHTML = `
-                     <i class="fas fa-paper-plane me-2"></i>
-                     Envoyer
-                 `;
-             }
-         });
-     });
- </script>
-	</section>
+        .chat-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+        }
 
-	<!-- Script QR Code -->
-	 <script type="module">
-	    import QrCodeService from '/js/QrCodeService.js';
-	
-	    document.addEventListener('DOMContentLoaded', () => {
-	        const qrService = new QrCodeService();
-	        document.querySelectorAll('.qr-container').forEach(container => {
-	            const data = container.dataset.url;
-	            qrService.renderQrCode(data, container);
-	        });
-	    });
-	</script>
+        .bg-gradient-ai {
+            background: linear-gradient(135deg, #007bff 0%, #00d4ff 100%);
+        }
 
-	<!-- Script coupon -->
-	 <script>
-	    async function applyCoupon() {
-	        const code = document.getElementById("coupon-input").value.trim();
-	        const feedback = document.getElementById("coupon-feedback");
-	
-	        if (!code) {
-	            feedback.textContent = "Veuillez entrer un code promo.";
-	            return;
-	        }
-	
-	        try {
-	            const response = await fetch(`/api/coupon/${code}`);
-	            const data = await response.json();
-	
-	            if (data.valid) {
-	                feedback.textContent = `Code appliqué : -${data.remise}%`;
-	
-	                // Appliquer la réduction aux prix
-	                console.log(data);
-	                document.querySelectorAll('.original-price').forEach((priceEl, index) => {
-	                    const original = parseFloat(priceEl.textContent.replace('€', '').trim());
-	                    const discounted = original - (original * data.remise / 100);
-	                    document.querySelectorAll('.discounted-price')[index].textContent = `Nouveau prix : ${discounted.toFixed(2)} €`;
-	                });
-	            } else {
-	                feedback.textContent = "Code invalide !";
-	            }
-	        } catch (err) {
-	            feedback.textContent = "Erreur lors de l'application du coupon.";
-	            console.error(err);
-	        }
-	    }
-	</script>
+        .btn-gradient-ai {
+            background: linear-gradient(135deg, #007bff, #00d4ff);
+            border: none;
+            color: white;
+        }
 
-		<style>
-/* Style de pagination */
-.pagination-wrapper {
-	display: flex;
-	justify-content: center;
-	margin: 50px 0;
-}
+        .btn-gradient-ai:hover {
+            background: linear-gradient(135deg, #0056b3, #00b7eb);
+        }
 
-.pagination {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
+        .animate-input:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 0.3rem rgba(0, 212, 255, 0.25);
+            transform: scale(1.01);
+        }
 
-.pagination a {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	color: #333;
-	text-decoration: none;
-	font-weight: 500;
-	transition: all 0.3s ease;
-}
+        .animate-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+        }
 
-.pagination a.page {
-	background: #f5f5f5;
-}
+        .animate-icon {
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
 
-.pagination a.page:hover {
-	background: #e0e0e0;
-}
+        .animate-icon:hover {
+            transform: scale(1.3);
+            color: #00d4ff;
+        }
 
-.pagination a.active {
-	background: #0d6efd;
-	color: white;
-}
+        .chat-message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 15px;
+            line-height: 1.5;
+            position: relative;
+            animation: fadeIn 0.5s ease-in-out;
+        }
 
-.pagination a.prev,
-.pagination a.next {
-	background: transparent;
-	font-size: 1.2rem;
-}
+        .chat-message.user {
+            background: #007bff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
 
-.pagination a.prev:hover,
-.pagination a.next:hover {
-	color: #0d6efd;
-}
+        .chat-message.assistant {
+            background: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
 
-.pagination .dots {
-	color: #999;
-}
+        .chat-message .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-/* Styles pour les cartes de packs */
-.voyage-image {
-	width: 100%;
-	height: 200px;
-	object-fit: cover;
-	border-radius: 8px 8px 0 0;
-}
+        .chat-message:hover .copy-btn {
+            opacity: 1;
+        }
 
-.popular-card {
-	border-radius: 8px;
-	overflow: hidden;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	transition: transform 0.3s ease;
-	height: 500px;
-	display: flex;
-	flex-direction: column;
-	background: #fff;
-}
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
 
-.popular-card:hover {
-	transform: translateY(-5px);
-}
+        .highlighted-pack {
+            animation: highlight 2s ease-in-out;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+            border-radius: 8px;
+        }
 
-.card-content {
-	padding: 15px;
-	flex-grow: 1;
-	display: flex;
-	flex-direction: column;
-}
+        @keyframes highlight {
+            0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+            50% { box-shadow: 0 0 0 12px rgba(0, 123, 255, 0.3); }
+            100% { box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); }
+        }
 
-.card-title {
-	margin: 10px 0;
-	font-size: 1.2rem;
-}
+        /* Styles pour les cartes de packs (inchangés sauf centrage du QR code et bouton) */
+        .voyage-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px 8px 0 0;
+        }
 
-.popular-list {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-	gap: 25px;
-	padding: 0;
-	list-style: none;
-	margin-bottom: 40px;
-}
-</style>{% endblock %}
+        .popular-card {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .popular-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-content {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .card-title {
+            margin: 10px 0;
+            font-size: 1.2rem;
+        }
+
+        .popular-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 0;
+            list-style: none;
+            margin-bottom: 40px;
+        }
+
+        /* Style de pagination (inchangé) */
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 50px 0;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .pagination a.page {
+            background: #f5f5f5;
+        }
+
+        .pagination a.page:hover {
+            background: #e0e0e0;
+        }
+
+        .pagination a.active {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .pagination a.prev,
+        .pagination a.next {
+            background: transparent;
+            font-size: 1.2rem;
+        }
+
+        .pagination a.prev:hover,
+        .pagination a.next:hover {
+            color: #0d6efd;
+        }
+
+        .pagination .dots {
+            color: #999;
+        }
+    </style>
+
+    <!-- Script QR Code (inchangé) -->
+    <script type="module">
+        import QrCodeService from '/js/QrCodeService.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const qrService = new QrCodeService();
+            document.querySelectorAll('.qr-container').forEach(container => {
+                const data = container.dataset.url;
+                qrService.renderQrCode(data, container);
+            });
+        });
+    </script>
+
+    <!-- Script coupon (inchangé) -->
+    <script>
+        async function applyCoupon() {
+            const code = document.getElementById("coupon-input").value.trim();
+            const feedback = document.getElementById("coupon-feedback");
+
+            if (!code) {
+                feedback.textContent = "Veuillez entrer un code promo.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/coupon/${code}`);
+                const data = await response.json();
+
+                if (data.valid) {
+                    feedback.textContent = `Code appliqué : -${data.remise}%`;
+
+                    // Appliquer la réduction aux prix
+                    console.log(data);
+                    document.querySelectorAll('.original-price').forEach((priceEl, index) => {
+                        const original = parseFloat(priceEl.textContent.replace('€', '').trim());
+                        const discounted = original - (original * data.remise / 100);
+                        document.querySelectorAll('.discounted-price')[index].textContent = `Nouveau prix : ${discounted.toFixed(2)} €`;
+                    });
+                } else {
+                    feedback.textContent = "Code invalide !";
+                }
+            } catch (err) {
+                feedback.textContent = "Erreur lors de l'application du coupon.";
+                console.error(err);
+            }
+        }
+    </script>
+
+    <!-- Script pour l'Assistant AI -->
+    <script type="module">
+        import PackAiService from '/js/PackAiService.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const DEBUG = true;
+            const debugLog = (...args) => DEBUG && console.log('[DEBUG]', ...args);
+
+            // Initialisation du service AI
+            const aiService = new PackAiService();
+            const packsData = [
+                {% for pack in packs.results %}
+                {
+                    id: {{ pack.id }},
+                    nom: "{{ pack.nom|escape('js') }}",
+                    prix: {{ pack.prix }},
+                    description: "{{ pack.description|escape('js') }}",
+                    sejours: [
+                        {% for sejour in pack.sejours %}
+                        { 
+                            nomHebergement: "{{ sejour.hebergement.nom|default('Non spécifié')|escape('js') }}",
+                            typeHebergement: "{{ sejour.hebergement.type|default('')|escape('js') }}"
+                        },
+                        {% endfor %}
+                    ]
+                },
+                {% endfor %}
+            ];
+
+            debugLog('Données brutes:', packsData);
+
+            try {
+                await aiService.initialize(packsData);
+                debugLog('Service initialisé');
+            } catch (error) {
+                console.error('Échec de l’initialisation:', error);
+                appendMessage('assistant', `
+                    <div class="alert alert-danger">
+                        Erreur d'initialisation: ${error.message}
+                    </div>
+                `);
+                return;
+            }
+
+            // Fonction pour ajouter un message au chat
+            function appendMessage(sender, content) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${sender}`;
+                messageDiv.innerHTML = `
+                    ${content}
+                    ${sender === 'assistant' ? '<button class="copy-btn" aria-label="Copier la réponse"><i class="far fa-copy"></i></button>' : ''}
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Gestion du bouton de copie
+                if (sender === 'assistant') {
+                    const copyBtn = messageDiv.querySelector('.copy-btn');
+                    copyBtn.addEventListener('click', () => {
+                        const textToCopy = messageDiv.childNodes[0].textContent.trim();
+                        navigator.clipboard.writeText(textToCopy).then(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '<i class="far fa-copy"></i>';
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Échec de la copie:', err);
+                        });
+                    });
+                }
+            }
+
+            // Gestion du bouton de soumission
+            document.getElementById('askPackAiBtn').addEventListener('click', async () => {
+                const question = document.getElementById('packQuestionInput').value.trim();
+                const btn = document.getElementById('askPackAiBtn');
+
+                if (!question) {
+                    appendMessage('assistant', `
+                        <div class="alert alert-warning">
+                            Veuillez poser une question valide
+                        </div>
+                    `);
+                    return;
+                }
+
+                // Ajouter la question de l'utilisateur au chat
+                appendMessage('user', question);
+
+                // État de chargement
+                btn.disabled = true;
+                btn.querySelector('.normal-text').classList.add('d-none');
+                btn.querySelector('.loading-text').classList.remove('d-none');
+
+                try {
+                    debugLog('Envoi question:', question);
+                    const startTime = performance.now();
+                    const { text, mentionedPackIds } = await aiService.getPackRecommendation(question);
+                    debugLog(`Temps de réponse: ${(performance.now() - startTime).toFixed(0)}ms`);
+                    debugLog('Réponse:', text);
+                    debugLog('Packs mentionnés:', mentionedPackIds);
+
+                    appendMessage('assistant', text || '<em>Aucune réponse générée</em>');
+
+                    // Surligner les packs mentionnés
+                    mentionedPackIds.forEach(id => {
+                        const el = document.querySelector(`[data-pack-id="${id}"]`);
+                        if (el) {
+                            el.classList.add('highlighted-pack');
+                            setTimeout(() => el.classList.remove('highlighted-pack'), 3000);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    appendMessage('assistant', `
+                        <div class="alert alert-danger">
+                            Erreur: ${error.message}
+                        </div>
+                    `);
+                } finally {
+                    btn.disabled = false;
+                    btn.querySelector('.normal-text').classList.remove('d-none');
+                    btn.querySelector('.loading-text').classList.add('d-none');
+                    document.getElementById('packQuestionInput').value = ''; // Réinitialiser le champ
+                }
+            });
+
+            // Envoyer la question avec la touche Entrée
+            document.getElementById('packQuestionInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.getElementById('askPackAiBtn').click();
+                }
+            });
+        });
+    </script>
+</section>
+{% endblock %}
