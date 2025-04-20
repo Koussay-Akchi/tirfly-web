@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
@@ -20,7 +19,15 @@ class Reclamation
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\NotBlank(message: 'La description ne peut pas être vide.')]
+    #[Assert\Length(
+        min: 10,
+        max: 1000,
+        minMessage: 'La description doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $description = null;
+    
 
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $etat = null;
@@ -30,7 +37,7 @@ class Reclamation
     #[Assert\Length(max: 100, maxMessage: 'Title cannot be longer than 100 characters.')]
     private ?string $titre = null;
 
-    #[ORM\Column(type: 'date', nullable: true, name: "dateCreation")]
+    #[ORM\Column(type: 'datetime', nullable: true, name: "dateCreation")]
     private ?\DateTimeInterface $dateCreation = null;
 
     #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'reclamations')]
@@ -47,10 +54,19 @@ class Reclamation
     #[ORM\Column(type: 'string', nullable: false, name: "isRed")]
     private ?string $isRed = '0';
 
+    // Déclaration de la relation avec les réponses
+    #[ORM\OneToMany(mappedBy: 'reclamation', targetEntity: Reponse::class, orphanRemoval: true)]
+    private Collection $reponses;
+
+    public function __construct()
+    {
+        $this->reponses = new ArrayCollection();
+    }
+
     // =======================
     // ==== GETTERS/SETTERS ==
     // =======================
-
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -117,7 +133,6 @@ class Reclamation
         return $this;
     }
 
-
     public function getVideoPath(): ?string
     {
         return $this->videoPath;
@@ -129,7 +144,6 @@ class Reclamation
         return $this;
     }
 
-
     public function getIsRed(): ?string
     {
         return $this->isRed;
@@ -138,6 +152,34 @@ class Reclamation
     public function setIsRed(string $isRed): self
     {
         $this->isRed = $isRed;
+        return $this;
+    }
+
+    // Méthode pour accéder aux réponses
+    public function getReponses(): Collection
+    {
+        return $this->reponses;
+    }
+
+    // Méthode pour ajouter une réponse
+    public function addReponse(Reponse $reponse): self
+    {
+        if (!$this->reponses->contains($reponse)) {
+            $this->reponses->add($reponse);
+            $reponse->setReclamation($this);
+        }
+        return $this;
+    }
+
+    // Méthode pour supprimer une réponse
+    public function removeReponse(Reponse $reponse): self
+    {
+        if ($this->reponses->removeElement($reponse)) {
+            // Définir la relation inverse à null si la réponse est supprimée
+            if ($reponse->getReclamation() === $this) {
+                $reponse->setReclamation(null);
+            }
+        }
         return $this;
     }
 }

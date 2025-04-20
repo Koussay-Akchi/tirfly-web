@@ -3,108 +3,361 @@
 {% block title %}Historique de mes réclamations{% endblock %}
 
 {% block body %}
-<h1>Historique de vos réclamations</h1>
+<div class="container">
+    <header class="page-header">
+        <h1>Historique de vos réclamations</h1>
+        <div class="welcome-message">Bienvenue, {{ client.prenom }} {{ client.nom }}</div>
+    </header>
 
-{# Correct display of client name #}
-<div>Bienvenue {{ client.prenom }} {{ client.nom }}</div>
-
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Description</th>
-            <th>État</th>
-            <th>Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for reclamation in reclamations %}
-            <tr>
-                <td>{{ reclamation.id }}</td>
-                <td>{{ reclamation.description }}</td>
-                <td>{{ reclamation.etat }}</td>
-                <td>{{ reclamation.dateCreation ? reclamation.dateCreation|date('d/m/Y H:i') : '' }}</td>
-            </tr>
-        {% else %}
-            <tr><td colspan="4">Aucune réclamation trouvée.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<script>
-    var clientName = "{{ client.nom|e('js') }}";
-    console.log("Client:", clientName);
-</script>
-
-
+    <div class="card">
+        <div class="card-body">
+            <table class="reclamation-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Description</th>
+                        <th>État</th>
+                        <th>Statut Réponse</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if reclamations is not empty %}
+                        {% for reclamation in reclamations %}
+                            <tr class="reclamation-row">
+                                <td>{{ reclamation.id }}</td>
+                                <td>{{ reclamation.description }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ reclamation.etat|lower|replace({' ': '-'}) }}">
+                                        {{ reclamation.etat }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{% if reclamation.reponses|length > 0 %}répondu{% else %}en-attente{% endif %}">
+                                        {% if reclamation.reponses|length > 0 %}Répondu{% else %}En attente{% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ reclamation.dateCreation|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    <a href="{{ path('details_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-view" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% if reclamation.reponses|length > 0 %}
+                                <tr class="response-row">
+                                    <td colspan="6">
+                                        <div class="responses-header">Réponses reçues :</div>
+                                        {% for reponse in reclamation.reponses %}
+                                            <div class="response-item">
+                                                <div class="response-meta">
+                                                    <strong>{{ reponse.dateReponse|date('d/m/Y H:i') }}</strong>
+                                                    <span class="response-author">par {{ reponse.auteur.nom }}</span>
+                                                </div>
+                                                <div class="response-content">{{ reponse.contenu }}</div>
+                                            </div>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="empty-row">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox fa-2x"></i>
+                                    <p>Aucune réclamation trouvée.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <style>
+    /* General Styling */
     body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(120deg, #f0f4f8, #d9e4f5);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(145deg, #f0f7ff 0%, #e6efff 100%);
         margin: 0;
-        padding: 20px;
-        color: #333;
+        padding: 2rem;
+        color: #1a202c;
+        line-height: 1.6;
     }
 
-    h1 {
+    .container {
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+
+    /* Page Header */
+    .page-header {
         text-align: center;
-        color: #2c3e50;
-        font-size: 2em;
-        margin-bottom: 30px;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        margin-bottom: 2.5rem;
     }
 
-    table {
-        width: 90%;
-        margin: auto;
-        border-collapse: collapse;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-        border-radius: 12px;
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .welcome-message {
+        font-size: 1.15rem;
+        color: #4a5568;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        display: inline-block;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Card Styling */
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         overflow: hidden;
+        margin-bottom: 2rem;
     }
 
-    th, td {
-        padding: 15px 20px;
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* Table Styling */
+    .reclamation-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .reclamation-table th,
+    .reclamation-table td {
+        padding: 1rem;
+        font-size: 0.95rem;
+        text-align: left;
+    }
+
+    .reclamation-table thead {
+        background: linear-gradient(90deg, #2b6cb0 0%, #4299e1 100%);
+        color: #ffffff;
+    }
+
+    .reclamation-table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .reclamation-table tbody tr.reclamation-row {
+        background-color: #f7fafc;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .reclamation-table tbody tr.reclamation-row:hover {
+        background-color: #e2e8f0;
+        transform: translateY(-2px);
+    }
+
+    .reclamation-table tbody tr.response-row {
+        background-color: #edf2f7;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #fff;
         text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color:rgb(0, 183, 220);
     }
 
-    thead {
-        background-color: #34495e;
+    .status-badge.status-qualité-de-service {
+        background-color: #ed8936;
+    }
+
+    .status-badge.status-retard {
+        background-color: #e53e3e;
+    }
+
+    .status-badge.status-annulation {
+        background-color: #3182ce;
+    }
+
+    .status-badge.status-répondu {
+        background-color: #38a169;
+    }
+
+    .status-badge.status-ouvert,
+    .status-badge.status-en-cours {
+        background-color:rgb(44, 154, 126);
+    }
+
+    .status-badge.status-en-attente {
+        background-color:rgb(209, 215, 25);
+    }
+
+    /* Action Buttons */
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-view {
+        background-color: #3182ce;
         color: #fff;
     }
 
-    tbody tr:nth-child(even) {
-        background-color: #f2f2f2;
+    .btn-view:hover {
+        background-color: #2b6cb0;
+        transform: scale(1.05);
     }
 
-    tbody tr:hover {
-        background-color: #d0e6ff;
-        cursor: pointer;
+    .btn-view i {
+        font-size: 1rem;
     }
 
-    td {
-        color: #2c3e50;
+    /* Response Section */
+    .responses-header {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 1rem 0 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
     }
 
-    td:first-child {
-        font-weight: bold;
+    .response-item {
+        background: #ffffff;
+        padding: 1rem;
+        margin: 0.75rem 0;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .empty-row {
-        text-align: center;
-        color: #999;
+    .response-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .response-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .response-meta strong {
+        color: #1a202c;
+        font-weight: 600;
+    }
+
+    .response-author {
+        color: #718096;
+        font-size: 0.9rem;
         font-style: italic;
-        padding: 20px;
     }
 
-    div {
+    .response-content {
+        color: #4a5568;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* Empty State */
+    .empty-state {
         text-align: center;
-        margin-bottom: 20px;
-        font-size: 1.1em;
-        color: #5d6d7e;
+        padding: 3rem;
+        color: #718096;
+    }
+
+    .empty-state i {
+        color: #a0aec0;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        font-style: italic;
+        margin: 0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .container {
+            padding: 0 1rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+        }
+
+        .reclamation-table th,
+        .reclamation-table td {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .reclamation-table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .reclamation-table th,
+        .reclamation-table td {
+            font-size: 0.85rem;
+        }
+
+        .btn-action {
+            padding: 0.4rem;
+        }
+
+        .response-item {
+            padding: 0.75rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .page-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .welcome-message {
+            font-size: 1rem;
+        }
+
+        .reclamation-table th:nth-child(2),
+        .reclamation-table td:nth-child(2) {
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 </style>
-
 {% endblock %}

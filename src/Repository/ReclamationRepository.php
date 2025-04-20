@@ -24,6 +24,15 @@ public function getCountByEtat()
         ->getQuery()
         ->getResult();
 }
+public function findByEtat(string $etat): array
+{
+    return $this->createQueryBuilder('r')
+        ->where('r.etat = :etat')
+        ->setParameter('etat', $etat)
+        ->orderBy('r.dateCreation', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
 
     //    /**
     //     * @return Reclamation[] Returns an array of Reclamation objects

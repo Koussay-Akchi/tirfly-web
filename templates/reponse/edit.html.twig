@@ -1,0 +1,617 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Modifier Réponse{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header py-3">
+            <h2 class="h5 mb-0"><svg class="icon mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Modifier la Réponse</h2>
+        </div>
+        <div class="card-body">
+            <div class="reclamation-info mb-4">
+                <h5>Réclamation : {{ reponse.reclamation.titre }}</h5>
+                <p class="text-muted">{{ reponse.reclamation.description|escape }}</p>
+            </div>
+
+            <form method="post" action="{{ path('app_reponse_edit', {'id': reponse.id}) }}">
+                {{ form_start(form) }}
+                <div class="form-group">
+                    {{ form_label(form.contenu, 'Contenu') }}
+                    {{ form_widget(form.contenu) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.dateReponse, 'Date réponse') }}
+                    {{ form_widget(form.dateReponse) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.sujet, 'Sujet') }}
+                    {{ form_widget(form.sujet) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.reclamation, 'Réclamation') }}
+                    {{ form_widget(form.reclamation) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.auteur, 'Auteur') }}
+                    {{ form_widget(form.auteur) }}
+                </div>
+                <input type="hidden" name="_token" value="{{ csrf_token('edit_reponse') }}">
+                <button type="submit" class="btn btn-primary mt-3">
+                    <svg class="icon mr-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>Confirmer
+                </button>
+                {{ form_end(form) }}
+            </form>
+
+            <div class="mt-4 d-flex justify-content-between align-items-center">
+                <a href="{{ path('app_reponse_index') }}" class="btn btn-secondary">
+                    <svg class="icon mr-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>Retour à la liste
+                </a>
+                {{ include('reponse/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Importation de la police Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Réinitialisation et styles globaux */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #e0e7ff, #fce7ef);
+    color: #1a1a2e;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* Container principal avec spotlight */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(108, 92, 231, 0.15), transparent);
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    opacity: 0.5;
+}
+
+/* Particules d'arrière-plan */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(108, 92, 231, 0.1) 1px, transparent 1px);
+    background-size: 10px 10px;
+    animation: particleFloat 20s linear infinite;
+    z-index: -1;
+    opacity: 0.6;
+}
+
+/* Carte avec effet glassmorphism amélioré */
+.card {
+    border-radius: 30px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2), 0 0 25px rgba(108, 92, 231, 0.4);
+    border: 2px solid transparent;
+    border-image: linear-gradient(45deg, rgba(139, 92, 246, 0.5), rgba(236, 72, 153, 0.5)) 1;
+    position: relative;
+    overflow: hidden;
+    animation: floatCard 6s ease-in-out infinite;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+.card:hover {
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3), 0 0 40px rgba(108, 92, 231, 0.6);
+}
+
+/* Header avec effet aurora */
+.card-header {
+    background: linear-gradient(45deg, #5b21b6, #8b5cf6, #ec4899, #ef4444, #5b21b6);
+    background-size: 500%;
+    border-radius: 30px 30px 0 0;
+    padding: 20px 30px;
+    position: relative;
+    overflow: hidden;
+    animation: auroraGlow 10s ease-in-out infinite;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 150%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 1s ease;
+}
+
+.card-header:hover::before {
+    left: 150%;
+}
+
+.card-header h2 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 1.2px;
+    display: flex;
+    align-items: center;
+    text-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Corps de la carte */
+.card-body {
+    padding: 3rem;
+}
+
+/* Info réclamation avec gradient underline */
+.reclamation-info h5 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 15px;
+    position: relative;
+    animation: slideIn 0.7s ease-out;
+}
+
+.reclamation-info h5::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(45deg, #5b21b6, #ec4899);
+    animation: shine 3s infinite;
+}
+
+.reclamation-info .text-muted {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #4b5563;
+    letter-spacing: 0.5px;
+    animation: slideIn 0.7s ease-out 0.15s;
+    animation-fill-mode: backwards;
+}
+
+/* Styling du formulaire */
+.form-group {
+    margin-bottom: 2rem;
+    padding: 15px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+    border-radius: 15px;
+    animation: zoomIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) var(--form-delay);
+    animation-fill-mode: backwards;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.form-group:hover {
+    transform: translateY(-2px);
+}
+
+.form-group:nth-child(1) { --form-delay: 0.2s; }
+.form-group:nth-child(2) { --form-delay: 0.3s; }
+.form-group:nth-child(3) { --form-delay: 0.4s; }
+.form-group:nth-child(4) { --form-delay: 0.5s; }
+.form-group:nth-child(5) { --form-delay: 0.6s; }
+
+.form-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    color: #1a1a2e;
+    letter-spacing: 0.8px;
+    transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
+    display: block;
+}
+
+.form-label:hover {
+    color: #8b5cf6;
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+.form-control {
+    border-radius: 12px;
+    border: 1px solid rgba(108, 92, 231, 0.3);
+    padding: 1rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+    color: #1a1a2e;
+    transition: all 0.4s ease;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
+.form-control:focus {
+    border-color: #8b5cf6;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 15px rgba(108, 92, 231, 0.5), inset 0 0 8px rgba(108, 92, 231, 0.2);
+    transform: scale(1.02);
+    outline: none;
+}
+
+.form-control:focus + .form-label,
+.form-control:not(:placeholder-shown) + .form-label {
+    transform: translateY(-30px) scale(0.9);
+    color: #8b5cf6;
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 160px;
+}
+
+/* Style pour les champs select et date */
+.form-control[type="date"],
+.form-control[type="text"],
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6)) url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%234b5563%22%2F%3E%3C%2Fsvg%3E') no-repeat right 1rem center;
+    background-size: 16px;
+    padding-right: 2.5rem;
+}
+
+/* Effet ripple sur focus */
+.form-control::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(108, 92, 231, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+    z-index: 0;
+}
+
+.form-control:focus::after {
+    width: 200px;
+    height: 200px;
+}
+
+/* Boutons avec effet 3D et neon */
+.btn {
+    position: relative;
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    transform: translateZ(0);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 150%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    transition: left 0.7s ease;
+}
+
+.btn:hover::before {
+    left: 150%;
+}
+
+.btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(108, 92, 231, 0.7);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #5b21b6, #8b5cf6);
+    border: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    animation: neonPulse 2.5s ease-in-out infinite;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #8b5cf6, #5b21b6);
+    animation: none;
+}
+
+.btn-primary:active .icon {
+    transform: scale(1) rotate(360deg);
+    stroke: #ffffff;
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #6b7280, #9ca3af);
+    border: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(45deg, #9ca3af, #6b7280);
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    border: none;
+    color: #ffffff;
+    text-transform: uppercase;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(45deg, #dc2626, #ef4444);
+}
+
+/* SVG Icons */
+.icon {
+    stroke: currentColor;
+    transition: transform 0.4s ease, stroke 0.4s ease;
+}
+
+.btn:hover .icon {
+    transform: scale(1.3) rotate(10deg);
+}
+
+.card-header:hover .icon {
+    transform: rotate(20deg);
+}
+
+/* Animations */
+@keyframes floatCard {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes zoomInCard {
+    from { opacity: 0; transform: scale(0.9) translateY(30px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes neonPulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(108, 92, 231, 0.5), 0 0 25px rgba(108, 92, 231, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(108, 92, 231, 0.8), 0 0 40px rgba(108, 92, 231, 0.5); }
+}
+
+@keyframes auroraGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 400% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes particleFloat {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+/* Thème sombre */
+body.dark-mode {
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    color: #e0e7ff;
+}
+
+body.dark-mode .container::before {
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.2), transparent);
+}
+
+body.dark-mode::before {
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 1px, transparent 1px);
+}
+
+body.dark-mode .card {
+    background: linear-gradient(145deg, rgba(55, 65, 81, 0.9), rgba(31, 41, 55, 0.7));
+    border-image: linear-gradient(45deg, rgba(139, 92, 246, 0.7), rgba(236, 72, 153, 0.7)) 1;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5), 0 0 25px rgba(139, 92, 246, 0.5);
+}
+
+body.dark-mode .card-header {
+    background: linear-gradient(45deg, #7c3aed, #a78bfa, #f472b6, #f87171, #7c3aed);
+    background-size: 500%;
+}
+
+body.dark-mode .reclamation-info h5,
+body.dark-mode .form-label {
+    color: #e0e7ff;
+}
+
+body.dark-mode .reclamation-info h5::after {
+    background: linear-gradient(45deg, #7c3aed, #f472b6);
+}
+
+body.dark-mode .reclamation-info .text-muted {
+    color: #9ca3af;
+}
+
+body.dark-mode .form-group {
+    background: linear-gradient(145deg, rgba(75, 85, 99, 0.3), rgba(55, 65, 81, 0.1));
+}
+
+body.dark-mode .form-control {
+    background: linear-gradient(145deg, rgba(75, 85, 99, 0.8), rgba(55, 65, 81, 0.6));
+    color: #e0e7ff;
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+body.dark-mode .form-control:focus {
+    border-color: #a78bfa;
+    background: rgba(75, 85, 99, 0.95);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.5), inset 0 0 8px rgba(139, 92, 246, 0.2);
+}
+
+body.dark-mode .form-control:focus + .form-label,
+body.dark-mode .form-control:not(:placeholder-shown) + .form-label {
+    color: #a78bfa;
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.7);
+}
+
+body.dark-mode .form-control[type="date"],
+body.dark-mode .form-control[type="text"],
+body.dark-mode select.form-control {
+    background: linear-gradient(145deg, rgba(75, 85, 99, 0.8), rgba(55, 65, 81, 0.6)) url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%239ca3af%22%2F%3E%3C%2Fsvg%3E') no-repeat right 1rem center;
+    background-size: 16px;
+}
+
+body.dark-mode .btn-primary {
+    background: linear-gradient(45deg, #7c3aed, #a78bfa);
+}
+
+body.dark-mode .btn-primary:hover {
+    background: linear-gradient(45deg, #a78bfa, #7c3aed);
+}
+
+body.dark-mode .btn-secondary {
+    background: linear-gradient(45deg, #4b5563, #6b7280);
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: linear-gradient(45deg, #6b7280, #4b5563);
+}
+
+body.dark-mode .btn-danger {
+    background: linear-gradient(45deg, #b91c1c, #dc2626);
+}
+
+body.dark-mode .btn-danger:hover {
+    background: linear-gradient(45deg, #dc2626, #b91c1c);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    .card-header h2 {
+        font-size: 1.6rem;
+    }
+
+    .reclamation-info h5 {
+        font-size: 1.3rem;
+    }
+
+    .form-label {
+        font-size: 1rem;
+    }
+
+    .form-control {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+    }
+
+    .btn {
+        padding: 0.8rem 1.6rem;
+        font-size: 0.9rem;
+    }
+
+    .icon {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-body {
+        padding: 2rem;
+    }
+
+    .d-flex {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 0.9rem;
+    }
+
+    .reclamation-info .text-muted {
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+<!-- JavaScript pour effet de clic sur Confirmer -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmBtn = document.querySelector('.btn-primary');
+    confirmBtn.addEventListener('click', function(e) {
+        // Ajouter une animation de checkmark temporaire
+        const icon = this.querySelector('.icon');
+        icon.innerHTML = '<path d="M20 6L9 17l-5-5"></path>';
+        icon.style.transform = 'scale(1.5)';
+        setTimeout(() => {
+            icon.style.transform = 'scale(1)';
+        }, 300);
+    });
+});
+</script>
+{% endblock %}

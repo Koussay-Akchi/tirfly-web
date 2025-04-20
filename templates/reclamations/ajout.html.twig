@@ -4,77 +4,94 @@
 
 {% block body %}
 
-<div class="form-container">
-    <div style="text-align: right;">
-        <a href="{{ path('chatbot_home') }}">
-            <img src="{{ asset('images/bot-icon-chatbot-icon-concept-vector-illustration_230920-1327.avif') }}" alt="Chatbot" style="height: 50px; cursor: pointer;" title="Discuter avec le support">
-        </a>
+<div class="page-container">
+    <div class="form-container">
+        <h1 style="color: #2c3e50; opacity: 1; visibility: visible; display: block;">
+            <i class="fas fa-comment-dots me-2"></i>Nouvelle Réclamation
+        </h1>
+
+        {{ form_start(form) }}
+            <div class="form-group">
+                <i class="fas fa-heading input-icon"></i>
+                {{ form_label(form.titre) }}
+                {{ form_widget(form.titre) }}
+                <div class="form-errors">
+                    {{ form_errors(form.titre) }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-align-left input-icon"></i>
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description) }}
+                <div class="form-errors">
+                    {{ form_errors(form.description) }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-toggle-on input-icon"></i>
+                {{ form_label(form.etat) }}
+                {{ form_widget(form.etat) }}
+                <div class="form-errors">
+                    {{ form_errors(form.etat) }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-video input-icon"></i>
+                {{ form_label(form.videoPath) }}
+                {{ form_widget(form.videoPath) }}
+                <div class="form-errors">
+                    {{ form_errors(form.videoPath) }}
+                </div>
+            </div>
+
+            <div class="button-container">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-paper-plane me-2"></i>Envoyer
+                </button>
+                <a href="{{ path('mon_historique_reclamations') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>historique
+                </a>
+            </div>
+        {{ form_end(form) }}
     </div>
 
-    <h1 style="color: #2c3e50; opacity: 1; visibility: visible; display: block;">
-        <i class="fas fa-comment-dots me-2"></i>Nouvelle Réclamation
-    </h1>
-
-    <link rel="stylesheet" href="{{ asset('styles/ajoutf.css') }}">
-
-    {{ form_start(form) }}
-        <div class="form-group">
-            <i class="fas fa-heading input-icon"></i>
-            {{ form_label(form.titre) }}
-            {{ form_widget(form.titre) }}
-            <div class="form-errors">
-                {{ form_errors(form.titre) }}
-            </div>
-        </div>
-
-        <div class="form-group">
-            <i class="fas fa-align-left input-icon"></i>
-            {{ form_label(form.description) }}
-            {{ form_widget(form.description) }}
-            <div class="form-errors">
-                {{ form_errors(form.description) }}
-            </div>
-        </div>
-
-        <div class="form-group">
-            <i class="fas fa-toggle-on input-icon"></i>
-            {{ form_label(form.etat) }}
-            {{ form_widget(form.etat) }}
-            <div class="form-errors">
-                {{ form_errors(form.etat) }}
-            </div>
-        </div>
-
-        <div class="form-group">
-            <i class="fas fa-video input-icon"></i>
-            {{ form_label(form.videoPath) }}
-            {{ form_widget(form.videoPath) }}
-            <div class="form-errors">
-                {{ form_errors(form.videoPath) }}
-            </div>
-        </div>
-
-        <div class="button-container">
-            <button type="submit" class="btn btn-success">
-                <i class="fas fa-paper-plane me-2"></i>Envoyer
-            </button>
-            <a href="{{ path('liste_reclamations') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Retour à la liste
-            </a>
-        </div>
-    {{ form_end(form) }}
+    <div class="chatbot-container">
+        <a href="{{ path('chatbot_home') }}">
+            <img src="{{ asset('images/bot-icon-chatbot-icon-concept-vector-illustration_230920-1327.avif') }}" alt="Chatbot" style="height: 150px; cursor: pointer;" title="Discuter avec le support">
+        </a>
+    </div>
 </div>
 
 {% block stylesheets %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        .page-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            min-height: 100vh;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         .form-container {
             max-width: 600px;
-            margin: 2rem auto;
             padding: 2rem;
             background: #f8f9fa;
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .chatbot-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
         }
 
         h1 {
@@ -222,9 +239,19 @@
         }
 
         @media (max-width: 768px) {
+            .page-container {
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem;
+            }
+
             .form-container {
                 margin: 1rem;
                 padding: 1.5rem;
+            }
+
+            .chatbot-container {
+                margin-top: 1.5rem;
             }
 
             h1 {

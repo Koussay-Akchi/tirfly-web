@@ -1,0 +1,254 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Réponses{% endblock %}
+
+{% block body %}
+<style>/* General Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7fa;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* Card Styling */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-bottom: none;
+}
+
+.card-header h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Table Styling */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #343a40;
+    color: white;
+    border: none;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table .badge {
+    font-size: 0.9rem;
+    padding: 0.5em 1em;
+}
+
+.table .btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+}
+
+.table .btn i {
+    margin: 0;
+}
+
+/* Form Styling */
+.response-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.response-form .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.response-form .form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+    font-size: 1rem;
+}
+
+.response-form .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.response-form textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.response-form button.btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+}
+
+/* Response List Styling */
+.response-list .response-item {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.response-list .response-item:hover {
+    transform: translateY(-2px);
+}
+
+.response-list .response-item h5 {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.response-list .response-item h6 {
+    font-size: 1rem;
+    color: #007bff;
+}
+
+.response-list .response-item p {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.response-list .response-item .badge {
+    font-size: 0.85rem;
+}
+
+/* Video Player */
+.video-player {
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+
+.btn-info, .btn-warning, .btn-danger, .btn-primary, .btn-secondary {
+    color: white;
+}
+
+/* Chart Container */
+.chart-container {
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .table .text-truncate {
+        max-width: 150px;
+    }
+
+    .table .btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+    }
+
+    .card-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .response-form .form-control {
+        font-size: 0.9rem;
+    }
+
+    .response-list .response-item h5 {
+        font-size: 1.1rem;
+    }
+
+    .response-list .response-item h6 {
+        font-size: 0.9rem;
+    }
+
+    .response-list .response-item p {
+        font-size: 0.9rem;
+    }
+}</style>
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h2 class="h5 mb-0"><i class="fas fa-envelope mr-2"></i>Mes Réponses</h2>
+        </div>
+        <div class="card-body">
+            {% if reponses|length > 0 %}
+                <div class="response-list">
+                    {% for reponse in reponses %}
+                        <div class="response-item mb-4 p-3 border rounded">
+                            <h5 class="mb-2">
+                                <i class="fas fa-file-alt mr-2"></i>Réclamation: {{ reponse.reclamation.titre }}
+                            </h5>
+                            <p class="text-muted mb-2">
+                                <strong>Description:</strong> {{ reponse.reclamation.description|length > 100 ? reponse.reclamation.description|slice(0, 100) ~ '...' : reponse.reclamation.description }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>État:</strong>
+                                <span class="badge 
+                                    {% if reponse.reclamation.etat == 'Qualité de service' %}badge-warning
+                                    {% elseif reponse.reclamation.etat == 'Retard' %}badge-danger
+                                    {% elseif reponse.reclamation.etat == 'Annulation' %}badge-info
+                                    {% elseif reponse.reclamation.etat == 'Répondu' %}badge-success
+                                    {% else %}badge-secondary{% endif %}">
+                                    {{ reponse.reclamation.etat }}
+                                </span>
+                            </p>
+                            <p class="mb-2"><strong>Date de création:</strong> {{ reponse.reclamation.dateCreation|date('d/m/Y') }}</p>
+                            <hr>
+                            <h6 class="mb-2"><i class="fas fa-comment mr-2"></i>Réponse: {{ reponse.sujet }}</h6>
+                            <p class="text-muted mb-2">{{ reponse.contenu|length > 100 ? reponse.contenu|slice(0, 100) ~ '...' : reponse.contenu }}</p>
+                            <p class="mb-2"><strong>Date de réponse:</strong> {{ reponse.dateReponse|date('d/m/Y H:i') }}</p>
+                            <a href="{{ path('app_reponse_details_client', {'id': reponse.id}) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye mr-2"></i>Voir les détails
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5 bg-light">
+                    <div class="text-muted">
+                        <i class="fas fa-inbox fa-2x mb-3"></i><br>
+                        Aucune réponse trouvée pour vos réclamations.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="card-footer bg-white">
+            <a href="{{ path('mon_historique_reclamations') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i>Retour à mes réclamations
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
