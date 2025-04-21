@@ -26,6 +26,8 @@ use App\Entity\Sejour;
 use App\Entity\Voyage;
 use App\Entity\Hebergement;
 use App\Entity\Pack;
+use App\Repository\CouponRepository;
+
 
 class ReservationController extends AbstractController
 {
@@ -93,6 +95,7 @@ class ReservationController extends AbstractController
         HotelRepository $hotelRepository,
         FoyerRepository $foyerRepository,
         LogementRepository $logementRepository,
+        CouponRepository $couponRepository,
         Security $security,
         EntityManagerInterface $em
     ): Response {
@@ -150,16 +153,32 @@ class ReservationController extends AbstractController
             'coupon' => null,
         ];
 
+        $finalPrice = $selectedPrice;
+
         if ($request->isMethod('POST')) {
             $personCount = (int) $request->request->get('personCount', 1);
             $jours = (int) $request->request->get('jours', 1);
             $reservationDate = new \DateTime($request->request->get('reservationDate'));
-            $couponCode = $request->request->get('coupon');
+            $couponCode = trim($request->request->get('coupon'));
 
             $reservation = new Reservation();
             $reservation->setClient($client);
             $reservation->setNombrePersonnes($personCount);
             $reservation->setStatut('EN_ATTENTE');
+
+            $baseTotal = $personCount * $selectedPrice * ($type === 'hebergement' ? $jours : 1);
+            $finalPrice = $baseTotal;
+
+            if ($couponCode !== '') {
+                $coupon = $couponRepository->findOneBy(['code' => $couponCode]);
+                if ($coupon) {
+                    $remise = $coupon->getRemise();
+                    $finalPrice = $baseTotal * ((100 - $remise) / 100);
+                    $this->addFlash('success', "Coupon appliqué : -" . $remise . "%");
+                } else {
+                    $this->addFlash('error', "Aucun coupon trouvé avec ce code.");
+                }
+            }
 
             if ($type === 'hebergement') {
                 $sejour = new Sejour();
@@ -167,24 +186,16 @@ class ReservationController extends AbstractController
                 $sejour->setJours($jours);
                 $em->persist($sejour);
                 $reservation->setSejour($sejour);
-                $reservation->setPrixTotal($personCount * $selectedPrice * $jours);
                 $reservation->setDateReservation($reservationDate);
             } elseif ($type === 'voyage') {
                 $reservation->setVoyage($selectedEntity);
-                $reservation->setPrixTotal($personCount * $selectedPrice);
                 $reservation->setDateReservation(new \DateTime());
             } elseif ($type === 'pack') {
                 $reservation->setPack($selectedEntity);
-                $reservation->setPrixTotal($personCount * $selectedPrice);
                 $reservation->setDateReservation(new \DateTime());
             }
 
-            if ($couponCode) {
-                //mizel
-                $couponRemise = 10.0;
-                $newPrice = $reservation->getPrixTotal() * ((100.0 - $couponRemise) / 100.0);
-                $reservation->setPrixTotal($newPrice);
-            }
+            $reservation->setPrixTotal($finalPrice);
 
             $em->persist($reservation);
             $em->flush();
@@ -201,5 +212,27 @@ class ReservationController extends AbstractController
         ]);
     }
 
+    #[Route('/check-coupon/{code}', name: 'check_coupon')]
+    public function checkCoupon(
+        string $code,
+        Request $request,
+        CouponRepository $couponRepository
+    ): Response {
+        if (!$request->isXmlHttpRequest()) {
+            throw $this->createAccessDeniedException('Cette route n\'est accessible que via AJAX.');
+        }
 
+        $coupon = $couponRepository->findOneBy(['code' => $code]);
+
+        if ($coupon) {
+            return $this->json([
+                'valid' => true,
+                'remise' => $coupon->getRemise()
+            ]);
+        } else {
+            return $this->json([
+                'valid' => false
+            ]);
+        }
+    }
 }

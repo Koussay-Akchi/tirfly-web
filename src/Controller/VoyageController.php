@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\ReservationRepository;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class VoyageController extends AbstractController
 {
@@ -62,8 +64,12 @@ class VoyageController extends AbstractController
     }
 
     #[Route('/voyages/ajout', name: 'ajout_voyage')]
-    public function add(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
-    {
+    public function add(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        SluggerInterface $slugger,
+    ): Response {
         $voyage = new Voyage();
         $form = $this->createForm(VoyageType::class, $voyage);
         $form->handleRequest($request);
@@ -96,37 +102,25 @@ class VoyageController extends AbstractController
                 return $this->redirectToRoute('ajout_voyage');
             }
 
-            // n5allouha mba3ed image
-            /*
+
             $imageFile = $form->get('image')->getData();
-            
+
             if ($imageFile) {
-                $imageErrors = $validator->validate($imageFile, [
-                    new Assert\File([
-                        'maxSize' => '2M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/jpg'],
-                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, JPEG, PNG)',
-                    ])
-                ]);
-
-                if (count($imageErrors) > 0) {
-                    $this->addFlash('error', 'Image invalide.');
-                    return $this->redirectToRoute('ajout_voyage');
-                }
-
-                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
                     $imageFile->move(
-                        $this->getParameter('voyage_images_directory'),
+                        $this->getParameter('voyages_images_directory'),
                         $newFilename
                     );
-                    $voyage->setImage($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
                 }
+
+                $voyage->setImage($newFilename);
             }
-            */
 
             $voyage->setNote(0);
             $entityManager->persist($voyage);
@@ -161,8 +155,13 @@ class VoyageController extends AbstractController
 
 
     #[Route('/admin/voyages/edit/{id}', name: 'edit_voyage')]
-    public function edit(Voyage $voyage, Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
-    {
+    public function edit(
+        Voyage $voyage,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        SluggerInterface $slugger
+    ): Response {
         $form = $this->createForm(VoyageType::class, $voyage);
         $form->handleRequest($request);
 
@@ -193,37 +192,23 @@ class VoyageController extends AbstractController
                 return $this->redirectToRoute('modifier_voyage', ['id' => $voyage->getId()]);
             }
 
-            // Handle image upload logic (if needed)
-            /*
             $imageFile = $form->get('image')->getData();
-            
             if ($imageFile) {
-                $imageErrors = $validator->validate($imageFile, [
-                    new Assert\File([
-                        'maxSize' => '2M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/jpg'],
-                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, JPEG, PNG)',
-                    ])
-                ]);
-
-                if (count($imageErrors) > 0) {
-                    $this->addFlash('error', 'Image invalide.');
-                    return $this->redirectToRoute('modifier_voyage', ['id' => $voyage->getId()]);
-                }
-
-                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
                     $imageFile->move(
-                        $this->getParameter('voyage_images_directory'),
+                        $this->getParameter('voyages_images_directory'),
                         $newFilename
                     );
-                    $voyage->setImage($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
                 }
+
+                $voyage->setImage($newFilename);
             }
-            */
 
             $entityManager->flush();
 
@@ -248,10 +233,177 @@ class VoyageController extends AbstractController
     #[Route('/admin/voyages/feedback/{id}', name: 'admin_voyage_feedbacks')]
     public function listFeedbacks(Voyage $voyage): Response
     {
-        $feedbacks = $voyage->getFeedbacks(); // assuming the relation is properly set
+        $feedbacks = $voyage->getFeedbacks();
 
         return $this->json([
             'feedbacks' => $feedbacks
+        ]);
+    }
+
+    #[Route('/voyages/assistant', name: 'assistant_voyage')]
+    public function assistant(
+        Request $request,
+        VoyageRepository $voyageRepository,
+        ReservationRepository $reservationRepository
+    ): Response {
+
+        $maxDuree = $request->query->getInt('maxDuree', 0);
+        $selectedPays = $request->query->get('selectedPays');
+        $maxBudget = $request->query->get('maxBudget');
+        $formules = $request->query->all('formules');
+        $minNote = $request->query->get('minNote', 0);
+        $aiDescription = $request->query->get('aiDescription');
+
+        $client = $this->getUser();
+
+        $suggestions = [
+            'suggestionDuree' => null,
+            'suggestionPays' => null,
+            'suggestionBudget' => null,
+            'suggestionFormule' => null,
+            'suggestionNote' => null,
+        ];
+
+        if ($client) {
+            $reservations = $reservationRepository->findBy(['client' => $client]);
+            $voyagesClient = [];
+            foreach ($reservations as $reservation) {
+                $voyage = $reservation->getVoyage();
+                if ($voyage) {
+                    $voyagesClient[] = $voyage;
+                }
+            }
+
+            if (count($voyagesClient) > 0) {
+                $totalDuree = 0;
+                $totalBudget = 0;
+                $totalNote = 0;
+                $paysCount = [];
+                $formuleCount = [];
+
+                foreach ($voyagesClient as $voyage) {
+                    if ($voyage->getDateDepart() && $voyage->getDateArrive()) {
+                        $interval = $voyage->getDateDepart()->diff($voyage->getDateArrive());
+                        $jours = (int) $interval->format('%a');
+                        $totalDuree += $jours;
+                    }
+                    $totalBudget += $voyage->getPrix();
+                    $totalNote += $voyage->getNote();
+
+                    if ($voyage->getDestination()) {
+                        $pays = $voyage->getDestination()->getPays();
+                        if ($pays) {
+                            $paysCount[$pays] = ($paysCount[$pays] ?? 0) + 1;
+                        }
+                    }
+                    $formule = $voyage->getFormule();
+                    if ($formule) {
+                        $formuleCount[$formule] = ($formuleCount[$formule] ?? 0) + 1;
+                    }
+                }
+                $suggestions['suggestionDuree'] = $totalDuree / count($voyagesClient);
+                $suggestions['suggestionBudget'] = $totalBudget / count($voyagesClient);
+                $suggestions['suggestionNote'] = $totalNote / count($voyagesClient);
+
+                arsort($paysCount);
+                $suggestions['suggestionPays'] = key($paysCount);
+
+                if (!empty($formuleCount)) {
+                    arsort($formuleCount);
+                    $suggestions['suggestionFormule'] = key($formuleCount);
+                }
+            }
+        }
+
+        $qb = $voyageRepository->createQueryBuilder('v')
+            ->join('v.destination', 'd')
+            ->addSelect('d');
+
+        $allVoyages = [];
+        if ($maxDuree > 0) {
+            $tempQb = clone $qb;
+
+            if ($selectedPays) {
+                $tempQb->andWhere('LOWER(d.pays) = LOWER(:selectedPays)')
+                    ->setParameter('selectedPays', $selectedPays);
+            }
+            if ($maxBudget) {
+                $tempQb->andWhere('v.prix <= :maxBudget')
+                    ->setParameter('maxBudget', $maxBudget);
+            }
+            if (!empty($formules) && is_array($formules)) {
+                $tempQb->andWhere('v.formule IN (:formules)')
+                    ->setParameter('formules', $formules);
+            }
+            if ($minNote) {
+                $tempQb->andWhere('v.note >= :minNote')
+                    ->setParameter('minNote', $minNote);
+            }
+
+            $tempVoyages = $tempQb->getQuery()->getResult();
+
+            foreach ($tempVoyages as $voyage) {
+                if ($voyage->getDateDepart() && $voyage->getDateArrive()) {
+                    $interval = $voyage->getDateDepart()->diff($voyage->getDateArrive());
+                    $duree = (int) $interval->format('%a');
+
+                    if ($duree <= $maxDuree) {
+                        $allVoyages[] = $voyage;
+                    }
+                }
+            }
+
+            $voyages = $allVoyages;
+            usort($voyages, function ($a, $b) {
+                return $a->getDateDepart() <=> $b->getDateDepart();
+            });
+        } else {
+            if ($selectedPays) {
+                $qb->andWhere('LOWER(d.pays) = LOWER(:selectedPays)')
+                    ->setParameter('selectedPays', $selectedPays);
+            }
+            if ($maxBudget) {
+                $qb->andWhere('v.prix <= :maxBudget')
+                    ->setParameter('maxBudget', $maxBudget);
+            }
+            if (!empty($formules) && is_array($formules)) {
+                $qb->andWhere('v.formule IN (:formules)')
+                    ->setParameter('formules', $formules);
+            }
+            if ($minNote) {
+                $qb->andWhere('v.note >= :minNote')
+                    ->setParameter('minNote', $minNote);
+            }
+
+            $qb->orderBy('v.dateDepart', 'ASC');
+            $voyages = $qb->getQuery()->getResult();
+        }
+
+        $allVoyagesList = $voyageRepository->findAll();
+        $allCountries = [];
+        foreach ($allVoyagesList as $voyage) {
+            if ($voyage->getDestination() && $voyage->getDestination()->getPays()) {
+                $allCountries[] = $voyage->getDestination()->getPays();
+            }
+        }
+        $allCountries = array_unique($allCountries);
+        sort($allCountries);
+
+        $allFormules = ['REPAS_SEUL', 'BOISSONS_SEULES', 'AUCUN', 'LES_DEUX'];
+
+        return $this->render('voyages/assistant-voyage.html.twig', [
+            'voyages' => $voyages,
+            'allCountries' => $allCountries,
+            'allFormules' => $allFormules,
+            'filters' => [
+                'maxDuree' => $maxDuree,
+                'selectedPays' => $selectedPays,
+                'maxBudget' => $maxBudget,
+                'formules' => $formules,
+                'minNote' => $minNote,
+                'aiDescription' => $aiDescription,
+            ],
+            'suggestions' => $suggestions,
         ]);
     }
 
