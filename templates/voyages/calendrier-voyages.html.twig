@@ -1,0 +1,38 @@
+{# templates/voyages/_calendar.html.twig #}
+<div id="calendar" style="max-width: 900px; margin: 40px auto;"></div>
+
+ <script>
+	document.addEventListener('DOMContentLoaded', function () {
+		var calendarEl = document.getElementById('calendar');
+
+		var events = [
+			{% for voyage in voyagesAll %}
+				{
+					title: "{{ voyage.nom|e('js') }}",
+					start: "{{ voyage.dateDepart|date('Y-m-d') }}",
+					end: "{{ voyage.dateArrive|date('Y-m-d') }}"
+				}
+				{% if not loop.last %},{% endif %}
+			{% endfor %}
+		];
+
+		var calendar = new FullCalendar.Calendar(calendarEl, {
+			initialView: 'dayGridMonth',
+			locale: 'fr',
+			headerToolbar: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'dayGridMonth,dayGridWeek'
+			},
+			buttonText: {
+				today: "Aujourd'hui",
+				month: "Mois",
+				week: "Semaine",
+				day: "Jour"
+			},
+			events: events
+		});
+
+		calendar.render();
+	});
+</script>

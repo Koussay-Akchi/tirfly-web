@@ -1,0 +1,358 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Client Details{% endblock %}
+
+{% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+{% block body %}
+<section class="section about-section gray-bg">
+    <div class="container">
+        <div class="row align-items-center flex-row-reverse">
+            <div class="col-lg-6">
+                <div class="about-text go-to">
+                    <h3 class="dark-color">{{ client.nom }} {{ client.prenom }}</h3>
+                    <h6 class="theme-color lead">Client Profile Details</h6>
+                    
+                    <div class="row about-list">
+                        <div class="col-md-6">
+                            <div class="media">
+                                <label>ID</label>
+                                <p>{{ client.id }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Phone</label>
+                                <p>{{ client.phoneNumber }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Address</label>
+                                <p>{{ client.adresse }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Age</label>
+                                <p>{{ client.age }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="media">
+                                <label>Email</label>
+                                <p>{{ client.email }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Gender</label>
+                                <p>{{ client.sexe }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Member Since</label>
+                                <p>{{ client.dateCreation|date('Y-m-d') }}</p>
+                            </div>
+                            <div class="media">
+                                <label>Account Level</label>
+                                <p>
+                                    {% if client.niveau %}
+                                        {{ client.niveau.niveau }}
+                                    {% else %}
+                                        Basic
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ path('client_index') }}" class="btn theme-secondary">Back to list</a>
+                        <a href="{{ path('client_edit', {'id': client.id}) }}" class="btn theme-button">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative" style="max-width: 300px; margin: 0 auto;">
+                    <!-- XP Progress Circle -->
+                    <div class="progress-circle position-relative">
+                        <svg class="progress-svg" width="300" height="300">
+                            <circle class="progress-bg" cx="150" cy="150" r="130"/>
+                            <circle class="progress-bar" cx="150" cy="150" r="130" 
+                                    stroke-dasharray="{{ (client.niveau.niveauXP / client.niveau.maxNiveauXP * 816) | default(0) }} 816"
+                                    data-percentage="{{ (client.niveau.niveauXP / client.niveau.maxNiveauXP * 100) | default(0)|round }}"/>
+                        </svg>
+                        
+                        <!-- Avatar Image -->
+                        <div class="about-avatar position-absolute top-50 start-50 translate-middle">
+                            <img src="https://bootdey.com/img/Content/avatar/avatar7.png" 
+                                 alt="Client Avatar" 
+                                 class="rounded-circle"
+                                 style="width: 200px; height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
+                    
+                    <!-- Level Display with Add XP Button -->
+                    <div class="text-center mt-3">
+                        <h4 class="theme-color mb-1">
+                            Level <span id="level-display">{{ client.niveau.niveau|default('N/A') }}</span>
+                        </h4>
+                        <p class="mb-0 d-flex align-items-center justify-content-center">
+                            <span id="xp-current">{{ client.niveau.niveauXP|default(0) }}</span> / 
+                            <span id="xp-max">{{ client.niveau.maxNiveauXP|default(1000) }}</span> XP
+                            {% if client.niveau %}
+                                <form id="add-xp-form" method="post" action="{{ path('app_niveau_add_xp', {'id': client.niveau.id, 'xpToAdd': 100}) }}" class="d-inline ms-2">
+                                    <button type="submit" class="btn btn-sm btn-success" data-toggle="tooltip" title="Add 100 XP">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <p>No level assigned to this client.</p>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Include the provided CSS styles */
+    {{ include('client/styles.css.twig') }}
+
+    /* Enhanced Level Up Animations */
+    @keyframes levelUpGlow {
+        0% {
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.9);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 0 40px 20px rgba(40, 167, 69, 0.9);
+            transform: scale(1.08);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.9);
+            transform: scale(1);
+        }
+    }
+
+    @keyframes progressPulse {
+        0% {
+            stroke: #2ecc71;
+            stroke-width: 8;
+        }
+        50% {
+            stroke: #aaf683;
+            stroke-width: 10;
+        }
+        100% {
+            stroke: #2ecc71;
+            stroke-width: 8;
+        }
+    }
+
+    @keyframes confetti {
+        0% {
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: translate(var(--confetti-x), var(--confetti-y)) scale(0.7);
+        }
+    }
+
+    @keyframes xpGain {
+        0% {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes levelShine {
+        0% {
+            background-position: -100%;
+        }
+        100% {
+            background-position: 200%;
+        }
+    }
+
+    @keyframes backgroundFlash {
+        0% {
+            background: rgba(40, 167, 69, 0);
+        }
+        50% {
+            background: rgba(40, 167, 69, 0.2);
+        }
+        100% {
+            background: rgba(40, 167, 69, 0);
+        }
+    }
+
+    .level-up-animation {
+        animation: levelUpGlow 1.5s ease-in-out, backgroundFlash 1.5s ease-in-out;
+        position: relative;
+    }
+
+    .level-up-animation .progress-bar {
+        animation: progressPulse 1.5s ease-in-out;
+    }
+
+    .confetti {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: confetti 1.2s ease-out forwards;
+        pointer-events: none;
+    }
+
+    .xp-gain {
+        animation: xpGain 0.6s ease-out;
+    }
+
+    .level-shine {
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+        background-size: 200%;
+        animation: levelShine 0.8s linear;
+    }
+
+    /* Button styling */
+    .btn-sm.btn-success {
+        padding: 6px 12px;
+        font-size: 14px;
+        background-color: #2ecc71;
+        border-color: #2ecc71;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .btn-sm.btn-success:hover {
+        background-color: #27ae60;
+        transform: scale(1.1);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('add-xp-form');
+        if (form) {
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault(); // Prevent page refresh
+                console.log('Form submission intercepted, sending AJAX to:', form.action);
+
+                const formData = new FormData(form);
+                const progressCircle = document.querySelector('.progress-circle');
+                const progressBar = document.querySelector('.progress-bar');
+                const levelDisplay = document.getElementById('level-display');
+                const xpCurrent = document.getElementById('xp-current');
+                const xpMax = document.getElementById('xp-max');
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', [...response.headers.entries()]);
+
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        console.error('Non-JSON response:', text.slice(0, 100));
+                        throw new Error('Server returned non-JSON response');
+                    }
+
+                    const responseData = await response.json();
+                    console.log('Response data:', responseData);
+
+                    // Convert to numbers with defaults
+                    const niveau = Number(responseData.niveau) || 1;
+                    const niveauXP = Number(responseData.niveauXP) || 0;
+                    const maxNiveauXP = Number(responseData.maxNiveauXP) || 1000;
+
+                    // Validate response
+                    if (response.status >= 200 && response.status < 300 && 
+                        !isNaN(niveau) && !isNaN(niveauXP) && !isNaN(maxNiveauXP)) {
+                        // Update level, XP, and max XP
+                        const previousLevel = parseInt(levelDisplay.textContent) || 0;
+                        levelDisplay.textContent = niveau;
+                        xpCurrent.textContent = niveauXP;
+                        xpMax.textContent = maxNiveauXP;
+
+                        // Apply XP gain animation
+                        xpCurrent.classList.remove('xp-gain');
+                        void xpCurrent.offsetWidth; // Trigger reflow
+                        xpCurrent.classList.add('xp-gain');
+
+                        // Update progress circle
+                        const percentage = (niveauXP / maxNiveauXP) * 100;
+                        const dashArray = (niveauXP / maxNiveauXP * 816);
+                        progressBar.setAttribute('stroke-dasharray', `${dashArray} 816`);
+                        progressBar.setAttribute('data-percentage', Math.round(percentage));
+
+                        // Trigger level-up animation if level increased
+                        if (niveau > previousLevel) {
+                            progressCircle.classList.add('level-up-animation');
+                            levelDisplay.classList.add('level-shine');
+
+                            // Add confetti
+                            const colors = ['#2ecc71', '#3498db', '#aaf683'];
+                            for (let i = 0; i < 12; i++) {
+                                const confetti = document.createElement('div');
+                                confetti.className = 'confetti';
+                                const angle = Math.random() * 360;
+                                const distance = 60 + Math.random() * 40;
+                                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                                confetti.style.setProperty('--confetti-x', `${Math.cos(angle * Math.PI / 180) * distance}px`);
+                                confetti.style.setProperty('--confetti-y', `${Math.sin(angle * Math.PI / 180) * distance}px`);
+                                confetti.style.left = '150px';
+                                confetti.style.top = '150px';
+                                progressCircle.appendChild(confetti);
+                                setTimeout(() => confetti.remove(), 1200);
+                            }
+
+                            setTimeout(() => {
+                                progressCircle.classList.remove('level-up-animation');
+                                levelDisplay.classList.remove('level-shine');
+                            }, 1500);
+                        }
+                    } else {
+                        console.warn('Validation failed:', {
+                            status: response.status,
+                            niveau: responseData.niveau,
+                            niveauType: typeof responseData.niveau,
+                            niveauXP: responseData.niveauXP,
+                            niveauXPType: typeof responseData.niveauXP,
+                            maxNiveauXP: responseData.maxNiveauXP,
+                            maxNiveauXPType: typeof responseData.maxNiveauXP,
+                            fullData: responseData
+                        });
+                        alert('Failed to add XP: ' + (responseData.message || 'Invalid response format'));
+                    }
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    alert('An error occurred while adding XP: ' + error.message);
+                }
+            });
+        } else {
+            console.log('Form not found');
+        }
+
+        // Existing flash message animation logic
+        {% if app.flashes('level_up')|length > 0 %}
+            const levelDisplay = document.getElementById('level-display');
+            const progressCircle = document.querySelector('.progress-circle');
+            progressCircle.classList.add('level-up-animation');
+            levelDisplay.classList.add('level-shine');
+            setTimeout(() => {
+                progressCircle.classList.remove('level-up-animation');
+                levelDisplay.classList.remove('level-shine');
+            }, 1500);
+        {% endif %}
+    });
+</script>
+{% endblock %}

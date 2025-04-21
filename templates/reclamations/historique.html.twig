@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique de mes réclamations{% endblock %}
+
+{% block body %}
+<h1>Historique de vos réclamations</h1>
+
+{# Correct display of client name #}
+<div>Bienvenue {{ client.prenom }} {{ client.nom }}</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>État</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reclamation in reclamations %}
+            <tr>
+                <td>{{ reclamation.id }}</td>
+                <td>{{ reclamation.description }}</td>
+                <td>{{ reclamation.etat }}</td>
+                <td>{{ reclamation.dateCreation ? reclamation.dateCreation|date('d/m/Y H:i') : '' }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">Aucune réclamation trouvée.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    var clientName = "{{ client.nom|e('js') }}";
+    console.log("Client:", clientName);
+</script>
+
+
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(120deg, #f0f4f8, #d9e4f5);
+        margin: 0;
+        padding: 20px;
+        color: #333;
+    }
+
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+        font-size: 2em;
+        margin-bottom: 30px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    table {
+        width: 90%;
+        margin: auto;
+        border-collapse: collapse;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 15px 20px;
+        text-align: center;
+    }
+
+    thead {
+        background-color: #34495e;
+        color: #fff;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tbody tr:hover {
+        background-color: #d0e6ff;
+        cursor: pointer;
+    }
+
+    td {
+        color: #2c3e50;
+    }
+
+    td:first-child {
+        font-weight: bold;
+    }
+
+    .empty-row {
+        text-align: center;
+        color: #999;
+        font-style: italic;
+        padding: 20px;
+    }
+
+    div {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 1.1em;
+        color: #5d6d7e;
+    }
+</style>
+
+{% endblock %}

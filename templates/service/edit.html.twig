@@ -1,0 +1,19 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Modifier Service{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Modifier Service</h1>
+    
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Enregistrer
+        </button>
+    {{ form_end(form) }}
+
+    {{ include('service/_delete_form.html.twig') }}
+</div>
+{% endblock %}

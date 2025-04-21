@@ -1,0 +1,460 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Détails de {{ hebergement.nom }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .detail-card {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .detail-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem;
+        }
+        .detail-badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin-right: 0.5rem;
+        }
+        .detail-image-container {
+            height: 350px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .detail-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .detail-image-container:hover .detail-image {
+            transform: scale(1.03);
+        }
+        .placeholder-image {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            color: #6c757d;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 180px;
+            display: inline-block;
+        }
+        .info-value {
+            color: #212529;
+        }
+        .section-title {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.75rem;
+            color: #2c3e50;
+            position: relative;
+        }
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+        }
+        .action-btn {
+            min-width: 140px;
+            margin: 0 8px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .star-rating {
+            color: #ffc107;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+        .service-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+        }
+        .service-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: #2575fc;
+        }
+        .service-price {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        .service-badge {
+            background-color: #e9f7fe;
+            color: #0d6efd;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+        }
+        @media (max-width: 768px) {
+            .action-btn {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+            .info-label {
+                min-width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="detail-card">
+            <!-- Header Section -->
+            <div class="detail-header d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h1 class="mb-3"><i class="fas fa-hotel me-2"></i>{{ hebergement.nom }}</h1>
+                    <div class="d-flex align-items-center flex-wrap">
+                        <div class="star-rating me-3">
+                            {% for i in 1..5 %}
+                                {% if i <= hebergement.classement %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-2 text-white">{{ hebergement.classement }}/5</span>
+                        </div>
+                        {% if hebergement.hotels is not empty %}
+                            <span class="detail-badge bg-white text-primary">
+                                <i class="fas fa-hotel me-1"></i>Hôtel
+                            </span>
+                        {% elseif hebergement.logements is not empty %}
+                            <span class="detail-badge bg-white text-success">
+                                <i class="fas fa-home me-1"></i>Logement
+                            </span>
+                        {% elseif hebergement.foyers is not empty %}
+                            <span class="detail-badge bg-white text-warning">
+                                <i class="fas fa-users me-1"></i>Foyer
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="{{ path('admin_liste_hebergements') }}" class="btn btn-outline-light btn-lg rounded-pill">
+                        <i class="fas fa-arrow-left me-1"></i> Retour
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="card-body p-4">
+                <div class="row">
+                    <!-- Image Column -->
+                    <div class="col-lg-5 mb-4 mb-lg-0">
+                        <div class="detail-image-container">
+                            {% if imageData %}
+                                <img src="data:image/jpeg;base64,{{ imageData }}" 
+                                     alt="{{ hebergement.nom }}" 
+                                     class="detail-image">
+                            {% else %}
+                                <div class="placeholder-image">
+                                    <div class="text-center p-4">
+                                        <i class="fas fa-image fa-5x mb-3"></i>
+                                        <h4>Aucune image disponible</h4>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Quick Info Section -->
+                        <div class="mt-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>En bref</h5>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="fas fa-phone me-2"></i>Contact</span>
+                                            <span>{{ hebergement.contact ?? 'Non renseigné' }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="fas fa-map-marker-alt me-2"></i>Localisation</span>
+                                            <span>
+                                                {% if hebergement.destination %}
+                                                    {{ hebergement.destination.ville }}, {{ hebergement.destination.pays }}
+                                                {% else %}
+                                                    Non spécifiée
+                                                {% endif %}
+                                            </span>
+                                        </li>
+                                        {% if hebergement.hotels is not empty %}
+                                            {% set hotel = hebergement.hotels[0] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Prix par nuit</span>
+                                                <span class="badge bg-primary rounded-pill">{{ hotel.prix }} €</span>
+                                            </li>
+                                        {% elseif hebergement.logements is not empty %}
+                                            {% set logement = hebergement.logements[0] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Prix par mois</span>
+                                                <span class="badge bg-success rounded-pill">{{ logement.prix }} €</span>
+                                            </li>
+                                        {% elseif hebergement.foyers is not empty %}
+                                            {% set foyer = hebergement.foyers[0] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Frais de séjour</span>
+                                                <span class="badge bg-warning text-dark rounded-pill">{{ foyer.frais }} €</span>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Details Column -->
+                    <div class="col-lg-7">
+                        <!-- Description Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-align-left me-2"></i>Description
+                            </h3>
+                            <p class="lead">{{ hebergement.description ?? 'Aucune description disponible' }}</p>
+                        </div>
+                        
+                        <!-- Services Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-concierge-bell me-2"></i>Services
+                            </h3>
+                            
+                            {% if hebergement.services|length > 0 %}
+                                <div class="row">
+                                    {% for service in hebergement.services %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="service-card card h-100">
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="service-icon">
+                                                            <i class="fas 
+                                                                {% if 'wifi' in service.nom|lower %}fa-wifi
+                                                                {% elseif 'piscine' in service.nom|lower %}fa-swimming-pool
+                                                                {% elseif 'restaurant' in service.nom|lower %}fa-utensils
+                                                                {% elseif 'parking' in service.nom|lower %}fa-parking
+                                                                {% elseif 'nettoyage' in service.nom|lower %}fa-broom
+                                                                {% elseif 'petit déjeuner' in service.nom|lower %}fa-coffee
+                                                                {% else %}fa-check-circle{% endif %}">
+                                                            </i>
+                                                        </div>
+                                                        <h5 class="mb-0">{{ service.nom }}</h5>
+                                                    </div>
+                                                    <p class="text-muted">{{ service.description }}</p>
+                                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                                        <span class="service-price">{{ service.prix }} €</span>
+                                                        <span class="badge bg-light text-primary">Inclus</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Cet hébergement ne propose aucun service supplémentaire pour le moment.
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Additional Details Section -->
+                        <div>
+                            <h3 class="section-title">
+                                <i class="fas fa-list-alt me-2"></i>Détails complémentaires
+                            </h3>
+                            
+                            <div class="row">
+                                {% if hebergement.hotels is not empty %}
+                                    {% set hotel = hebergement.hotels[0] %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border-primary h-100">
+                                            <div class="card-header bg-primary text-white">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-hotel me-2"></i>Détails Hôtel
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p class="card-text">
+                                                    <strong>prix :</strong> Hôtel {{ hotel.prix }} étoiles
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                {% elseif hebergement.logements is not empty %}
+                                    {% set logement = hebergement.logements[0] %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border-success h-100">
+                                            <div class="card-header bg-success text-white">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-home me-2"></i>Détails Logement
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p class="card-text">
+                                                    <strong>price</strong> {{ logement.prix }} $
+                                                </p>
+                                                <p class="card-text">
+                                                    <strong>Disponible le:</strong> {{ logement.jourDispo|date('d/m/Y') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                {% elseif hebergement.foyers is not empty %}
+                                    {% set foyer = hebergement.foyers[0] %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border-warning h-100">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-users me-2"></i>Détails Foyer
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p class="card-text">
+                                                    <strong>Type:</strong> {{ foyer.type }}
+                                                </p>
+                                                <p class="card-text">
+                                                    <strong>Documents:</strong> {{ foyer.Documents }} 
+                                                </p>
+                                                <p class="card-text">
+                                                    <strong>frais:</strong> {{ foyer.frais }} $
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Policies Card -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border-secondary h-100">
+                                        <div class="card-header bg-secondary text-white">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-clipboard-list me-2"></i>Politiques
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                <strong>Arrivée:</strong> 15:00 - 20:00
+                                            </p>
+                                            <p class="card-text">
+                                                <strong>Départ:</strong> Avant 11:00
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Location Map Section -->
+<div class="mb-5">
+    <h3 class="section-title">
+        <i class="fas fa-map-marked-alt me-2"></i>Localisation
+    </h3>
+    
+    {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+        <div id="map" style="height: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
+        <div class="mt-2 text-muted small">
+            <i class="fas fa-info-circle me-1"></i> 
+            {{ hebergement.destination.ville }}, {{ hebergement.destination.pays }}
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Aucune localisation précise disponible pour cet hébergement
+        </div>
+    {% endif %}
+</div>
+            
+            <!-- Footer Actions -->
+            <div class="card-footer bg-light p-4 d-flex justify-content-between flex-wrap">
+                <div class="mb-3 mb-md-0">
+                    <a href="{{ path('admin_liste_hebergements') }}" class="btn btn-outline-secondary action-btn rounded-pill">
+                        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                    </a>
+                </div>
+                <div class="d-flex flex-wrap">
+                    <a href="{{ path('edit_hebergement', {'id': hebergement.id}) }}" class="btn btn-warning action-btn rounded-pill me-2">
+                        <i class="fas fa-edit me-1"></i> Modifier
+                    </a>
+                    <form method="post" 
+                          action="{{ path('delete_hebergement', {'id': hebergement.id}) }}" 
+                          class="d-inline" 
+                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet hébergement?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ hebergement.id) }}">
+                        <button class="btn btn-danger action-btn rounded-pill">
+                            <i class="fas fa-trash me-1"></i> Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    
+    {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+        <!-- Load Leaflet CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+              integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+              crossorigin=""/>
+        
+        <!-- Load Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+                integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+                crossorigin=""></script>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const map = L.map('map').setView([
+                    {{ hebergement.destination.latitude }},
+                    {{ hebergement.destination.longitude }}
+                ], 13);
+                
+                // Add OpenStreetMap tiles
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                
+                // Add marker
+                L.marker([
+                    {{ hebergement.destination.latitude }},
+                    {{ hebergement.destination.longitude }}
+                ]).addTo(map)
+                  .bindPopup("<b>{{ hebergement.nom }}</b><br>{{ hebergement.destination.ville }}");
+            });
+        </script>
+    {% endif %}
+{% endblock %}

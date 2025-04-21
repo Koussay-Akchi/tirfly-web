@@ -1,0 +1,175 @@
+<header class="header" data-header data-home-url="{{ path('home') }}" style="margin-bottom: 150px;">
+	<div class="overlay" data-overlay></div>
+
+	<div class="header-top">
+		<div class="tir-container">
+
+			<a href="tel:+01123456790" class="helpline-box">
+				<div class="icon-box">
+					<ion-icon name="call-outline"></ion-icon>
+				</div>
+				<div class="wrapper">
+					<p class="helpline-title">Téléphone :</p>
+					<p class="helpline-number">(+214) 40 862 777</p>
+				</div>
+			</a>
+
+			<a href="{{ path('home') }}" class="logo">
+				<img src="{{ asset('images/logo.svg') }}" alt="Logo TirFly" height="80">
+			</a>
+
+			<div class="header-btn-group">
+				<button class="search-btn" aria-label="Rechercher">
+					<ion-icon name="search"></ion-icon>
+				</button>
+				<button class="nav-open-btn" aria-label="Ouvrir le menu" data-nav-open-btn>
+					<ion-icon name="menu-outline"></ion-icon>
+				</button>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="header-bottom">
+		<div class="container">
+
+			<ul class="social-list">
+				<li>
+					<a href="#" class="social-link">
+						<ion-icon name="logo-facebook"></ion-icon>
+					</a>
+				</li>
+				<li>
+					<a href="#" class="social-link">
+						<ion-icon name="logo-twitter"></ion-icon>
+					</a>
+				</li>
+				<li>
+					<a href="#" class="social-link">
+						<ion-icon name="logo-youtube"></ion-icon>
+					</a>
+				</li>
+			</ul>
+
+			<nav class="navbar" data-navbar>
+				<div class="navbar-top">
+					<a href="{{ path('home') }}" class="logo">
+						<img src="{{ asset('images/logo-blue.svg') }}" alt="Logo TirFly">
+					</a>
+					<button class="nav-close-btn" aria-label="Fermer le menu" data-nav-close-btn>
+						<ion-icon name="close-outline"></ion-icon>
+					</button>
+				</div>
+
+				<ul class="tir-navbar-list">
+					<li>
+						<button onclick="window.location.href='{{ path('home') }}'" class="tir-navbar-link" data-nav-link>Accueil</button>
+					</li>
+
+					<li class="tir-navbar-dropdown">
+						<button class="tir-navbar-link" id="offresDropdownToggle">Offres</button>
+						<ul class="dropdown-menu" id="offresDropdown">
+							<li>
+								<button onclick="window.location.href='{{ path('liste_voyages') }}'" class="tir-navbar-link">Voyages</button>
+							</li>
+							<li>
+								<button onclick="window.location.href='{{ path('app_pack_index') }}'" class="tir-navbar-link">Pack</button>
+							</li>
+							<li>
+								<button onclick="window.location.href='{{ path('app_hebergement_index') }}'" class="tir-navbar-link">Hebergement</button>
+							</li>
+							<li>
+								<button onclick="window.location.href='{{ path('app_evenement_index') }}'" class="tir-navbar-link">Evenements</button>
+							</li>
+						</ul>
+					</li>
+
+					<li>
+						<button onclick="window.location.href='{{ path('liste_destinations') }}'" class="tir-navbar-link" data-nav-link>Destinations</button>
+					</li>
+					<li>
+						<button onclick="window.location.href='{{ path('ajout_reclamation') }}'" class="tir-navbar-link" data-nav-link>Reclamations</button>
+					</li>
+					<li>
+						<button onclick="window.location.href='{{ path('liste_produits') }}'" class="tir-navbar-link" data-nav-link>Shop</button>
+					</li>
+					<li>
+						<button onclick="window.location.href='{{ path('chat_index') }}'" class="tir-navbar-link" data-nav-link>Chat</button>
+					</li>
+				</ul>
+			</nav>
+
+			<a href="{{ path('historique_reservations') }}" style="z-index: 100;">
+				<button class="navbar-btn navbar-btn-primary">Mes Reservations</button>
+			</a>
+
+		</div>
+	</div>
+</header>
+
+<style>
+	.tir-navbar-dropdown {
+		position: relative;
+	}
+
+	.dropdown-menu {
+		display: none;
+		position: absolute;
+		top: 100%;
+		left: -50px;
+		background-color:  #184C91;
+		min-width: 200px;
+		z-index: 200;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		border-radius: 8px;
+		padding: 0.5rem 0;
+	}
+
+	.dropdown-menu li {
+		padding: 0;
+	}
+
+	.dropdown-menu .tir-navbar-link {
+		display: block;
+		width: 100%;
+		text-align: center;
+		padding: 10px 20px;
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: 16px;
+	}
+
+	.dropdown-menu .tir-navbar-link:hover {
+		background-color: #f0f0f0;
+	}
+
+	.tir-navbar-dropdown.active .dropdown-menu {
+		display: block;
+	}
+</style>
+
+ <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const currentUrl = window.location.pathname;
+    const homeUrl = document.querySelector('.header').getAttribute('data-home-url');
+
+    if (currentUrl !== homeUrl) {
+      document.querySelector('.header').style.background = 'var(--yale-blue)';
+    }
+
+    const dropdownToggle = document.getElementById('offresDropdownToggle');
+    const dropdownWrapper = dropdownToggle.closest('.tir-navbar-dropdown');
+
+    dropdownToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      dropdownWrapper.classList.toggle('active');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!dropdownWrapper.contains(e.target)) {
+        dropdownWrapper.classList.remove('active');
+      }
+    });
+  });
+</script>

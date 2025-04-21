@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails de {{ hebergement.nom }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <style>
+        /* Navbar Styles */
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand img {
+            height: 40px;
+        }
+        
+        .navbar-nav .nav-link {
+            color: #333;
+            font-weight: 500;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+        }
+        
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: #2575fc;
+            background-color: rgba(37, 117, 252, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: #2575fc;
+            border-color: #2575fc;
+        }
+        
+        /* Main Content Styles */
+        .detail-card {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #fff;
+            margin-top: 2rem;
+        }
+        
+        .detail-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem;
+        }
+        
+        .detail-badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin-right: 0.5rem;
+        }
+        
+        .detail-image-container {
+            height: 350px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .detail-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .detail-image-container:hover .detail-image {
+            transform: scale(1.03);
+        }
+        
+        .placeholder-image {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            color: #6c757d;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 180px;
+            display: inline-block;
+        }
+        
+        .info-value {
+            color: #212529;
+        }
+        
+        .section-title {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.75rem;
+            color: #2c3e50;
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+        }
+        
+        .action-btn {
+            min-width: 140px;
+            margin: 0 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reserver {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-plus {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            border: none;
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .star-rating {
+            color: #ffc107;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+        }
+        
+        .service-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: #2575fc;
+        }
+        
+        .service-price {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .service-badge {
+            background-color: #e9f7fe;
+            color: #0d6efd;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        #map {
+            height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        /* Footer Styles */
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 50px 0 20px;
+        }
+        
+        .footer-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .footer-links a:hover {
+            color: #3498db;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        .go-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2575fc;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            text-decoration: none;
+        }
+        
+        /* API Modal Styles */
+        .api-result-card {
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .api-result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .action-btn {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+            
+            .info-label {
+                min-width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+    
+    <!-- Leaflet CSS -->
+    {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+              integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+              crossorigin=""/>
+    {% endif %}
+</head>
+<body id="top">
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="detail-card">
+            <!-- Header Section -->
+            <div class="detail-header d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h1 class="mb-3"><i class="fas fa-hotel me-2"></i>{{ hebergement.nom }}</h1>
+                    <div class="d-flex align-items-center flex-wrap">
+                        <div class="star-rating me-3">
+                            {% for i in 1..5 %}
+                                {% if i <= hebergement.classement %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-2 text-white">{{ hebergement.classement }}/5</span>
+                        </div>
+                        {% if hebergement.hotels is not empty %}
+                            <span class="detail-badge bg-white text-primary">
+                                <i class="fas fa-hotel me-1"></i>Hôtel
+                            </span>
+                        {% elseif hebergement.logements is not empty %}
+                            <span class="detail-badge bg-white text-success">
+                                <i class="fas fa-home me-1"></i>Logement
+                            </span>
+                        {% elseif hebergement.foyers is not empty %}
+                            <span class="detail-badge bg-white text-warning">
+                                <i class="fas fa-users me-1"></i>Foyer
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="{{ path('app_hebergement_index') }}" class="btn btn-outline-light btn-lg rounded-pill">
+                        <i class="fas fa-arrow-left me-1"></i> Retour
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="card-body p-4">
+                <div class="row">
+                    <!-- Image Column -->
+                    <div class="col-lg-5 mb-4 mb-lg-0">
+                        <div class="detail-image-container">
+                            {% if imageData %}
+                                <img src="data:image/jpeg;base64,{{ imageData }}" 
+                                     alt="{{ hebergement.nom }}" 
+                                     class="detail-image">
+                            {% else %}
+                                <div class="placeholder-image">
+                                    <div class="text-center p-4">
+                                        <i class="fas fa-image fa-5x mb-3"></i>
+                                        <h4>Aucune image disponible</h4>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Quick Info Section -->
+                        <div class="mt-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>En bref</h5>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="fas fa-phone me-2"></i>Contact</span>
+                                            <span>{{ hebergement.contact ?? 'Non renseigné' }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="fas fa-map-marker-alt me-2"></i>Localisation</span>
+                                            <span>
+                                                {% if hebergement.destination %}
+                                                    {{ hebergement.destination.ville }}, {{ hebergement.destination.pays }}
+                                                {% else %}
+                                                    Non spécifiée
+                                                {% endif %}
+                                            </span>
+                                        </li>
+                                        {% if hebergement.hotels is not empty and hebergement.hotels[0] is not null %}
+                                            {% set hotel = hebergement.hotels[0] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Prix par nuit</span>
+                                                <span class="badge bg-primary rounded-pill">{{ hotel.prix ?? 'N/A' }} €</span>
+                                            </li>
+                                        {% elseif hebergement.logements is not empty and hebergement.logements[0] is not null %}
+                                            {% set logement = hebergement.logements[0] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Prix par mois</span>
+                                                <span class="badge bg-success rounded-pill">{{ logement.prix ?? 'N/A' }} €</span>
+                                            </li>
+                                        {% elseif hebergement.foyers is not empty and hebergement.foyers[0] is not null %}
+                                            {% set foyer = hebergement.foyers[0] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Frais de séjour</span>
+                                                <span class="badge bg-warning text-dark rounded-pill">{{ foyer.frais ?? 'N/A' }} €</span>
+                                            </li>
+                                        {% else %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Tarifs</span>
+                                                <span class="badge bg-secondary rounded-pill">Non disponible</span>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Details Column -->
+                    <div class="col-lg-7">
+                        <!-- Description Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-align-left me-2"></i>Description
+                            </h3>
+                            <p class="lead">{{ hebergement.description ?? 'Aucune description disponible' }}</p>
+                        </div>
+                        
+                        <!-- Location Map Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-map-marked-alt me-2"></i>Localisation
+                            </h3>
+                            
+                            {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+                                <div id="map"></div>
+                                <div class="mt-2 text-muted small">
+                                    <i class="fas fa-info-circle me-1"></i> 
+                                    {{ hebergement.destination.ville }}, {{ hebergement.destination.pays }}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Aucune localisation précise disponible pour cet hébergement
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Services Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-concierge-bell me-2"></i>Services
+                            </h3>
+                            
+                            {% if hebergement.services|length > 0 %}
+                                <div class="row">
+                                    {% for service in hebergement.services %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="service-card card h-100">
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="service-icon">
+                                                            <i class="fas 
+                                                                {% if 'wifi' in service.nom|lower %}fa-wifi
+                                                                {% elseif 'piscine' in service.nom|lower %}fa-swimming-pool
+                                                                {% elseif 'restaurant' in service.nom|lower %}fa-utensils
+                                                                {% elseif 'parking' in service.nom|lower %}fa-parking
+                                                                {% elseif 'nettoyage' in service.nom|lower %}fa-broom
+                                                                {% elseif 'petit déjeuner' in service.nom|lower %}fa-coffee
+                                                                {% else %}fa-check-circle{% endif %}">
+                                                            </i>
+                                                        </div>
+                                                        <h5 class="mb-0">{{ service.nom }}</h5>
+                                                    </div>
+                                                    <p class="text-muted">{{ service.description ?? 'Aucune description disponible' }}</p>
+                                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                                        <span class="service-price">{{ service.prix ?? '0' }} €</span>
+                                                        <span class="badge bg-light text-primary">Inclus</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Cet hébergement ne propose aucun service supplémentaire pour le moment.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Actions -->
+            <div class="card-footer bg-light p-4 d-flex justify-content-between flex-wrap">
+                <div class="mb-3 mb-md-0">
+                    <a href="{{ path('app_hebergement_index') }}" class="btn btn-outline-secondary action-btn rounded-pill">
+                        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                    </a>
+                </div>
+                <div class="d-flex flex-wrap">
+                    <a href="{{ path('edit_hebergement', {'id': hebergement.id}) }}" class="btn btn-reserver action-btn rounded-pill me-2">
+                        <i class="fas fa-calendar-check me-1"></i> Réserver
+                    </a>
+                    <button class="btn btn-plus action-btn rounded-pill" id="moreInfoBtn">
+                        <i class="fas fa-plus-circle me-1"></i> Plus d'infos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Information Modal -->
+    <div class="modal fade" id="apiModal" tabindex="-1" aria-labelledby="apiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apiModalLabel">Informations complémentaires</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="apiTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="government-tab" data-bs-toggle="tab" data-bs-target="#government" type="button" role="tab">
+                                <i class="fas fa-landmark me-1"></i> Données Officielles
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tripadvisor-tab" data-bs-toggle="tab" data-bs-target="#tripadvisor" type="button" role="tab">
+                                <i class="fas fa-star me-1"></i> TripAdvisor
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="apiTabContent">
+                        <div class="tab-pane fade show active" id="government" role="tabpanel">
+                            <div id="governmentResults">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Chargement...</span>
+                                    </div>
+                                    <p class="mt-2">Chargement des données gouvernementales...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tripadvisor" role="tabpanel">
+                            <div id="tripadvisorResults">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-success" role="status">
+                                        <span class="visually-hidden">Chargement...</span>
+                                    </div>
+                                    <p class="mt-2">Chargement des informations TripAdvisor...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>TirFly</h5>
+                    <p>Votre compagnon de voyage pour des expériences inoubliables.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5>Liens rapides</h5>
+                    <div class="footer-links">
+                        <a href="#">Accueil</a>
+                        <a href="#">À propos</a>
+                        <a href="#">Services</a>
+                        <a href="#">Contact</a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Services</h5>
+                    <div class="footer-links">
+                        <a href="#">Vols</a>
+                        <a href="#">Hébergements</a>
+                        <a href="#">Activités</a>
+                        <a href="#">Assurance voyage</a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Contact</h5>
+                    <div class="footer-links">
+                        <a href="#"><i class="fas fa-map-marker-alt me-2"></i> 123 Rue Example, Ville</a>
+                        <a href="#"><i class="fas fa-phone me-2"></i> +123 456 7890</a>
+                        <a href="#"><i class="fas fa-envelope me-2"></i> contact@tirfly.com</a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center pt-3">
+                <p class="mb-0">&copy; 2023 TirFly. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Go Top Button -->
+    <a href="#top" class="go-top">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+        <!-- Load Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+                integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+                crossorigin=""></script>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const map = L.map('map').setView([
+                    {{ hebergement.destination.latitude }},
+                    {{ hebergement.destination.longitude }}
+                ], 13);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                
+                const customIcon = L.icon({
+                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34]
+                });
+                
+                L.marker([
+                    {{ hebergement.destination.latitude }},
+                    {{ hebergement.destination.longitude }}
+                ], {icon: customIcon}).addTo(map)
+                  .bindPopup("<b>{{ hebergement.nom }}</b><br>{{ hebergement.destination.ville }}")
+                  .openPopup();
+            });
+        </script>
+    {% endif %}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Go top button functionality
+            const goTopBtn = document.querySelector('.go-top');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    goTopBtn.style.display = 'flex';
+                } else {
+                    goTopBtn.style.display = 'none';
+                }
+            });
+            
+            goTopBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // API Integration for "Plus d'infos" button
+            const moreInfoBtn = document.getElementById('moreInfoBtn');
+            const apiModal = new bootstrap.Modal(document.getElementById('apiModal'));
+            
+            moreInfoBtn.addEventListener('click', function() {
+                apiModal.show();
+                loadGovernmentData();
+            });
+            
+            // Tab event listeners
+            document.getElementById('tripadvisor-tab').addEventListener('click', function() {
+                loadTripAdvisorData();
+            });
+            
+            // Load government data
+            function loadGovernmentData() {
+                const establishmentName = "{{ hebergement.nom }}";
+                const city = "{{ hebergement.destination.ville ?? '' }}";
+                const resultsContainer = document.getElementById('governmentResults');
+                
+                // Using French government OpenData API
+                fetch(`https://tourisme.data.gouv.fr/api/v2/establishments?name=${encodeURIComponent(establishmentName)}&city=${encodeURIComponent(city)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = '';
+                        
+                        if (data.data && data.data.length > 0) {
+                            html = '<div class="row">';
+                            data.data.slice(0, 3).forEach(establishment => {
+                                html += `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100 api-result-card">
+                                        <div class="card-body">
+                                            <h5><i class="fas fa-hotel"></i> ${establishment.name}</h5>
+                                            <p class="text-muted">${establishment.description || 'Aucune description disponible'}</p>
+                                            <p><i class="fas fa-map-marker-alt"></i> ${establishment.address || 'Adresse non disponible'}</p>
+                                            ${establishment.website ? `<a href="${establishment.website}" target="_blank" class="btn btn-sm btn-outline-primary">Visiter le site</a>` : ''}
+                                        </div>
+                                    </div>
+                                </div>`;
+                            });
+                            html += '</div>';
+                        } else {
+                            html = `
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Aucune information officielle trouvée pour cet établissement.
+                                <a href="https://tourisme.data.gouv.fr" target="_blank" class="alert-link">Visiter tourisme.data.gouv.fr</a>
+                            </div>`;
+                        }
+                        
+                        resultsContainer.innerHTML = html;
+                    })
+                    .catch(error => {
+                        resultsContainer.innerHTML = `
+                        <div class="alert alert-danger mt-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Erreur lors du chargement des données gouvernementales.
+                            <a href="https://tourisme.data.gouv.fr" target="_blank" class="alert-link">Accéder au site</a>
+                        </div>`;
+                    });
+            }
+            
+            // Load TripAdvisor data
+            function loadTripAdvisorData() {
+                const establishmentName = "{{ hebergement.nom }}";
+                const city = "{{ hebergement.destination.ville ?? '' }}";
+                const country = "{{ hebergement.destination.pays ?? '' }}";
+                const resultsContainer = document.getElementById('tripadvisorResults');
+                
+                // Since TripAdvisor API requires authentication, we'll use a search link
+                const tripAdvisorUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(establishmentName + ' ' + city + ' ' + country)}`;
+                
+                resultsContainer.innerHTML = `
+                <div class="text-center py-4">
+                    <h5><i class="fas fa-star"></i> Avis sur TripAdvisor</h5>
+                    <p class="my-3">Consultez les avis et informations sur TripAdvisor</p>
+                    <a href="${tripAdvisorUrl}" target="_blank" class="btn btn-success">
+                        <i class="fas fa-external-link-alt me-1"></i> Voir sur TripAdvisor
+                    </a>
+                    <div class="mt-3">
+                        <small class="text-muted">TripAdvisor est un service tiers non affilié à notre site.</small>
+                    </div>
+                </div>`;
+            }
+        });
+    </script>
+</body>
+</html>

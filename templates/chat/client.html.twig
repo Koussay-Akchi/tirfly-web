@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h2>Messagerie Support</h2>
+
+<div class="chat-box" style="max-height:400px; overflow-y: auto; border:1px solid #ccc; padding:10px;">
+    {% for message in messages %}
+        <div style="text-align: {{ message.senderType == 'client' ? 'right' : 'left' }}">
+            <strong>{{ message.senderType|capitalize }}:</strong>
+            {{ message.content }}<br>
+            <small>{{ message.createdAt|date('d/m/Y H:i') }}</small>
+        </div>
+        <hr>
+    {% endfor %}
+</div>
+
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn btn-primary mt-2">Envoyer</button>
+{{ form_end(form) }}
+{% endblock %}

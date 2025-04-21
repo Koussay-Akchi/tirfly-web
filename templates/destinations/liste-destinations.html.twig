@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Destinations Populaires
+{% endblock %}
+
+{% block body %}
+	<section id="destinations">
+		<div class="container">
+
+			<p class="section-subtitle">Explorez des lieux uniques</p>
+
+			<h2 class="h2 section-title">Destinations Populaires</h2>
+
+			<p class="section-text">
+				Découvrez les destinations les plus prisées à travers le monde. Nous sélectionnons pour vous les lieux incontournables pour un voyage inoubliable.
+			</p>
+
+			<ul class="popular-list">
+				{% set topDestinations = destinations|sort((a, b) => b.getVoyages()|length <=> a.getVoyages()|length)|slice(0, 3) %}
+
+				{% for destination in topDestinations %}
+					<li>
+						<a href="{{ path('details_destination', {id: destination.id}) }}">
+							{{ include('destinations/card-destination.html.twig', { destination: destination, climat_names: climat_names }) }}
+						</a>
+					</li>
+				{% endfor %}
+			</ul>
+
+			<div class="text-center mt-4">
+				<button onclick="document.getElementById('carousel').style.display = 'block'; this.style.display='none';" style="padding: 10px 20px; background-color: #007BFF; border: none; color: white; border-radius: 8px; cursor: pointer;">
+					Toutes les destinations
+				</button>
+			</div>
+
+
+			<div id="carousel" style="display: none; overflow-x: auto; white-space: nowrap; padding: 20px 0; margin-top: 30px;">
+				{% for destination in destinations %}
+					<div style="display: inline-block; width: 250px; margin-right: 20px; vertical-align: top;">
+						<a href="{{ path('details_destination', {id: destination.id}) }}" style="text-decoration: none; color: inherit;">
+							{{ include('destinations/card-destination.html.twig', { destination: destination, climat_names: climat_names }) }}
+						</a>
+					</div>
+				{% endfor %}
+
+			</div>
+
+		</div>
+	</section>
+{% endblock %}

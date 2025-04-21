@@ -1,0 +1,201 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+{% block body %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-0">Create New Client</h1>
+                        <a href="{{ path('client_index') }}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-arrow-left me-2"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-5">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.nom.vars.id }}" class="form-label text-primary fw-semibold">
+                                <i class="fas fa-user me-2"></i>First Name
+                            </label>
+                            {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            <div class="invalid-feedback">{{ form_errors(form.nom) }}</div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.prenom.vars.id }}" class="form-label text-primary fw-semibold">
+                                <i class="fas fa-user me-2"></i>Last Name
+                            </label>
+                            {{ form_widget(form.prenom, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            <div class="invalid-feedback">{{ form_errors(form.prenom) }}</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.email.vars.id }}" class="form-label text-primary fw-semibold">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            <div class="invalid-feedback">{{ form_errors(form.email) }}</div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.phoneNumber.vars.id }}" class="form-label text-primary fw-semibold">
+                                <i class="fas fa-phone me-2"></i>Phone Number
+                            </label>
+                            {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            <div class="invalid-feedback">{{ form_errors(form.phoneNumber) }}</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-4">
+                            <label for="{{ form.adresse.vars.id }}" class="form-label text-primary fw-semibold">
+                                <i class="fas fa-map-marker-alt me-2"></i>Address
+                            </label>
+                            {{ form_widget(form.adresse, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            <div class="invalid-feedback">{{ form_errors(form.adresse) }}</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.age.vars.id }}" class="form-label text-primary fw-semibold">
+                                <i class="fas fa-calendar me-2"></i>Age
+                            </label>
+                            {{ form_widget(form.age, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            <div class="invalid-feedback">{{ form_errors(form.age) }}</div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.sexe.vars.id }}" class="form-label text-primary fw-semibold">
+                                <i class="fas fa-venus-mars me-2"></i>Gender
+                            </label>
+                            {{ form_widget(form.sexe, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            <div class="invalid-feedback">{{ form_errors(form.sexe) }}</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-4">
+                            <label for="{{ form.motDePasse.vars.id }}" class="form-label text-primary fw-semibold">
+                                <i class="fas fa-lock me-2"></i>Password
+                            </label>
+                            {{ form_widget(form.motDePasse, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            <div class="invalid-feedback">{{ form_errors(form.motDePasse) }}</div>
+                        </div>
+                    </div>
+
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger mb-4" role="alert">{{ message }}</div>
+                    {% endfor %}
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success mb-4" role="alert">{{ message }}</div>
+                    {% endfor %}
+
+                    <div class="text-center mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 py-3 fw-semibold">
+                            <i class="fas fa-check-circle me-2"></i>Create Client
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8f9fa;
+    }
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+    .card-header {
+        padding: 1.75rem;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+    }
+    .card-body {
+        background: #fff;
+        border-radius: 0 0 15px 15px;
+    }
+    .form-control-lg {
+        height: calc(2.75em + 1.25rem);
+        padding: 0.875rem 1.25rem;
+        font-size: 1.15rem;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .form-control-lg:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.3rem rgba(0, 123, 255, 0.15);
+    }
+    .form-label {
+        font-weight: 600;
+        color: #1a3c6d;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    .btn-lg {
+        padding: 0.875rem 2.5rem;
+        font-size: 1.25rem;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .btn-lg:hover {
+        transform: translateY(-2px);
+        background-color: #0056b3;
+    }
+    .text-primary {
+        color: #007bff !important;
+    }
+    .invalid-feedback {
+        display: none;
+        font-size: 0.95rem;
+        color: #dc3545;
+        margin-top: 0.25rem;
+    }
+    .form-control-lg:invalid ~ .invalid-feedback {
+        display: block;
+    }
+    .alert {
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+    .fas {
+        transition: transform 0.2s ease;
+    }
+    .btn:hover .fas {
+        transform: scale(1.2);
+    }
+</style>
+{% endblock %}

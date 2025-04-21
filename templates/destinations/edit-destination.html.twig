@@ -1,0 +1,69 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Modifier une Destination
+{% endblock %}
+
+{% block body %}
+	<div class="form-container">
+		<h2 class="text-center mb-4">Modifier une Destination</h2>
+
+		{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+		<div class="form-group mb-3">
+			{{ form_label(form.ville) }}
+			{{ form_widget(form.ville, {'attr': {'class': 'form-control', 'placeholder': 'Ville'}}) }}
+			{{ form_errors(form.ville) }}
+		</div>
+
+		<div class="form-group mb-3">
+			{{ form_label(form.pays) }}
+			{{ form_widget(form.pays, {'attr': {'class': 'form-control', 'placeholder': 'Pays'}}) }}
+			{{ form_errors(form.pays) }}
+		</div>
+
+		<div class="form-group mb-3">
+			{{ form_label(form.latitude) }}
+			{{ form_widget(form.latitude, {
+				'attr': {
+					'class': 'form-control',
+					'type': 'number',
+					'step': 'any',
+					'placeholder': 'Latitude',
+					'id': 'latitudeInput'
+				}
+			}) }}
+			{{ form_errors(form.latitude) }}
+		</div>
+
+		<div class="form-group mb-3">
+			{{ form_label(form.longitude) }}
+			{{ form_widget(form.longitude, {
+				'attr': {
+					'class': 'form-control',
+					'type': 'number',
+					'step': 'any',
+					'placeholder': 'Longitude',
+					'id': 'longitudeInput'
+				}
+			}) }}
+			{{ form_errors(form.longitude) }}
+		</div>
+
+
+		<div class="form-group mb-3">
+			<label for="climatSelect">Climat</label>
+			<select id="climatSelect" name="climatSelect" class="form-control">
+				<option value="1" {% if destination.climat == 1 %} selected {% endif %}>Tropical</option>
+				<option value="2" {% if destination.climat == 2 %} selected {% endif %}>Chaud</option>
+				<option value="3" {% if destination.climat == 3 %} selected {% endif %}>Froid</option>
+				<option value="4" {% if destination.climat == 4 %} selected {% endif %}>Desert</option>
+			</select>
+		</div>
+
+		<div class="text-center">
+			<button type="submit" class="btn btn-success">Modifier la destination</button>
+		</div>
+
+		{{ form_end(form) }}
+	</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Nouveau Coupon{% endblock %}
+
+{% block body %}
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="card shadow p-4" style="width: 100%; max-width: 600px; border-radius: 1rem;">
+            <h2 class="text-center mb-4">Créer un nouveau coupon</h2>
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
+
+            <div class="form-group mb-3">
+                {{ form_label(form.code, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.code, {'attr': {
+                    'class': 'form-control ' ~ (form.code.vars.errors|length ? 'is-invalid' : ''),
+                    'placeholder': 'CODE123'
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.code) }}
+                </div>
+                <small class="form-text text-muted">5-20 caractères, lettres majuscules et chiffres uniquement</small>
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form_label(form.remise, null, {'label_attr': {'class': 'form-label'}}) }}
+                <div class="input-group">
+                    {{ form_widget(form.remise, {'attr': {
+                        'class': 'form-control ' ~ (form.remise.vars.errors|length ? 'is-invalid' : ''),
+                        'placeholder': '10.00'
+                    }}) }}
+                    <span class="input-group-text">%</span>
+                </div>
+                <div class="invalid-feedback">
+                    {{ form_errors(form.remise) }}
+                </div>
+                <small class="form-text text-muted">Entre 1% et 100%</small>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success me-2">
+                    <i class="fas fa-save me-1"></i> Créer
+                </button>
+                <a href="{{ path('app_coupon_index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Annuler
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <style>
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .card { 
+            border: none;
+        }
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+        }
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        .is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
+{% endblock %}
