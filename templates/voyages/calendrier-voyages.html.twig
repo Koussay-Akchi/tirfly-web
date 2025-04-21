@@ -10,7 +10,8 @@
 				{
 					title: "{{ voyage.nom|e('js') }}",
 					start: "{{ voyage.dateDepart|date('Y-m-d') }}",
-					end: "{{ voyage.dateArrive|date('Y-m-d') }}"
+					end: "{{ voyage.dateArrive|date('Y-m-d') }}",
+					id : "{{ voyage.id }}"
 				}
 				{% if not loop.last %},{% endif %}
 			{% endfor %}
@@ -30,7 +31,10 @@
 				week: "Semaine",
 				day: "Jour"
 			},
-			events: events
+			events: events,
+			eventClick: function(info) {
+				window.location.href = "/admin/voyage/" + info.event.id;
+			}
 		});
 
 		calendar.render();
