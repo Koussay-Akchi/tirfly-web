@@ -11,21 +11,21 @@ class Message
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')] // Changed from 'integer' to 'bigint' to match the table
     private ?int $id = null;
 
-    #[ORM\Column(name: "dateEnvoi", type: 'datetime')]
+    #[ORM\Column(name: "dateEnvoi", type: 'datetime', options: ["precision" => 6])] // Added precision to match datetime(6)
     private ?\DateTimeInterface $dateEnvoi = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: 'string', length: 255)] // Changed from 'text' to 'string' with length 255 to match varchar(255)
     private ?string $message = null;
 
     #[ORM\ManyToOne(targetEntity: Chat::class, inversedBy: 'messages')]
-    #[ORM\JoinColumn(name: 'chat_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'chat_id', referencedColumnName: 'id', nullable: true)] // Changed to nullable: true to match the table
     private ?Chat $chat = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'expediteur_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'expediteur_id', referencedColumnName: 'id', nullable: true)] // Changed to nullable: true to match the table
     private ?User $expediteur = null;
 
     // ========== Getters / Setters ==========

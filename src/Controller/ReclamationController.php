@@ -3,22 +3,23 @@
 namespace App\Controller;
 
 use App\Entity\Reclamation;
-use App\Service\EmailService;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Reponse;
 use App\Entity\Client;
 use App\Form\ReclamationType;
 use App\Form\ReponseType;
 use App\Repository\ReclamationRepository;
+use App\Service\EmailService;
+use App\Service\BadWordsFilterService;
+use App\Service\SentimentAnalysisService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use App\Service\BadWordsFilterService;
 use Symfony\Component\Security\Core\Security;
 use Knp\Component\Pager\PaginatorInterface;
 
@@ -26,53 +27,58 @@ class ReclamationController extends AbstractController
 {
     private BadWordsFilterService $filterService;
     private $security;
+    private SentimentAnalysisService $sentimentAnalysisService;
 
-    public function __construct(BadWordsFilterService $filterService, Security $security)
-    {
+    public function __construct(
+        BadWordsFilterService $filterService,
+        Security $security,
+        SentimentAnalysisService $sentimentAnalysisService
+    ) {
         $this->filterService = $filterService;
         $this->security = $security;
+        $this->sentimentAnalysisService = $sentimentAnalysisService;
     }
 
     #[Route('/reclamations', name: 'liste_reclamations')]
     public function index(Request $request, ReclamationRepository $reclamationRepository, PaginatorInterface $paginator): Response
     {
-        // Récupérer l'état sélectionné depuis la requête
-        $etat = $request->query->get('etat', '');
-
-        // Créer la requête en fonction de l'état
-        $queryBuilder = $reclamationRepository->createQueryBuilder('r')
-            ->orderBy('r.dateCreation', 'DESC');
-
+        $etat = $request->query->get('etat');
+        $queryBuilder = $reclamationRepository->createQueryBuilder('r')->orderBy('r.dateCreation', 'DESC');
+    
         if ($etat) {
-            $queryBuilder->where('r.etat = :etat')
-                         ->setParameter('etat', $etat);
+            $queryBuilder->where('r.etat = :etat')->setParameter('etat', $etat);
         }
-
+    
         $query = $queryBuilder->getQuery();
         $pagination = $paginator->paginate($query, $request->query->getInt('page', 1), 5);
-
-        // Calcul des statistiques
-        $reclamationsAll = $etat 
-            ? $reclamationRepository->findBy(['etat' => $etat]) 
-            : $reclamationRepository->findAll();
-        
+    
+        $reclamationsAll = $reclamationRepository->findAll();
         $stats = ['total' => count($reclamationsAll), 'etat' => []];
-        $responseStats = ['Répondu' => 0, 'Non répondu' => 0];
-
+    
+        // Calculate reclamation status stats
         foreach ($reclamationsAll as $reclamation) {
-            $etatStat = $reclamation->getEtat();
-            $stats['etat'][$etatStat] = ($stats['etat'][$etatStat] ?? 0) + 1;
-
+            $etatValue = $reclamation->getEtat();
+            $stats['etat'][$etatValue] = ($stats['etat'][$etatValue] ?? 0) + 1;
+        }
+    
+        // Calculate response stats
+        $responseStats = ['Avec réponse' => 0, 'Sans réponse' => 0];
+        foreach ($reclamationsAll as $reclamation) {
             if ($reclamation->getReponses()->count() > 0) {
-                $responseStats['Répondu']++;
+                $responseStats['Avec réponse']++;
             } else {
-                $responseStats['Non répondu']++;
+                $responseStats['Sans réponse']++;
             }
         }
-
-        // Liste des états possibles pour le formulaire de recherche
-        $etats = ['Qualité de service', 'Retard', 'Annulation', 'Répondu', 'Autre'];
-
+    
+        // Define possible etats
+        $etats = [
+            'Qualité de service',
+            'Retard',
+            'Annulation',
+            'Autre'
+        ];
+    
         return $this->render('reclamations/liste.html.twig', [
             'reclamations' => $pagination,
             'stats' => $stats,
@@ -81,7 +87,7 @@ class ReclamationController extends AbstractController
             'response_chart_labels' => array_keys($responseStats),
             'response_chart_data' => array_values($responseStats),
             'etats' => $etats,
-            'etat_selectionne' => $etat,
+            'etat_selectionne' => $etat
         ]);
     }
 
@@ -91,20 +97,13 @@ class ReclamationController extends AbstractController
         Reclamation $reclamation,
         EmailService $emailService
     ): JsonResponse {
-        // Vérifier le token CSRF avec le bon nom "_token"
-        if (!$this->isCsrfTokenValid('email_form', $request->request->get('_token'))) {
-            return new JsonResponse(['message' => 'Token CSRF invalide.'], 400);
-        }
-
         $message = $request->request->get('message');
         $client = $reclamation->getClient();
 
-        // Vérifier si le client et son email existent
         if (!$client || !$client->getEmail()) {
             return new JsonResponse(['message' => 'Client ou email introuvable.'], 400);
         }
 
-        // Vérifier si le message est vide
         if (empty($message)) {
             return new JsonResponse(['message' => 'Le message ne peut pas être vide.'], 400);
         }
@@ -142,6 +141,10 @@ class ReclamationController extends AbstractController
             }
 
             $reclamation->setDescription(trim($cleanedText));
+
+            // Analyser le sentiment de la description avec Hugging Face
+            $sentimentResult = $this->sentimentAnalysisService->analyzeSentiment($cleanedText);
+            $reclamation->setUrgence($sentimentResult['urgence']);
 
             $videoFile = $form->get('videoPath')->getData();
             if ($videoFile) {
@@ -185,6 +188,99 @@ class ReclamationController extends AbstractController
         ]);
     }
 
+    #[Route('/reclamations/client/edit/{id}', name: 'client_edit_reclamation')]
+    public function clientEdit(
+        Reclamation $reclamation,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        Security $security
+    ): Response {
+        // Check if the current user is the client who owns the reclamation
+        if ($reclamation->getClient() !== $security->getUser()) {
+            $this->addFlash('danger', 'Vous n\'êtes pas autorisé à modifier cette réclamation.');
+            return $this->redirectToRoute('mon_historique_reclamations');
+        }
+
+        // Check if the reclamation has any responses
+        if ($reclamation->getReponses()->count() > 0) {
+            $this->addFlash('danger', 'Vous ne pouvez pas modifier une réclamation qui a déjà une réponse.');
+            return $this->redirectToRoute('mon_historique_reclamations');
+        }
+
+        $form = $this->createForm(ReclamationType::class, $reclamation);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $originalText = $reclamation->getDescription();
+            $cleanedText = $this->filterService->analyzeText($originalText);
+
+            if (str_contains($cleanedText, '[TAG:RED]')) {
+                $reclamation->setIsRed(true);
+                $cleanedText = str_replace('[TAG:RED]', '', $cleanedText);
+            } else {
+                $reclamation->setIsRed(false);
+            }
+
+            $reclamation->setDescription(trim($cleanedText));
+
+            // Analyser le sentiment de la description mise à jour
+            $sentimentResult = $this->sentimentAnalysisService->analyzeSentiment($cleanedText);
+            $reclamation->setUrgence($sentimentResult['urgence']);
+
+            $videoFile = $form->get('videoPath')->getData();
+            if ($videoFile) {
+                $originalFilename = pathinfo($videoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $videoFile->guessExtension();
+
+                try {
+                    $videoFile->move(
+                        $this->getParameter('video_directory'),
+                        $newFilename
+                    );
+                    $reclamation->setVideoPath($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('danger', 'Erreur lors de l\'upload de la vidéo.');
+                }
+            }
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Réclamation modifiée avec succès.');
+            return $this->redirectToRoute('mon_historique_reclamations');
+        }
+
+        return $this->render('reclamations/edit.html.twig', [
+            'form' => $form->createView(),
+            'reclamation' => $reclamation
+        ]);
+    }
+
+    #[Route('/reclamations/client/delete/{id}', name: 'client_delete_reclamation')]
+    public function clientDelete(
+        Reclamation $reclamation,
+        EntityManagerInterface $entityManager,
+        Security $security
+    ): Response {
+        // Check if the current user is the client who owns the reclamation
+        if ($reclamation->getClient() !== $security->getUser()) {
+            $this->addFlash('danger', 'Vous n\'êtes pas autorisé à supprimer cette réclamation.');
+            return $this->redirectToRoute('mon_historique_reclamations');
+        }
+
+        // Check if the reclamation has any responses
+        if ($reclamation->getReponses()->count() > 0) {
+            $this->addFlash('danger', 'Vous ne pouvez pas supprimer une réclamation qui a déjà une réponse.');
+            return $this->redirectToRoute('mon_historique_reclamations');
+        }
+
+        $entityManager->remove($reclamation);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Réclamation supprimée avec succès.');
+        return $this->redirectToRoute('mon_historique_reclamations');
+    }
+
     #[Route('/reclamations/edit/{id}', name: 'edit_reclamation')]
     public function edit(Reclamation $reclamation, Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -192,6 +288,11 @@ class ReclamationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Analyser le sentiment de la description mise à jour
+            $cleanedText = $this->filterService->analyzeText($reclamation->getDescription());
+            $sentimentResult = $this->sentimentAnalysisService->analyzeSentiment($cleanedText);
+            $reclamation->setUrgence($sentimentResult['urgence']);
+
             $entityManager->flush();
 
             $this->addFlash('success', 'Réclamation modifiée avec succès.');
@@ -250,7 +351,6 @@ class ReclamationController extends AbstractController
         EntityManagerInterface $entityManager,
         Security $security
     ): Response {
-        // Check if a response already exists for this reclamation
         if ($reclamation->getReponses()->count() > 0) {
             $this->addFlash('danger', 'Une réponse existe déjà pour cette réclamation.');
             return $this->redirectToRoute('liste_reclamations');
@@ -262,7 +362,7 @@ class ReclamationController extends AbstractController
         $reponse->setReclamation($reclamation);
 
         $form = $this->createForm(ReponseType::class, $reponse, [
-            'limited_fields' => true // Custom option to limit fields
+            'limited_fields' => true
         ]);
         $form->handleRequest($request);
 

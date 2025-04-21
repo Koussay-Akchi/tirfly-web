@@ -5,7 +5,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
 use App\Repository\ReclamationRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -27,11 +26,10 @@ class Reclamation
         maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères.'
     )]
     private ?string $description = null;
-    
 
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $etat = null;
-    
+
     #[ORM\Column(type: 'string', nullable: true, name: "titre")]
     #[Assert\NotBlank(message: 'Title cannot be blank.')]
     #[Assert\Length(max: 100, maxMessage: 'Title cannot be longer than 100 characters.')]
@@ -54,7 +52,10 @@ class Reclamation
     #[ORM\Column(type: 'string', nullable: false, name: "isRed")]
     private ?string $isRed = '0';
 
-    // Déclaration de la relation avec les réponses
+    // Add the urgence property
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $urgence = null;
+
     #[ORM\OneToMany(mappedBy: 'reclamation', targetEntity: Reponse::class, orphanRemoval: true)]
     private Collection $reponses;
 
@@ -63,10 +64,8 @@ class Reclamation
         $this->reponses = new ArrayCollection();
     }
 
-    // =======================
-    // ==== GETTERS/SETTERS ==
-    // =======================
-    
+    // Getters and setters...
+
     public function getId(): ?int
     {
         return $this->id;
@@ -155,13 +154,11 @@ class Reclamation
         return $this;
     }
 
-    // Méthode pour accéder aux réponses
     public function getReponses(): Collection
     {
         return $this->reponses;
     }
 
-    // Méthode pour ajouter une réponse
     public function addReponse(Reponse $reponse): self
     {
         if (!$this->reponses->contains($reponse)) {
@@ -171,15 +168,25 @@ class Reclamation
         return $this;
     }
 
-    // Méthode pour supprimer une réponse
     public function removeReponse(Reponse $reponse): self
     {
         if ($this->reponses->removeElement($reponse)) {
-            // Définir la relation inverse à null si la réponse est supprimée
             if ($reponse->getReclamation() === $this) {
                 $reponse->setReclamation(null);
             }
         }
+        return $this;
+    }
+
+    // Add the getter and setter for urgence
+    public function getUrgence(): ?string
+    {
+        return $this->urgence;
+    }
+
+    public function setUrgence(?string $urgence): self
+    {
+        $this->urgence = $urgence;
         return $this;
     }
 }

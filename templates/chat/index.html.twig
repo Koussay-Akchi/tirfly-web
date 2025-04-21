@@ -13,7 +13,7 @@
             --secondary-color: #f8f9fa;
             --border-color: #dee2e6;
             --text-color: #333;
-            --dark-primary: #0056b3; /* Remplacement de darken() pour CSS pur */
+            --dark-primary: #0056b3;
         }
 
         .chat-container {
@@ -186,10 +186,15 @@
                 </h2>
                 <div class="messages">
                     {% for message in messages %}
-                        <p class="{{ message.expediteur.id == app.user.id ? 'me' : 'other' }}">
-                            {{ message.expediteur.prenom }} {{ message.expediteur.nom }}: 
-                            {{ message.message }} 
-                            <small>({{ message.dateEnvoi|date('Y-m-d H:i') }})</small>
+                        <p class="{{ message.expediteur and message.expediteur.id == app.user.id ? 'me' : 'other' }}">
+                            {% if message.expediteur %}
+                                {{ message.expediteur.prenom }} {{ message.expediteur.nom }}: 
+                                {{ message.message }} 
+                                <small>({{ message.dateEnvoi ? message.dateEnvoi|date('Y-m-d H:i') : 'N/A' }})</small>
+                            {% else %}
+                                Unknown: {{ message.message }} 
+                                <small>({{ message.dateEnvoi ? message.dateEnvoi|date('Y-m-d H:i') : 'N/A' }})</small>
+                            {% endif %}
                         </p>
                     {% endfor %}
                 </div>

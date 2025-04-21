@@ -8,6 +8,8 @@ use App\Form\MessageType;
 use App\Repository\ChatRepository;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Exception\TableNotFoundException;
+use Doctrine\DBAL\Schema\Schema;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,6 +29,28 @@ class ChatController extends AbstractController
         // Ensure the user is authenticated
         if (!$user) {
             throw $this->createAccessDeniedException('You must be logged in to access the chat.');
+        }
+
+        // Check if the messages table exists, and create it if it doesn't
+        $connection = $em->getConnection();
+        $schemaManager = $connection->getSchemaManager();
+        if (!$schemaManager->tablesExist(['messages'])) {
+            $schema = new Schema();
+            $table = $schema->createTable('messages');
+            $table->addColumn('id', 'bigint', ['autoincrement' => true]);
+            $table->addColumn('dateEnvoi', 'datetime', ['precision' => 6, 'notnull' => false]);
+            $table->addColumn('message', 'string', ['length' => 255, 'notnull' => false]);
+            $table->addColumn('chat_id', 'bigint', ['notnull' => false]);
+            $table->addColumn('expediteur_id', 'bigint', ['notnull' => false]);
+            $table->setPrimaryKey(['id']);
+            $table->addIndex(['chat_id'], 'IDX_messages_chat_id');
+            $table->addIndex(['expediteur_id'], 'IDX_messages_expediteur_id');
+
+            // Execute the schema creation
+            $queries = $schema->toSql($connection->getDatabasePlatform());
+            foreach ($queries as $query) {
+                $connection->executeStatement($query);
+            }
         }
 
         // Fetch all chats where the user is either the client or support
@@ -54,6 +78,14 @@ class ChatController extends AbstractController
 
                 // Handle form submission
                 if ($form->isSubmitted() && $form->isValid()) {
+                    // Ensure chat and expediteur are set
+                    if (!$selectedChat) {
+                        throw $this->createNotFoundException('Chat not found.');
+                    }
+                    if (!$user) {
+                        throw $this->createAccessDeniedException('User not found.');
+                    }
+
                     $message->setChat($selectedChat);
                     $message->setExpediteur($user);
                     $message->setDateEnvoi(new \DateTime());

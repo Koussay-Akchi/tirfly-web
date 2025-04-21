@@ -32,6 +32,14 @@
                     </span>
                 </div>
                 <div class="detail-item">
+                    <span class="detail-label">Urgence</span>
+                    <span class="detail-value">
+                        <span class="status-badge status-{{ reclamation.urgence|lower|replace({' ': '-'})|default('normal') }}">
+                            {{ reclamation.urgence|default('Normal') }}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-item">
                     <span class="detail-label">Date</span>
                     <span class="detail-value">{{ reclamation.dateCreation ? reclamation.dateCreation|date('d/m/Y H:i') : 'N/A' }}</span>
                 </div>
@@ -80,6 +88,14 @@
                 <a href="{{ path('mon_historique_reclamations') }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Retour à l'historique
                 </a>
+                {% if reclamation.reponses|length == 0 %}
+                    <a href="{{ path('client_edit_reclamation', {'id': reclamation.id}) }}" class="btn btn-edit">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <a href="{{ path('client_delete_reclamation', {'id': reclamation.id}) }}" class="btn btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?')">
+                        <i class="fas fa-trash-alt"></i> Supprimer
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -197,6 +213,18 @@
         background-color: #718096;
     }
 
+    .status-badge.status-inacceptable {
+        background-color: #e53e3e;
+    }
+
+    .status-badge.status-urgent {
+        background-color: #ed8936;
+    }
+
+    .status-badge.status-normal {
+        background-color: #38a169;
+    }
+
     /* Video Section */
     .video-section {
         margin: 2rem 0;
@@ -301,6 +329,9 @@
     .actions {
         margin-top: 2rem;
         text-align: center;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
     }
 
     .btn {
@@ -320,12 +351,32 @@
         color: #fff;
     }
 
+    .btn-edit {
+        background-color: #ed8936;
+        color: #fff;
+    }
+
+    .btn-delete {
+        background-color: #e53e3e;
+        color: #fff;
+    }
+
     .btn-secondary:hover {
         background-color: #4b5563;
         transform: scale(1.05);
     }
 
-    .btn-secondary i {
+    .btn-edit:hover {
+        background-color: #dd6b20;
+        transform: scale(1.05);
+    }
+
+    .btn-delete:hover {
+        background-color: #c53030;
+        transform: scale(1.05);
+    }
+
+    .btn i {
         font-size: 1rem;
     }
 
@@ -359,6 +410,10 @@
 
         .btn {
             padding: 0.6rem 1.2rem;
+        }
+
+        .actions {
+            flex-direction: column;
         }
     }
 

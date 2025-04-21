@@ -3,7 +3,7 @@ parameters:
     google_api_key: 'AIzaSyDpxgIqCekHbOLgUL6fyHdavfAGr1KijcQ'
     video_directory: '%kernel.project_dir%/public/uploads/videos'
     evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
-
+    huggingface_api_key: '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'
 
 services:
     _defaults:
@@ -12,17 +12,15 @@ services:
         public: false
         bind:
             $geminiApiKey: '%google_api_key%'
+
+    App\Service\SentimentAnalysisService:
+        arguments:
+            $httpClient: '@http_client'
+            $apiKey: '%huggingface_api_key%'
+
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-    App\Controller\ClientController:
-        arguments:
-            $passwordHasher: '@security.user_password_hasher'
-    App\Service\EmailService:
-        class: App\Service\EmailService
-        arguments:
-            $mailer: '@mailer'
-    

@@ -43,6 +43,14 @@
                                     <a href="{{ path('details_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-view" title="Voir détails">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    {% if reclamation.reponses|length == 0 %}
+                                        <a href="{{ path('client_edit_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-edit" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{{ path('client_delete_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% if reclamation.reponses|length > 0 %}
@@ -185,7 +193,7 @@
         color: #fff;
         text-align: center;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        background-color:rgb(0, 183, 220);
+        background-color: rgb(0, 183, 220);
     }
 
     .status-badge.status-qualité-de-service {
@@ -206,11 +214,11 @@
 
     .status-badge.status-ouvert,
     .status-badge.status-en-cours {
-        background-color:rgb(44, 154, 126);
+        background-color: rgb(44, 154, 126);
     }
 
     .status-badge.status-en-attente {
-        background-color:rgb(209, 215, 25);
+        background-color: rgb(209, 215, 25);
     }
 
     /* Action Buttons */
@@ -223,10 +231,21 @@
         font-size: 0.9rem;
         text-decoration: none;
         transition: background-color 0.3s ease, transform 0.2s ease;
+        margin-right: 0.5rem;
     }
 
     .btn-view {
         background-color: #3182ce;
+        color: #fff;
+    }
+
+    .btn-edit {
+        background-color: #ed8936;
+        color: #fff;
+    }
+
+    .btn-delete {
+        background-color: #e53e3e;
         color: #fff;
     }
 
@@ -235,7 +254,17 @@
         transform: scale(1.05);
     }
 
-    .btn-view i {
+    .btn-edit:hover {
+        background-color: #dd6b20;
+        transform: scale(1.05);
+    }
+
+    .btn-delete:hover {
+        background-color: #c53030;
+        transform: scale(1.05);
+    }
+
+    .btn-action i {
         font-size: 1rem;
     }
 

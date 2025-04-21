@@ -8,13 +8,12 @@
     <button id="themeToggle" class="btn btn-theme-toggle">Activer le mode sombre</button>
 
     <div class="card shadow-lg border-0">
-        <div class="card-header d-flex justify-content-between align-items-center py-3">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
             <h2 class="h5 mb-0"><i class="fas fa-tasks mr-2"></i>Réclamations</h2>
-          
         </div>
 
-        <!-- Section des statistiques -->
         <div class="card-body">
+            <!-- Section des statistiques -->
             <div class="row mb-4">
                 <div class="col-md-6">
                     <h4>Statistiques des réclamations par état</h4>
@@ -44,26 +43,25 @@
                     <button type="submit" class="btn btn-primary">Rechercher</button>
                 </form>
             </div>
-        </div>
 
-        <div class="card-body p-0">
             <!-- Section du tableau -->
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead class="thead-dark">
                         <tr>
-                            <th style="width: 10%">ID</th>
-                            <th style="width: 20%">Titre</th>
-                            <th style="width: 15%">État</th>
-                            <th style="width: 30%">Description</th>
-                            <th style="width: 25%">Actions</th>
+                            <th style="width: 5%">ID</th>
+                            <th style="width: 10%">Titre</th> <!-- Réduit de 15% à 10% -->
+                            <th style="width: 19%">État</th>
+                            <th style="width: 15%">Urgence</th>
+                            <th style="width: 20%">Description</th> <!-- Réduit de 30% à 20% -->
+                            <th style="width: 31%">Actions</th> <!-- Ajusté de 30% à 31% -->
                         </tr>
                     </thead>
                     <tbody>
                         {% for reclamation in reclamations %}
                             <tr>
                                 <td class="font-weight-bold text-primary">#{{ reclamation.id }}</td>
-                                <td class="text-truncate" style="max-width: 200px;">
+                                <td class="text-truncate" style="max-width: 150px;"> <!-- Réduit de 200px à 150px -->
                                     {{ reclamation.titre|escape }}
                                 </td>
                                 <td>
@@ -76,7 +74,15 @@
                                         {{ reclamation.etat }}
                                     </span>
                                 </td>
-                                <td class="text-truncate" style="max-width: 300px;">
+                                <td>
+                                    <span class="badge 
+                                        {% if reclamation.urgence == 'Inacceptable' %}badge-danger
+                                        {% elseif reclamation.urgence == 'Urgent' %}badge-warning
+                                        {% else %}badge-success{% endif %}">
+                                        {{ reclamation.urgence|default('Normal') }}
+                                    </span>
+                                </td>
+                                <td class="text-truncate" style="max-width: 200px;"> <!-- Réduit de 300px à 200px -->
                                     {{ reclamation.description|escape }}
                                 </td>
                                 <td>
@@ -92,8 +98,6 @@
                                                class="btn btn-action btn-edit" 
                                                data-tooltip="Modifier la réponse">
                                                 <i class="fas fa-edit action-icon"></i>
-                                            </a>
-                                      
                                             </a>
                                         {% endif %}
                                         <a href="{{ path('delete_reclamation', {'id': reclamation.id}) }}" 
@@ -120,7 +124,7 @@
                                                 data-reclamation-id="{{ reclamation.id }}"
                                                 data-url="{{ path('envoyer_email_reclamation', {'id': reclamation.id}) }}"
                                                 data-tooltip="Envoyer un email">
-                                                <i class="fas fa-envelope action-icon"></i>
+                                            <i class="fas fa-envelope action-icon"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -140,7 +144,7 @@
             </div>
         </div>
 
-        <!-- Pop-up personnalisé avec glassmorphism -->
+        <!-- Pop-up personnalisé -->
         <div class="popup-overlay" id="popupOverlay" style="display: none;">
             <div class="popup" id="popup">
                 <span class="close" id="closePopup">×</span>
@@ -158,7 +162,7 @@
             </div>
         </div>
 
-        <div class="card-footer">
+        <div class="card-footer bg-white">
             <div class="d-flex justify-content-between align-items-center">
                 <small class="text-muted">
                     Total : {{ reclamations.getTotalItemCount }} réclamations
@@ -169,15 +173,143 @@
     </div>
 </div>
 
-<!-- CSS amélioré avec un design plus spécial et des icônes FontAwesome -->
-<style>
-/* Importation de la police Poppins */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+<!-- Inclure Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Inclure jQuery pour AJAX -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du pop-up
+    const popupOverlay = document.getElementById('popupOverlay');
+    const closePopup = document.getElementById('closePopup');
+    const emailForm = document.getElementById('emailForm');
+    const reclamationIdSpan = document.getElementById('reclamationId');
+    const messageInput = document.getElementById('messageInput');
+    const submitButton = document.getElementById('submitEmail');
 
-/* Importation de FontAwesome pour les icônes */
+    document.querySelectorAll('.email-popup-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const reclamationId = this.getAttribute('data-reclamation-id');
+            const url = this.getAttribute('data-url');
+            reclamationIdSpan.textContent = reclamationId;
+            emailForm.setAttribute('data-url', url);
+            popupOverlay.style.display = 'flex';
+            popupOverlay.classList.add('active');
+            messageInput.value = '';
+        });
+    });
+
+    closePopup.addEventListener('click', function() {
+        popupOverlay.style.display = 'none';
+        popupOverlay.classList.remove('active');
+    });
+
+    popupOverlay.addEventListener('click', function(e) {
+        if (e.target === popupOverlay) {
+            popupOverlay.style.display = 'none';
+            popupOverlay.classList.remove('active');
+        }
+    });
+
+    emailForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const url = this.getAttribute('data-url');
+        const message = messageInput.value.trim();
+        const csrfToken = document.querySelector('input[name="_token"]').value;
+
+        if (!message) {
+            alert('Le message est requis.');
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'Envoi...';
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: { message: message, _token: csrfToken },
+            success: function(response) {
+                popupOverlay.style.display = 'none';
+                popupOverlay.classList.remove('active');
+                messageInput.value = '';
+                alert('Email envoyé avec succès !');
+            },
+            error: function(xhr) {
+                const errorMessage = xhr.responseJSON?.message || 'Erreur lors de l\'envoi de l\'email.';
+                alert(errorMessage);
+            },
+            complete: function() {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Envoyer';
+            }
+        });
+    });
+
+    // Graphique des états
+    const ctx = document.getElementById('reclamationChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_labels|json_encode|raw }},
+            datasets: [{
+                data: {{ chart_data|json_encode|raw }},
+                backgroundColor: ['#ff9f43', '#d63031', '#0984e3', '#00b894', '#636e72'],
+                borderWidth: 1,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Répartition des réclamations par état' }
+            }
+        }
+    });
+
+    // Graphique des réponses
+    const responseCtx = document.getElementById('responseChart').getContext('2d');
+    new Chart(responseCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ response_chart_labels|json_encode|raw }},
+            datasets: [{
+                data: {{ response_chart_data|json_encode|raw }},
+                backgroundColor: ['#00b894', '#ff7675'],
+                borderWidth: 1,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Répartition des réclamations par statut de réponse' }
+            }
+        }
+    });
+
+    // Gestion du thème
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('dark-mode');
+        this.textContent = document.body.classList.contains('dark-mode') 
+            ? 'Activer le mode clair' 
+            : 'Activer le mode sombre';
+    });
+});
+</script>
+
+<!-- Lien CSS externe -->
+<link rel="stylesheet" href="{{ asset('styles/style.css') }}">
+
+<!-- Styles CSS -->
+<style>
+/* Importation des polices et icônes */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
-/* Réinitialisation et styles globaux */
 * {
     margin: 0;
     padding: 0;
@@ -188,63 +320,37 @@
 body {
     background: linear-gradient(145deg, #d9e4f5, #f5e4e9);
     color: #2d3436;
-    min-height: 100vh;
     transition: background 0.5s ease, color 0.5s ease;
 }
 
-/* Container principal */
 .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 25px;
 }
 
-/* Carte principale avec effet néon */
 .card {
     border-radius: 20px;
     background: #ffffff;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    position: relative;
     transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
 
 .card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 0 20px rgba(108, 92, 231, 0.2);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
 .card-header {
     background: linear-gradient(145deg, #6c5ce7, #a29bfe);
     border-radius: 20px 20px 0 0;
     padding: 18px 28px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.card-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 1s ease;
-}
-
-.card-header:hover::before {
-    left: 100%;
 }
 
 .card-header h2 {
     font-size: 1.7rem;
     font-weight: 600;
     color: #ffffff;
-    letter-spacing: 0.6px;
 }
 
 .card-header .btn-light {
@@ -263,7 +369,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Statistiques */
 .card-body h4 {
     font-size: 1.2rem;
     font-weight: 600;
@@ -276,26 +381,18 @@ canvas#reclamationChart, canvas#responseChart {
     border-radius: 10px;
     background: #f9f9f9;
     padding: 10px;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Formulaire de recherche */
 .form-inline {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.form-inline .form-group {
-    display: flex;
-    align-items: center;
-}
-
 .form-inline .form-group label {
     font-size: 0.9rem;
     font-weight: 500;
     color: #2d3436;
-    margin-right: 10px;
 }
 
 .form-inline .form-control {
@@ -304,41 +401,23 @@ canvas#reclamationChart, canvas#responseChart {
     padding: 8px;
     font-size: 0.9rem;
     background: #f9f9f9;
-    color: #2d3436;
-    min-width: 200px;
 }
 
 .form-inline .form-control:focus {
     border-color: #6c5ce7;
     box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
-    outline: none;
 }
 
 .form-inline .btn-primary {
     background: linear-gradient(145deg, #6c5ce7, #a29bfe);
     border: none;
     padding: 8px 16px;
-    font-size: 0.9rem;
-    font-weight: 500;
     border-radius: 8px;
     color: #ffffff;
 }
 
 .form-inline .btn-primary:hover {
     background: linear-gradient(145deg, #a29bfe, #6c5ce7);
-    transform: scale(1.03);
-}
-
-/* Tableau */
-.table-responsive {
-    border-radius: 0 0 20px 20px;
-    overflow: hidden;
-}
-
-.table {
-    margin-bottom: 0;
-    border-collapse: separate;
-    border-spacing: 0;
 }
 
 .table thead th {
@@ -346,15 +425,6 @@ canvas#reclamationChart, canvas#responseChart {
     color: #dfe6e9;
     font-weight: 500;
     padding: 14px;
-    text-align: left;
-    border: none;
-    font-size: 0.9rem;
-}
-
-.table tbody tr {
-    transition: background 0.4s ease;
-    animation: slideInRow 0.6s ease forwards;
-    animation-delay: calc(var(--row-index) * 0.08s);
 }
 
 .table tbody tr:hover {
@@ -364,22 +434,18 @@ canvas#reclamationChart, canvas#responseChart {
 .table td {
     padding: 12px;
     vertical-align: middle;
-    border: none;
     border-bottom: 1px solid #e9ecef;
-    font-size: 0.85rem;
 }
 
 .table td .badge {
     font-size: 0.8rem;
     padding: 5px 12px;
     border-radius: 25px;
-    font-weight: 500;
-    text-transform: capitalize;
-    transition: transform 0.3s ease;
 }
 
-.table td .badge:hover {
-    transform: scale(1.1);
+.badge-danger {
+    background: linear-gradient(145deg, #ff7675, #d63031);
+    color: #ffffff;
 }
 
 .badge-warning {
@@ -387,8 +453,8 @@ canvas#reclamationChart, canvas#responseChart {
     color: #2d3436;
 }
 
-.badge-danger {
-    background: linear-gradient(145deg, #ff7675, #d63031);
+.badge-success {
+    background: linear-gradient(145deg, #55efc4, #00b894);
     color: #ffffff;
 }
 
@@ -397,17 +463,11 @@ canvas#reclamationChart, canvas#responseChart {
     color: #ffffff;
 }
 
-.badge-success {
-    background: linear-gradient(145deg, #55efc4, #00b894);
-    color: #ffffff;
-}
-
 .badge-secondary {
     background: linear-gradient(145deg, #b2bec3, #636e72);
     color: #ffffff;
 }
 
-/* Boutons d'action avec icônes FontAwesome */
 .action-buttons {
     gap: 10px;
     justify-content: center;
@@ -420,8 +480,6 @@ canvas#reclamationChart, canvas#responseChart {
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    border: 2px solid transparent;
-    position: relative;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -430,82 +488,24 @@ canvas#reclamationChart, canvas#responseChart {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.btn-action .action-icon {
-    font-size: 1.1rem;
-    transition: transform 0.3s ease;
-}
-
-.btn-action:hover .action-icon {
-    transform: rotate(10deg);
-}
-
-.btn-view {
-    background: linear-gradient(145deg, #74b9ff, #0984e3);
-    color: #ffffff;
-}
-
-.btn-edit {
-    background: linear-gradient(145deg, #ffbe76, #ff9f43);
-    color: #ffffff;
-}
-
-.btn-delete {
-    background: linear-gradient(145deg, #ff7675, #d63031);
-    color: #ffffff;
-}
-
-.btn-reply {
-    background: linear-gradient(145deg, #6c5ce7, #a29bfe);
-    color: #ffffff;
-}
-
-.btn-email {
-    background: linear-gradient(145deg, #55efc4, #00b894);
-    color: #ffffff;
-    position: relative;
-    animation: pulse 2s infinite;
-}
-
-.btn-email:hover {
-    animation: none;
-}
-
-.btn-disabled {
-    background: #b2bec3;
-    color: #ffffff;
-    cursor: not-allowed;
-}
-
-/* Tooltips modernes */
-.btn-action[data-tooltip] {
-    position: relative;
-}
+.btn-view { background: linear-gradient(145deg, #74b9ff, #0984e3); color: #ffffff; }
+.btn-edit { background: linear-gradient(145deg, #ffbe76, #ff9f43); color: #ffffff; }
+.btn-delete { background: linear-gradient(145deg, #ff7675, #d63031); color: #ffffff; }
+.btn-reply { background: linear-gradient(145deg, #6c5ce7, #a29bfe); color: #ffffff; }
+.btn-email { background: linear-gradient(145deg, #55efc4, #00b894); color: #ffffff; }
+.btn-disabled { background: #b2bec3; color: #ffffff; cursor: not-allowed; }
 
 .btn-action[data-tooltip]::before {
     content: attr(data-tooltip);
     position: absolute;
     top: -40px;
     left: 50%;
-    transform: translateX(-50%) scale(0.9);
+    transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.8);
     color: #ffffff;
     font-size: 0.75rem;
     padding: 6px 12px;
     border-radius: 6px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
-
-.btn-action[data-tooltip]::after {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 5px solid transparent;
-    border-top-color: rgba(0, 0, 0, 0.8);
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -514,37 +514,8 @@ canvas#reclamationChart, canvas#responseChart {
 .btn-action:hover[data-tooltip]::before {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) scale(1);
 }
 
-.btn-action:hover[data-tooltip]::after {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Animations */
-@keyframes pulse {
-    0%, 100% { box-shadow: 0 0 8px rgba(0, 184, 148, 0.4); }
-    50% { box-shadow: 0 0 16px rgba(0, 184, 148, 0.8); }
-}
-
-@keyframes slideInRow {
-    from { opacity: 0; transform: translateX(-15px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-.action-buttons .btn-action:nth-child(1) { animation: fadeIn 0.4s ease-in-out 0.1s both; }
-.action-buttons .btn-action:nth-child(2) { animation: fadeIn 0.4s ease-in-out 0.2s both; }
-.action-buttons .btn-action:nth-child(3) { animation: fadeIn 0.4s ease-in-out 0.3s both; }
-.action-buttons .btn-action:nth-child(4) { animation: fadeIn 0.4s ease-in-out 0.4s both; }
-.action-buttons .btn-action:nth-child(5) { animation: fadeIn 0.4s ease-in-out 0.5s both; }
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Pop-up avec effet moderne */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -552,7 +523,6 @@ canvas#reclamationChart, canvas#responseChart {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -573,92 +543,36 @@ canvas#reclamationChart, canvas#responseChart {
     width: 90%;
     max-width: 550px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    transform: translateY(30px);
-    transition: transform 0.5s ease;
-}
-
-.popup-overlay.active .popup {
-    transform: translateY(0);
-}
-
-.popup .close {
-    font-size: 24px;
-    font-weight: 400;
-    color: #2d3436;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.popup .close:hover {
-    color: #6c5ce7;
 }
 
 .popup-content h3 {
     font-size: 1.5rem;
     font-weight: 600;
     color: #2d3436;
-    margin-bottom: 15px;
-}
-
-.popup-content .form-group label {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #2d3436;
-    margin-bottom: 6px;
 }
 
 .popup-content .form-control {
     border: 1px solid #e9ecef;
     border-radius: 8px;
     padding: 10px;
-    font-size: 0.9rem;
     background: #f9f9f9;
-    color: #2d3436;
-    transition: border-color 0.3s ease;
-}
-
-.popup-content .form-control:focus {
-    border-color: #6c5ce7;
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
-    outline: none;
 }
 
 .popup-content .btn-primary {
     background: linear-gradient(145deg, #6c5ce7, #a29bfe);
     border: none;
     padding: 10px;
-    font-size: 0.95rem;
-    font-weight: 500;
     border-radius: 8px;
     width: 100%;
     color: #ffffff;
-    transition: transform 0.3s ease;
 }
 
-.popup-content .btn-primary:hover {
-    transform: scale(1.03);
-    background: linear-gradient(145deg, #a29bfe, #6c5ce7);
-}
-
-.popup-content .btn-primary:disabled {
-    background: #b2bec3;
-    cursor: not-allowed;
-}
-
-/* Footer de la carte */
 .card-footer {
     background: #f9f9f9;
     border-radius: 0 0 20px 20px;
     padding: 15px 25px;
 }
 
-.card-footer small {
-    font-size: 0.8rem;
-    color: #636e72;
-    font-weight: 500;
-}
-
-/* Bouton de bascule pour le thème */
 .btn-theme-toggle {
     position: fixed;
     top: 15px;
@@ -668,377 +582,21 @@ canvas#reclamationChart, canvas#responseChart {
     border: none;
     padding: 8px 18px;
     border-radius: 8px;
-    font-weight: 500;
     transition: all 0.4s ease;
-    z-index: 1001;
 }
 
-.btn-theme-toggle:hover {
-    background: linear-gradient(145deg, #a29bfe, #6c5ce7);
-    transform: scale(1.05);
-}
-
-/* Thème sombre */
 body.dark-mode {
     background: linear-gradient(145deg, #2d3436, #636e72);
     color: #dfe6e9;
 }
 
-body.dark-mode .card {
-    background: #2d3436;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-body.dark-mode .card-header {
-    background: linear-gradient(145deg, #a29bfe, #6c5ce7);
-}
-
-body.dark-mode .table thead th {
-    background: #2d3436;
-}
-
-body.dark-mode .table tbody tr {
-    background: #2d3436;
-    border-bottom: 1px solid #636e72;
-}
-
-body.dark-mode .table tbody tr:hover {
-    background: #636e72;
-}
-
-body.dark-mode .popup {
-    background: #2d3436;
-}
-
-body.dark-mode .popup-content h3,
-body.dark-mode .popup-content .form-group label {
-    color: #dfe6e9;
-}
-
-body.dark-mode .form-control {
-    background: #3e4444;
-    color: #dfe6e9;
-    border-color: #636e72;
-}
-
-body.dark-mode .form-control:focus {
-    border-color: #a29bfe;
-    box-shadow: 0 0 0 3px rgba(162, 155, 254, 0.1);
-}
-
-body.dark-mode .btn-primary {
-    background: linear-gradient(145deg, #a29bfe, #6c5ce7);
-}
-
-body.dark-mode .btn-theme-toggle {
-    background: linear-gradient(145deg, #a29bfe, #6c5ce7);
-}
-
-body.dark-mode .card-footer {
-    background: #2d3436;
-}
-
-body.dark-mode .card-footer small {
-    color: #b2bec3;
-}
-
-body.dark-mode .form-inline .form-group label {
-    color: #dfe6e9;
-}
-
-body.dark-mode .form-inline .form-control {
-    background: #3e4444;
-    color: #dfe6e9;
-    border-color: #636e72;
-}
-
-body.dark-mode .form-inline .form-control:focus {
-    border-color: #a29bfe;
-    box-shadow: 0 0 0 3px rgba(162, 155, 254, 0.1);
-}
-
-body.dark-mode .form-inline .btn-primary {
-    background: linear-gradient(145deg, #a29bfe, #6c5ce7);
-}
-
-/* Animation pour les lignes du tableau */
-.table tbody tr {
-    --row-index: 0;
-}
-
-.table tbody tr:nth-child(1) { --row-index: 1; }
-.table tbody tr:nth-child(2) { --row-index: 2; }
-.table tbody tr:nth-child(3) { --row-index: 3; }
-.table tbody tr:nth-child(4) { --row-index: 4; }
-.table tbody tr:nth-child(5) { --row-index: 5; }
-
-/* Responsive */
-@media (max-width: 768px) {
-    .container {
-        padding: 12px;
-    }
-
-    .card-header h2 {
-        font-size: 1.4rem;
-    }
-
-    .table td, .table th {
-        font-size: 0.8rem;
-        padding: 8px;
-    }
-
-    .action-buttons {
-        gap: 6px;
-    }
-
-    .btn-action {
-        width: 36px;
-        height: 36px;
-    }
-
-    .btn-action .action-icon {
-        font-size: 1rem;
-    }
-
-    .popup {
-        width: 92%;
-        padding: 15px;
-    }
-
-    .popup-content h3 {
-        font-size: 1.3rem;
-    }
-
-    .btn-theme-toggle {
-        top: 12px;
-        right: 12px;
-        padding: 6px 14px;
-        font-size: 0.85rem;
-    }
-
-    .form-inline {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-
-    .form-inline .form-group {
-        width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .form-inline .form-group label {
-        margin-bottom: 5px;
-    }
-
-    .form-inline .form-control {
-        width: 100%;
-    }
-
-    .form-inline .btn-primary {
-        width: 100%;
-    }
-}
-
-@media (max-width: 576px) {
-    .card-header {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-
-    .card-header .btn-light {
-        width: 100%;
-    }
-
-    .action-buttons {
-        justify-content: center;
-    }
-}
+body.dark-mode .card { background: #2d3436; }
+body.dark-mode .card-header { background: linear-gradient(145deg, #a29bfe, #6c5ce7); }
+body.dark-mode .table thead th { background: #2d3436; }
+body.dark-mode .table tbody tr { background: #2d3436; border-bottom: 1px solid #636e72; }
+body.dark-mode .table tbody tr:hover { background: #636e72; }
+body.dark-mode .popup { background: #2d3436; }
+body.dark-mode .popup-content h3, body.dark-mode .popup-content .form-group label { color: #dfe6e9; }
+body.dark-mode .form-control { background: #3e4444; color: #dfe6e9; border-color: #636e72; }
 </style>
-
-<!-- Inclure Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- JavaScript pour gérer le pop-up, les graphiques et le thème -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Gestion du pop-up
-    const popupOverlay = document.getElementById('popupOverlay');
-    const closePopup = document.getElementById('closePopup');
-    const emailForm = document.getElementById('emailForm');
-    const reclamationIdSpan = document.getElementById('reclamationId');
-    const messageInput = document.getElementById('messageInput');
-    const submitButton = document.getElementById('submitEmail');
-
-    // Ouvrir le pop-up lorsqu'on clique sur le bouton email
-    document.querySelectorAll('.email-popup-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const reclamationId = this.getAttribute('data-reclamation-id');
-            const url = this.getAttribute('data-url');
-            reclamationIdSpan.textContent = reclamationId;
-            emailForm.setAttribute('data-url', url);
-            popupOverlay.style.display = 'flex';
-            popupOverlay.classList.add('active');
-            messageInput.value = ''; // Réinitialiser le champ
-        });
-    });
-
-    // Fermer le pop-up
-    closePopup.addEventListener('click', function() {
-        popupOverlay.style.display = 'none';
-        popupOverlay.classList.remove('active');
-    });
-
-    // Fermer le pop-up en cliquant à l'extérieur
-    popupOverlay.addEventListener('click', function(e) {
-        if (e.target === popupOverlay) {
-            popupOverlay.style.display = 'none';
-            popupOverlay.classList.remove('active');
-        }
-    });
-
-    // Soumission du formulaire via AJAX
-    emailForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const url = this.getAttribute('data-url');
-        const message = messageInput.value.trim();
-        const csrfToken = document.querySelector('input[name="_token"]').value;
-
-        if (!message) {
-            alert('Le message est requis.');
-            return;
-        }
-
-        submitButton.disabled = true;
-        submitButton.textContent = 'Envoi...';
-
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: {
-                message: message,
-                _token: csrfToken
-            },
-            success: function(response) {
-                popupOverlay.style.display = 'none';
-                popupOverlay.classList.remove('active');
-                messageInput.value = '';
-                alert('Email envoyé avec succès !');
-            },
-            error: function(xhr) {
-                const errorMessage = xhr.responseJSON && xhr.responseJSON.message 
-                    ? xhr.responseJSON.message 
-                    : 'Erreur lors de l\'envoi de l\'email.';
-                alert(errorMessage);
-            },
-            complete: function() {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Envoyer';
-            }
-        });
-    });
-
-    // Initialisation du graphique des états
-    const ctx = document.getElementById('reclamationChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: {{ chart_labels|json_encode|raw }},
-            datasets: [{
-                data: {{ chart_data|json_encode|raw }},
-                backgroundColor: [
-                    '#ff9f43', // Qualité de service
-                    '#d63031', // Retard
-                    '#0984e3', // Annulation
-                    '#00b894', // Répondu
-                    '#636e72'  // Autres
-                ],
-                borderWidth: 1,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        font: {
-                            size: 12,
-                            family: 'Poppins',
-                            weight: 500
-                        },
-                        padding: 15
-                    }
-                },
-                title: {
-                    display: true,
-                    text: 'Répartition des réclamations par état',
-                    font: {
-                        size: 14,
-                        family: 'Poppins',
-                        weight: 600
-                    },
-                    padding: 15
-                }
-            }
-        }
-    });
-
-    // Initialisation du graphique des réponses
-    const responseCtx = document.getElementById('responseChart').getContext('2d');
-    new Chart(responseCtx, {
-        type: 'doughnut',
-        data: {
-            labels: {{ response_chart_labels|json_encode|raw }},
-            datasets: [{
-                data: {{ response_chart_data|json_encode|raw }},
-                backgroundColor: [
-                    '#00b894', // Répondu
-                    '#ff7675'  // Non répondu
-                ],
-                borderWidth: 1,
-                borderColor: '#fff'
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        font: {
-                            size: 12,
-                            family: 'Poppins',
-                            weight: 500
-                        },
-                        padding: 15
-                    }
-                },
-                title: {
-                    display: true,
-                    text: 'Répartition des réclamations par statut de réponse',
-                    font: {
-                        size: 14,
-                        family: 'Poppins',
-                        weight: 600
-                    },
-                    padding: 15
-                }
-            }
-        }
-    });
-
-    // Gestion du basculement de thème
-    const themeToggle = document.getElementById('themeToggle');
-    themeToggle.addEventListener('click', function() {
-        document.body.classList.toggle('dark-mode');
-        this.textContent = document.body.classList.contains('dark-mode') 
-            ? 'Activer le mode clair' 
-            : 'Activer le mode sombre';
-    });
-});
-</script>
 {% endblock %}

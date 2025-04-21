@@ -5,9 +5,15 @@
 
 <div class="chat-box" style="max-height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
     {% for msg in messages %}
-        <div style="text-align: {{ msg.senderType == app.user.type ? 'right' : 'left' }};">
-            <strong>{{ msg.senderType|capitalize }}:</strong> {{ msg.message }}<br>
-            <small>{{ msg.createdAt|date('d/m/Y H:i') }}</small>
+        <div style="text-align: {{ msg.expediteur and msg.expediteur.id == app.user.id ? 'right' : 'left' }};">
+            <strong>
+                {% if msg.expediteur %}
+                    {{ msg.expediteur.prenom|capitalize }} {{ msg.expediteur.nom|capitalize }}
+                {% else %}
+                    Unknown
+                {% endif %}
+            </strong>: {{ msg.message }}<br>
+            <small>{{ msg.dateEnvoi ? msg.dateEnvoi|date('d/m/Y H:i') : 'N/A' }}</small>
         </div>
         <hr>
     {% endfor %}

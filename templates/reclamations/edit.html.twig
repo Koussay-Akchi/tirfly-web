@@ -1,19 +1,365 @@
 {% extends 'base.html.twig' %}
 
-{% block title %} Modifier Réclamation {% endblock %}
+{% block title %}Modifier Réclamation{% endblock %}
 
 {% block body %}
-    <h1>Modifier la Réclamation</h1>
-<link rel="stylesheet" href="{{ asset('styles/edit.css') }}">
-    {{ form_start(form) }}
-        {{ form_row(form.titre) }}
-        {{ form_row(form.description) }}
-        {{ form_row(form.etat) }}
-    
-        {{ form_row(form.videoPath) }}
+<div class="container">
+    <header class="page-header">
+        <h1>Modifier la Réclamation</h1>
+        <p class="header-subtitle">Mettez à jour les détails de votre réclamation</p>
+    </header>
 
-        <button type="submit" class="btn btn-primary">Modifier</button>
-    {{ form_end(form) }}
+    <div class="card">
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'class': 'reclamation-form'}}) }}
+                <div class="form-group">
+                    {{ form_label(form.titre, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le titre'}}) }}
+                    {{ form_errors(form.titre, {'attr': {'class': 'form-error'}}) }}
+                </div>
 
-    <a href="{{ path('liste_reclamations') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
+                <div class="form-group">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Décrivez votre réclamation'}}) }}
+                    {{ form_errors(form.description, {'attr': {'class': 'form-error'}}) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.etat, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.etat, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.etat, {'attr': {'class': 'form-error'}}) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.videoPath, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.videoPath, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.videoPath, {'attr': {'class': 'form-error'}}) }}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Modifier
+                    </button>
+                    <a href="{{ path(app.request.attributes.get('_route') == 'client_edit_reclamation' ? 'mon_historique_reclamations' : 'liste_reclamations') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* General Styling */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e9e6ff 100%);
+    margin: 0;
+    padding: 2.5rem;
+    color: #1a202c;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Container */
+.container {
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+/* Page Header */
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.page-header h1 {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    font-weight: 400;
+    margin-top: 0.5rem;
+}
+
+/* Card Styling */
+.card {
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+    animation: slideUp 0.6s ease-out;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+}
+
+.card-body {
+    padding: 2.5rem;
+}
+
+/* Form Styling */
+.reclamation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+}
+
+.form-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2d3748;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: color 0.3s ease;
+}
+
+.form-group:hover .form-label {
+    color: #6c5ce7;
+}
+
+.form-control {
+    padding: 0.85rem 1.25rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #1a202c;
+    background: #f9fafb;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #6c5ce7;
+    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15);
+    transform: scale(1.01);
+}
+
+.form-control::placeholder {
+    color: #a0aec0;
+    font-style: italic;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 140px;
+    max-height: 300px;
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.1rem;
+    padding-right: 3rem;
+}
+
+input[type="file"].form-control {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+}
+
+/* Form Errors */
+.form-error {
+    color: #e53e3e;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    font-weight: 500;
+    animation: shake 0.3s ease;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 2rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #7f9cf5, #5a67d8);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(90, 103, 216, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a67d8, #7f9cf5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(90, 103, 216, 0.5);
+}
+
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.btn-primary:hover::after {
+    width: 200px;
+    height: 200px;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #a0aec0, #718096);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #718096, #a0aec0);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(113, 128, 150, 0.5);
+}
+
+.btn-secondary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.btn-secondary:hover::after {
+    width: 200px;
+    height: 200px;
+}
+
+.btn i {
+    font-size: 1.1rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 2rem;
+    }
+
+    .container {
+        padding: 0 1.25rem;
+    }
+
+    .page-header h1 {
+        font-size: 2.25rem;
+    }
+
+    .header-subtitle {
+        font-size: 1rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .header-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        font-size: 0.95rem;
+        padding: 0.7rem 1rem;
+    }
+
+    .btn {
+        font-size: 0.95rem;
+        padding: 0.7rem 1.25rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+</style>
 {% endblock %}
