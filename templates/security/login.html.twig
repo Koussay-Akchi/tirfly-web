@@ -236,37 +236,37 @@
     </style>
 </head>
 <body>
-    <div class="bg-decor">
-        <i class="fas fa-cloud cloud" style="top: 15%; left: 0;"></i>
-        <i class="fas fa-cloud cloud" style="top: 35%; left: 25%; animation-delay: -8s;"></i>
-        <i class="fas fa-cloud cloud" style="top: 65%; left: 10%; animation-delay: -15s;"></i>
-        <i class="fas fa-plane plane" style="top: 45%; left: 15%;"></i>
-        <i class="fas fa-plane plane" style="top: 75%; left: 55%; animation-delay: -4s;"></i>
-    </div>
+<div class="bg-decor">
+    <i class="fas fa-cloud cloud" style="top: 15%; left: 0;"></i>
+    <i class="fas fa-cloud cloud" style="top: 35%; left: 25%; animation-delay: -8s;"></i>
+    <i class="fas fa-cloud cloud" style="top: 65%; left: 10%; animation-delay: -15s;"></i>
+    <i class="fas fa-plane plane" style="top: 45%; left: 15%;"></i>
+    <i class="fas fa-plane plane" style="top: 75%; left: 55%; animation-delay: -4s;"></i>
+</div>
 
-    <div class="login-container">
-        <div class="logo-container">
-            <img src="images/logo.svg" alt="TirFly Logo" class="logo-img">
+<div class="login-container">
+    <div class="logo-container">
+        <img src="images/logo.svg" alt="Logo TirFly" class="logo-img">
+    </div>
+    <form id="login-form">
+        <div class="form-group">
+            <input type="email" name="email" id="email" placeholder="Votre adresse e-mail" required>
+            <i class="fas fa-envelope"></i>
         </div>
-        <form id="login-form">
-            <div class="form-group">
-                <input type="email" name="email" id="email" placeholder="Your Email" required>
-                <i class="fas fa-envelope"></i>
-            </div>
-            <div class="form-group">
-                <input type="password" name="password" id="password" placeholder="Password" required>
-                <i class="fas fa-lock"></i>
-            </div>
-            <button type="submit">Take Off</button>
-            <div class="error-message" id="error-message"></div>
-            <div class="links">
-                <a href="/forgot-password">Lost Boarding Pass?</a>
-                <a href="/signup">Join TirFly</a>
-            </div>
-        </form>
-    </div>
+        <div class="form-group">
+            <input type="password" name="password" id="password" placeholder="Mot de passe" required>
+            <i class="fas fa-lock"></i>
+        </div>
+        <button type="submit">Décollage</button>
+        <div class="error-message" id="error-message"></div>
+        <div class="links">
+            <a href="/forgot-password">Mot de passe oublié ?</a>
+            <a href="/signup">Rejoindre TirFly</a>
+        </div>
+    </form>
+</div>
 
-   <script>
+<script>
     document.getElementById("login-form").addEventListener("submit", function(e) {
         e.preventDefault();
 
@@ -283,20 +283,20 @@
         .then(res => {
             if (!res.ok) {
                 return res.json().then(data => {
-                    throw new Error(data.error || 'Unknown error');
+                    throw new Error(data.error || 'Erreur inconnue');
                 });
             }
             return res.json();
         })
         .then(data => {
-            alert("Login success!");
-        
-            window.location.href = "/"; // Redirect after success
+            alert("Connexion réussie !");
+            window.location.href = "/";
         })
         .catch(error => {
-            alert("Login failed: " + error.message);
+            alert("Échec de la connexion : " + error.message);
         });
     });
 </script>
+
 </body>
 </html>

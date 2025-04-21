@@ -50,11 +50,6 @@ class FeedbackType extends AbstractType
             ->add('dateFeedback', HiddenType::class, [
                 'data' => (new \DateTime())->format('Y-m-d H:i:s'), // Format the DateTime as a string
                 'mapped' => false,
-            ])
-            
-            ->add('save', SubmitType::class, [
-                'label' => 'Ajouter Feedback',
-                'attr' => ['class' => 'btn btn-success']
             ]);
     }
 
