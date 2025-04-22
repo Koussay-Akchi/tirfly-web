@@ -60,6 +60,9 @@
 {% block body %}
 <div class="container mt-5">
     <h1 class="mb-4">🎉 Gestion des Événements</h1>
+    
+        <!-- Conteneur pour le calendrier -->
+        <div id="calendar" class="mb-5"></div>
 
     <div class="mb-4 text-end">
         <a href="{{ path('app_evenement_stats') }}" class="btn-add me-2">📊 Voir les Statistiques</a>
@@ -113,4 +116,10 @@
         </tbody>
     </table>
 </div>
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="{{ asset('js/calendar.js') }}"></script>
+{% endblock %}
+
 {% endblock %}
