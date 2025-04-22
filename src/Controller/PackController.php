@@ -6,6 +6,8 @@ use App\Entity\Pack;
 use App\Form\PackType;
 use App\Repository\PackRepository;
 use App\Repository\VoyageRepository;
+use App\Repository\EvenementRepository;
+
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,13 +36,14 @@ public function new(
     Request $request, 
     EntityManagerInterface $em, 
     SluggerInterface $slugger,
-    VoyageRepository $voyageRepository // Ajoutez ce paramètre
+    VoyageRepository $voyageRepository,
+    EvenementRepository $evenementRepository // Ajoutez ce paramètre
 ): Response {
     $pack = new Pack();
     $form = $this->createForm(PackType::class, $pack);
     
-    // Récupérer tous les voyages avec leurs prix
     $voyages = $voyageRepository->findAllWithPrice();
+    $evenements = $evenementRepository->findAll(); // ou une méthode custom
     
     $form->handleRequest($request);
 
@@ -73,7 +76,8 @@ public function new(
 
     return $this->render('pack/new.html.twig', [
         'form' => $form->createView(),
-        'voyages' => $voyages // Passez les voyages au template
+        'voyages' => $voyages,
+        'evenements' => $evenements // Passez les événements au template
     ]);
 }
 #[Route('/admin/pack/edit/{id}', name: 'app_pack_edit')]
@@ -82,10 +86,12 @@ public function edit(
     Request $request, 
     EntityManagerInterface $em,
     SluggerInterface $slugger,
-    VoyageRepository $voyageRepository
+    VoyageRepository $voyageRepository,
+    EvenementRepository $evenementRepository // Ajoutez ce paramètre
 ): Response {
     $form = $this->createForm(PackType::class, $pack);
     $voyages = $voyageRepository->findAllWithPrice();
+    $evenements = $evenementRepository->findAll(); // Récupère tous les événements
     
     $form->handleRequest($request);
 
@@ -123,7 +129,8 @@ public function edit(
     return $this->render('pack/edit.html.twig', [
         'form' => $form->createView(),
         'pack' => $pack,
-        'voyages' => $voyages
+        'voyages' => $voyages,
+        'evenements' => $evenements // Passez les événements au template
     ]);
 }
 

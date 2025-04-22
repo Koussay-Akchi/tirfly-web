@@ -68,6 +68,37 @@ class Evenement
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     
     private ?string $image = null;
+    #[ORM\ManyToMany(targetEntity: Pack::class, mappedBy: 'evenements')]
+    private Collection $packs;
+    // Dans le constructeur :
+public function __construct()
+{
+    $this->packs = new ArrayCollection();
+}
+
+// Ajoutez les getters et setters
+public function getPacks(): Collection
+{
+    return $this->packs;
+}
+
+public function addPack(Pack $pack): self
+{
+    if (!$this->packs->contains($pack)) {
+        $this->packs->add($pack);
+        $pack->addEvenement($this);
+    }
+    return $this;
+}
+
+public function removePack(Pack $pack): self
+{
+    if ($this->packs->removeElement($pack)) {
+        $pack->removeEvenement($this);
+    }
+    return $this;
+}
+
 
     public function getId(): ?int
     {

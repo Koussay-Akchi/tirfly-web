@@ -54,6 +54,16 @@
                     {{ form_errors(form.sejours) }}
                 </div>
             </div>
+            <div class="form-group mb-3">
+                {{ form_label(form.evenements, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.evenements, {'attr': {
+                    'class': 'form-select ' ~ (form.evenements.vars.errors|length ? 'is-invalid' : '')
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.evenements) }}
+                </div>
+                <small class="form-text text-muted">Sélectionnez les événements inclus dans ce pack</small>
+            </div>
 
             <div class="form-group mb-3">
                 {{ form_label(form.image, null, {'label_attr': {'class': 'form-label'}}) }}
