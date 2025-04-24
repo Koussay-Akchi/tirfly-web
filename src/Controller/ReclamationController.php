@@ -43,25 +43,28 @@ class ReclamationController extends AbstractController
     public function index(Request $request, ReclamationRepository $reclamationRepository, PaginatorInterface $paginator): Response
     {
         $etat = $request->query->get('etat');
-        $queryBuilder = $reclamationRepository->createQueryBuilder('r')->orderBy('r.dateCreation', 'DESC');
-    
-        if ($etat) {
-            $queryBuilder->where('r.etat = :etat')->setParameter('etat', $etat);
-        }
-    
-        $query = $queryBuilder->getQuery();
-        $pagination = $paginator->paginate($query, $request->query->getInt('page', 1), 5);
-    
+        $urgence = $request->query->get('urgence');
+        $nonRepondu = $request->query->get('nonRepondu');
+
+        // Utiliser la méthode du repository pour obtenir la requête filtrée
+        $query = $reclamationRepository->findByFilters($etat, $urgence, $nonRepondu === '1');
+
+        // Pagination des résultats
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            5,
+            ['distinct' => false] // Assurer la compatibilité avec les requêtes complexes
+        );
+
         $reclamationsAll = $reclamationRepository->findAll();
         $stats = ['total' => count($reclamationsAll), 'etat' => []];
-    
-        // Calculate reclamation status stats
+
         foreach ($reclamationsAll as $reclamation) {
             $etatValue = $reclamation->getEtat();
             $stats['etat'][$etatValue] = ($stats['etat'][$etatValue] ?? 0) + 1;
         }
-    
-        // Calculate response stats
+
         $responseStats = ['Avec réponse' => 0, 'Sans réponse' => 0];
         foreach ($reclamationsAll as $reclamation) {
             if ($reclamation->getReponses()->count() > 0) {
@@ -70,15 +73,20 @@ class ReclamationController extends AbstractController
                 $responseStats['Sans réponse']++;
             }
         }
-    
-        // Define possible etats
+
         $etats = [
             'Qualité de service',
             'Retard',
             'Annulation',
             'Autre'
         ];
-    
+
+        $urgences = [
+            'Normal',
+            'Urgent',
+            'Inacceptable'
+        ];
+
         return $this->render('reclamations/liste.html.twig', [
             'reclamations' => $pagination,
             'stats' => $stats,
@@ -87,35 +95,11 @@ class ReclamationController extends AbstractController
             'response_chart_labels' => array_keys($responseStats),
             'response_chart_data' => array_values($responseStats),
             'etats' => $etats,
-            'etat_selectionne' => $etat
+            'urgences' => $urgences,
+            'etat_selectionne' => $etat,
+            'urgence_selectionnee' => $urgence,
+            'non_repondu_selectionne' => $nonRepondu
         ]);
-    }
-
-    #[Route('/reclamation/{id}/envoyer-email', name: 'envoyer_email_reclamation', methods: ['POST'])]
-    public function envoyerEmail(
-        Request $request,
-        Reclamation $reclamation,
-        EmailService $emailService
-    ): JsonResponse {
-        $message = $request->request->get('message');
-        $client = $reclamation->getClient();
-
-        if (!$client || !$client->getEmail()) {
-            return new JsonResponse(['message' => 'Client ou email introuvable.'], 400);
-        }
-
-        if (empty($message)) {
-            return new JsonResponse(['message' => 'Le message ne peut pas être vide.'], 400);
-        }
-
-        try {
-            $email = $client->getEmail();
-            $subject = 'Réponse à votre réclamation #' . $reclamation->getId();
-            $emailService->envoyer($email, $subject, $message);
-            return new JsonResponse(['message' => 'Email envoyé avec succès.'], 200);
-        } catch (\Exception $e) {
-            return new JsonResponse(['message' => 'Erreur lors de l\'envoi de l\'email : ' . $e->getMessage()], 500);
-        }
     }
 
     #[Route('/reclamation/add', name: 'ajout_reclamation')]
@@ -130,20 +114,21 @@ class ReclamationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $originalText = $reclamation->getDescription();
-            $cleanedText = $this->filterService->analyzeText($originalText);
+            $description = $reclamation->getDescription();
 
-            if (str_contains($cleanedText, '[TAG:RED]')) {
-                $reclamation->setIsRed(true);
-                $cleanedText = str_replace('[TAG:RED]', '', $cleanedText);
-            } else {
-                $reclamation->setIsRed(false);
+            // Vérifier si la description contient des mots inappropriés
+            if ($this->filterService->containsInappropriateWords($description)) {
+                $this->addFlash('danger', 'Votre réclamation contient des mots inappropriés. Veuillez utiliser un langage respectueux.');
+                return $this->render('reclamations/ajout.html.twig', [
+                    'form' => $form->createView(),
+                ]);
             }
 
-            $reclamation->setDescription(trim($cleanedText));
+            // Si le texte est approprié, procéder à l'enregistrement
+            $reclamation->setDescription(trim($description));
 
-            // Analyser le sentiment de la description avec Hugging Face
-            $sentimentResult = $this->sentimentAnalysisService->analyzeSentiment($cleanedText);
+            // Analyser le sentiment de la description
+            $sentimentResult = $this->sentimentAnalysisService->analyzeSentiment($description);
             $reclamation->setUrgence($sentimentResult['urgence']);
 
             $videoFile = $form->get('videoPath')->getData();
@@ -160,6 +145,9 @@ class ReclamationController extends AbstractController
                     $reclamation->setVideoPath($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('danger', 'Erreur lors de l\'upload de la vidéo.');
+                    return $this->render('reclamations/ajout.html.twig', [
+                        'form' => $form->createView(),
+                    ]);
                 }
             }
 
@@ -193,15 +181,14 @@ class ReclamationController extends AbstractController
         Reclamation $reclamation,
         Request $request,
         EntityManagerInterface $entityManager,
-        Security $security
+        Security $security,
+        SluggerInterface $slugger
     ): Response {
-        // Check if the current user is the client who owns the reclamation
         if ($reclamation->getClient() !== $security->getUser()) {
             $this->addFlash('danger', 'Vous n\'êtes pas autorisé à modifier cette réclamation.');
             return $this->redirectToRoute('mon_historique_reclamations');
         }
 
-        // Check if the reclamation has any responses
         if ($reclamation->getReponses()->count() > 0) {
             $this->addFlash('danger', 'Vous ne pouvez pas modifier une réclamation qui a déjà une réponse.');
             return $this->redirectToRoute('mon_historique_reclamations');
@@ -211,20 +198,20 @@ class ReclamationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $originalText = $reclamation->getDescription();
-            $cleanedText = $this->filterService->analyzeText($originalText);
+            $description = $reclamation->getDescription();
 
-            if (str_contains($cleanedText, '[TAG:RED]')) {
-                $reclamation->setIsRed(true);
-                $cleanedText = str_replace('[TAG:RED]', '', $cleanedText);
-            } else {
-                $reclamation->setIsRed(false);
+            // Vérifier si la description contient des mots inappropriés
+            if ($this->filterService->containsInappropriateWords($description)) {
+                $this->addFlash('danger', 'Votre réclamation contient des mots inappropriés. Veuillez utiliser un langage respectueux.');
+                return $this->render('reclamations/edit.html.twig', [
+                    'form' => $form->createView(),
+                    'reclamation' => $reclamation
+                ]);
             }
 
-            $reclamation->setDescription(trim($cleanedText));
+            $reclamation->setDescription(trim($description));
 
-            // Analyser le sentiment de la description mise à jour
-            $sentimentResult = $this->sentimentAnalysisService->analyzeSentiment($cleanedText);
+            $sentimentResult = $this->sentimentAnalysisService->analyzeSentiment($description);
             $reclamation->setUrgence($sentimentResult['urgence']);
 
             $videoFile = $form->get('videoPath')->getData();
@@ -241,6 +228,10 @@ class ReclamationController extends AbstractController
                     $reclamation->setVideoPath($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('danger', 'Erreur lors de l\'upload de la vidéo.');
+                    return $this->render('reclamations/edit.html.twig', [
+                        'form' => $form->createView(),
+                        'reclamation' => $reclamation
+                    ]);
                 }
             }
 
@@ -262,13 +253,11 @@ class ReclamationController extends AbstractController
         EntityManagerInterface $entityManager,
         Security $security
     ): Response {
-        // Check if the current user is the client who owns the reclamation
         if ($reclamation->getClient() !== $security->getUser()) {
             $this->addFlash('danger', 'Vous n\'êtes pas autorisé à supprimer cette réclamation.');
             return $this->redirectToRoute('mon_historique_reclamations');
         }
 
-        // Check if the reclamation has any responses
         if ($reclamation->getReponses()->count() > 0) {
             $this->addFlash('danger', 'Vous ne pouvez pas supprimer une réclamation qui a déjà une réponse.');
             return $this->redirectToRoute('mon_historique_reclamations');
@@ -288,9 +277,18 @@ class ReclamationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Analyser le sentiment de la description mise à jour
-            $cleanedText = $this->filterService->analyzeText($reclamation->getDescription());
-            $sentimentResult = $this->sentimentAnalysisService->analyzeSentiment($cleanedText);
+            $description = $reclamation->getDescription();
+
+            // Vérifier si la description contient des mots inappropriés
+            if ($this->filterService->containsInappropriateWords($description)) {
+                $this->addFlash('danger', 'Votre réclamation contient des mots inappropriés. Veuillez utiliser un langage respectueux.');
+                return $this->render('reclamations/edit.html.twig', [
+                    'form' => $form->createView(),
+                ]);
+            }
+
+            $reclamation->setDescription(trim($description));
+            $sentimentResult = $this->sentimentAnalysisService->analyzeSentiment($description);
             $reclamation->setUrgence($sentimentResult['urgence']);
 
             $entityManager->flush();
@@ -349,7 +347,8 @@ class ReclamationController extends AbstractController
         Request $request,
         Reclamation $reclamation,
         EntityManagerInterface $entityManager,
-        Security $security
+        Security $security,
+        EmailService $emailService
     ): Response {
         if ($reclamation->getReponses()->count() > 0) {
             $this->addFlash('danger', 'Une réponse existe déjà pour cette réclamation.');
@@ -371,7 +370,25 @@ class ReclamationController extends AbstractController
             $entityManager->persist($reponse);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Réponse envoyée avec succès');
+            $client = $reclamation->getClient();
+            if ($client && $client->getEmail()) {
+                try {
+                    $subject = 'Réponse à votre réclamation #' . $reclamation->getId();
+                    $message = "Bonjour {$client->getPrenom()} {$client->getNom()},\n\n" .
+                               "Nous avons répondu à votre réclamation intitulée \"{$reclamation->getTitre()}\".\n" .
+                               "Voici la réponse :\n\n" .
+                               "{$reponse->getContenu()}\n\n" .
+                               "Vous pouvez consulter les détails dans votre historique de réclamations.\n" .
+                               "Cordialement,\nL'équipe de support";
+                    $emailService->envoyer($client->getEmail(), $subject, $message);
+                    $this->addFlash('success', 'Réponse envoyée avec succès et email envoyé au client.');
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Réponse envoyée, mais erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
+                }
+            } else {
+                $this->addFlash('warning', 'Réponse envoyée, mais aucun email client trouvé.');
+            }
+
             return $this->redirectToRoute('details_reclamation', ['id' => $reclamation->getId()]);
         }
 

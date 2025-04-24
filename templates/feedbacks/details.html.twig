@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %} Détails du Feedback {% endblock %}
+{% block title %}Détails du Feedback{% endblock %}
 
 {% block body %}
 <div class="container mt-4">
@@ -16,7 +16,9 @@
             <p><strong>Voyage :</strong> {{ feedback.voyage.destination ?? 'Non spécifié' }}</p>
         </div>
         <div class="card-footer bg-white">
-            <a href="{{ path('edit_feedback', {'id': feedback.id}) }}" class="btn btn-warning"><i class="fas fa-edit"></i> Modifier</a>
+            {% if app.user and feedback.client == app.user %}
+                <a href="{{ path('edit_feedback', {'id': feedback.id}) }}" class="btn btn-warning"><i class="fas fa-edit"></i> Modifier</a>
+            {% endif %}
             <a href="{{ path('liste_feedbacks') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Retour à la liste</a>
         </div>
     </div>

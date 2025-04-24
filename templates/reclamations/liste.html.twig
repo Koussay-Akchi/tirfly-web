@@ -26,7 +26,7 @@
             </div>
             <hr>
 
-            <!-- Formulaire de recherche par état -->
+            <!-- Formulaire de recherche par état, urgence et non répondu -->
             <div class="mb-4">
                 <form method="get" action="{{ path('liste_reclamations') }}" class="form-inline">
                     <div class="form-group mr-2">
@@ -40,6 +40,21 @@
                             {% endfor %}
                         </select>
                     </div>
+                    <div class="form-group mr-2">
+                        <label for="urgence" class="mr-2">Rechercher par urgence :</label>
+                        <select name="urgence" id="urgence" class="form-control">
+                            <option value="">Toutes les urgences</option>
+                            {% for urgence in urgences %}
+                                <option value="{{ urgence }}" {{ urgence_selectionnee == urgence ? 'selected' : '' }}>
+                                    {{ urgence }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <label for="nonRepondu" class="mr-2">Réclamations non répondues :</label>
+                        <input type="checkbox" name="nonRepondu" id="nonRepondu" value="1" {{ non_repondu_selectionne == '1' ? 'checked' : '' }}>
+                    </div>
                     <button type="submit" class="btn btn-primary">Rechercher</button>
                 </form>
             </div>
@@ -49,19 +64,17 @@
                 <table class="table table-hover mb-0">
                     <thead class="thead-dark">
                         <tr>
-                            <th style="width: 5%">ID</th>
-                            <th style="width: 10%">Titre</th> <!-- Réduit de 15% à 10% -->
-                            <th style="width: 19%">État</th>
+                            <th style="width: 15%">Titre</th>
+                            <th style="width: 20%">État</th>
                             <th style="width: 15%">Urgence</th>
-                            <th style="width: 20%">Description</th> <!-- Réduit de 30% à 20% -->
-                            <th style="width: 31%">Actions</th> <!-- Ajusté de 30% à 31% -->
+                            <th style="width: 25%">Description</th>
+                            <th style="width: 25%">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for reclamation in reclamations %}
                             <tr>
-                                <td class="font-weight-bold text-primary">#{{ reclamation.id }}</td>
-                                <td class="text-truncate" style="max-width: 150px;"> <!-- Réduit de 200px à 150px -->
+                                <td class="text-truncate" style="max-width: 150px;">
                                     {{ reclamation.titre|escape }}
                                 </td>
                                 <td>
@@ -82,7 +95,7 @@
                                         {{ reclamation.urgence|default('Normal') }}
                                     </span>
                                 </td>
-                                <td class="text-truncate" style="max-width: 200px;"> <!-- Réduit de 300px à 200px -->
+                                <td class="text-truncate" style="max-width: 200px;">
                                     {{ reclamation.description|escape }}
                                 </td>
                                 <td>
@@ -119,19 +132,12 @@
                                                 <i class="fas fa-reply action-icon"></i>
                                             </button>
                                         {% endif %}
-                                        <button type="button" 
-                                                class="btn btn-action btn-email email-popup-btn" 
-                                                data-reclamation-id="{{ reclamation.id }}"
-                                                data-url="{{ path('envoyer_email_reclamation', {'id': reclamation.id}) }}"
-                                                data-tooltip="Envoyer un email">
-                                            <i class="fas fa-envelope action-icon"></i>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="6" class="text-center py-5 bg-light">
+                                <td colspan="5" class="text-center py-5 bg-light">
                                     <div class="text-muted">
                                         <i class="fas fa-inbox fa-2x mb-3"></i><br>
                                         Aucune réclamation trouvée
@@ -141,24 +147,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-        </div>
-
-        <!-- Pop-up personnalisé -->
-        <div class="popup-overlay" id="popupOverlay" style="display: none;">
-            <div class="popup" id="popup">
-                <span class="close" id="closePopup">×</span>
-                <div class="popup-content">
-                    <h3>Envoyer un email pour la réclamation #<span id="reclamationId"></span></h3>
-                    <form id="emailForm">
-                        <input type="hidden" name="_token" value="{{ csrf_token('email_form') }}">
-                        <div class="form-group">
-                            <label for="messageInput">Message</label>
-                            <textarea class="form-control" id="messageInput" name="message" rows="4" placeholder="Votre message..." required></textarea>
-                        </div>
-                        <button type="submit" id="submitEmail" class="btn btn-primary">Envoyer</button>
-                    </form>
-                </div>
             </div>
         </div>
 
@@ -175,77 +163,8 @@
 
 <!-- Inclure Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Inclure jQuery pour AJAX -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Gestion du pop-up
-    const popupOverlay = document.getElementById('popupOverlay');
-    const closePopup = document.getElementById('closePopup');
-    const emailForm = document.getElementById('emailForm');
-    const reclamationIdSpan = document.getElementById('reclamationId');
-    const messageInput = document.getElementById('messageInput');
-    const submitButton = document.getElementById('submitEmail');
-
-    document.querySelectorAll('.email-popup-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const reclamationId = this.getAttribute('data-reclamation-id');
-            const url = this.getAttribute('data-url');
-            reclamationIdSpan.textContent = reclamationId;
-            emailForm.setAttribute('data-url', url);
-            popupOverlay.style.display = 'flex';
-            popupOverlay.classList.add('active');
-            messageInput.value = '';
-        });
-    });
-
-    closePopup.addEventListener('click', function() {
-        popupOverlay.style.display = 'none';
-        popupOverlay.classList.remove('active');
-    });
-
-    popupOverlay.addEventListener('click', function(e) {
-        if (e.target === popupOverlay) {
-            popupOverlay.style.display = 'none';
-            popupOverlay.classList.remove('active');
-        }
-    });
-
-    emailForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const url = this.getAttribute('data-url');
-        const message = messageInput.value.trim();
-        const csrfToken = document.querySelector('input[name="_token"]').value;
-
-        if (!message) {
-            alert('Le message est requis.');
-            return;
-        }
-
-        submitButton.disabled = true;
-        submitButton.textContent = 'Envoi...';
-
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: { message: message, _token: csrfToken },
-            success: function(response) {
-                popupOverlay.style.display = 'none';
-                popupOverlay.classList.remove('active');
-                messageInput.value = '';
-                alert('Email envoyé avec succès !');
-            },
-            error: function(xhr) {
-                const errorMessage = xhr.responseJSON?.message || 'Erreur lors de l\'envoi de l\'email.';
-                alert(errorMessage);
-            },
-            complete: function() {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Envoyer';
-            }
-        });
-    });
-
     // Graphique des états
     const ctx = document.getElementById('reclamationChart').getContext('2d');
     new Chart(ctx, {
@@ -492,7 +411,6 @@ canvas#reclamationChart, canvas#responseChart {
 .btn-edit { background: linear-gradient(145deg, #ffbe76, #ff9f43); color: #ffffff; }
 .btn-delete { background: linear-gradient(145deg, #ff7675, #d63031); color: #ffffff; }
 .btn-reply { background: linear-gradient(145deg, #6c5ce7, #a29bfe); color: #ffffff; }
-.btn-email { background: linear-gradient(145deg, #55efc4, #00b894); color: #ffffff; }
 .btn-disabled { background: #b2bec3; color: #ffffff; cursor: not-allowed; }
 
 .btn-action[data-tooltip]::before {
@@ -514,57 +432,6 @@ canvas#reclamationChart, canvas#responseChart {
 .btn-action:hover[data-tooltip]::before {
     opacity: 1;
     visibility: visible;
-}
-
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease;
-}
-
-.popup-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.popup {
-    background: #ffffff;
-    border-radius: 15px;
-    padding: 25px;
-    width: 90%;
-    max-width: 550px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.popup-content h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #2d3436;
-}
-
-.popup-content .form-control {
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 10px;
-    background: #f9f9f9;
-}
-
-.popup-content .btn-primary {
-    background: linear-gradient(145deg, #6c5ce7, #a29bfe);
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
-    width: 100%;
-    color: #ffffff;
 }
 
 .card-footer {
@@ -595,8 +462,6 @@ body.dark-mode .card-header { background: linear-gradient(145deg, #a29bfe, #6c5c
 body.dark-mode .table thead th { background: #2d3436; }
 body.dark-mode .table tbody tr { background: #2d3436; border-bottom: 1px solid #636e72; }
 body.dark-mode .table tbody tr:hover { background: #636e72; }
-body.dark-mode .popup { background: #2d3436; }
-body.dark-mode .popup-content h3, body.dark-mode .popup-content .form-group label { color: #dfe6e9; }
 body.dark-mode .form-control { background: #3e4444; color: #dfe6e9; border-color: #636e72; }
 </style>
 {% endblock %}

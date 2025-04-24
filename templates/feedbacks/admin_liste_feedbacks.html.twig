@@ -1,0 +1,46 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Liste des Voyages{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center">
+            <h2 class="h5 m-0"><i class="fas fa-suitcase"></i> Liste des Voyages</h2>
+        </div>
+        <div class="card-body">
+            {% if voyages|length > 0 %}
+                <table class="table table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nom du Voyage</th>
+                            <th>Destination</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for voyage in voyages %}
+                            <tr>
+                                <td>{{ voyage.nom }}</td>
+                                <td>{{ voyage.destination.ville }}, {{ voyage.destination.pays }}</td>
+                                <td>
+                                    <a href="{{ path('voir_feedbacks_voyage', {'id': voyage.id}) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-comments"></i> Voir les Feedbacks
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {# Pagination block #}
+                <div class="d-flex justify-content-center mt-4">
+                    {{ knp_pagination_render(voyages) }}
+                </div>
+            {% else %}
+                <p class="text-center">Aucun voyage trouvé.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

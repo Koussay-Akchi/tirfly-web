@@ -4,111 +4,200 @@ namespace App\Controller;
 
 use App\Entity\Chat;
 use App\Entity\Message;
-use App\Form\MessageType;
+use App\Entity\User;
 use App\Repository\ChatRepository;
 use App\Repository\MessageRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\DBAL\Exception\TableNotFoundException;
-use Doctrine\DBAL\Schema\Schema;
+use Doctrine\ORM\Query\ResultSetMapping;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ChatController extends AbstractController
 {
-    #[Route('/chat', name: 'chat_index')]
-    public function chat(
-        Request $request,
-        EntityManagerInterface $em,
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    #[Route('/chat', name: 'chat_index', defaults: ['chat' => null])]
+    #[Route('/chat/{chat<\d+>}', name: 'chat_show')] // Restrict {chat} to digits
+    public function index(
+        ?Chat $chat,
         ChatRepository $chatRepository,
-        MessageRepository $messageRepository
-    ) {
-        // Get the current logged-in user
+        MessageRepository $messageRepository,
+        UserRepository $userRepository,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
         $user = $this->getUser();
-
-        // Ensure the user is authenticated
         if (!$user) {
-            throw $this->createAccessDeniedException('You must be logged in to access the chat.');
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
 
-        // Check if the messages table exists, and create it if it doesn't
-        $connection = $em->getConnection();
-        $schemaManager = $connection->getSchemaManager();
-        if (!$schemaManager->tablesExist(['messages'])) {
-            $schema = new Schema();
-            $table = $schema->createTable('messages');
-            $table->addColumn('id', 'bigint', ['autoincrement' => true]);
-            $table->addColumn('dateEnvoi', 'datetime', ['precision' => 6, 'notnull' => false]);
-            $table->addColumn('message', 'string', ['length' => 255, 'notnull' => false]);
-            $table->addColumn('chat_id', 'bigint', ['notnull' => false]);
-            $table->addColumn('expediteur_id', 'bigint', ['notnull' => false]);
-            $table->setPrimaryKey(['id']);
-            $table->addIndex(['chat_id'], 'IDX_messages_chat_id');
-            $table->addIndex(['expediteur_id'], 'IDX_messages_expediteur_id');
-
-            // Execute the schema creation
-            $queries = $schema->toSql($connection->getDatabasePlatform());
-            foreach ($queries as $query) {
-                $connection->executeStatement($query);
-            }
-        }
-
-        // Fetch all chats where the user is either the client or support
         $chats = $chatRepository->findChatsForUser($user);
 
-        // Get the selected chat ID from the query parameter (e.g., /chat?chat=1)
-        $chatId = $request->query->get('chat');
-        $selectedChat = null;
-        $messages = [];
-        $formView = null;
+        if (empty($chats) && in_array('ROLE_CLIENT', $user->getRoles())) {
+            $rsm = new ResultSetMapping();
+            $rsm->addEntityResult(User::class, 'u');
+            $rsm->addFieldResult('u', 'id', 'id');
+            $rsm->addFieldResult('u', 'dateCreation', 'dateCreation');
+            $rsm->addFieldResult('u', 'email', 'email');
+            $rsm->addFieldResult('u', 'MotDePasse', 'motDePasse');
+            $rsm->addFieldResult('u', 'nom', 'nom');
+            $rsm->addFieldResult('u', 'prenom', 'prenom');
+            $rsm->addFieldResult('u', 'resetToken', 'resetToken');
+            $rsm->addFieldResult('u', 'resetTokenExpiresAt', 'resetTokenExpiresAt');
 
-        // If a chat is selected, fetch its details and messages
-        if ($chatId) {
-            $selectedChat = $chatRepository->find($chatId);
+            $query = $em->createNativeQuery(
+                'SELECT id, dateCreation, email, MotDePasse, nom, prenom, resetToken, resetTokenExpiresAt 
+                 FROM users 
+                 WHERE UPPER(role) = :role',
+                $rsm
+            );
+            $query->setParameter('role', 'SUPPORT');
+            $supportUsers = $query->getResult();
 
-            // Verify that the user is part of the selected chat
-            if ($selectedChat && ($selectedChat->getClient() === $user || $selectedChat->getSupport() === $user)) {
-                // Fetch all messages for the selected chat, ordered by date
-                $messages = $messageRepository->findBy(['chat' => $selectedChat], ['dateEnvoi' => 'ASC']);
-
-                // Create a form for sending a new message
-                $message = new Message();
-                $form = $this->createForm(MessageType::class, $message);
-                $form->handleRequest($request);
-
-                // Handle form submission
-                if ($form->isSubmitted() && $form->isValid()) {
-                    // Ensure chat and expediteur are set
-                    if (!$selectedChat) {
-                        throw $this->createNotFoundException('Chat not found.');
-                    }
-                    if (!$user) {
-                        throw $this->createAccessDeniedException('User not found.');
-                    }
-
-                    $message->setChat($selectedChat);
-                    $message->setExpediteur($user);
-                    $message->setDateEnvoi(new \DateTime());
-                    $em->persist($message);
-                    $em->flush();
-
-                    // Redirect to the same chat after sending the message
-                    return $this->redirectToRoute('chat_index', ['chat' => $selectedChat->getId()]);
-                }
-
-                $formView = $form->createView();
-            } else {
-                // If the chat doesn't exist or the user isn't authorized, reset the selection
-                $selectedChat = null;
+            if (empty($supportUsers)) {
+                $allRoles = $em->createNativeQuery('SELECT DISTINCT role FROM users', new ResultSetMapping())->getResult();
+                throw $this->createNotFoundException(
+                    'Aucun utilisateur de support disponible. Rôles trouvés : ' . json_encode($allRoles)
+                );
             }
+
+            $randomSupport = $supportUsers[array_rand($supportUsers)];
+
+            $newChat = new Chat();
+            $newChat->setClient($user);
+            $newChat->setSupport($randomSupport);
+            $em->persist($newChat);
+            $em->flush();
+
+            $chats = [$newChat];
+            $chat = $newChat;
         }
 
-        // Render the chat interface
+        $messages = [];
+        if ($chat) {
+            if ($chat->getClient() !== $user && $chat->getSupport() !== $user) {
+                throw $this->createAccessDeniedException('Vous n’avez pas accès à ce chat.');
+            }
+
+            $messages = $messageRepository->createQueryBuilder('m')
+                ->where('m.chat = :chat')
+                ->setParameter('chat', $chat)
+                ->orderBy('m.dateEnvoi', 'ASC')
+                ->getQuery()
+                ->getResult();
+        }
+
         return $this->render('chat/index.html.twig', [
             'chats' => $chats,
-            'selectedChat' => $selectedChat,
+            'selectedChat' => $chat,
             'messages' => $messages,
-            'form' => $formView,
         ]);
+    }
+
+    #[Route('/chat/init/{supportId}', name: 'chat_init')]
+    public function initChat(
+        int $supportId,
+        ChatRepository $chatRepository,
+        EntityManagerInterface $em
+    ): Response {
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+
+        $existingChat = $chatRepository->createQueryBuilder('c')
+            ->where('c.client = :client')
+            ->andWhere('c.support = :support')
+            ->setParameter('client', $user)
+            ->setParameter('support', $supportId)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$existingChat) {
+            $supportUser = $em->getRepository(User::class)->find($supportId);
+            if (!$supportUser) {
+                throw $this->createNotFoundException('Utilisateur support non trouvé.');
+            }
+
+            $chat = new Chat();
+            $chat->setClient($user);
+            $chat->setSupport($supportUser);
+            $em->persist($chat);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('chat_index');
+    }
+
+    #[Route('/chat/message', name: 'chat_message', methods: ['POST'])]
+    public function saveMessage(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $this->logger->debug('saveMessage called', [
+            'content' => $request->getContent(),
+            'headers' => $request->headers->all()
+        ]);
+
+        $user = $this->getUser();
+        if (!$user) {
+            $this->logger->error('User not authenticated');
+            return new JsonResponse(['error' => 'Utilisateur non connecté'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if ($data === null) {
+            $this->logger->error('Invalid JSON', ['content' => $request->getContent()]);
+            return new JsonResponse(['error' => 'JSON invalide'], 400);
+        }
+
+        if (!isset($data['chatId'], $data['message'], $data['userId'])) {
+            $this->logger->error('Missing required fields', ['data' => $data]);
+            return new JsonResponse(['error' => 'Données invalides'], 400);
+        }
+
+        $chat = $em->getRepository(Chat::class)->find($data['chatId']);
+        if (!$chat) {
+            $this->logger->error('Chat not found', ['chatId' => $data['chatId']]);
+            return new JsonResponse(['error' => 'Chat non trouvé'], 404);
+        }
+
+        if ($chat->getClient() !== $user && $chat->getSupport() !== $user) {
+            $this->logger->error('Unauthorized access', [
+                'chatId' => $data['chatId'],
+                'userId' => $user->getId()
+            ]);
+            return new JsonResponse(['error' => 'Accès non autorisé'], 403);
+        }
+
+        $message = new Message();
+        $message->setChat($chat);
+        $message->setExpediteur($user);
+        $message->setMessage($data['message']);
+        $message->setDateEnvoi(new \DateTime());
+
+        try {
+            $em->persist($message);
+            $em->flush();
+            $this->logger->info('Message saved successfully', [
+                'messageId' => $message->getId(),
+                'chatId' => $data['chatId']
+            ]);
+            return new JsonResponse(['status' => 'Message saved'], 200);
+        } catch (\Exception $e) {
+            $this->logger->error('Database error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return new JsonResponse(['error' => 'Erreur lors de l\'enregistrement: ' . $e->getMessage()], 500);
+        }
     }
 }

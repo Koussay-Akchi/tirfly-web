@@ -40,35 +40,41 @@
                                 </td>
                                 <td>{{ reclamation.dateCreation|date('d/m/Y H:i') }}</td>
                                 <td>
-                                    <a href="{{ path('details_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-view" title="Voir détails">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    {% if reclamation.reponses|length == 0 %}
-                                        <a href="{{ path('client_edit_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-edit" title="Modifier">
-                                            <i class="fas fa-edit"></i>
+                                    <div class="action-container">
+                                        <a href="{{ path('details_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-view" title="Voir détails">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ path('client_delete_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?')">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </a>
-                                    {% endif %}
+                                        {% if reclamation.reponses|length > 0 %}
+                                            <span class="notification-bell" data-reclamation-id="{{ reclamation.id }}" title="Vous avez une réponse">
+                                                <i class="fas fa-bell"></i>
+                                                <span class="notification-badge">1</span>
+                                            </span>
+                                        {% endif %}
+                                        {% if reclamation.reponses|length == 0 %}
+                                            <a href="{{ path('client_edit_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-edit" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ path('client_delete_reclamation', {'id': reclamation.id}) }}" class="btn btn-action btn-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
                                 </td>
                             </tr>
-                            {% if reclamation.reponses|length > 0 %}
-                                <tr class="response-row">
-                                    <td colspan="6">
-                                        <div class="responses-header">Réponses reçues :</div>
-                                        {% for reponse in reclamation.reponses %}
-                                            <div class="response-item">
-                                                <div class="response-meta">
-                                                    <strong>{{ reponse.dateReponse|date('d/m/Y H:i') }}</strong>
-                                                    <span class="response-author">par {{ reponse.auteur.nom }}</span>
-                                                </div>
-                                                <div class="response-content">{{ reponse.contenu }}</div>
+                            <tr class="response-row" style="display: none;">
+                                <td colspan="6">
+                                    <div class="responses-header">Réponses reçues :</div>
+                                    {% for reponse in reclamation.reponses %}
+                                        <div class="response-item">
+                                            <div class="response-meta">
+                                                <strong>{{ reponse.dateReponse|date('d/m/Y H:i') }}</strong>
+                                                <span class="response-author">par {{ reponse.auteur.nom }}</span>
                                             </div>
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                            {% endif %}
+                                            <div class="response-content">{{ reponse.contenu }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </td>
+                            </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
@@ -181,6 +187,7 @@
 
     .reclamation-table tbody tr.response-row {
         background-color: #edf2f7;
+        transition: all 0.3s ease;
     }
 
     /* Status Badges */
@@ -221,7 +228,43 @@
         background-color: rgb(209, 215, 25);
     }
 
+    /* Notification Bell */
+    .notification-bell {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        margin-left: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .notification-bell:hover {
+        transform: scale(1.1);
+    }
+
+    .notification-bell .fa-bell {
+        color: #f7c948;
+        font-size: 2rem;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: #e53e3e;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.3rem 0.6rem;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
     /* Action Buttons */
+    .action-container {
+        display: flex;
+        align-items: center;
+    }
+
     .btn-action {
         display: inline-flex;
         align-items: center;
@@ -369,6 +412,17 @@
         .response-item {
             padding: 0.75rem;
         }
+
+        .notification-bell .fa-bell {
+            font-size: 1.5rem;
+        }
+
+        .notification-badge {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            top: -8px;
+            right: -8px;
+        }
     }
 
     @media (max-width: 576px) {
@@ -389,4 +443,48 @@
         }
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to check if a notification has been read
+    function isNotificationRead(reclamationId) {
+        const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+        return readNotifications.includes(reclamationId);
+    }
+
+    // Function to mark a notification as read
+    function markNotificationAsRead(reclamationId) {
+        const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+        if (!readNotifications.includes(reclamationId)) {
+            readNotifications.push(reclamationId);
+            localStorage.setItem('readNotifications', JSON.stringify(readNotifications));
+        }
+    }
+
+    // Add click event listeners to all notification bells
+    const bells = document.querySelectorAll('.notification-bell');
+    bells.forEach(bell => {
+        const reclamationId = bell.getAttribute('data-reclamation-id');
+        
+        // Hide the bell if it has already been read
+        if (isNotificationRead(reclamationId)) {
+            bell.style.display = 'none';
+        }
+
+        bell.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent any default behavior
+            // Find the corresponding response row (the next sibling of the parent row)
+            const responseRow = this.closest('tr').nextElementSibling;
+            if (responseRow && responseRow.classList.contains('response-row')) {
+                // Show the response row if hidden
+                responseRow.style.display = 'table-row';
+                // Hide the bell after viewing
+                this.style.display = 'none';
+                // Mark the notification as read in localStorage
+                markNotificationAsRead(reclamationId);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

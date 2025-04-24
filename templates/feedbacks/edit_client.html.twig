@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Feedback{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-warning text-white">
+            <h2 class="h5 mb-0"><i class="fas fa-edit mr-2"></i> Modifier votre Feedback pour {{ voyage.nom }}</h2>
+        </div>
+        <div class="card-body">
+            <form action="{{ path('edit_feedback', {'id': feedback.id}) }}" method="POST" class="voyage-details-feedback-form">
+                <div class="rating-input">
+                    <label for="note">Note :</label>
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="note" value="5" {{ feedback.note == 5 ? 'checked' : '' }} required>
+                        <label for="star5">★</label>
+                        <input type="radio" id="star4" name="note" value="4" {{ feedback.note == 4 ? 'checked' : '' }}>
+                        <label for="star4">★</label>
+                        <input type="radio" id="star3" name="note" value="3" {{ feedback.note == 3 ? 'checked' : '' }}>
+                        <label for="star3">★</label>
+                        <input type="radio" id="star2" name="note" value="2" {{ feedback.note == 2 ? 'checked' : '' }}>
+                        <label for="star2">★</label>
+                        <input type="radio" id="star1" name="note" value="1" {{ feedback.note == 1 ? 'checked' : '' }}>
+                        <label for="star1">★</label>
+                    </div>
+                </div>
+                <label for="comment">Avis :</label>
+                <textarea name="comment" id="comment" required class="form-control feedback-textarea">{{ feedback.contenu }}</textarea>
+                <input type="hidden" name="_token" value="{{ csrf_token('feedback' ~ feedback.id) }}">
+                <button type="submit" class="btn btn-primary mt-3">Modifier</button>
+            </form>
+            <a href="{{ path('details_voyage', {'id': voyage.id}) }}" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left"></i> Retour aux détails du voyage</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .voyage-details-feedback-form {
+        margin-bottom: 2rem;
+    }
+
+    .rating-input {
+        margin-bottom: 1rem;
+    }
+
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .star-rating input {
+        display: none;
+    }
+
+    .star-rating label {
+        font-size: 1.5rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #f5c518;
+    }
+
+    .feedback-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: vertical;
+    }
+</style>
+{% endblock %}

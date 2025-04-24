@@ -3,12 +3,27 @@
 {% block title %} Ajouter une Réclamation {% endblock %}
 
 {% block body %}
-
 <div class="page-container">
     <div class="form-container">
         <h1 style="color: #2c3e50; opacity: 1; visibility: visible; display: block;">
             <i class="fas fa-comment-dots me-2"></i>Nouvelle Réclamation
         </h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('danger') %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('warning') %}
+            <div class="alert alert-warning" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
 
         {{ form_start(form) }}
             <div class="form-group">
@@ -102,6 +117,31 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
         }
 
         .form-group {
