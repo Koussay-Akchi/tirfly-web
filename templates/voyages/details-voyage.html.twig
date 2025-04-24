@@ -129,6 +129,15 @@
 							</button>
 						{% endif %}
 						<a href="{{ path('ajouter_feedbackk', {'id': voyage.id}) }}" class="card-feedback-button btn btn-primary">Donner un feedback</a>
+						
+					<a
+					class="btn btn-primary mt-3"
+					href="https://calendar.google.com/calendar/render?action=TEMPLATE&text={{ voyage.nom|url_encode }}&dates={{ voyage.dateDepart|date('Ymd\\THis') }}/{{ voyage.dateArrive|date('Ymd\\THis') }}&details={{ voyage.description|url_encode }}"
+					target="_blank"
+					rel="noopener noreferrer"
+					>
+					Ajouter au Google Calendar 📅
+					</a>
 					</div>
 
 
