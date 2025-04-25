@@ -113,15 +113,12 @@
 </div>
 
 <script>
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("it's showtime!");
     if (!('MediaRecorder' in window)) {
         alert('Votre navigateur ne supporte pas l\'enregistrement audio. Veuillez utiliser Chrome, Firefox, ou Edge.');
         return;
     }
 
-    // Configuration
     const nomButton = document.getElementById('record-nom');
     const nomStopButton = document.getElementById('stop-nom');
     const nomStatus = document.getElementById('nom-recording-status');
@@ -139,12 +136,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentField = null;
     let recognition = null;
 
-    // Set up speech recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = 'fr-FR'; // Set language to French, change as needed
+        recognition.lang = 'fr-FR';
 
         recognition.onresult = function(event) {
             const transcriptionEl = currentField === 'nom' ? nomTranscription : descTranscription;
@@ -155,58 +151,47 @@ document.addEventListener('DOMContentLoaded', function() {
             
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript;
-                
                 if (event.results[i].isFinal) {
                     finalTranscript += transcript;
                 } else {
                     interimTranscript += transcript;
                 }
             }
-            
-            // Display the transcription
+
             transcriptionEl.innerHTML = `<div>${finalTranscript + interimTranscript}</div>`;
-            
-            // Update the form field with final transcript
+
             if (finalTranscript) {
-                inputEl.value = finalTranscript;
+                inputEl.value += finalTranscript + ' ';
             }
         };
 
         recognition.onerror = function(event) {
             console.error('Speech recognition error', event.error);
-            stopRecording();
+            yiziEnregistrement();
         };
     } else {
         alert('La reconnaissance vocale n\'est pas supportée par votre navigateur.');
     }
 
-    // Start recording for nom field
     nomButton.addEventListener('click', function() {
-        startRecording('nom');
-    });
-    
-    // Start recording for description field
-    descButton.addEventListener('click', function() {
-        startRecording('description');
-    });
-    
-    // Stop recording for nom field
-    nomStopButton.addEventListener('click', function() {
-        stopRecording();
-    });
-    
-    // Stop recording for description field
-    descStopButton.addEventListener('click', function() {
-        stopRecording();
+        enregistrement('nom');
     });
 
-    // Start recording and transcription
-    async function startRecording(field) {
+    descButton.addEventListener('click', function() {
+        enregistrement('description');
+    });
+
+    nomStopButton.addEventListener('click', function() {
+        yiziEnregistrement();
+    });
+
+    descStopButton.addEventListener('click', function() {
+        yiziEnregistrement();
+    });
+
+    async function enregistrement(field) {
         try {
-            // Set the current field
             currentField = field;
-            
-            // UI updates
             const button = field === 'nom' ? nomButton : descButton;
             const stopButton = field === 'nom' ? nomStopButton : descStopButton;
             const status = field === 'nom' ? nomStatus : descStatus;
@@ -214,88 +199,71 @@ document.addEventListener('DOMContentLoaded', function() {
             button.style.display = 'none';
             stopButton.style.display = 'inline-block';
             status.innerHTML = '<span class="recording">Enregistrement en cours...</span>';
-            
-            // Get audio stream
+
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            
-            // Start speech recognition
+
             if (recognition) {
                 recognition.start();
             }
-            
-            // Start recording audio
+
             mediaRecorder = new MediaRecorder(stream);
             audioChunks = [];
-            
+
             mediaRecorder.addEventListener('dataavailable', event => {
                 audioChunks.push(event.data);
             });
-            
+
             mediaRecorder.addEventListener('stop', async () => {
-                // Create audio blob
                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                
-                // Upload the audio file
                 await uploadAudio(audioBlob, field);
             });
-            
+
             mediaRecorder.start();
         } catch (err) {
-            console.error('Error starting recording:', err);
-            alert('Impossible de démarrer l\'enregistrement. Veuillez vérifier les permissions du microphone.');
+            console.error('Erreur debut:', err);
+            alert("Impossible de demarrer l'enregistrement");
         }
     }
 
-    // Stop recording
-    function stopRecording() {
-        // Stop speech recognition
+    function yiziEnregistrement() {
         if (recognition) {
             recognition.stop();
         }
-        
-        // Stop media recorder if it's active
+
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
-            
-            // Stop all audio tracks
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
         }
-        
-        // Reset UI
+
         const button = currentField === 'nom' ? nomButton : descButton;
         const stopButton = currentField === 'nom' ? nomStopButton : descStopButton;
         const status = currentField === 'nom' ? nomStatus : descStatus;
-        
+
         button.style.display = 'inline-block';
         stopButton.style.display = 'none';
         status.innerHTML = '<span>Enregistrement terminé</span>';
     }
 
-    // Upload audio to server
     async function uploadAudio(blob, field) {
         try {
-            // Create FormData
             const formData = new FormData();
-            formData.append('audio', blob, `${field}_recording.webm`);
+            formData.append('audio', blob, `${field}_enregistrement.webm`);
             formData.append('field', field);
-            
-            // Send to server
+
             const response = await fetch('/audio/upload', {
                 method: 'POST',
                 body: formData
             });
-            
+
             if (!response.ok) {
-                throw new Error('Erreur lors de l\'envoi de l\'audio');
+                throw new Error('Erreur envoi');
             }
-            
+
             const result = await response.json();
-            console.log('Audio uploaded successfully:', result);
         } catch (err) {
-            console.error('Error uploading audio:', err);
+            console.error('Erreur upload:', err);
         }
     }
 });
-
 </script>
 {% endblock %}

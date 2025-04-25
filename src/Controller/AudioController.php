@@ -23,23 +23,18 @@ class AudioController extends AbstractController
 
     public function upload(Request $request): JsonResponse
     {
-        // Check if file was uploaded
         if (!$request->files->has('audio')) {
             return new JsonResponse(['error' => 'No audio file provided'], 400);
         }
         
-        // Get the uploaded file
         $audioFile = $request->files->get('audio');
-        $field = $request->request->get('field', 'unknown');
+        $field = $request->request->get('field', 'nom');
         
-        // Generate unique filename
         $filename = uniqid() . '-' . $field . '.' . $audioFile->getClientOriginalExtension();
         
         try {
-            // Move the file to the target directory
             $audioFile->move($this->audioDirectory, $filename);
             
-            // Return success with file information
             return new JsonResponse([
                 'success' => true,
                 'filename' => $filename,
@@ -47,7 +42,7 @@ class AudioController extends AbstractController
                 'path' => $this->audioDirectory . '/' . $filename
             ]);
         } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Failed to save audio: ' . $e->getMessage()], 500);
+            return new JsonResponse(['error' => 'erreur enregistrement: ' . $e->getMessage()], 500);
         }
     }
 }
