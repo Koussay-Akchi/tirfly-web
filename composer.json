@@ -13,6 +13,9 @@
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
         "knplabs/knp-paginator-bundle": "^6.8",
+        "knpuniversity/oauth2-client-bundle": "^2.18",
+        "league/oauth2-facebook": "^2.2",
+        "league/oauth2-google": "^4.0",
         "lexik/jwt-authentication-bundle": "^2.18",
         "nelmio/cors-bundle": "^2.5",
         "phpdocumentor/reflection-docblock": "^5.6",
@@ -48,7 +51,8 @@
         "symfony/web-link": "6.4.*",
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "wohali/oauth2-discord-new": "^1.2"
     },
     "config": {
         "allow-plugins": {

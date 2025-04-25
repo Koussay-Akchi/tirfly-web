@@ -1,4 +1,5 @@
 framework:
+    error_controller: App\Controller\ErrorController::show
     secret: '%env(APP_SECRET)%'
     annotations: false
     http_method_override: false
