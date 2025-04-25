@@ -6,25 +6,39 @@ document.addEventListener('DOMContentLoaded', function() {
             initialView: 'dayGridMonth',
             locale: 'fr',
             events: '/api/evenements',
-            height: 'auto', // Hauteur dynamique
-            contentHeight: 'auto', // Pas de défilement inutile
-            aspectRatio: 1.5, // Ratio pour un look compact
+            height: 'auto',
+            contentHeight: 'auto',
+            aspectRatio: 1.5,
             eventClick: function(info) {
-                // Remplir la modale avec les détails
-                document.getElementById('eventTitle').textContent = info.event.title;
-                document.getElementById('eventDescription').textContent = info.event.extendedProps.description;
-                document.getElementById('eventPrice').textContent = info.event.extendedProps.price + ' €';
-                document.getElementById('eventDestination').textContent = info.event.extendedProps.destination;
-                document.getElementById('eventDates').textContent = 
-                    'Du ' + info.event.start.toLocaleDateString('fr-FR') + 
-                    ' au ' + (info.event.end ? info.event.end.toLocaleDateString('fr-FR') : info.event.start.toLocaleDateString('fr-FR'));
+                console.log('Événement cliqué : ', info.event.title); // Débogage
+                const title = info.event.title;
+                const description = info.event.extendedProps.description || 'Aucune description';
+                const price = info.event.extendedProps.price ? info.event.extendedProps.price + ' €' : 'Prix non défini';
+                const destination = info.event.extendedProps.destination || 'Destination non spécifiée';
+                const dates = 'Du ' + info.event.start.toLocaleDateString('fr-FR') + 
+                              ' au ' + (info.event.end ? info.event.end.toLocaleDateString('fr-FR') : info.event.start.toLocaleDateString('fr-FR'));
 
-                // Afficher la modale
-                var modal = new bootstrap.Modal(document.getElementById('eventModal'));
-                modal.show();
+                Swal.fire({
+                    title: title,
+                    html: `
+                        <div style="text-align: left;">
+                            <p><strong>Description :</strong> ${description}</p>
+                            <p><strong>Prix :</strong> ${price}</p>
+                            <p><strong>Destination :</strong> ${destination}</p>
+                            <p><strong>Dates :</strong> ${dates}</p>
+                        </div>
+                    `,
+                    icon: 'info',
+                    confirmButtonText: 'Fermer',
+                    confirmButtonColor: '#198754',
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        htmlContainer: 'swal2-html-container-custom'
+                    }
+                });
             },
             eventContent: function(arg) {
-                // Affichage ultra-compact
                 return {
                     html: `
                         <div class="fc-event-main" title="${arg.event.title}">
@@ -34,8 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     `
                 };
             },
-            dayMaxEvents: 2, // Max 2 événements par jour
-            moreLinkContent: '+', // Lien "plus" minimaliste
+            dayMaxEvents: 2,
+            moreLinkContent: '+',
             moreLinkClassNames: 'fc-more-link',
             eventTimeFormat: {
                 hour: '2-digit',
@@ -46,6 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         calendar.render();
     } else {
-        console.error('Calendar element not found');
+        console.error('Élément calendrier introuvable');
     }
 });
