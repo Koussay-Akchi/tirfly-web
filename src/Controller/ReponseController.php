@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Security;
-
+use App\Service\EmailService;
 #[Route('/reclamation/reponse')]
 final class ReponseController extends AbstractController
 {
@@ -51,19 +51,45 @@ final class ReponseController extends AbstractController
             'reponse' => $reponse,
         ]);
     }
-
     #[Route('/{id}/edit', name: 'app_reponse_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Reponse $reponse, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(ReponseType::class, $reponse);
+    public function edit(
+        Request $request,
+        Reponse $reponse,
+        EntityManagerInterface $entityManager,
+        EmailService $emailService
+    ): Response {
+        $form = $this->createForm(ReponseType::class, $reponse, [
+            'limited_fields' => true
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
             $this->addFlash('success', 'Réponse modifiée avec succès !');
 
+            // Send email to client
+            $reclamation = $reponse->getReclamation();
+            $client = $reclamation->getClient();
+            if ($client && $client->getEmail()) {
+                try {
+                    $subject = 'Mise à jour de la réponse à votre réclamation #' . $reclamation->getId();
+                    $message = "Bonjour {$client->getPrenom()} {$client->getNom()},\n\n" .
+                               "La réponse à votre réclamation intitulée \"{$reclamation->getTitre()}\" a été mise à jour.\n" .
+                               "Voici la nouvelle réponse :\n\n" .
+                               "{$reponse->getContenu()}\n\n" .
+                               "Vous pouvez consulter les détails dans votre historique de réclamations.\n" .
+                               "Cordialement,\nL'équipe de support";
+                    $emailService->envoyer($client->getEmail(), $subject, $message);
+                    $this->addFlash('success', 'Réponse modifiée et email envoyé au client.');
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Réponse modifiée, mais erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
+                }
+            } else {
+                $this->addFlash('warning', 'Réponse modifiée, mais aucun email client trouvé.');
+            }
+
             // Redirect to the reclamation details page
-            return $this->redirectToRoute('details_reclamation', ['id' => $reponse->getReclamation()->getId()]);
+            return $this->redirectToRoute('details_reclamation', ['id' => $reclamation->getId()]);
         }
 
         return $this->render('reponse/edit.html.twig', [

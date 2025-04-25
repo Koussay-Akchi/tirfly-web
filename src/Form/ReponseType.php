@@ -28,10 +28,7 @@ class ReponseType extends AbstractType
                 'class' => Reclamation::class,
 'choice_label' => 'id',
             ])
-            ->add('auteur', EntityType::class, [
-                'class' => User::class,
-'choice_label' => 'id',
-            ])
+       
         ;
     }
 }

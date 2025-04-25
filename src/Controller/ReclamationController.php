@@ -46,14 +46,42 @@ class ReclamationController extends AbstractController
         $urgence = $request->query->get('urgence');
         $nonRepondu = $request->query->get('nonRepondu');
 
-        // Utiliser la méthode du repository pour obtenir la requête filtrée
-        $query = $reclamationRepository->findByFilters($etat, $urgence, $nonRepondu === '1');
+        // Convertir nonRepondu en booléen ou null
+        $nonReponduFilter = null;
+        if ($nonRepondu === '1') {
+            $nonReponduFilter = true; // Réclamations non répondues
+        } elseif ($nonRepondu === '0') {
+            $nonReponduFilter = false; // Réclamations répondues
+        }
+
+        // Construire la requête avec tri par date de création (plus récent en premier)
+        $queryBuilder = $reclamationRepository->createQueryBuilder('r')
+            ->leftJoin('r.reponses', 'rep')
+            ->orderBy('r.dateCreation', 'DESC'); // Sort by dateCreation, newest first
+
+        if ($etat) {
+            $queryBuilder->andWhere('r.etat = :etat')
+                         ->setParameter('etat', $etat);
+        }
+
+        if ($urgence) {
+            $queryBuilder->andWhere('r.urgence = :urgence')
+                         ->setParameter('urgence', $urgence);
+        }
+
+        if ($nonReponduFilter !== null) {
+            if ($nonReponduFilter) {
+                $queryBuilder->andWhere('rep.id IS NULL');
+            } else {
+                $queryBuilder->andWhere('rep.id IS NOT NULL');
+            }
+        }
 
         // Pagination des résultats
         $pagination = $paginator->paginate(
-            $query,
+            $queryBuilder->getQuery(),
             $request->query->getInt('page', 1),
-            5,
+            6,
             ['distinct' => false] // Assurer la compatibilité avec les requêtes complexes
         );
 
@@ -73,6 +101,16 @@ class ReclamationController extends AbstractController
                 $responseStats['Sans réponse']++;
             }
         }
+
+        $today = new \DateTime('today');
+        $todayReclamations = $reclamationRepository->createQueryBuilder('r')
+            ->where('r.dateCreation >= :start')
+            ->andWhere('r.dateCreation < :end')
+            ->setParameter('start', $today)
+            ->setParameter('end', (clone $today)->modify('+1 day'))
+            ->getQuery()
+            ->getResult();
+        $dailyReclamationCount = count($todayReclamations);
 
         $etats = [
             'Qualité de service',
@@ -98,7 +136,8 @@ class ReclamationController extends AbstractController
             'urgences' => $urgences,
             'etat_selectionne' => $etat,
             'urgence_selectionnee' => $urgence,
-            'non_repondu_selectionne' => $nonRepondu
+            'non_repondu_selectionne' => $nonRepondu,
+            'daily_reclamation_count' => $dailyReclamationCount
         ]);
     }
 

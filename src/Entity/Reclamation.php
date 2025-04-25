@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
 #[ORM\Table(name: 'reclamations')]
+#[ORM\HasLifecycleCallbacks] // Add this to enable lifecycle callbacks
 class Reclamation
 {
     #[ORM\Id]
@@ -42,17 +43,17 @@ class Reclamation
     #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
     private ?Client $client = null;
 
-    #[ORM\Column(type: 'string', nullable: false, name: "videoPath")]
+    #[ORM\Column(type: 'string', nullable: true, name: "videoPath")] // Change to nullable: true since video is optional
     #[Assert\Regex(
         pattern: "/\.(mp4|avi|mpeg|mov)$/i",
-        message: "Le fichier doit être une vidéo avec une extension valide (mp4, avi, mpeg, mov)."
+        message: "Le fichier doit être une vidéo avec une extension valide (mp4, avi, mpeg, mov).",
+        match: true
     )]
     private ?string $videoPath = null;
 
     #[ORM\Column(type: 'string', nullable: false, name: "isRed")]
     private ?string $isRed = '0';
 
-    // Add the urgence property
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $urgence = null;
 
@@ -64,7 +65,13 @@ class Reclamation
         $this->reponses = new ArrayCollection();
     }
 
-    // Getters and setters...
+    #[ORM\PrePersist] // Automatically set dateCreation before persisting
+    public function onPrePersist(): void
+    {
+        if ($this->dateCreation === null) {
+            $this->dateCreation = new \DateTime();
+        }
+    }
 
     public function getId(): ?int
     {
@@ -178,7 +185,6 @@ class Reclamation
         return $this;
     }
 
-    // Add the getter and setter for urgence
     public function getUrgence(): ?string
     {
         return $this->urgence;

@@ -17,24 +17,12 @@
             <form method="post" action="{{ path('app_reponse_edit', {'id': reponse.id}) }}">
                 {{ form_start(form) }}
                 <div class="form-group">
-                    {{ form_label(form.contenu, 'Contenu') }}
-                    {{ form_widget(form.contenu) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.dateReponse, 'Date réponse') }}
-                    {{ form_widget(form.dateReponse) }}
-                </div>
-                <div class="form-group">
                     {{ form_label(form.sujet, 'Sujet') }}
                     {{ form_widget(form.sujet) }}
                 </div>
                 <div class="form-group">
-                    {{ form_label(form.reclamation, 'Réclamation') }}
-                    {{ form_widget(form.reclamation) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.auteur, 'Auteur') }}
-                    {{ form_widget(form.auteur) }}
+                    {{ form_label(form.contenu, 'Contenu') }}
+                    {{ form_widget(form.contenu) }}
                 </div>
                 <input type="hidden" name="_token" value="{{ csrf_token('edit_reponse') }}">
                 <button type="submit" class="btn btn-primary mt-3">
@@ -233,9 +221,6 @@ body::before {
 
 .form-group:nth-child(1) { --form-delay: 0.2s; }
 .form-group:nth-child(2) { --form-delay: 0.3s; }
-.form-group:nth-child(3) { --form-delay: 0.4s; }
-.form-group:nth-child(4) { --form-delay: 0.5s; }
-.form-group:nth-child(5) { --form-delay: 0.6s; }
 
 .form-label {
     font-size: 1.1rem;
@@ -286,16 +271,11 @@ textarea.form-control {
     min-height: 160px;
 }
 
-/* Style pour les champs select et date */
-.form-control[type="date"],
-.form-control[type="text"],
-select.form-control {
+/* Style pour les champs text */
+.form-control[type="text"] {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6)) url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%234b5563%22%2F%3E%3C%2Fsvg%3E') no-repeat right 1rem center;
-    background-size: 16px;
-    padding-right: 2.5rem;
 }
 
 /* Effet ripple sur focus */
@@ -512,35 +492,8 @@ body.dark-mode .form-control:not(:placeholder-shown) + .form-label {
     text-shadow: 0 0 10px rgba(139, 92, 246, 0.7);
 }
 
-body.dark-mode .form-control[type="date"],
-body.dark-mode .form-control[type="text"],
-body.dark-mode select.form-control {
-    background: linear-gradient(145deg, rgba(75, 85, 99, 0.8), rgba(55, 65, 81, 0.6)) url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%239ca3af%22%2F%3E%3C%2Fsvg%3E') no-repeat right 1rem center;
-    background-size: 16px;
-}
-
-body.dark-mode .btn-primary {
-    background: linear-gradient(45deg, #7c3aed, #a78bfa);
-}
-
-body.dark-mode .btn-primary:hover {
-    background: linear-gradient(45deg, #a78bfa, #7c3aed);
-}
-
-body.dark-mode .btn-secondary {
-    background: linear-gradient(45deg, #4b5563, #6b7280);
-}
-
-body.dark-mode .btn-secondary:hover {
-    background: linear-gradient(45deg, #6b7280, #4b5563);
-}
-
-body.dark-mode .btn-danger {
-    background: linear-gradient(45deg, #b91c1c, #dc2626);
-}
-
-body.dark-mode .btn-danger:hover {
-    background: linear-gradient(45deg, #dc2626, #b91c1c);
+body.dark-mode .form-control[type="text"] {
+    background: linear-gradient(145deg, rgba(75, 85, 99, 0.8), rgba(55, 65, 81, 0.6));
 }
 
 /* Responsive */

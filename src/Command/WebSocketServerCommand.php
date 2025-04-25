@@ -10,6 +10,11 @@
   use Symfony\Component\Console\Command\Command;
   use Symfony\Component\Console\Input\InputInterface;
   use Symfony\Component\Console\Output\OutputInterface;
+//Imagine que quelqu’un se connecte à ton site et envoie un message → ce serveur WebSocket reçoit ce message et le transmet aux autres utilisateurs en direct.
+//🚀 Quand tu tapes cette commande :
+//php bin/console app:websocket:server
+//👉 Ça démarre un serveur qui écoute les messages des utilisateurs (comme dans un chat WhatsApp, Messenger, etc.)
+
 
   #[AsCommand(name: 'app:websocket:server')]
   class WebSocketServerCommand extends Command

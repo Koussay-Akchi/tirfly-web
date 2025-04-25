@@ -35,33 +35,33 @@ class ReclamationRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findByFilters(?string $etat, ?string $urgence, ?bool $nonRepondu): \Doctrine\ORM\Query
+    public function findByFilters(?string $etat, ?string $urgence, ?bool $nonRepondu): \Doctrine\ORM\QueryBuilder
     {
-        $queryBuilder = $this->createQueryBuilder('r')
-            ->orderBy('r.dateCreation', 'DESC');
+        $qb = $this->createQueryBuilder('r')
+            ->orderBy('r.dateCreation', 'DESC'); // Add sorting by dateCreation
 
         if ($etat) {
-            $queryBuilder->andWhere('r.etat = :etat')
-                ->setParameter('etat', $etat);
+            $qb->andWhere('r.etat = :etat')
+               ->setParameter('etat', $etat);
         }
 
         if ($urgence) {
-            $queryBuilder->andWhere('r.urgence = :urgence')
-                ->setParameter('urgence', $urgence);
+            $qb->andWhere('r.urgence = :urgence')
+               ->setParameter('urgence', $urgence);
         }
 
-        if ($nonRepondu) {
-            // Sous-requête pour identifier les réclamations avec des réponses
-            $subQuery = $this->createQueryBuilder('r2')
-                ->select('r2.id')
-                ->leftJoin('r2.reponses', 'rep')
-                ->groupBy('r2.id')
-                ->having('COUNT(rep.id) > 0');
-
-            // Exclure les réclamations avec des réponses
-            $queryBuilder->andWhere($queryBuilder->expr()->notIn('r.id', $subQuery->getDQL()));
+        // Gestion du filtre nonRepondu
+        if ($nonRepondu !== null) {
+            if ($nonRepondu === true) {
+                // Réclamations non répondues (aucune réponse)
+                $qb->leftJoin('r.reponses', 'rep')
+                   ->andWhere('rep.id IS NULL');
+            } else {
+                // Réclamations répondues (au moins une réponse)
+                $qb->innerJoin('r.reponses', 'rep');
+            }
         }
 
-        return $queryBuilder->getQuery();
+        return $qb;
     }
 }
