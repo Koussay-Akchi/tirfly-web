@@ -1,68 +1,301 @@
 {% extends 'base-staff.html.twig' %}
+{% block title %}Ajouter un Voyage {% endblock %}
 
-{% block title %}Ajouter un Voyage
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .recording-controls {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .recording {
+            animation: pulse 1.5s infinite;
+            color: #d9534f;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .btn-record {
+            background-color: #d9534f;
+            color: white;
+        }
+        .btn-stop {
+            background-color: #5cb85c;
+            color: white;
+        }
+        .transcription-target {
+            border-left: 3px solid #5bc0de;
+            padding-left: 10px;
+            margin-top: 5px;
+            background-color: #f0f7fb;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
-	<div class="form-container" style="width: 50%; margin: auto;">
-		<h2 class="text-center mb-4">Ajouter un Voyage</h2>
+<div class="form-container" style="width: 50%; margin: auto;">
+    <h2 class="text-center mb-4">Ajouter un Voyage</h2>
+    
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'form-vertical'}}) }}
+    
+    <div class="form-group mb-3">
+        {{ form_label(form.nom) }}
+        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Donner le nom du voyage', 'id': 'voyage_nom'}}) }}
+        {{ form_errors(form.nom) }}
+        <div class="recording-controls" id="nom-recording-controls">
+            <button type="button" class="btn btn-record" id="record-nom">
+                <i class="fas fa-microphone"></i> Enregistrer le nom
+            </button>
+            <button type="button" class="btn btn-stop" id="stop-nom" style="display:none;">
+                <i class="fas fa-stop"></i> Arrêter
+            </button>
+            <span id="nom-recording-status"></span>
+            <div class="transcription-target" id="nom-transcription"></div>
+        </div>
+    </div>
+    
+    <div class="form-group mb-3">
+        {{ form_label(form.destination) }}
+        {{ form_widget(form.destination, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.destination) }}
+    </div>
+    
+    <div class="form-group mb-3">
+        {{ form_label(form.dateDepart) }}
+        {{ form_widget(form.dateDepart, {'attr': { 'class': 'form-control ' ~ (form.dateDepart.vars.errors|length ? 'is-invalid' : ''), 'min': ''|date_modify('+7 days')|date('Y-m-d') }}) }}
+        {{ form_errors(form.dateDepart) }}
+    </div>
+    
+    <div class="form-group mb-3">
+        {{ form_label(form.dateArrive) }}
+        {{ form_widget(form.dateArrive, {'attr': { 'class': 'form-control ' ~ (form.dateArrive.vars.errors|length ? 'is-invalid' : ''), 'min': ''|date_modify('+7 days')|date('Y-m-d') }}) }}
+        {{ form_errors(form.dateArrive) }}
+    </div>
+    
+    <div class="form-group mb-3">
+        {{ form_label(form.prix) }}
+        {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Donner le prix'}}) }}
+        {{ form_errors(form.prix) }}
+    </div>
+    
+    <div class="form-group mb-3">
+        {{ form_label(form.description) }}
+        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Donner une description', 'id': 'voyage_description'}}) }}
+        {{ form_errors(form.description) }}
+        <div class="recording-controls" id="description-recording-controls">
+            <button type="button" class="btn btn-record" id="record-description">
+                <i class="fas fa-microphone"></i> Enregistrer la description
+            </button>
+            <button type="button" class="btn btn-stop" id="stop-description" style="display:none;">
+                <i class="fas fa-stop"></i> Arrêter
+            </button>
+            <span id="description-recording-status"></span>
+            <div class="transcription-target" id="description-transcription"></div>
+        </div>
+    </div>
+    
+    <div class="form-group mb-3">
+        {{ form_label(form.formule) }}
+        {{ form_widget(form.formule, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.formule) }}
+    </div>
+    
+    <div class="text-center">
+        <button type="submit" class="btn btn-success">Ajouter le voyage</button>
+    </div>
+    
+    {{ form_end(form) }}
+</div>
 
-		{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'form-vertical'}}) }}
+<script>
 
-		<div class="form-group mb-3">
-			{{ form_label(form.nom) }}
-			{{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Donner le nom du voyage'}}) }}
-			{{ form_errors(form.nom) }}
-		</div>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("it's showtime!");
+    if (!('MediaRecorder' in window)) {
+        alert('Votre navigateur ne supporte pas l\'enregistrement audio. Veuillez utiliser Chrome, Firefox, ou Edge.');
+        return;
+    }
 
-		<div class="form-group mb-3">
-			{{ form_label(form.destination) }}
-			{{ form_widget(form.destination, {'attr': {'class': 'form-control'}}) }}
-			{{ form_errors(form.destination) }}
-		</div>
+    // Configuration
+    const nomButton = document.getElementById('record-nom');
+    const nomStopButton = document.getElementById('stop-nom');
+    const nomStatus = document.getElementById('nom-recording-status');
+    const nomTranscription = document.getElementById('nom-transcription');
+    const nomInput = document.getElementById('voyage_nom');
 
-		<div class="form-group mb-3">
-			{{ form_label(form.dateDepart) }}
-			{{ form_widget(form.dateDepart, {'attr': {
-                            'class': 'form-control ' ~ (form.dateDepart.vars.errors|length ? 'is-invalid' : ''),
-                            'min': ''|date_modify('+7 days')|date('Y-m-d')
-                        }}) }}
-			{{ form_errors(form.dateDepart) }}
+    const descButton = document.getElementById('record-description');
+    const descStopButton = document.getElementById('stop-description');
+    const descStatus = document.getElementById('description-recording-status');
+    const descTranscription = document.getElementById('description-transcription');
+    const descInput = document.getElementById('voyage_description');
 
+    let mediaRecorder;
+    let audioChunks = [];
+    let currentField = null;
+    let recognition = null;
 
-		</div>
+    // Set up speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'fr-FR'; // Set language to French, change as needed
 
-		<div class="form-group mb-3">
-			{{ form_label(form.dateArrive) }}
-			{{ form_widget(form.dateArrive, {'attr': {
-                            'class': 'form-control ' ~ (form.dateArrive.vars.errors|length ? 'is-invalid' : ''),
-                            'min': ''|date_modify('+7 days')|date('Y-m-d')
-                        }}) }}
-			{{ form_errors(form.dateArrive) }}
-		</div>
+        recognition.onresult = function(event) {
+            const transcriptionEl = currentField === 'nom' ? nomTranscription : descTranscription;
+            const inputEl = currentField === 'nom' ? nomInput : descInput;
+            
+            let interimTranscript = '';
+            let finalTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+            
+            // Display the transcription
+            transcriptionEl.innerHTML = `<div>${finalTranscript + interimTranscript}</div>`;
+            
+            // Update the form field with final transcript
+            if (finalTranscript) {
+                inputEl.value = finalTranscript;
+            }
+        };
 
-		<div class="form-group mb-3">
-			{{ form_label(form.prix) }}
-			{{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Donner le prix'}}) }}
-			{{ form_errors(form.prix) }}
-		</div>
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error', event.error);
+            stopRecording();
+        };
+    } else {
+        alert('La reconnaissance vocale n\'est pas supportée par votre navigateur.');
+    }
 
-		<div class="form-group">
-			{{ form_label(form.description) }}
-			{{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Donner une description'}}) }}
-			{{ form_errors(form.description) }}
-		</div>
+    // Start recording for nom field
+    nomButton.addEventListener('click', function() {
+        startRecording('nom');
+    });
+    
+    // Start recording for description field
+    descButton.addEventListener('click', function() {
+        startRecording('description');
+    });
+    
+    // Stop recording for nom field
+    nomStopButton.addEventListener('click', function() {
+        stopRecording();
+    });
+    
+    // Stop recording for description field
+    descStopButton.addEventListener('click', function() {
+        stopRecording();
+    });
 
-		<div class="form-group mb-3">
-			{{ form_label(form.formule) }}
-			{{ form_widget(form.formule, {'attr': {'class': 'form-control'}}) }}
-			{{ form_errors(form.formule) }}
-		</div>
+    // Start recording and transcription
+    async function startRecording(field) {
+        try {
+            // Set the current field
+            currentField = field;
+            
+            // UI updates
+            const button = field === 'nom' ? nomButton : descButton;
+            const stopButton = field === 'nom' ? nomStopButton : descStopButton;
+            const status = field === 'nom' ? nomStatus : descStatus;
+            
+            button.style.display = 'none';
+            stopButton.style.display = 'inline-block';
+            status.innerHTML = '<span class="recording">Enregistrement en cours...</span>';
+            
+            // Get audio stream
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            
+            // Start speech recognition
+            if (recognition) {
+                recognition.start();
+            }
+            
+            // Start recording audio
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            
+            mediaRecorder.addEventListener('dataavailable', event => {
+                audioChunks.push(event.data);
+            });
+            
+            mediaRecorder.addEventListener('stop', async () => {
+                // Create audio blob
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                
+                // Upload the audio file
+                await uploadAudio(audioBlob, field);
+            });
+            
+            mediaRecorder.start();
+        } catch (err) {
+            console.error('Error starting recording:', err);
+            alert('Impossible de démarrer l\'enregistrement. Veuillez vérifier les permissions du microphone.');
+        }
+    }
 
-		<div class="text-center">
-			<button type="submit" class="btn btn-success">Ajouter le voyage</button>
-		</div>
+    // Stop recording
+    function stopRecording() {
+        // Stop speech recognition
+        if (recognition) {
+            recognition.stop();
+        }
+        
+        // Stop media recorder if it's active
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            
+            // Stop all audio tracks
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        }
+        
+        // Reset UI
+        const button = currentField === 'nom' ? nomButton : descButton;
+        const stopButton = currentField === 'nom' ? nomStopButton : descStopButton;
+        const status = currentField === 'nom' ? nomStatus : descStatus;
+        
+        button.style.display = 'inline-block';
+        stopButton.style.display = 'none';
+        status.innerHTML = '<span>Enregistrement terminé</span>';
+    }
 
-		{{ form_end(form) }}
-	</div>
+    // Upload audio to server
+    async function uploadAudio(blob, field) {
+        try {
+            // Create FormData
+            const formData = new FormData();
+            formData.append('audio', blob, `${field}_recording.webm`);
+            formData.append('field', field);
+            
+            // Send to server
+            const response = await fetch('/audio/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error('Erreur lors de l\'envoi de l\'audio');
+            }
+            
+            const result = await response.json();
+            console.log('Audio uploaded successfully:', result);
+        } catch (err) {
+            console.error('Error uploading audio:', err);
+        }
+    }
+});
+
+</script>
 {% endblock %}

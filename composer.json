@@ -15,6 +15,7 @@
         "knplabs/knp-paginator-bundle": "^6.8",
         "lexik/jwt-authentication-bundle": "^2.18",
         "nelmio/cors-bundle": "^2.5",
+        "oneup/uploader-bundle": "*",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.1",
         "symfony/asset": "6.4.*",

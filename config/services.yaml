@@ -5,6 +5,7 @@ parameters:
     evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
     voyages_images_directory: '%kernel.project_dir%/public/uploads/voyages'
     destinations_images_directory: '%kernel.project_dir%/public/uploads/destinations'
+    audio_directory: '%kernel.project_dir%/public/uploads/audio'
 
 
 services:
@@ -27,4 +28,8 @@ services:
         class: App\Service\EmailService
         arguments:
             $mailer: '@mailer'
+
+    App\Controller\AudioController:
+        arguments:
+            $audioDirectory: '%audio_directory%'
     
