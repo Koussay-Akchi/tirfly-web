@@ -40,10 +40,11 @@ class ChatController extends AbstractController
         if (!$user) {
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
-
+    
         $chats = $chatRepository->findChatsForUser($user);
-
+    
         if (empty($chats) && in_array('ROLE_CLIENT', $user->getRoles())) {
+            // Find support users
             $rsm = new ResultSetMapping();
             $rsm->addEntityResult(User::class, 'u');
             $rsm->addFieldResult('u', 'id', 'id');
@@ -54,7 +55,7 @@ class ChatController extends AbstractController
             $rsm->addFieldResult('u', 'prenom', 'prenom');
             $rsm->addFieldResult('u', 'resetToken', 'resetToken');
             $rsm->addFieldResult('u', 'resetTokenExpiresAt', 'resetTokenExpiresAt');
-
+    
             $query = $em->createNativeQuery(
                 'SELECT id, dateCreation, email, MotDePasse, nom, prenom, resetToken, resetTokenExpiresAt 
                  FROM users 
@@ -63,32 +64,54 @@ class ChatController extends AbstractController
             );
             $query->setParameter('role', 'SUPPORT');
             $supportUsers = $query->getResult();
-
+    
             if (empty($supportUsers)) {
                 $allRoles = $em->createNativeQuery('SELECT DISTINCT role FROM users', new ResultSetMapping())->getResult();
                 throw $this->createNotFoundException(
                     'Aucun utilisateur de support disponible. Rôles trouvés : ' . json_encode($allRoles)
                 );
             }
-
-            $randomSupport = $supportUsers[array_rand($supportUsers)];
-
+    
+            // Find the support user with the least chats
+            $supportChatCounts = [];
+            foreach ($supportUsers as $support) {
+                $chatCount = $chatRepository->createQueryBuilder('c')
+                    ->select('COUNT(c.id)')
+                    ->where('c.support = :support')
+                    ->setParameter('support', $support)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+                $supportChatCounts[$support->getId()] = $chatCount;
+            }
+    
+            // Find the minimum chat count
+            $minChatCount = min($supportChatCounts);
+    
+            // Get all support users with the minimum chat count
+            $leastBusySupports = array_filter($supportUsers, function ($support) use ($supportChatCounts, $minChatCount) {
+                return $supportChatCounts[$support->getId()] === $minChatCount;
+            });
+    
+            // Pick a random support user from the least busy ones
+            $randomSupport = $leastBusySupports[array_rand($leastBusySupports)];
+    
+            // Create new chat
             $newChat = new Chat();
             $newChat->setClient($user);
             $newChat->setSupport($randomSupport);
             $em->persist($newChat);
             $em->flush();
-
+    
             $chats = [$newChat];
             $chat = $newChat;
         }
-
+    
         $messages = [];
         if ($chat) {
             if ($chat->getClient() !== $user && $chat->getSupport() !== $user) {
                 throw $this->createAccessDeniedException('Vous n’avez pas accès à ce chat.');
             }
-
+    
             $messages = $messageRepository->createQueryBuilder('m')
                 ->where('m.chat = :chat')
                 ->setParameter('chat', $chat)
@@ -96,7 +119,7 @@ class ChatController extends AbstractController
                 ->getQuery()
                 ->getResult();
         }
-
+    
         return $this->render('chat/index.html.twig', [
             'chats' => $chats,
             'selectedChat' => $chat,
