@@ -36,7 +36,7 @@
 						</td>
 						<td>
 							<div class="table-actions" style="display: flex; gap: 5px">
-								<button class="btn btn-success" onclick="window.location.href='{{ path('details_voyage', {'id': voyage.id}) }}'">Details</button>
+								<button class="btn btn-success" onclick="window.location.href='{{ path('details_voyage_admin', {'id': voyage.id}) }}'">Details</button>
 								<button class="btn btn-primary" onclick="window.location.href='{{ path('edit_voyage', {'id': voyage.id}) }}'">Modifier</button>
 								<button class="btn btn-danger" onclick="if(confirm('Supprimer ce voyage ?')) window.location.href='{{ path('delete_voyage', {'id': voyage.id}) }}'">Supprimer</button>
 							</div>
