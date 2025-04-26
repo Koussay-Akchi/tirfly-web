@@ -421,13 +421,12 @@ public function index(
     HebergementRepository $repository,
     PaginatorInterface $paginator
 ): Response {
-    // Process amenities - ensure it's always an array of integers
+    // Traitement des paramètres
     $amenities = array_filter(
         array_map('intval', (array)($request->query->all('amenities') ?? [])),
         fn($item) => $item > 0
     );
 
-    // Process other parameters with stricter validation
     $searchQuery = trim((string)$request->query->get('query', ''));
     $type = in_array($request->query->get('type'), ['hotel', 'logement', 'foyer', ''], true) 
         ? $request->query->get('type') 
@@ -442,7 +441,7 @@ public function index(
     
     $page = max(1, $request->query->getInt('page', 1));
 
-    // Build query
+    // Construction de la query
     $query = $repository->createSearchQueryBuilder(
         $searchQuery,
         $type,
@@ -453,7 +452,7 @@ public function index(
         $sort
     );
 
-    // Paginate results
+    // Pagination
     $hebergements = $paginator->paginate(
         $query,
         $page,
@@ -465,6 +464,18 @@ public function index(
         ]
     );
 
+    // Prepare image data for binary images
+    $imageData = [];
+    foreach ($hebergements as $hebergement) {
+        if ($hebergement->getImage() && !preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $hebergement->getImage()) && 
+            !str_starts_with($hebergement->getImage(), '/uploads/') && 
+            !str_starts_with($hebergement->getImage(), 'http')) {
+            // Assume it's binary data
+            $imageData[$hebergement->getId()] = base64_encode($hebergement->getImage());
+        }
+    }
+
+    // Rendu de la bonne vue
     return $this->render('hebergement/cards.html.twig', [
         'hebergements' => $hebergements,
         'destinations' => $repository->findAllDestinations(),
@@ -477,9 +488,11 @@ public function index(
             'min_rating' => $minRating,
             'amenities' => $amenities,
             'sort' => $sort
-        ]
+        ],
+        'imageData' => $imageData // Pass the prepared image data to the template
     ]);
 }
+
 #[Route('/api/hebergement/autocomplete', name: 'api_hebergement_autocomplete')]
 public function autocomplete(Request $request, EntityManagerInterface $entityManager): JsonResponse
 {
