@@ -47,6 +47,7 @@
         "symfony/web-link": "6.4.*",
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/intl-extra": "^3.20",
         "twig/twig": "^2.12|^3.0"
     },
     "config": {

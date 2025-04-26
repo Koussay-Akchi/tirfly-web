@@ -16,7 +16,8 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-
+use Knp\Component\Pager\PaginatorInterface; 
+use Symfony\Component\HttpFoundation\JsonResponse;
 class HebergementController extends AbstractController
     { #[Route('/hebergements/ajout', name: 'app_hebergement_add')]
         public function add(Request $request, EntityManagerInterface $em): Response
@@ -415,23 +416,89 @@ public function specificFields(Hebergement $hebergement): Response
     return $this->render('hebergement/_specific_fields.html.twig', $templateData);
 }
 #[Route('/hebergements', name: 'app_hebergement_index')]
-public function index(HebergementRepository $hebergementRepository): Response
-{
-    $hebergements = $hebergementRepository->findAll(); // <-- tu dois récupérer les hébergements ici
+public function index(
+    Request $request,
+    HebergementRepository $repository,
+    PaginatorInterface $paginator
+): Response {
+    // Process amenities - ensure it's always an array of integers
+    $amenities = array_filter(
+        array_map('intval', (array)($request->query->all('amenities') ?? [])),
+        fn($item) => $item > 0
+    );
 
-    $imageData = [];
+    // Process other parameters with stricter validation
+    $searchQuery = trim((string)$request->query->get('query', ''));
+    $type = in_array($request->query->get('type'), ['hotel', 'logement', 'foyer', ''], true) 
+        ? $request->query->get('type') 
+        : '';
+    
+    $destination = max(0, (int)$request->query->get('destination', 0));
+    $maxPrice = min(10000, max(0, (float)$request->query->get('max_price', 500.0)));
+    $minRating = min(5, max(0, (int)$request->query->get('min_rating', 0)));
+    $sort = in_array($request->query->get('sort'), ['price_asc', 'price_desc', 'rating_desc', 'name_asc', ''], true)
+        ? $request->query->get('sort')
+        : '';
+    
+    $page = max(1, $request->query->getInt('page', 1));
 
-    foreach ($hebergements as $hebergement) {
-        if ($hebergement->getImage() && !preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $hebergement->getImage())) {
-            $imageData[$hebergement->getId()] = base64_encode($hebergement->getImage());
-        }
-    }
+    // Build query
+    $query = $repository->createSearchQueryBuilder(
+        $searchQuery,
+        $type,
+        $destination,
+        $maxPrice,
+        $minRating,
+        $amenities,
+        $sort
+    );
+
+    // Paginate results
+    $hebergements = $paginator->paginate(
+        $query,
+        $page,
+        12,
+        [
+            'defaultSortFieldName' => 'h.id',
+            'defaultSortDirection' => 'desc',
+            'distinct' => false
+        ]
+    );
 
     return $this->render('hebergement/cards.html.twig', [
         'hebergements' => $hebergements,
-        'imageData' => $imageData,
+        'destinations' => $repository->findAllDestinations(),
+        'allServices' => $repository->findAllServices(),
+        'current_filters' => [
+            'query' => $searchQuery,
+            'type' => $type,
+            'destination' => $destination,
+            'max_price' => $maxPrice,
+            'min_rating' => $minRating,
+            'amenities' => $amenities,
+            'sort' => $sort
+        ]
     ]);
 }
-
+#[Route('/api/hebergement/autocomplete', name: 'api_hebergement_autocomplete')]
+public function autocomplete(Request $request, EntityManagerInterface $entityManager): JsonResponse
+{
+    $query = $request->query->get('query', '');
+    
+    $results = $entityManager
+        ->getRepository(Hebergement::class)
+        ->createQueryBuilder('h')
+        ->where('h.nom LIKE :query')
+        ->setParameter('query', '%'.$query.'%')
+        ->setMaxResults(10)
+        ->getQuery()
+        ->getResult();
+    
+    $formattedResults = array_map(function($hebergement) {
+        return $hebergement->getNom();
+    }, $results);
+    
+    return new JsonResponse($formattedResults);
+}
 
 }

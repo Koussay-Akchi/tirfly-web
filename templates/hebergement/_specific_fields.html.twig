@@ -39,6 +39,24 @@
             border-color: #2575fc;
         }
         
+        /* Translation Button */
+        .translation-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 1000;
+            background: #2575fc;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
         /* Main Content Styles */
         .detail-card {
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
@@ -193,6 +211,56 @@
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 1rem;
+        }
+        
+        /* Similar Hotels Styles */
+        .similar-hotel-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+        
+        .similar-hotel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+        }
+        
+        .hotel-img-placeholder {
+            height: 150px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        /* Places to Visit Styles */
+        .place-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+        
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+        }
+        
+        .place-img-placeholder {
+            height: 150px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            border-radius: 10px 10px 0 0;
         }
         
         /* Footer Styles */
@@ -452,6 +520,36 @@
                                 </div>
                             {% endif %}
                         </div>
+                        
+                        <!-- Nearby Places Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-map-marked-alt me-2"></i>Lieux à visiter à proximité
+                            </h3>
+                            <div id="nearbyPlaces" class="row">
+                                <div class="col-12 text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Chargement...</span>
+                                    </div>
+                                    <p class="mt-2">Chargement des lieux à visiter à proximité...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Similar Hotels in Same Country Section -->
+            <div class="card-body border-top">
+                <h3 class="section-title">
+                    <i class="fas fa-hotel me-2"></i>Hébergements similaires dans {{ hebergement.destination.pays ?? 'cette région' }}
+                </h3>
+                <div id="similarHotels" class="row">
+                    <div class="col-12 text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <p class="mt-2">Chargement des hébergements similaires...</p>
                     </div>
                 </div>
             </div>
@@ -475,6 +573,11 @@
         </div>
     </div>
 
+    <!-- Translation Button -->
+    <div class="translation-btn" id="translationBtn" title="Translate to English">
+        <i class="fas fa-language"></i>
+    </div>
+
     <!-- API Information Modal -->
     <div class="modal fade" id="apiModal" tabindex="-1" aria-labelledby="apiModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -493,6 +596,11 @@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="tripadvisor-tab" data-bs-toggle="tab" data-bs-target="#tripadvisor" type="button" role="tab">
                                 <i class="fas fa-star me-1"></i> TripAdvisor
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="translation-tab" data-bs-toggle="tab" data-bs-target="#translation" type="button" role="tab">
+                                <i class="fas fa-language me-1"></i> Traduction
                             </button>
                         </li>
                     </ul>
@@ -514,6 +622,32 @@
                                         <span class="visually-hidden">Chargement...</span>
                                     </div>
                                     <p class="mt-2">Chargement des informations TripAdvisor...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="translation" role="tabpanel">
+                            <div id="translationResults">
+                                <div class="mb-3">
+                                    <label for="translationText" class="form-label">Texte à traduire:</label>
+                                    <textarea class="form-control" id="translationText" rows="3">{{ hebergement.description ?? '' }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="targetLanguage" class="form-label">Langue cible:</label>
+                                    <select class="form-select" id="targetLanguage">
+                                        <option value="en">Anglais</option>
+                                        <option value="es">Espagnol</option>
+                                        <option value="de">Allemand</option>
+                                        <option value="it">Italien</option>
+                                        <option value="pt">Portugais</option>
+                                        <option value="ru">Russe</option>
+                                    </select>
+                                </div>
+                                <button id="translateBtn" class="btn btn-primary">
+                                    <i class="fas fa-language me-1"></i> Traduire
+                                </button>
+                                <div id="translationResult" class="mt-3 p-3 bg-light rounded" style="display: none;">
+                                    <h5>Résultat de la traduction:</h5>
+                                    <p id="translatedText"></p>
                                 </div>
                             </div>
                         </div>
@@ -588,142 +722,527 @@
         <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
                 integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
                 crossorigin=""></script>
-        
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const map = L.map('map').setView([
-                    {{ hebergement.destination.latitude }},
-                    {{ hebergement.destination.longitude }}
-                ], 13);
-                
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(map);
-                
-                const customIcon = L.icon({
-                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34]
-                });
-                
-                L.marker([
-                    {{ hebergement.destination.latitude }},
-                    {{ hebergement.destination.longitude }}
-                ], {icon: customIcon}).addTo(map)
-                  .bindPopup("<b>{{ hebergement.nom }}</b><br>{{ hebergement.destination.ville }}")
-                  .openPopup();
-            });
-        </script>
     {% endif %}
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Go top button functionality
-            const goTopBtn = document.querySelector('.go-top');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize map if available
+        {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+            const map = L.map('map').setView([
+                {{ hebergement.destination.latitude }},
+                {{ hebergement.destination.longitude }}
+            ], 13);
             
-            window.addEventListener('scroll', function() {
-                if (window.pageYOffset > 300) {
-                    goTopBtn.style.display = 'flex';
-                } else {
-                    goTopBtn.style.display = 'none';
-                }
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            const customIcon = L.icon({
+                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
             });
             
-            goTopBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-            
-            // API Integration for "Plus d'infos" button
-            const moreInfoBtn = document.getElementById('moreInfoBtn');
-            const apiModal = new bootstrap.Modal(document.getElementById('apiModal'));
-            
-            moreInfoBtn.addEventListener('click', function() {
-                apiModal.show();
-                loadGovernmentData();
-            });
-            
-            // Tab event listeners
-            document.getElementById('tripadvisor-tab').addEventListener('click', function() {
-                loadTripAdvisorData();
-            });
-            
-            // Load government data
-            function loadGovernmentData() {
-                const establishmentName = "{{ hebergement.nom }}";
-                const city = "{{ hebergement.destination.ville ?? '' }}";
-                const resultsContainer = document.getElementById('governmentResults');
-                
-                // Using French government OpenData API
-                fetch(`https://tourisme.data.gouv.fr/api/v2/establishments?name=${encodeURIComponent(establishmentName)}&city=${encodeURIComponent(city)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        let html = '';
-                        
-                        if (data.data && data.data.length > 0) {
-                            html = '<div class="row">';
-                            data.data.slice(0, 3).forEach(establishment => {
-                                html += `
-                                <div class="col-md-6 mb-3">
-                                    <div class="card h-100 api-result-card">
-                                        <div class="card-body">
-                                            <h5><i class="fas fa-hotel"></i> ${establishment.name}</h5>
-                                            <p class="text-muted">${establishment.description || 'Aucune description disponible'}</p>
-                                            <p><i class="fas fa-map-marker-alt"></i> ${establishment.address || 'Adresse non disponible'}</p>
-                                            ${establishment.website ? `<a href="${establishment.website}" target="_blank" class="btn btn-sm btn-outline-primary">Visiter le site</a>` : ''}
-                                        </div>
-                                    </div>
-                                </div>`;
-                            });
-                            html += '</div>';
-                        } else {
-                            html = `
-                            <div class="alert alert-info mt-3">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Aucune information officielle trouvée pour cet établissement.
-                                <a href="https://tourisme.data.gouv.fr" target="_blank" class="alert-link">Visiter tourisme.data.gouv.fr</a>
-                            </div>`;
-                        }
-                        
-                        resultsContainer.innerHTML = html;
-                    })
-                    .catch(error => {
-                        resultsContainer.innerHTML = `
-                        <div class="alert alert-danger mt-3">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Erreur lors du chargement des données gouvernementales.
-                            <a href="https://tourisme.data.gouv.fr" target="_blank" class="alert-link">Accéder au site</a>
-                        </div>`;
-                    });
-            }
-            
-            // Load TripAdvisor data
-            function loadTripAdvisorData() {
-                const establishmentName = "{{ hebergement.nom }}";
-                const city = "{{ hebergement.destination.ville ?? '' }}";
-                const country = "{{ hebergement.destination.pays ?? '' }}";
-                const resultsContainer = document.getElementById('tripadvisorResults');
-                
-                // Since TripAdvisor API requires authentication, we'll use a search link
-                const tripAdvisorUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(establishmentName + ' ' + city + ' ' + country)}`;
-                
-                resultsContainer.innerHTML = `
-                <div class="text-center py-4">
-                    <h5><i class="fas fa-star"></i> Avis sur TripAdvisor</h5>
-                    <p class="my-3">Consultez les avis et informations sur TripAdvisor</p>
-                    <a href="${tripAdvisorUrl}" target="_blank" class="btn btn-success">
-                        <i class="fas fa-external-link-alt me-1"></i> Voir sur TripAdvisor
-                    </a>
-                    <div class="mt-3">
-                        <small class="text-muted">TripAdvisor est un service tiers non affilié à notre site.</small>
-                    </div>
-                </div>`;
+            L.marker([
+                {{ hebergement.destination.latitude }},
+                {{ hebergement.destination.longitude }}
+            ], {icon: customIcon}).addTo(map)
+              .bindPopup("<b>{{ hebergement.nom }}</b><br>{{ hebergement.destination.ville }}")
+              .openPopup();
+        {% endif %}
+
+        // Load similar accommodations in same country using OpenTripMap API
+        loadSimilarAccommodations();
+        
+        // Load nearby places to visit
+        loadNearbyPlaces();
+        
+        // Go top button functionality
+        const goTopBtn = document.querySelector('.go-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                goTopBtn.style.display = 'flex';
+            } else {
+                goTopBtn.style.display = 'none';
             }
         });
-    </script>
+        
+        goTopBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // API Integration for "Plus d'infos" button
+        const moreInfoBtn = document.getElementById('moreInfoBtn');
+        const apiModal = new bootstrap.Modal(document.getElementById('apiModal'));
+        
+        moreInfoBtn.addEventListener('click', function() {
+            apiModal.show();
+            loadGovernmentData();
+        });
+        
+        // Tab event listeners
+        document.getElementById('tripadvisor-tab').addEventListener('click', function() {
+            loadTripAdvisorData();
+        });
+        
+        // Translation button
+        const translationBtn = document.getElementById('translationBtn');
+        translationBtn.addEventListener('click', function() {
+            apiModal.show();
+            // Switch to translation tab
+            const translationTab = new bootstrap.Tab(document.getElementById('translation-tab'));
+            translationTab.show();
+        });
+        
+        // Translation functionality
+        document.getElementById('translateBtn').addEventListener('click', function() {
+            const text = document.getElementById('translationText').value;
+            const targetLanguage = document.getElementById('targetLanguage').value;
+            
+            if (!text) {
+                alert('Veuillez entrer du texte à traduire');
+                return;
+            }
+            
+            translateText(text, targetLanguage);
+        });
+    });
+
+    // Function to load similar accommodations in the same country using OpenTripMap API
+    function loadSimilarAccommodations() {
+        const container = document.getElementById('similarHotels');
+        const country = "{{ hebergement.destination.pays|default('') }}";
+        const currentId = {{ hebergement.id }};
+        
+        if (!country) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        Pays non spécifié - impossible de trouver des hébergements similaires.
+                    </div>
+                </div>`;
+            return;
+        }
+
+        // OpenTripMap API key (free tier)
+        const apiKey = '5ae2e3f221c38a28845f05b6e1e72f6e6fae9bc6a9473af209e333f9';
+        const limit = 4;
+        const radius = 50000; // 50km radius
+        const kinds = 'accomodations'; // Accommodation types
+        
+        // First get country coordinates from country name
+        fetch(`https://api.opentripmap.com/0.1/en/places/geoname?name=${encodeURIComponent(country)}&apikey=${apiKey}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(countryData => {
+                if (!countryData || !countryData.lat || !countryData.lon) {
+                    throw new Error('Country coordinates not found');
+                }
+                
+                // Now find accommodations in this area
+                return fetch(`https://api.opentripmap.com/0.1/en/places/radius?radius=${radius}&lon=${countryData.lon}&lat=${countryData.lat}&kinds=${kinds}&limit=${limit}&apikey=${apiKey}`);
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                if (data.features && data.features.length > 0) {
+                    let html = '';
+                    let count = 0;
+                    const currentName = "{{ hebergement.nom }}".toLowerCase();
+                    
+                    data.features.forEach(place => {
+                        // Skip current accommodation and limit to 3 results
+                        if (place.properties.name.toLowerCase() === currentName || count >= 3) return;
+                        
+                        const name = place.properties.name || 'Hébergement similaire';
+                        const city = place.properties.city || place.properties.district || '';
+                        const rate = place.properties.rate ? Math.min(5, Math.max(1, Math.round(place.properties.rate/2))) : 3;
+                        
+                        html += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 similar-hotel-card">
+                                <div class="hotel-img-placeholder">
+                                    <i class="fas fa-hotel fa-3x"></i>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">${name}</h5>
+                                                                        <p class="card-text text-muted small mb-2">
+                                        <i class="fas fa-map-marker-alt"></i> ${city}
+                                    </p>
+                                    <div class="star-rating small mb-3">
+                                        ${'<i class="fas fa-star"></i>'.repeat(rate)}
+                                        ${'<i class="far fa-star"></i>'.repeat(5 - rate)}
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <a href="https://www.openstreetmap.org/?mlat=${place.geometry.coordinates[1]}&mlon=${place.geometry.coordinates[0]}" 
+                                       target="_blank" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        Voir sur la carte
+                                    </a>
+                                </div>
+                            </div>
+                        </div>`;
+                        
+                        count++;
+                    });
+                    
+                    container.innerHTML = count > 0 ? html : `
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Aucun hébergement similaire trouvé dans ce pays.
+                            </div>
+                        </div>`;
+                } else {
+                    container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            Aucun hébergement similaire trouvé dans ce pays.
+                        </div>
+                    </div>`;
+                }
+            })
+            .catch(error => {
+                console.error("Error loading similar accommodations:", error);
+                container.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Impossible de charger les hébergements similaires.
+                    </div>
+                </div>`;
+            });
+    }
+
+    // Function to load nearby places to visit using OpenTripMap API
+    function loadNearbyPlaces() {
+        const container = document.getElementById('nearbyPlaces');
+        
+        {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+            const lat = {{ hebergement.destination.latitude }};
+            const lon = {{ hebergement.destination.longitude }};
+            
+            // OpenTripMap API key (free tier)
+            const apiKey = '5ae2e3f221c38a28845f05b6e1e72f6e6fae9bc6a9473af209e333f9';
+            const radius = 10000; // 10km radius
+            const limit = 6;
+            const kinds = 'interesting_places,tourist_facilities'; // Types of places
+            
+            fetch(`https://api.opentripmap.com/0.1/en/places/radius?radius=${radius}&lon=${lon}&lat=${lat}&kinds=${kinds}&limit=${limit}&apikey=${apiKey}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.features && data.features.length > 0) {
+                        let html = '';
+                        
+                        data.features.forEach(place => {
+                            const name = place.properties.name || 'Lieu intéressant';
+                            const distance = place.properties.dist ? Math.round(place.properties.dist) : 'N/A';
+                            const rate = place.properties.rate ? Math.min(5, Math.max(1, Math.round(place.properties.rate/2))) : 3;
+                            
+                            // Get appropriate icon based on place kind
+                            let iconClass = 'fa-map-marker-alt';
+                            if (place.properties.kinds) {
+                                if (place.properties.kinds.includes('museum')) iconClass = 'fa-landmark';
+                                else if (place.properties.kinds.includes('park')) iconClass = 'fa-tree';
+                                else if (place.properties.kinds.includes('beach')) iconClass = 'fa-umbrella-beach';
+                                else if (place.properties.kinds.includes('restaurant')) iconClass = 'fa-utensils';
+                                else if (place.properties.kinds.includes('castle')) iconClass = 'fa-chess-rook';
+                            }
+                            
+                            html += `
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 place-card">
+                                    <div class="place-img-placeholder">
+                                        <i class="fas ${iconClass} fa-3x"></i>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">${name}</h5>
+                                        <p class="card-text text-muted small mb-2">
+                                            <i class="fas fa-map-marker-alt"></i> ${distance}m de distance
+                                        </p>
+                                        <div class="star-rating small mb-3">
+                                            ${'<i class="fas fa-star"></i>'.repeat(rate)}
+                                            ${'<i class="far fa-star"></i>'.repeat(5 - rate)}
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-white">
+                                        <a href="https://www.openstreetmap.org/?mlat=${place.geometry.coordinates[1]}&mlon=${place.geometry.coordinates[0]}" 
+                                           target="_blank" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            Voir sur la carte
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>`;
+                        });
+                        
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Aucun lieu intéressant trouvé à proximité.
+                            </div>
+                        </div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading nearby places:", error);
+                    container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Impossible de charger les lieux à visiter à proximité.
+                        </div>
+                    </div>`;
+                });
+        {% else %}
+            container.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Localisation non spécifiée - impossible de trouver des lieux à visiter à proximité.
+                </div>
+            </div>`;
+        {% endif %}
+    }
+
+    // Function to load government data
+    function loadGovernmentData() {
+        const establishmentName = "{{ hebergement.nom }}";
+        const city = "{{ hebergement.destination.ville ?? '' }}";
+        const resultsContainer = document.getElementById('governmentResults');
+        
+        // Using French government OpenData API
+        fetch(`https://tourisme.data.gouv.fr/api/v2/establishments?name=${encodeURIComponent(establishmentName)}&city=${encodeURIComponent(city)}`)
+            .then(response => response.json())
+            .then(data => {
+                let html = '';
+                
+                if (data.data && data.data.length > 0) {
+                    html = '<div class="row">';
+                    data.data.slice(0, 3).forEach(establishment => {
+                        html += `
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 api-result-card">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-hotel"></i> ${establishment.name}</h5>
+                                    <p class="text-muted">${establishment.description || 'Aucune description disponible'}</p>
+                                    <p><i class="fas fa-map-marker-alt"></i> ${establishment.address || 'Adresse non disponible'}</p>
+                                    ${establishment.website ? `<a href="${establishment.website}" target="_blank" class="btn btn-sm btn-outline-primary">Visiter le site</a>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                } else {
+                    html = `
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucune information officielle trouvée pour cet établissement.
+                        <a href="https://tourisme.data.gouv.fr" target="_blank" class="alert-link">Visiter tourisme.data.gouv.fr</a>
+                    </div>`;
+                }
+                
+                resultsContainer.innerHTML = html;
+            })
+            .catch(error => {
+                resultsContainer.innerHTML = `
+                <div class="alert alert-danger mt-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Erreur lors du chargement des données gouvernementales.
+                    <a href="https://tourisme.data.gouv.fr" target="_blank" class="alert-link">Accéder au site</a>
+                </div>`;
+            });
+    }
+    
+    // Function to load TripAdvisor data
+    function loadTripAdvisorData() {
+        const establishmentName = "{{ hebergement.nom }}";
+        const city = "{{ hebergement.destination.ville ?? '' }}";
+        const country = "{{ hebergement.destination.pays ?? '' }}";
+        const resultsContainer = document.getElementById('tripadvisorResults');
+        
+        // Since TripAdvisor API requires authentication, we'll use a search link
+        const tripAdvisorUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(establishmentName + ' ' + city + ' ' + country)}`;
+        
+        resultsContainer.innerHTML = `
+        <div class="text-center py-4">
+            <h5><i class="fas fa-star"></i> Avis sur TripAdvisor</h5>
+            <p class="my-3">Consultez les avis et informations sur TripAdvisor</p>
+            <a href="${tripAdvisorUrl}" target="_blank" class="btn btn-success">
+                <i class="fas fa-external-link-alt me-1"></i> Voir sur TripAdvisor
+            </a>
+            <div class="mt-3">
+                <small class="text-muted">TripAdvisor est un service tiers non affilié à notre site.</small>
+            </div>
+        </div>`;
+    }
+    
+    // Improved translation function with multiple fallback options
+function translateText(text, targetLanguage) {
+    const resultContainer = document.getElementById('translationResult');
+    const translatedText = document.getElementById('translatedText');
+    
+    // Show loading state
+    translatedText.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Traduction en cours...';
+    resultContainer.style.display = 'block';
+
+    // Try MyMemory API first
+    tryMyMemoryAPI(text, targetLanguage, translatedText)
+        .catch(() => {
+            // If MyMemory fails, try LibreTranslate with CORS proxy
+            return tryLibreTranslate(text, targetLanguage, translatedText);
+        })
+        .catch(() => {
+            // If all APIs fail, use browser's built-in translation
+            return tryBrowserTranslation(text, targetLanguage, translatedText);
+        })
+        .catch(() => {
+            // Final fallback to hardcoded translations
+            showFallbackTranslation(text, targetLanguage, translatedText);
+        });
+}
+
+// Try MyMemory Translation API
+function tryMyMemoryAPI(text, targetLanguage, translatedText) {
+    return new Promise((resolve, reject) => {
+        const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=fr|${targetLanguage}`;
+
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('API error');
+                return response.json();
+            })
+            .then(data => {
+                if (data.responseData && data.responseData.translatedText) {
+                    translatedText.textContent = data.responseData.translatedText;
+                    resolve();
+                } else {
+                    throw new Error('No translation data');
+                }
+            })
+            .catch(error => {
+                console.log("MyMemory API failed, trying next option...");
+                reject(error);
+            });
+    });
+}
+
+// Try LibreTranslate with CORS proxy
+function tryLibreTranslate(text, targetLanguage, translatedText) {
+    return new Promise((resolve, reject) => {
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const apiUrl = 'https://libretranslate.de/translate';
+        
+        const data = {
+            q: text,
+            source: 'fr',
+            target: targetLanguage
+        };
+
+        fetch(proxyUrl + apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('API error');
+                return response.json();
+            })
+            .then(data => {
+                if (data.translatedText) {
+                    translatedText.textContent = data.translatedText;
+                    resolve();
+                } else {
+                    throw new Error('No translation data');
+                }
+            })
+            .catch(error => {
+                console.log("LibreTranslate failed, trying next option...");
+                reject(error);
+            });
+    });
+}
+
+// Try browser's built-in translation
+function tryBrowserTranslation(text, targetLanguage, translatedText) {
+    return new Promise((resolve, reject) => {
+        const tempElement = document.createElement('div');
+        tempElement.id = 'temp-translation';
+        tempElement.style.display = 'none';
+        tempElement.setAttribute('translate', 'yes');
+        tempElement.lang = targetLanguage;
+        tempElement.textContent = text;
+        document.body.appendChild(tempElement);
+        
+        if (typeof tempElement.translate === 'function') {
+            tempElement.translate(true)
+                .then(() => {
+                    translatedText.textContent = tempElement.textContent;
+                    document.body.removeChild(tempElement);
+                    resolve();
+                })
+                .catch(error => {
+                    document.body.removeChild(tempElement);
+                    reject(error);
+                });
+        } else {
+            document.body.removeChild(tempElement);
+            reject(new Error('Browser translation not supported'));
+        }
+    });
+}
+
+// Final fallback to hardcoded translations
+function showFallbackTranslation(text, targetLanguage, translatedText) {
+    // Simple word replacements for common phrases
+    const wordMap = {
+        en: {
+            "Hôtel": "Hotel",
+            "Chambre": "Room",
+            "Petit déjeuner": "Breakfast",
+            "Piscine": "Pool",
+            "WiFi": "WiFi",
+            "Restaurant": "Restaurant"
+        },
+        es: {
+            "Hôtel": "Hotel",
+            "Chambre": "Habitación",
+            "Petit déjeuner": "Desayuno",
+            "Piscine": "Piscina",
+            "WiFi": "WiFi",
+            "Restaurant": "Restaurante"
+        },
+        // Add more languages as needed
+    };
+
+    if (wordMap[targetLanguage]) {
+        let result = text;
+        for (const [fr, trans] of Object.entries(wordMap[targetLanguage])) {
+            result = result.replace(new RegExp(fr, 'gi'), trans);
+        }
+        translatedText.textContent = result || "Translation unavailable";
+    } else {
+        translatedText.textContent = "Translation unavailable";
+    }
+}
+</script>
 </body>
 </html>

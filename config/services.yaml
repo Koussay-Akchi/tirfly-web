@@ -25,4 +25,18 @@ services:
         class: App\Service\EmailService
         arguments:
             $mailer: '@mailer'
-    
+            # config/services.yaml
+
+    App\Service\HuggingFaceService:
+        arguments:
+            $apiKey: '%env(HUGGINGFACE_API_KEY)%'
+            $model: '%env(HUGGINGFACE_MODEL)%'
+            # config/packages/knp_paginator.yaml
+# config/packages/twig.yaml
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    form_themes: ['bootstrap_5_layout.html.twig']
+    number_format:
+        decimals: 2
+        decimal_point: ','
+        thousands_separator: ' '
