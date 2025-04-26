@@ -11,69 +11,82 @@
             Choisissez parmi une sélection de packs de voyage complets incluant transport, hébergement et activités. Parfait pour vos prochaines aventures !
         </p>
 
-        <!-- Champ pour le code coupon -->
-        <div class="mb-4">
-            <input type="text" id="coupon-input" class="form-control" placeholder="Entrez un code promo">
-            <button class="btn btn-success mt-2" onclick="applyCoupon()">Appliquer le coupon</button>
-            <p id="coupon-feedback" class="mt-2 text-info"></p>
-        </div>
+     <!-- Champ pour le code coupon -->
+<div class="coupon-section mb-4">
+    <div class="input-group">
+        <input type="text" id="coupon-input" class="form-control" placeholder="Entrez un code promo" aria-label="Code promo" maxlength="20">
+        <button class="btn btn-success" type="button" onclick="applyCoupon()">
+            <i class="fas fa-tag me-2"></i>Appliquer
+        </button>
+    </div>
+    <p id="coupon-feedback" class="mt-2 text-info coupon-feedback"></p>
+</div>
 
         <ul class="popular-list">
-            {% for pack in packs.results %}
-                <li>
-                    <div class="popular-card" data-pack-id="{{ pack.id }}">
-                        <figure>
-                            {% if pack.image %}
-                                <img src="{{ asset('Uploads/packs/' ~ pack.image) }}" alt="Image du pack" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;">
-                            {% else %}
-                                <img src="{{ asset('images/default-pack.jpg') }}" alt="Image par défaut" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;">
-                            {% endif %}
-                        </figure>
+    {% if packs.results|length > 0 %}
+        {% for pack in packs.results %}
+            <li class="popular-item">
+                <div class="popular-card" data-pack-id="{{ pack.id }}">
+                    <!-- Image du pack -->
+                    <figure class="card-image">
+                        <img src="{{ pack.image ? asset('Uploads/packs/' ~ pack.image) : asset('images/default-pack.jpg') }}" 
+                             alt="{{ pack.nom }} image" 
+                             class="voyage-image">
+                    </figure>
 
-                        <div class="card-content">
-                            <div class="card-rating">
+                    <!-- Contenu de la carte -->
+                    <div class="card-content">
+                       
+                        
+
+                        <!-- Prix -->
+                            <div class="card-pricing">
                                 Prix original : <strong class="original-price">{{ pack.prix }} €</strong><br>
                                 <span class="discounted-price text-success fw-bold"></span>
                             </div>
 
-                            <p class="card-subtitle">
-                                {% if pack.voyages|length > 0 %}
-                                    {{ pack.voyages[0].nom }}
-                                {% else %}
-                                    Aucun voyage associé
-                                {% endif %}
-                            </p>
+                        <!-- Nom du voyage associé -->
+                        <p class="card-subtitle">
+                            {{ pack.voyages|length > 0 ? pack.voyages[0].nom : 'Aucun voyage associé' }}
+                        </p>
 
-                            <h3 class="h3 card-title">
-                                <a href="#">{{ pack.nom }}</a>
-                            </h3>
-                            
-                    {# Ajout des événements associés #}
-                    {% if pack.evenements|length > 0 %}
-                        <div class="pack-events mt-2">
-                            <h4 class="h6">Événements inclus :</h4>
-                            <ul class="event-list" style="list-style: none; padding-left: 0;">
-                                {% for event in pack.evenements %}
-                                    <li class="event-item mb-1">
-                                        <i class="fas fa-calendar-alt me-2 text-primary"></i>
-                                        {{ event.titre }} ({{ event.dateDebut|date('d/m/Y') }})
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
+                        <!-- Titre du pack -->
+                        <h3 class="h3 card-title">
+                            <a href="{{ path('app_pack_show', {id: pack.id}) }}">{{ pack.nom }}</a>
+                        </h3>
 
-                            <div class="d-flex flex-column align-items-center">
-                                <div class="qr-container" data-url="tirfly.com{{ path('app_pack_show', {id: pack.id}) }}" style="margin: 15px 0;"></div>
-                                <a href="#" class="btn btn-info btn-sm mt-2">Réserver</a>
+                        <!-- Événements associés -->
+                        {% if pack.evenements|length > 0 %}
+                            <div class="pack-events mt-3">
+                                <h4 class="h6">Événements inclus :</h4>
+                                <ul class="event-list">
+                                    {% for event in pack.evenements %}
+                                        <li class="event-item">
+                                            <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                                            {{ event.titre }} ({{ event.dateDebut|date('d/m/Y') }})
+                                        </li>
+                                    {% endfor %}
+                                </ul>
                             </div>
+                        {% endif %}
+
+                        <!-- QR Code et bouton de réservation -->
+                        <div class="card-actions mt-3">
+                            <div class="qr-container" 
+                                 data-url="tirfly.com{{ path('app_pack_show', {id: pack.id}) }}">
+                            </div>
+                            <a href="#" class="btn btn-info btn-sm mt-2">Réserver</a>
                         </div>
                     </div>
-                </li>
-            {% else %}
-                <p>Aucun pack trouvé.</p>
-            {% endfor %}
-        </ul>
+                </div>
+            </li>
+        {% endfor %}
+    {% else %}
+        <li class="no-results">
+            <p class="text-muted text-center">Aucun pack disponible pour le moment.</p>
+        </li>
+    {% endif %}
+</ul>
 
         {# Pagination Centrée #}
         {% if packs.total_pages > 1 %}
@@ -163,6 +176,96 @@
     </div>
 
     <style>
+
+  
+        /* Conteneur du champ coupon */
+.coupon-section {
+    max-width: 500px; /* Limite la largeur pour une meilleure apparence */
+    margin: 0 auto; /* Centre le conteneur */
+    padding: 15px;
+}
+
+/* Groupe input + bouton */
+.input-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Champ de saisie */
+#coupon-input {
+    border: 1px solid #ced4da;
+    border-right: none; /* Supprime la bordure droite pour fusionner avec le bouton */
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#coupon-input:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    outline: none;
+}
+
+/* Bouton */
+.btn-success {
+    background-color: #28a745;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+.btn-success:active {
+    transform: translateY(0);
+}
+
+/* Feedback */
+.coupon-feedback {
+    font-size: 0.9rem;
+    margin-top: 10px;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: opacity 0.3s ease;
+}
+
+.coupon-feedback.text-info {
+    color: #17a2b8;
+    background-color: rgba(23, 162, 184, 0.1);
+}
+
+.coupon-feedback.text-success {
+    color: #28a745;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.coupon-feedback.text-danger {
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .coupon-section {
+        padding: 10px;
+    }
+
+    #coupon-input {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    .btn-success {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+}
         /* Style pour la section Assistant AI (Chat) */
         .ai-pack-helper {
             max-width: 900px;
@@ -270,51 +373,144 @@
             100% { box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); }
         }
 
-        /* Styles pour les cartes de packs (inchangés sauf centrage du QR code et bouton) */
-        .voyage-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px 8px 0 0;
-        }
+        /* Liste des packs */
+.popular-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 0;
+    list-style: none;
+    margin: 0 0 40px;
+}
 
-        .popular-card {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-            height: 500px;
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-        }
+/* Élément de liste */
+.popular-item {
+    display: flex;
+}
 
-        .popular-card:hover {
-            transform: translateY(-5px);
-        }
+/* Carte de pack */
+.popular-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 520px;
+}
 
-        .card-content {
-            padding: 15px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
+.popular-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
 
-        .card-title {
-            margin: 10px 0;
-            font-size: 1.2rem;
-        }
+/* Image */
+.card-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
 
-        .popular-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            padding: 0;
-            list-style: none;
-            margin-bottom: 40px;
-        }
+/* Contenu de la carte */
+.card-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Prix */
+.card-pricing {
+    margin-bottom: 10px;
+}
+
+.original-price {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.discounted-price {
+    font-size: 1rem;
+    color: #28a745;
+}
+
+/* Sous-titre */
+.card-subtitle {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+/* Titre */
+.card-title {
+    font-size: 1.25rem;
+    margin: 0 0 15px;
+}
+
+.card-title a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.card-title a:hover {
+    text-decoration: underline;
+}
+
+/* Événements */
+.pack-events {
+    margin-bottom: 15px;
+}
+
+.pack-events h4 {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.event-list {
+    list-style: none;
+    padding: 0;
+    font-size: 0.85rem;
+}
+
+.event-item {
+    margin-bottom: 8px;
+}
+
+/* Actions (QR code et bouton) */
+.card-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.qr-container {
+    width: 100px;
+    height: 100px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Style pour aucun résultat */
+.no-results {
+    grid-column: 1 / -1;
+    padding: 20px;
+}
 
         /* Style de pagination (inchangé) */
         .pagination-wrapper {
@@ -558,3 +754,5 @@
     </script>
 </section>
 {% endblock %}
+
+

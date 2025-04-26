@@ -47,7 +47,9 @@
         "symfony/web-link": "6.4.*",
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "knplabs/knp-snappy-bundle": "^1.9",
+        "wemersonjanuario/wkhtmltopdf-windows": "^0.12"
     },
     "config": {
         "allow-plugins": {
@@ -107,5 +109,11 @@
         "symfony/phpunit-bridge": "^7.2",
         "symfony/stopwatch": "6.4.*",
         "symfony/web-profiler-bundle": "6.4.*"
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "http://repo.packagist.org"
+        }
     }
 }
