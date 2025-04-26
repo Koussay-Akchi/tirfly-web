@@ -385,13 +385,13 @@
                                     {{ hebergements.getTotalItemCount }} résultat(s) trouvé(s)
                                 </div>
                                 <div class="sort-options">
-                                    <select class="form-select" id="sortSelect">
-                                        <option value="">Trier par</option>
-                                        <option value="price_asc" {{ app.request.query.get('sort') == 'price_asc' ? 'selected' }}>Prix croissant</option>
-                                        <option value="price_desc" {{ app.request.query.get('sort') == 'price_desc' ? 'selected' }}>Prix décroissant</option>
-                                        <option value="rating_desc" {{ app.request.query.get('sort') == 'rating_desc' ? 'selected' }}>Meilleures notes</option>
-                                        <option value="name_asc" {{ app.request.query.get('sort') == 'name_asc' ? 'selected' }}>Nom (A-Z)</option>
-                                    </select>
+																<select class="form-select" id="sortSelect">
+								<option value="">Trier par</option>
+								<option value="price_asc" {{ app.request.query.get('sort') == 'price_asc' ? 'selected' }}>Prix croissant</option>
+								<option value="price_desc" {{ app.request.query.get('sort') == 'price_desc' ? 'selected' }}>Prix décroissant</option>
+								<option value="rating_desc" {{ app.request.query.get('sort') == 'rating_desc' ? 'selected' }}>Meilleures notes</option>
+								<option value="name_asc" {{ app.request.query.get('sort') == 'name_asc' ? 'selected' }}>Nom (A-Z)</option>
+							</select>
                                 </div>
                             </div>
                             
@@ -467,9 +467,11 @@
                                 </div>
                                 
                                 <!-- Pagination -->
-                                <div class="mt-4">
-                                    {{ knp_pagination_render(hebergements) }}
-                                </div>
+                               <div class="mt-4">
+    {{ knp_pagination_render(hebergements, null, {}, {
+        'wrap-queries': true
+    }) }}
+</div>
                             {% else %}
                                 <div class="empty-state">
                                     <i class="fas fa-hotel fa-3x mb-3 text-muted"></i>

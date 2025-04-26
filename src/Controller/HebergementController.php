@@ -452,17 +452,20 @@ public function index(
         $sort
     );
 
-    // Pagination
-    $hebergements = $paginator->paginate(
-        $query,
-        $page,
-        12,
-        [
-            'defaultSortFieldName' => 'h.id',
-            'defaultSortDirection' => 'desc',
-            'distinct' => false
-        ]
-    );
+   // Assuming the query includes aggregates or HAVING, adjust like so:
+// Pagination with output walkers enabled
+$hebergements = $paginator->paginate(
+    $query,
+    $page,
+    12,
+    [
+        'wrap-queries' => true,  // This enables output walkers
+        'distinct' => false,
+        'alias' => 'h',          // Must match your query builder alias
+        'defaultSortFieldName' => 'h.id',
+        'defaultSortDirection' => 'desc'
+    ]
+);
 
     // Prepare image data for binary images
     $imageData = [];
