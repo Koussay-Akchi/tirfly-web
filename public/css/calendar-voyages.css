@@ -1,0 +1,49 @@
+.fc .fc-event, 
+.fc-theme-standard .fc-scrollgrid-sync-table .fc-event {
+  background: linear-gradient(135deg, #4e54c8, #8f94fb) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  padding: 4px 8px !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  overflow: hidden;
+}
+
+.fc .fc-event:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15) !important;
+  cursor: pointer;
+}
+
+.fc .fc-event-title, 
+.fc .fc-event-time {
+  white-space: nowrap !important;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.fc .fc-daygrid-event-dot {
+  background-color: #ffffff !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.fc .fc-timegrid-event .fc-event-main {
+  background: rgba(78,84,200,0.9) !important;
+}
+
+.fc .fc-daygrid-event .fc-event-time {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .fc .fc-event, 
+  .fc .fc-daygrid-event-dot {
+    font-size: 0.7em !important;
+    padding: 2px 4px !important;
+    border-radius: 6px !important;
+  }
+}
+
