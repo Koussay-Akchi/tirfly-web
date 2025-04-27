@@ -90,7 +90,7 @@
         }
 
         /* No records found styling */
-        .table tbody tr td[colspan="5"] {
+        .table tbody tr td[colspan="4"] {
             text-align: center;
             color: #7f8c8d;
             font-style: italic;
@@ -139,7 +139,6 @@
                 <th>Id</th>
                 <th>Contenu</th>
                 <th>DateReponse</th>
-                <th>Sujet</th>
                 <th>actions</th>
             </tr>
         </thead>
@@ -149,7 +148,6 @@
                 <td>{{ reponse.id }}</td>
                 <td>{{ reponse.contenu }}</td>
                 <td>{{ reponse.dateReponse ? reponse.dateReponse|date('Y-m-d') : '' }}</td>
-                <td>{{ reponse.sujet }}</td>
                 <td>
                     <a href="{{ path('app_reponse_show', {'id': reponse.id}) }}">show</a>
                     <a href="{{ path('app_reponse_edit', {'id': reponse.id}) }}">edit</a>
@@ -157,7 +155,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="5">no records found</td>
+                <td colspan="4">no records found</td>
             </tr>
         {% endfor %}
         </tbody>

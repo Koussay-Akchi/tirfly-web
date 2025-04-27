@@ -31,9 +31,7 @@ class Reponse
     #[ORM\JoinColumn(name: 'auteur_id', referencedColumnName: 'id', nullable: true)]
     private ?User $auteur = null;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    #[Assert\NotBlank(message: 'Le sujet ne peut pas être vide')]
-    private ?string $sujet = null;
+   
 
     // --- Getters & Setters ---
 

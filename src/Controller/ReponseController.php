@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Security;
 use App\Service\EmailService;
+
 #[Route('/reclamation/reponse')]
 final class ReponseController extends AbstractController
 {
@@ -51,6 +52,7 @@ final class ReponseController extends AbstractController
             'reponse' => $reponse,
         ]);
     }
+
     #[Route('/{id}/edit', name: 'app_reponse_edit', methods: ['GET', 'POST'])]
     public function edit(
         Request $request,
@@ -58,9 +60,7 @@ final class ReponseController extends AbstractController
         EntityManagerInterface $entityManager,
         EmailService $emailService
     ): Response {
-        $form = $this->createForm(ReponseType::class, $reponse, [
-            'limited_fields' => true
-        ]);
+        $form = $this->createForm(ReponseType::class, $reponse);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -97,6 +97,7 @@ final class ReponseController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
     #[Route('/{id}', name: 'app_reponse_delete', methods: ['POST'])]
     public function delete(Request $request, Reponse $reponse, EntityManagerInterface $entityManager): Response
     {
