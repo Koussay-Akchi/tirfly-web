@@ -1,0 +1,57 @@
+<div class="table-container">
+	<h1 class="table-title">Liste des Voyages</h1>
+	<div class="table-responsive">
+		<table class="table table-striped table-hover voyage-table">
+			<thead class="table-dark">
+				<tr>
+					<th>Nom</th>
+					<th>Destination</th>
+					<th>Date Départ</th>
+					<th>Date Arrivée</th>
+					<th>Prix</th>
+					<th>Image</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for voyage in voyages.items %}
+					<tr>
+						<td>{{ voyage.nom }}</td>
+						<td>{{ voyage.destination.ville }},
+							{{ voyage.destination.pays }}</td>
+						<td>{{ voyage.dateDepart|date('d/m/Y') }}</td>
+						<td>{{ voyage.dateArrive|date('d/m/Y') }}</td>
+						<td>{{ voyage.prix }}
+							DT</td>
+						<td>
+							{% if voyage.image %}
+								<span class="text-muted">
+									<img src="{{ asset('uploads/voyages/' ~ voyage.image) }}" alt="Image par défaut" class="table-image" height="50" width="50" style="border-radius: 8px;"/>
+								</span>
+							{% else %}
+								<span class="text-muted">
+									<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut" class="table-image" height="50" width="50" style="border-radius: 8px;"/>
+								</span>
+							{% endif %}
+						</td>
+						<td>
+							<div class="table-actions" style="display: flex; gap: 5px">
+								<button class="btn btn-success" onclick="window.location.href='{{ path('details_voyage', {'id': voyage.id}) }}'">Details</button>
+								<button class="btn btn-primary" onclick="window.location.href='{{ path('edit_voyage', {'id': voyage.id}) }}'">Modifier</button>
+								<button class="btn btn-danger" onclick="if(confirm('Supprimer ce voyage ?')) window.location.href='{{ path('delete_voyage', {'id': voyage.id}) }}'">Supprimer</button>
+							</div>
+						</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="8" class="text-center">Aucun voyage trouvé.</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="pagination">
+			{{ knp_pagination_render(voyages) }}
+		</div>
+	</div>
+</div>

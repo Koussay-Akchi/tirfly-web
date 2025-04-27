@@ -1,0 +1,131 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Mon Panier - TirFly Shop{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .cart-container {
+            padding: 2rem 0;
+        }
+        .cart-item {
+            border-bottom: 1px solid #eee;
+            padding: 1.5rem 0;
+        }
+        .cart-item-image {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+        }
+        .cart-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        .empty-cart {
+            text-align: center;
+            padding: 3rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container cart-container">
+        <h1 class="mb-4">Mon Panier</h1>
+        
+        {% set activePanier = app.user.paniers|filter(p => p.etat == 'active')|first %}
+        
+        {% if activePanier and activePanier.articles is not empty %}
+            <div class="row">
+                <div class="col-md-8">
+                    {% for article in activePanier.articles %}
+                        <div class="cart-item row align-items-center">
+                            <div class="col-md-2">
+                                {% if article.produit.image %}
+                                    <img src="{{ path('produit_image', {id: article.produit.id}) }}" 
+                                         alt="{{ article.produit.nom }}" 
+                                         class="cart-item-image"
+                                         onerror="this.onerror=null;this.src='{{ asset('images/default-product.png') }}'">
+                                {% else %}
+                                    <img src="{{ asset('images/default-product.png') }}" 
+                                         alt="Produit par défaut"
+                                         class="cart-item-image">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <h5>{{ article.produit.nom }}</h5>
+                                <div class="text-muted">{{ article.produit.categorie }}</div>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="fw-bold">{{ article.prixUnitaire|number_format(2, ',', ' ') }} €</span>
+                            </div>
+                            <div class="col-md-2">
+                                <form action="{{ path('modifier_quantite_article', {id: article.id}) }}" method="post" class="d-flex">
+                                    <input type="number" name="quantite" value="{{ article.quantite }}" 
+                                           min="1" max="{{ article.produit.quantiteStock }}"
+                                           class="form-control quantity-input">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <input type="hidden" name="_token" value="{{ csrf_token('update_quantity_' ~ article.id) }}">
+                                </form>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <form action="{{ path('supprimer_article', {id: article.id}) }}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_article_' ~ article.id) }}">
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="cart-summary">
+                        <h4 class="mb-4">Récapitulatif</h4>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Sous-total</span>
+                            <span>{{ activePanier.PrixTotal|number_format(2, ',', ' ') }} €</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Livraison</span>
+                            <span>Gratuite</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold mb-4">
+                            <span>Total</span>
+                            <span>{{ activePanier.PrixTotal|number_format(2, ',', ' ') }} €</span>
+                        </div>
+                        <a href="{{ path('checkout') }}" class="btn btn-primary w-100 btn-lg">
+                            Passer la commande
+                        </a>
+                        <a href="{{ path('liste_produits') }}" class="btn btn-outline-secondary w-100 mt-2">
+                            Continuer mes achats
+                        </a>
+                        <form action="{{ path('vider_panier') }}" method="post" class="mt-2">
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-trash"></i> Vider le panier
+                            </button>
+                            <input type="hidden" name="_token" value="{{ csrf_token('empty_cart') }}">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
+                <h3>Votre panier est vide</h3>
+                <p class="text-muted">Commencez par ajouter des produits à votre panier</p>
+                <a href="{{ path('liste_produits') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à la boutique
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

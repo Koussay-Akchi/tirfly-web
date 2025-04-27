@@ -1,0 +1,21 @@
+{# templates/service/new.html.twig #}
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Ajouter un service{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Ajouter un nouveau service</h1>
+    
+    {{ form_start(form) }}
+        {{ form_row(form.nom) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.prix) }}
+        {{ form_row(form.hebergement) }}
+        
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Enregistrer
+        </button>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

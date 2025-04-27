@@ -1,0 +1,56 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Liste des Services
+{% endblock %}
+
+{% block body %}
+	<div class="container mt-4">
+		<h1>Liste des Services</h1>
+
+		<a href="{{ path('app_service_new') }}" class="btn btn-primary mb-3">
+			<i class="fas fa-plus"></i>
+			Ajouter un Service
+		</a>
+
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Nom</th>
+					<th>Description</th>
+					<th>Prix</th>
+					<th>Hébergement</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for service in services %}
+					<tr>
+						<td>{{ service.nom }}</td>
+						<td>{{ service.description|slice(0, 50) }}...</td>
+						<td>{{ service.prix }}
+							€</td>
+						<td>{{ service.hebergement.nom }}</td>
+						<td>
+							<a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-sm btn-info">
+								<i class="fas fa-eye"></i>
+							</a>
+							<a href="{{ path('app_service_edit', {'id': service.id}) }}" class="btn btn-sm btn-warning">
+								<i class="fas fa-edit"></i>
+							</a>
+							<form method="post" action="{{ path('app_service_delete', {'id': service.id}) }}" style="display: inline-block" onsubmit="return confirm('Êtes-vous sûr?')">
+								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+								<button class="btn btn-sm btn-danger">
+									<i class="fas fa-trash"></i>
+								</button>
+							</form>
+						</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="6">Aucun service trouvé</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}

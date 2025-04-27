@@ -1,0 +1,271 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Edit Niveau{% endblock %}
+
+{% block body %}
+    <div class="edit-container">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        /* Edit Container */
+        .edit-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form Styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 1.1em;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1em;
+            color: #374151;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        select:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: #fff;
+        }
+
+        /* Error Messages */
+        .form-errors {
+            color: #ef4444;
+            font-size: 0.9em;
+            font-style: italic;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2563eb, #1e3a8a);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn i {
+            font-size: 1.2em;
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #e5e7eb;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #d1d5db;
+            color: #1f2937;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-link i {
+            font-size: 1.1em;
+        }
+
+        /* Delete Form */
+        .delete-form {
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .delete-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .delete-btn i {
+            font-size: 1.1em;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .edit-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .btn,
+            .back-link,
+            .delete-btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .edit-container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            input[type="number"],
+            input[type="text"],
+            select {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+
+            .btn,
+            .back-link,
+            .delete-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+        <h1>Edit Niveau</h1>
+
+        {{ form_start(form, {'attr': {'class': 'edit-form'}}) }}
+            <div class="form-errors">
+                {{ form_errors(form) }}
+            </div>
+            <div class="form-group">
+                {{ form_label(form.MaxNiveauXP) }}
+                {{ form_widget(form.MaxNiveauXP) }}
+                <div class="form-errors">{{ form_errors(form.MaxNiveauXP) }}</div>
+            </div>
+            <div class="form-group">
+                {{ form_label(form.niveau) }}
+                {{ form_widget(form.niveau) }}
+                <div class="form-errors">{{ form_errors(form.niveau) }}</div>
+            </div>
+            <div class="form-group">
+                {{ form_label(form.niveauXP) }}
+                {{ form_widget(form.niveauXP) }}
+                <div class="form-errors">{{ form_errors(form.niveauXP) }}</div>
+            </div>
+            <div class="form-group">
+                {{ form_label(form.client) }}
+                {{ form_widget(form.client) }}
+                <div class="form-errors">{{ form_errors(form.client) }}</div>
+            </div>
+            {{ form_widget(form._token) }}
+            <button class="btn" type="submit">
+                <i class="fas fa-save"></i> Update
+            </button>
+        {{ form_end(form) }}
+
+        <a href="{{ path('app_niveau_index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}

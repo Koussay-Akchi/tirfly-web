@@ -1,0 +1,33 @@
+parameters:
+    packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
+    google_api_key: 'AIzaSyDpxgIqCekHbOLgUL6fyHdavfAGr1KijcQ'
+    video_directory: '%kernel.project_dir%/public/uploads/videos'
+    evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
+    voyages_images_directory: '%kernel.project_dir%/public/uploads/voyages'
+    destinations_images_directory: '%kernel.project_dir%/public/uploads/destinations'
+
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+        bind:
+            $geminiApiKey: '%google_api_key%'
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+    App\Controller\ClientController:
+        arguments:
+            $passwordHasher: '@security.user_password_hasher'
+    App\Service\EmailService:
+        class: App\Service\EmailService
+        arguments:
+            $mailer: '@mailer'
+    App\Service\CurrencyConverter:
+        arguments:
+            $exchangeRateApiKey: '%env(dec3bbdb08a8f599977f5d1e)%'
+    

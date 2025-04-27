@@ -1,0 +1,107 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Admin - Liste des Packs{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .btn-add {
+            background-color: #198754;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add:hover {
+            background-color: #157347;
+            transform: scale(1.05);
+        }
+
+        .btn-edit {
+            background-color: #ffc107;
+            color: black;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+            transform: scale(1.05);
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background-color: #bb2d3b;
+            transform: scale(1.05);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">📦 Gestion des Packs</h1>
+
+    <div class="mb-4 text-end">
+        <a href="{{ path('app_pack_new') }}" class="btn-add">➕ Ajouter un nouveau Pack</a>
+    </div>
+
+    <table class="table table-bordered table-hover align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Image</th>
+                <th>Nom</th>
+                <th>Prix (€)</th>
+                <th>Voyages</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pack in packs %}
+                <tr>
+                    
+                    <td>
+                        {% if pack.image %}
+                            <img src="{{ asset('uploads/packs/' ~ pack.image) }}" alt="Image" width="100" class="img-thumbnail">
+                        {% else %}
+                            <span class="text-muted">Aucune image</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ pack.nom }}</td>
+                    <td>{{ pack.prix }}</td>
+                    <td>
+                        {% for voyage in pack.voyages %}
+                            <span class="badge bg-primary">{{ voyage.nom }}</span>
+                        {% else %}
+                            <span class="text-muted">Aucun</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_pack_edit', {id: pack.id}) }}" class="btn-edit me-2">✏️ Modifier</a>
+                        <a href="{{ path('app_pack_delete', {id: pack.id}) }}"
+                           class="btn-delete"
+                           onclick="return confirm('Supprimer ce pack ?')">🗑️ Supprimer</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Aucun pack trouvé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

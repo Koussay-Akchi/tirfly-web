@@ -1,0 +1,314 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .type-selector-btn {
+            transition: all 0.3s ease;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border: 2px solid #dee2e6;
+            background-color: white;
+            color: #495057;
+            margin-right: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        .type-selector-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+        .type-selector-btn.active {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .form-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #0d6efd;
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875em;
+        }
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 350px;
+        }
+        .image-preview {
+            max-height: 200px;
+            margin-top: 1rem;
+            display: none;
+            border-radius: 0.5rem;
+            border: 1px solid #dee2e6;
+        }
+        .current-image {
+            max-height: 200px;
+            border-radius: 0.5rem;
+            border: 1px solid #dee2e6;
+            margin-top: 1rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="alert-container">
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">
+                <i class="fas fa-edit me-2"></i>Modifier {{ hebergement.nom }}
+            </h1>
+            <a href="{{ path('admin_liste_hebergements') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Retour
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold mb-3">Type d'hébergement</label>
+                    <div class="d-flex flex-wrap">
+                        <button type="button" class="type-selector-btn {{ initial_type == 'hotel' ? 'active' : '' }}" disabled>
+                            <i class="fas fa-hotel me-2"></i>Hôtel
+                        </button>
+                        <button type="button" class="type-selector-btn {{ initial_type == 'logement' ? 'active' : '' }}" disabled>
+                            <i class="fas fa-home me-2"></i>Logement
+                        </button>
+                        <button type="button" class="type-selector-btn {{ initial_type == 'foyer' ? 'active' : '' }}" disabled>
+                            <i class="fas fa-building me-2"></i>Foyer
+                        </button>
+                    </div>
+                    {{ form_widget(form.type, {'attr': {'hidden': 'hidden'}}) }}
+                </div>
+
+                
+                <div class="form-section mb-4">
+                    <h5 class="fw-bold mb-3 text-primary">
+                        <i class="fas fa-info-circle me-2"></i>Informations générales
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form_row(form.nom, {
+                                'attr': {'class': 'form-control' ~ (form.nom.vars.errors|length ? ' is-invalid' : '')},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.destination, {
+                                'attr': {'class': 'form-select' ~ (form.destination.vars.errors|length ? ' is-invalid' : '')},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.classement, {
+                                'attr': {'class': 'form-control' ~ (form.classement.vars.errors|length ? ' is-invalid' : '')},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                        <div class="col-md-8">
+                            {{ form_row(form.contact, {
+                                'attr': {'class': 'form-control'},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                        <div class="col-12">
+                            {{ form_row(form.description, {
+                                'attr': {'class': 'form-control', 'rows': 3},
+                                'label_attr': {'class': 'form-label'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6">
+    {{ form_row(form.image, {
+        'attr': {'class': 'form-control', 'onchange': 'previewImage(this)'},
+        'label_attr': {'class': 'form-label'}
+    }) }}
+    {% if image_data %}
+        <p class="mt-2 mb-1">Image actuelle:</p>
+        <img src="{{ image_data }}" 
+             class="current-image" 
+             alt="Image actuelle">
+    {% endif %}
+    <img id="imagePreview" class="image-preview" alt="Aperçu de l'image">
+</div>
+                    </div>
+                </div>
+
+                
+                <div class="form-section">
+                    <h5 class="fw-bold mb-3 text-primary">
+                        <i class="fas fa-cog me-2"></i>Caractéristiques spécifiques
+                    </h5>
+                    
+                    {% if initial_type == 'hotel' %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form_row(form.prix, {
+                                    'attr': {'class': 'form-control' ~ (form.prix.vars.errors|length ? ' is-invalid' : '')},
+                                    'label': 'Prix par nuit (€)',
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                    {% elseif initial_type == 'logement' %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form_row(form.prix, {
+                                    'attr': {'class': 'form-control' ~ (form.prix.vars.errors|length ? ' is-invalid' : '')},
+                                    'label': 'Prix par nuit (€)',
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(form.jourDispo, {
+                                    'attr': {'class': 'form-control' ~ (form.jourDispo.vars.errors|length ? ' is-invalid' : '')},
+                                    'label': 'Date de disponibilité',
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                    {% elseif initial_type == 'foyer' %}
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                {{ form_row(form.frais, {
+                                    'attr': {'class': 'form-control' ~ (form.frais.vars.errors|length ? ' is-invalid' : '')},
+                                    'label': 'Frais d\'inscription (€)',
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form_row(form.typeFoyer, {
+                                    'attr': {'class': 'form-select' ~ (form.typeFoyer.vars.errors|length ? ' is-invalid' : '')},
+                                    'label': 'Type de foyer',
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form_row(form.documents, {
+                                    'attr': {'class': 'form-control'},
+                                    'label': 'Documents (PDF)',
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>Enregistrer
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const currentImage = document.querySelector('.current-image');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    if (currentImage) currentImage.style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.style.display = 'none';
+                if (currentImage) currentImage.style.display = 'block';
+            }
+        }
+
+        // Validation en temps réel
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                const fields = form.querySelectorAll('input, select, textarea');
+                
+                fields.forEach(field => {
+                    field.addEventListener('blur', function() {
+                        validateField(this);
+                    });
+                });
+
+                form.addEventListener('submit', function(event) {
+                    let isValid = true;
+                    fields.forEach(field => {
+                        if (!validateField(field)) {
+                            isValid = false;
+                        }
+                    });
+                    
+                    if (!isValid) {
+                        event.preventDefault();
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            }
+        });
+
+        function validateField(field) {
+            const parent = field.closest('.form-group') || field.closest('.mb-3');
+            if (!parent) return true;
+            
+            const errorDiv = parent.querySelector('.invalid-feedback');
+            if (!errorDiv) return true;
+            
+            // Réinitialiser
+            field.classList.remove('is-invalid');
+            errorDiv.textContent = '';
+            
+            // Valider
+            if (field.required && !field.value.trim()) {
+                field.classList.add('is-invalid');
+                errorDiv.textContent = 'Ce champ est obligatoire';
+                return false;
+            }
+            
+            if (field.type === 'number' && field.value && parseFloat(field.value) <= 0) {
+                field.classList.add('is-invalid');
+                errorDiv.textContent = 'Veuillez entrer un nombre positif';
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
+{% endblock %}

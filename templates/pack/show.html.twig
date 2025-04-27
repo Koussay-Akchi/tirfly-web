@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail du Pack{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ pack.nom }}</h1>
+        <p><strong>Prix :</strong> {{ pack.prix }} €</p>
+
+        <h3>Voyages associés :</h3>
+        <ul>
+            {% for voyage in pack.voyages %}
+                <li>{{ voyage.nom }}</li>
+            {% else %}
+                <li>Aucun voyage associé</li>
+            {% endfor %}
+        </ul>
+
+        {% if pack.image %}
+            <img src="{{ asset('uploads/packs/' ~ pack.image) }}" alt="Image du pack" class="img-fluid">
+        {% else %}
+            <p>Aucune image disponible.</p>
+        {% endif %}
+    </div>
+{% endblock %}
