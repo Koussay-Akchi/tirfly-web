@@ -8,6 +8,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "amphp/http-client": "4.2.1",
+        "cboden/ratchet": "^0.4.4",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "*",
         "doctrine/doctrine-migrations-bundle": "^3.4",

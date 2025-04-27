@@ -6,7 +6,7 @@ parameters:
     voyages_images_directory: '%kernel.project_dir%/public/uploads/voyages'
     destinations_images_directory: '%kernel.project_dir%/public/uploads/destinations'
     audio_directory: '%kernel.project_dir%/public/uploads/audio'
-
+    huggingface_api_key: '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'
 
 services:
     _defaults:
@@ -15,6 +15,12 @@ services:
         public: false
         bind:
             $geminiApiKey: '%google_api_key%'
+
+    App\Service\SentimentAnalysisService:
+        arguments:
+            $httpClient: '@http_client'
+            $apiKey: '%huggingface_api_key%'
+
     App\:
         resource: '../src/'
         exclude:

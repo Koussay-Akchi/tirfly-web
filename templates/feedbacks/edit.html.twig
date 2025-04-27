@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %} Modifier Feedback {% endblock %}
+{% block title %}Modifier Feedback{% endblock %}
 
 {% block body %}
 <div class="container mt-4">
@@ -9,18 +9,23 @@
             <h2 class="h5 mb-0"><i class="fas fa-edit mr-2"></i> Modifier le Feedback</h2>
         </div>
         <div class="card-body">
-            {{ form_start(form) }}
+            {% for flash_type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ flash_type }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {{ form_start(form, {'attr': {'class': 'form'}}) }}
                 <div class="form-group">
                     {{ form_row(form.contenu, {'attr': {'class': 'form-control'}}) }}
                 </div>
                 <div class="form-group">
                     {{ form_row(form.note, {'attr': {'class': 'form-control', 'min': 1, 'max': 5}}) }}
-                </div>
-                <div class="form-group">
-                    {{ form_row(form.voyage, {'attr': {'class': 'form-control'}}) }}
-                </div>
-                <div class="form-group">
-                    {{ form_row(form.client, {'attr': {'class': 'form-control'}}) }}
                 </div>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Modifier</button>
             {{ form_end(form) }}

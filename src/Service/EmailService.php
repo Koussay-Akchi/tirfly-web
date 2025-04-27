@@ -23,4 +23,14 @@ class EmailService
 
         $this->mailer->send($email);
     }
+    public function envoyer(string $to, string $subject, string $content): void
+    {
+        $email = (new Email())
+            ->from('azizlouati338@gmail.com') // adapte l'adresse
+            ->to($to)
+            ->subject($subject)
+            ->text($content);
+
+        $this->mailer->send($email);
+    }
 }

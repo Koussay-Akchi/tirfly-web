@@ -24,15 +24,17 @@ class ReclamationType extends AbstractType
             ->add('titre', TextType::class, [
                 'label' => 'Titre de la réclamation :',
                 'attr' => ['placeholder' => 'Entrez un titre'],
+                'required' => false,
                 'constraints' => [
-                    new NotBlank(['message' => 'Le titre est obligatoire.']),
+                 
                 ],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description :',
                 'attr' => ['placeholder' => 'Décrivez votre problème'],
+                'required' => false,
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez entrer une description.']),
+
                 ],
             ])
             ->add('etat', ChoiceType::class, [
@@ -43,6 +45,7 @@ class ReclamationType extends AbstractType
                     'Retard' => 'Retard',
                     'Annulation' => 'Annulation',
                 ],
+                'required' => false,
                 'expanded' => false,
                 'multiple' => false,
             ])

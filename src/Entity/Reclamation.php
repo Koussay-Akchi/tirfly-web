@@ -1,17 +1,16 @@
 <?php
-
 namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
 use App\Repository\ReclamationRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
 #[ORM\Table(name: 'reclamations')]
+#[ORM\HasLifecycleCallbacks] // Add this to enable lifecycle callbacks
 class Reclamation
 {
     #[ORM\Id]
@@ -20,36 +19,59 @@ class Reclamation
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\NotBlank(message: 'La description ne peut pas être vide.')]
+    #[Assert\Length(
+        min: 10,
+        max: 1000,
+        minMessage: 'La description doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $description = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $etat = null;
-    
+
     #[ORM\Column(type: 'string', nullable: true, name: "titre")]
     #[Assert\NotBlank(message: 'Title cannot be blank.')]
     #[Assert\Length(max: 100, maxMessage: 'Title cannot be longer than 100 characters.')]
     private ?string $titre = null;
 
-    #[ORM\Column(type: 'date', nullable: true, name: "dateCreation")]
+    #[ORM\Column(type: 'datetime', nullable: true, name: "dateCreation")]
     private ?\DateTimeInterface $dateCreation = null;
 
     #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'reclamations')]
     #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
     private ?Client $client = null;
 
-    #[ORM\Column(type: 'string', nullable: false, name: "videoPath")]
+    #[ORM\Column(type: 'string', nullable: true, name: "videoPath")] // Change to nullable: true since video is optional
     #[Assert\Regex(
         pattern: "/\.(mp4|avi|mpeg|mov)$/i",
-        message: "Le fichier doit être une vidéo avec une extension valide (mp4, avi, mpeg, mov)."
+        message: "Le fichier doit être une vidéo avec une extension valide (mp4, avi, mpeg, mov).",
+        match: true
     )]
     private ?string $videoPath = null;
 
     #[ORM\Column(type: 'string', nullable: false, name: "isRed")]
     private ?string $isRed = '0';
 
-    // =======================
-    // ==== GETTERS/SETTERS ==
-    // =======================
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $urgence = null;
+
+    #[ORM\OneToMany(mappedBy: 'reclamation', targetEntity: Reponse::class, orphanRemoval: true)]
+    private Collection $reponses;
+
+    public function __construct()
+    {
+        $this->reponses = new ArrayCollection();
+    }
+
+    #[ORM\PrePersist] // Automatically set dateCreation before persisting
+    public function onPrePersist(): void
+    {
+        if ($this->dateCreation === null) {
+            $this->dateCreation = new \DateTime();
+        }
+    }
 
     public function getId(): ?int
     {
@@ -117,7 +139,6 @@ class Reclamation
         return $this;
     }
 
-
     public function getVideoPath(): ?string
     {
         return $this->videoPath;
@@ -129,7 +150,6 @@ class Reclamation
         return $this;
     }
 
-
     public function getIsRed(): ?string
     {
         return $this->isRed;
@@ -138,6 +158,41 @@ class Reclamation
     public function setIsRed(string $isRed): self
     {
         $this->isRed = $isRed;
+        return $this;
+    }
+
+    public function getReponses(): Collection
+    {
+        return $this->reponses;
+    }
+
+    public function addReponse(Reponse $reponse): self
+    {
+        if (!$this->reponses->contains($reponse)) {
+            $this->reponses->add($reponse);
+            $reponse->setReclamation($this);
+        }
+        return $this;
+    }
+
+    public function removeReponse(Reponse $reponse): self
+    {
+        if ($this->reponses->removeElement($reponse)) {
+            if ($reponse->getReclamation() === $this) {
+                $reponse->setReclamation(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getUrgence(): ?string
+    {
+        return $this->urgence;
+    }
+
+    public function setUrgence(?string $urgence): self
+    {
+        $this->urgence = $urgence;
         return $this;
     }
 }

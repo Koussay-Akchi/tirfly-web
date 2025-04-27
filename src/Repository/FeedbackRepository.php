@@ -6,6 +6,9 @@ use App\Entity\Feedback;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Feedback>
+ */
 class FeedbackRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -13,11 +16,17 @@ class FeedbackRepository extends ServiceEntityRepository
         parent::__construct($registry, Feedback::class);
     }
 
-    public function findAllFeedbacks(): array
+    // Add custom query methods here if needed
+    // Example:
+    /*
+    public function findByVoyage($voyageId)
     {
         return $this->createQueryBuilder('f')
-            ->select('f.id, f.contenu, f.dateFeedback, f.note')
+            ->andWhere('f.voyage = :voyage')
+            ->setParameter('voyage', $voyageId)
+            ->orderBy('f.dateFeedback', 'DESC')
             ->getQuery()
             ->getResult();
     }
+    */
 }

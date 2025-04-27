@@ -75,9 +75,19 @@
 					<li>
 						<button onclick="window.location.href='{{ path('liste_destinations') }}'" class="tir-navbar-link" data-nav-link>Destinations</button>
 					</li>
-					<li>
-						<button onclick="window.location.href='{{ path('ajout_reclamation') }}'" class="tir-navbar-link" data-nav-link>Reclamations</button>
+
+					<li class="tir-navbar-dropdown">
+						<button class="tir-navbar-link" id="reclamationsDropdownToggle">Réclamations</button>
+						<ul class="dropdown-menu" id="reclamationsDropdown">
+							<li>
+								<button onclick="window.location.href='{{ path('mon_historique_reclamations') }}'" class="tir-navbar-link"><ion-icon name="time-outline"></ion-icon> Historique</button>
+							</li>
+							<li>
+								<button onclick="window.location.href='{{ path('ajout_reclamation') }}'" class="tir-navbar-link"><ion-icon name="add-outline"></ion-icon> Nouvelle Réclamation</button>
+							</li>
+						</ul>
 					</li>
+
 					<li>
 						<button onclick="window.location.href='{{ path('liste_produits') }}'" class="tir-navbar-link" data-nav-link>Shop</button>
 					</li>
@@ -314,6 +324,9 @@
 	}
 </style>
 
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 	const offresDropdownToggle = document.getElementById('offresDropdownToggle');
@@ -334,14 +347,31 @@ document.addEventListener("DOMContentLoaded", function () {
 		});
 	}
 
-	document.addEventListener('click', function (e) {
-		if (!offresDropdownWrapper.contains(e.target)) {
-			offresDropdownWrapper.classList.remove('active');
-		}
-		const settingsDropdownWrapper = document.querySelector('.user-info');
-		if (settingsDropdownWrapper && !settingsDropdownWrapper.contains(e.target)) {
-			settingsDropdownWrapper.classList.remove('active');
-		}
-	});
-});
+	const offresDropdownToggle = document.getElementById('offresDropdownToggle');
+    const offresDropdownWrapper = offresDropdownToggle.closest('.tir-navbar-dropdown');
+    offresDropdownToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      // Close Reclamations dropdown if open
+      reclamationsDropdownWrapper.classList.remove('active');
+      offresDropdownWrapper.classList.toggle('active');
+    });
+
+    // Reclamations Dropdown
+    const reclamationsDropdownToggle = document.getElementById('reclamationsDropdownToggle');
+    const reclamationsDropdownWrapper = reclamationsDropdownToggle.closest('.tir-navbar-dropdown');
+    reclamationsDropdownToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      // Close Offres dropdown if open
+      offresDropdownWrapper.classList.remove('active');
+      reclamationsDropdownWrapper.classList.toggle('active');
+
+    document.addEventListener('click', function (e) {
+      if (!dropdownWrapper.contains(e.target)) {
+        dropdownWrapper.classList.remove('active');
+      }
+	  if (!reclamationsDropdownWrapper.contains(e.target)) {
+        reclamationsDropdownWrapper.classList.remove('active');
+      }
+    });
+  });
 </script>

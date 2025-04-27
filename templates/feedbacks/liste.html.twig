@@ -1,51 +1,90 @@
 {# templates/feedbacks/liste.html.twig #}
-{% extends 'base.html.twig' %}
+{% extends 'base-staff.html.twig' %}
 
 {% block title %}Gestion des Feedbacks{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('styles/listef.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/style.css') }}">
 {% endblock %}
 
 {% block body %}
 <div class="container mt-4">
     <div class="card shadow-lg border-0">
         <div class="card-header bg-primary text-white text-center">
-            <h2 class="h5 m-0"><i class="fas fa-comments"></i> Feedbacks</h2>
-            	  <link rel="stylesheet" href="{{ asset('styles/style.css') }}">
+            <h2 class="h5 m-0"><i class="fas fa-comments"></i> Liste des Voyages et Feedbacks</h2>
         </div>
         <div class="card-body">
-            <table class="table table-hover">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Client</th>
-                        <th>Note</th>
-                        <th>Contenu</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for feedback in feedbacks %}
-                        <tr>
-                            <td>{{ feedback.client.getNom() }}</td>
-                            <td>{{ feedback.note }}</td>
-                            <td>{{ feedback.contenu|escape }}</td>
-                            <td>{{ feedback.dateFeedback|date('Y-m-d') }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center">Aucun feedback trouvé.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if voyages is defined and voyages|length > 0 %}
+                {% for voyage in voyages %}
+                    <div class="voyage-section mb-4">
+                        <h3 class="voyage-title">{{ voyage.nom }} - {{ voyage.destination.ville }}, {{ voyage.destination.pays }}</h3>
+                        <h4>Feedbacks ({{ voyage.feedbacks|length }})</h4>
+                        {% if voyage.feedbacks|length > 0 %}
+                            <table class="table table-hover mt-2">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Client</th>
+                                        <th>Note</th>
+                                        <th>Contenu</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for feedback in voyage.feedbacks %}
+                                        <tr>
+                                            <td>{{ feedback.client.nom }} {{ feedback.client.prenom }}</td>
+                                            <td>
+                                                {% for i in 1..5 %}
+                                                    {% if i <= feedback.note %}
+                                                        <span class="filled-star">★</span>
+                                                    {% else %}
+                                                        <span class="empty-star">☆</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                            <td>{{ feedback.contenu|escape }}</td>
+                                            <td>{{ feedback.dateFeedback|date('Y-m-d') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="text-center">Aucun feedback pour ce voyage.</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
 
-            {# Pagination block #}
-            <div class="d-flex justify-content-center mt-4">
-                {{ knp_pagination_render(feedbacks) }}
-            </div>
+                {# Pagination block #}
+                <div class="d-flex justify-content-center mt-4">
+                    {{ knp_pagination_render(voyages) }}
+                </div>
+            {% else %}
+                <p class="text-center">Aucun voyage trouvé ou accès non autorisé.</p>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+    .voyage-section {
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 1rem;
+    }
+
+    .voyage-title {
+        color: #1e3a8a;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .filled-star {
+        color: #f1c40f;
+    }
+
+    .empty-star {
+        color: #ccc;
+    }
+</style>
 {% endblock %}
