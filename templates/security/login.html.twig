@@ -752,8 +752,13 @@ document.getElementById("login-form").addEventListener("submit", function(e) {
         return res.json();
     })
     .then(data => {
-        alert("Connexion réussie !");
-        window.location.href = "/";
+            console.log(data);
+            alert("Connexion réussie !");
+            if (data.role === "ROLE_CLIENT") {
+                window.location.href = "/";
+            } else {
+                window.location.href = "/admin";
+            }
     })
     .catch(error => {
         errorMessageElement.textContent = "Échec de la connexion : " + error.message;

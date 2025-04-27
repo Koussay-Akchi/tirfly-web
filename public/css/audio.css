@@ -1,0 +1,30 @@
+.recording-controls {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+.recording {
+    animation: pulse 1.5s infinite;
+    color: #5cb85c;
+}
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+.btn-record {
+    background-color: #5cb85c;
+    color: white;
+}
+.btn-stop {
+    background-color: #d9534f;
+    color: white;
+}
+.transcription-target {
+    border-left: 3px solid #5bc0de;
+    padding-left: 10px;
+    margin-top: 5px;
+    background-color: #f0f7fb;
+}
