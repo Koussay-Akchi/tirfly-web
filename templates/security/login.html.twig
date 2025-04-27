@@ -289,8 +289,13 @@
             return res.json();
         })
         .then(data => {
+            console.log(data);
             alert("Connexion réussie !");
-            window.location.href = "/";
+            if (data.role === "ROLE_CLIENT") {
+                window.location.href = "/";
+            } else {
+                window.location.href = "/admin";
+            }
         })
         .catch(error => {
             alert("Échec de la connexion : " + error.message);

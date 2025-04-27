@@ -42,8 +42,9 @@ class SecurityController extends AbstractController
         }
 
         $token = $jwtManager->create($user);
+        $role = $user->getRoles()[0];
 
-        $response = new JsonResponse(['message' => 'Login successful']);
+        $response = new JsonResponse(['message' => 'Login successful', 'role' => $role]);
         
         // Set the JWT in an HTTP-only cookie
         $cookie = new Cookie(
