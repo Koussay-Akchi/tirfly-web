@@ -18,4 +18,5 @@ return [
     Knp\Bundle\PaginatorBundle\KnpPaginatorBundle::class => ['all' => true],
     Oneup\UploaderBundle\OneupUploaderBundle::class => ['all' => true],
     CalendarBundle\CalendarBundle::class => ['all' => true],
+    KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class => ['all' => true],
 ];
