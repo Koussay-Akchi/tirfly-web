@@ -43,45 +43,58 @@ class EvenementController extends AbstractController
     }
 
     #[Route('/admin/evenement/new', name: 'app_evenement_new')]
-public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
-{
-    $evenement = new Evenement();
-    $form = $this->createForm(EvenementType::class, $evenement);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        $imageFile = $form->get('image')->getData();
-
-        if ($imageFile) {
-            $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-            $safeFilename = $slugger->slug($originalFilename);
-            $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-
+    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    {
+        $evenement = new Evenement();
+        
+        // Vérifier si une date est passée en paramètre
+        $dateStr = $request->query->get('date');
+        if ($dateStr) {
             try {
-                $imageFile->move(
-                    $this->getParameter('evenement_images_directory'),
-                    $newFilename
-                );
-            } catch (FileException $e) {
-                $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
-                return $this->redirectToRoute('app_evenement_new');
+                $date = new \DateTime($dateStr);
+                $evenement->setDateDebut($date);
+                // Optionnel : définir la date de fin comme la même par défaut
+                $evenement->setDateFin($date);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Date invalide.');
             }
-
-            $evenement->setImage($newFilename);
         }
-
-        $em->persist($evenement);
-        $em->flush();
-
-        $this->addFlash('success', 'Événement ajouté avec succès.');
-        return $this->redirectToRoute('admin_evenement_list');
+    
+        $form = $this->createForm(EvenementType::class, $evenement);
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+    
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+    
+                try {
+                    $imageFile->move(
+                        $this->getParameter('evenement_images_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
+                    return $this->redirectToRoute('app_evenement_new');
+                }
+    
+                $evenement->setImage($newFilename);
+            }
+    
+            $em->persist($evenement);
+            $em->flush();
+    
+            $this->addFlash('success', 'Événement ajouté avec succès.');
+            return $this->redirectToRoute('admin_evenement_list');
+        }
+    
+        return $this->render('evenement/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
-
-    return $this->render('evenement/new.html.twig', [
-        'form' => $form->createView(),
-    ]);
-}
-
 #[Route('/admin/evenement/edit/{id}', name: 'app_evenement_edit')]
 public function edit(Evenement $evenement, Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
 {

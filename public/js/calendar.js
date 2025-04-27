@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             contentHeight: 'auto',
             aspectRatio: 1.5,
             eventClick: function(info) {
-                console.log('Événement cliqué : ', info.event.title); // Débogage
+                console.log('Événement cliqué : ', info.event.title);
                 const title = info.event.title;
                 const description = info.event.extendedProps.description || 'Aucune description';
                 const price = info.event.extendedProps.price ? info.event.extendedProps.price + ' €' : 'Prix non défini';
@@ -37,6 +37,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         htmlContainer: 'swal2-html-container-custom'
                     }
                 });
+            },
+            dateClick: function(info) {
+                // Rediriger directement vers la page d'ajout avec la date sélectionnée
+                window.location.href = `/admin/evenement/new?date=${info.dateStr}`;
             },
             eventContent: function(arg) {
                 return {
