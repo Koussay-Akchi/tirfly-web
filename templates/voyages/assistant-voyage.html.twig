@@ -4,6 +4,9 @@
 {% endblock %}
 
 {% block body %}
+
+	<link rel="stylesheet" href={{ asset('css/audio.css') }} />
+
 	<div class="container my-4">
 		<div style="text-align: center; display: flex;">
 			<h1 class="mb-4">Assistant TirFly AI</h1>
@@ -24,9 +27,8 @@
 						</div>
 						<div class="carousel-items">
 							<div class="carousel-item active" data-step="1">
-								<h4>Durée maximale du voyage</h4>
 								<div class="mb-3">
-									<label for="maxDuree" class="form-label">Durée max (jours)</label>
+									<label for="maxDuree" class="form-label">Durée maximale du voyage (jours)</label>
 									<input type="range" class="form-range" id="maxDuree" name="maxDuree" min="0" max="90" value="{{ filters.maxDuree }}">
 									<span id="maxDureeLabel">{{ filters.maxDuree }}
 										jours</span>
@@ -47,7 +49,6 @@
 								</div>
 							</div>
 							<div class="carousel-item" data-step="2">
-								<h4>Pays de destination</h4>
 								<div class="mb-3">
 									<label for="selectedPays" class="form-label">Pays de Destination</label>
 									<select class="form-select" id="selectedPays" name="selectedPays">
@@ -57,7 +58,8 @@
 										{% endfor %}
 									</select>
 									{% if suggestions.suggestionPays %}
-										<div class="alert alert-info mt-2">
+										<div class="alert alert-info mt-2" style="margin-top: 10px; margin-bottom: 10px;">
+											{{ suggestions.suggestionPays }} est votre destination la plus fréquente.
 											Votre destination la plus fréquente :
 											{{ suggestions.suggestionPays }}.
 											<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.getElementById('selectedPays').value='{{ suggestions.suggestionPays }}';">
@@ -69,6 +71,16 @@
 										<input type="text" class="form-control me-2" id="aiDescription" name="aiDescription" placeholder="Donnez une description" value="{{ filters.aiDescription }}">
 										<button type="button" class="ai-btn ai-btn-secondary me-2" id="tirflyAiBtn">Consulter Tirfly AI</button>
 										<button type="button" class="ai-btn ai-btn-secondary" id="geminiBtn">Consulter Gemini</button>
+									</div>
+									<div class="recording-controls" id="description-recording-controls">
+										<button type="button" class="btn btn-record"  id="record-description">
+											<i class="fas fa-microphone"></i> Enregistrer la description
+										</button>
+										<button type="button" class="btn btn-stop" id="stop-description" style="display:none;">
+											<i class="fas fa-stop"></i> Arrêter
+										</button>
+										<span id="description-recording-status"></span>
+										<div class="transcription-target" id="description-transcription"></div>
 									</div>
 									<div id="aiSuggestionBox" class="alert alert-info mt-2" style="display: none;">
 										<div id="aiSuggestionContent"></div>
@@ -84,7 +96,6 @@
 							</div>
 
 							<div class="carousel-item" data-step="3">
-								<h4>Budget maximal</h4>
 								<div class="mb-3">
 									<label for="maxBudget" class="form-label">Budget maximal</label>
 									<input type="range" class="form-range" id="maxBudget" name="maxBudget" min="0" max="10000" step="100" value="{{ filters.maxBudget is defined ? filters.maxBudget : 1000 }}">
@@ -107,9 +118,8 @@
 								</div>
 							</div>
 							<div class="carousel-item" data-step="4">
-								<h4>Formules de voyage</h4>
 								<div class="mb-3">
-									<label class="form-label">Formule(s)</label>
+									<label class="form-label">Formule(s) de voyage</label>
 									<div class="mb-2">
 										{% for formule in allFormules %}
 											<div class="form-check form-check-inline">
@@ -134,7 +144,6 @@
 								</div>
 							</div>
 							<div class="carousel-item" data-step="5">
-								<h4>Note minimale</h4>
 								<div class="mb-3">
 									<label for="minNote" class="form-label">Note minimale</label>
 									<input type="range" class="form-range" id="minNote" name="minNote" min="0" max="5" step="0.5" value="{{ filters.minNote }}">
@@ -261,6 +270,7 @@
 			font-size: 1rem;
 			transition: background 0.3s;
 			margin-top: 10px;
+			background-color : #628EED !important;
 		}
 
 		#tirflyAiBtn,
@@ -603,6 +613,151 @@
 			});
 		});
 	</script>
+
+
+	<script>
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!('MediaRecorder' in window)) {
+        alert('Votre navigateur ne supporte pas l\'enregistrement audio. Veuillez utiliser Chrome, Firefox, ou Edge.');
+        return;
+    }
+
+    const descriptionButton = document.getElementById('record-description');
+    const descriptionStopButton = document.getElementById('stop-description');
+    const descriptionStatus = document.getElementById('description-recording-status');
+    const descriptionTranscription = document.getElementById('description-transcription');
+    const descriptionInput = document.getElementById('aiDescription');
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let currentField = null;
+    let recognition = null;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'fr-FR';
+
+        recognition.onresult = function(event) {
+            const transcriptionEl = descriptionTranscription;
+            const inputEl = descriptionInput;
+            
+            let interimTranscript = '';
+            let finalTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            transcriptionEl.innerHTML = `<div>${finalTranscript + interimTranscript}</div>`;
+
+            if (finalTranscript) {
+                inputEl.value += finalTranscript + ' ';
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error', event.error);
+            yiziEnregistrement();
+        };
+    } else {
+        alert('La reconnaissance vocale n\'est pas supportée par votre navigateur.');
+    }
+
+    descriptionButton.addEventListener('click', function() {
+        enregistrement('description');
+    });
+
+
+    descriptionStopButton.addEventListener('click', function() {
+        yiziEnregistrement();
+    });
+
+    async function enregistrement(field) {
+        try {
+            currentField = field;
+            const button = field === 'description' ? descriptionButton : descButton;
+            const stopButton = field === 'description' ? descriptionStopButton : descStopButton;
+            const status = field === 'description' ? descriptionStatus : descStatus;
+            
+            button.style.display = 'none';
+            stopButton.style.display = 'inline-block';
+            status.innerHTML = '<span class="recording">Enregistrement en cours...</span>';
+
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            if (recognition) {
+                recognition.start();
+            }
+
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.addEventListener('dataavailable', event => {
+                audioChunks.push(event.data);
+            });
+
+            mediaRecorder.addEventListener('stop', async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                await uploadAudio(audioBlob, field);
+            });
+
+            mediaRecorder.start();
+        } catch (err) {
+            console.error('Erreur debut:', err);
+            alert("Impossible de demarrer l'enregistrement");
+        }
+    }
+
+    function yiziEnregistrement() {
+        if (recognition) {
+            recognition.stop();
+        }
+
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        }
+
+        const button =  descriptionButton;
+        const stopButton =  descriptionStopButton;
+        const status =  descriptionStatus;
+
+        button.style.display = 'inline-block';
+        stopButton.style.display = 'none';
+        status.innerHTML = '<span>Enregistrement terminé</span>';
+    }
+
+    async function uploadAudio(blob, field) {
+        try {
+            const formData = new FormData();
+            formData.append('audio', blob, `${field}_enregistrement.webm`);
+            formData.append('field', field);
+
+            const response = await fetch('/audio/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur envoi');
+            }
+
+            const result = await response.json();
+        } catch (err) {
+            console.error('Erreur upload:', err);
+        }
+    }
+});
+</script>
 
 
 {% endblock %}

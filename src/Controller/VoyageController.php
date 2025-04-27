@@ -61,6 +61,32 @@ class VoyageController extends AbstractController
             'voyage' => $voyage,
             'dejaReserve' => $dejaReserve
         ]);
+    }    
+
+    #[Route('/admin/voyage/{id}', name: 'details_voyage_admin')]
+    public function detailsAdmin(int $id, VoyageRepository $voyageRepository, ReservationRepository $reservationRepository, Security $security): Response
+    {
+        $voyage = $voyageRepository->find($id);
+
+        if (!$voyage) {
+            throw $this->createNotFoundException('Voyage not found.');
+        }
+
+        $client = $security->getUser();
+        $dejaReserve = false;
+
+        if ($client) {
+            $dejaReserve = $reservationRepository->findOneBy([
+                'client' => $client,
+                'voyage' => $voyage,
+                'statut' => 'EN_ATTENTE',
+            ]) !== null;
+        }
+
+        return $this->render('voyages/details-voyage-admin.html.twig', [
+            'voyage' => $voyage,
+            'dejaReserve' => $dejaReserve
+        ]);
     }
 
     #[Route('/voyages/ajout', name: 'ajout_voyage')]

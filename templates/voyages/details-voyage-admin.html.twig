@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'base-staff.html.twig' %}
 {% block title %}
 	Détails du Voyage
 {% endblock %}
@@ -43,7 +43,7 @@
 		});
 	</script>
 
-	<main class="main" style="margin-top: 200px;">
+	<main class="main" >
 		<div class="card-wrapper">
 			<div class="card">
 				<div class="badge-climat">
@@ -117,27 +117,7 @@
 						</p>
 					</div>
 					<div class="purchase-info">
-						{% if dejaReserve %}
-							<span data-bs-toggle="tooltip" data-bs-placement="top" title="Vous avez déjà une réservation en attente pour ce voyage." style="display: inline-block; position: relative;">
-								<button type="button" class="btn reserver" style="background-color: grey; cursor: not-allowed; pointer-events: none;" disabled>
-									Réserver
-								</button>
-							</span>
-						{% else %}
-							<button type="button" class="btn reserver" onclick="window.location.href='{{ path('ajout_reservation', {'type': 'voyage', 'id': voyage.id}) }}'">
-								Réserver
-							</button>
-						{% endif %}
-						<a href="{{ path('ajouter_feedbackk', {'id': voyage.id}) }}" class="card-feedback-button btn btn-primary">Donner un feedback</a>
-						
-					<a
-					class="btn btn-primary mt-3"
-					href="https://calendar.google.com/calendar/render?action=TEMPLATE&text={{ voyage.nom|url_encode }}&dates={{ voyage.dateDepart|date('Ymd\\THis') }}/{{ voyage.dateArrive|date('Ymd\\THis') }}&details={{ voyage.description|url_encode }}"
-					target="_blank"
-					rel="noopener noreferrer"
-					>
-					Ajouter au Google Calendar 📅
-					</a>
+						<a href="{{ path('edit_voyage', {'id': voyage.id}) }}" class="card-feedback-button btn btn-primary">Modifier</a>
 					</div>
 
 
@@ -145,51 +125,7 @@
 			</div>
 		</div>
 
-		<div class="voyage-details-feedback-container mt-4">
-			<h2>Avis des voyageurs</h2>
-			<form method="post" class="voyage-details-feedback-form">
-				<div class="rating-input">
-					<label for="note">Note :</label>
-					<div class="star-rating">
-						<input type="radio" id="star5" name="note" value="5">
-						<label for="star5">★</label>
-						<input type="radio" id="star4" name="note" value="4">
-						<label for="star4">★</label>
-						<input type="radio" id="star3" name="note" value="3">
-						<label for="star3">★</label>
-						<input type="radio" id="star2" name="note" value="2">
-						<label for="star2">★</label>
-						<input type="radio" id="star1" name="note" value="1">
-						<label for="star1">★</label>
-					</div>
-				</div>
-				<label for="comment">Avis :</label>
-				<textarea name="comment" required class="feedback-textarea"></textarea>
-				<button type="submit" class="submit-feedback-btn">Envoyer</button>
-			</form>
-
-			<div class="voyage-details-feedback-list">
-				{% for feedback in voyage.feedbacks %}
-					<div class="voyage-details-feedback-item">
-						<div class="feedback-header">
-							<strong>{{ feedback.client.nom }}
-								{{ feedback.client.prenom }}</strong>
-							<span class="feedback-date">{{ feedback.dateFeedback|date('d/m/Y') }}</span>
-						</div>
-						<div class="feedback-rating">
-							{% for i in 1..5 %}
-								{% if i <= feedback.note %}
-									<span class="filled-star">★</span>
-								{% else %}
-									<span class="empty-star">☆</span>
-								{% endif %}
-							{% endfor %}
-						</div>
-						<p class="feedback-content">{{ feedback.contenu }}</p>
-					</div>
-				{% endfor %}
-			</div>
-		</div>
+		
 	</main>
 
 	<script>
