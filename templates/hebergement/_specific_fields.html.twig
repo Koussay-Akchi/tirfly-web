@@ -699,7 +699,6 @@
                         <a href="#"><i class="fas fa-phone me-2"></i> +123 456 7890</a>
                         <a href="#"><i class="fas fa-envelope me-2"></i> contact@tirfly.com</a>
                     </div>
-                </div>
             </div>
             <hr class="bg-light">
             <div class="text-center pt-3">
@@ -876,10 +875,10 @@
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title">${name}</h5>
-                                                                        <p class="card-text text-muted small mb-2">
+                                    <p class="card-text text-muted small mb-2">
                                         <i class="fas fa-map-marker-alt"></i> ${city}
                                     </p>
-                                    <div class="star-rating small mb-3">
+                                                                        <div class="star-rating small mb-3">
                                         ${'<i class="fas fa-star"></i>'.repeat(rate)}
                                         ${'<i class="far fa-star"></i>'.repeat(5 - rate)}
                                     </div>
@@ -1092,157 +1091,110 @@
         </div>`;
     }
     
-    // Improved translation function with multiple fallback options
-function translateText(text, targetLanguage) {
-    const resultContainer = document.getElementById('translationResult');
-    const translatedText = document.getElementById('translatedText');
-    
-    // Show loading state
-    translatedText.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Traduction en cours...';
-    resultContainer.style.display = 'block';
+    // New translation function using LibreTranslate API (completely free)
+    function translateText(text, targetLanguage) {
+        const resultContainer = document.getElementById('translationResult');
+        const translatedText = document.getElementById('translatedText');
+        
+        // Show loading state
+        translatedText.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Traduction en cours...';
+        resultContainer.style.display = 'block';
 
-    // Try MyMemory API first
-    tryMyMemoryAPI(text, targetLanguage, translatedText)
-        .catch(() => {
-            // If MyMemory fails, try LibreTranslate with CORS proxy
-            return tryLibreTranslate(text, targetLanguage, translatedText);
-        })
-        .catch(() => {
-            // If all APIs fail, use browser's built-in translation
-            return tryBrowserTranslation(text, targetLanguage, translatedText);
-        })
-        .catch(() => {
-            // Final fallback to hardcoded translations
-            showFallbackTranslation(text, targetLanguage, translatedText);
-        });
-}
-
-// Try MyMemory Translation API
-function tryMyMemoryAPI(text, targetLanguage, translatedText) {
-    return new Promise((resolve, reject) => {
-        const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=fr|${targetLanguage}`;
-
-        fetch(apiUrl)
-            .then(response => {
-                if (!response.ok) throw new Error('API error');
-                return response.json();
-            })
-            .then(data => {
-                if (data.responseData && data.responseData.translatedText) {
-                    translatedText.textContent = data.responseData.translatedText;
-                    resolve();
-                } else {
-                    throw new Error('No translation data');
-                }
-            })
-            .catch(error => {
-                console.log("MyMemory API failed, trying next option...");
-                reject(error);
-            });
-    });
-}
-
-// Try LibreTranslate with CORS proxy
-function tryLibreTranslate(text, targetLanguage, translatedText) {
-    return new Promise((resolve, reject) => {
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        // Using LibreTranslate API (free and open source)
         const apiUrl = 'https://libretranslate.de/translate';
         
-        const data = {
-            q: text,
-            source: 'fr',
-            target: targetLanguage
-        };
-
-        fetch(proxyUrl + apiUrl, {
+        fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify({
+                q: text,
+                source: 'fr',
+                target: targetLanguage
+            })
         })
-            .then(response => {
-                if (!response.ok) throw new Error('API error');
-                return response.json();
-            })
-            .then(data => {
-                if (data.translatedText) {
-                    translatedText.textContent = data.translatedText;
-                    resolve();
-                } else {
-                    throw new Error('No translation data');
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.translatedText) {
+                translatedText.textContent = data.translatedText;
+            } else {
+                throw new Error('No translation returned');
+            }
+        })
+        .catch(error => {
+            console.error("Translation error:", error);
+            translatedText.textContent = "Erreur de traduction. Veuillez réessayer plus tard.";
+            
+            // Fallback to simple word replacements if API fails
+            const fallbackTranslations = {
+                en: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Room",
+                    "Petit déjeuner": "Breakfast",
+                    "Piscine": "Pool",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Restaurant"
+                },
+                es: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Habitación",
+                    "Petit déjeuner": "Desayuno",
+                    "Piscine": "Piscina",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Restaurante"
+                },
+                de: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Zimmer",
+                    "Petit déjeuner": "Frühstück",
+                    "Piscine": "Schwimmbad",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Restaurant"
+                },
+                it: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Camera",
+                    "Petit déjeuner": "Colazione",
+                    "Piscine": "Piscina",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Ristorante"
+                },
+                pt: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Quarto",
+                    "Petit déjeuner": "Café da manhã",
+                    "Piscine": "Piscina",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Restaurante"
+                },
+                ru: {
+                    "Hôtel": "Отель",
+                    "Chambre": "Комната",
+                    "Petit déjeuner": "Завтрак",
+                    "Piscine": "Бассейн",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Ресторан"
                 }
-            })
-            .catch(error => {
-                console.log("LibreTranslate failed, trying next option...");
-                reject(error);
-            });
-    });
-}
+            };
 
-// Try browser's built-in translation
-function tryBrowserTranslation(text, targetLanguage, translatedText) {
-    return new Promise((resolve, reject) => {
-        const tempElement = document.createElement('div');
-        tempElement.id = 'temp-translation';
-        tempElement.style.display = 'none';
-        tempElement.setAttribute('translate', 'yes');
-        tempElement.lang = targetLanguage;
-        tempElement.textContent = text;
-        document.body.appendChild(tempElement);
-        
-        if (typeof tempElement.translate === 'function') {
-            tempElement.translate(true)
-                .then(() => {
-                    translatedText.textContent = tempElement.textContent;
-                    document.body.removeChild(tempElement);
-                    resolve();
-                })
-                .catch(error => {
-                    document.body.removeChild(tempElement);
-                    reject(error);
-                });
-        } else {
-            document.body.removeChild(tempElement);
-            reject(new Error('Browser translation not supported'));
-        }
-    });
-}
-
-// Final fallback to hardcoded translations
-function showFallbackTranslation(text, targetLanguage, translatedText) {
-    // Simple word replacements for common phrases
-    const wordMap = {
-        en: {
-            "Hôtel": "Hotel",
-            "Chambre": "Room",
-            "Petit déjeuner": "Breakfast",
-            "Piscine": "Pool",
-            "WiFi": "WiFi",
-            "Restaurant": "Restaurant"
-        },
-        es: {
-            "Hôtel": "Hotel",
-            "Chambre": "Habitación",
-            "Petit déjeuner": "Desayuno",
-            "Piscine": "Piscina",
-            "WiFi": "WiFi",
-            "Restaurant": "Restaurante"
-        },
-        // Add more languages as needed
-    };
-
-    if (wordMap[targetLanguage]) {
-        let result = text;
-        for (const [fr, trans] of Object.entries(wordMap[targetLanguage])) {
-            result = result.replace(new RegExp(fr, 'gi'), trans);
-        }
-        translatedText.textContent = result || "Translation unavailable";
-    } else {
-        translatedText.textContent = "Translation unavailable";
+            if (fallbackTranslations[targetLanguage]) {
+                let result = text;
+                for (const [fr, trans] of Object.entries(fallbackTranslations[targetLanguage])) {
+                    result = result.replace(new RegExp(fr, 'gi'), trans);
+                }
+                translatedText.textContent = result || "Translation unavailable";
+            } else {
+                translatedText.textContent = "Translation unavailable";
+            }
+        });
     }
-}
 </script>
 </body>
 </html>

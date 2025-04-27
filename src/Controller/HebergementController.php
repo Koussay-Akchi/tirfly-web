@@ -1,6 +1,8 @@
 <?php
 namespace App\Controller;
 
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use App\Entity\Foyer;
 use App\Entity\Hebergement;
 use App\Entity\Hotel;
@@ -18,9 +20,10 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Knp\Component\Pager\PaginatorInterface; 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\UserRepository;
 class HebergementController extends AbstractController
-    { #[Route('/hebergements/ajout', name: 'app_hebergement_add')]
-        public function add(Request $request, EntityManagerInterface $em): Response
+    {#[Route('/hebergements/ajout', name: 'app_hebergement_add')]
+        public function add(Request $request, EntityManagerInterface $em, MailerInterface $mailer, UserRepository $userRepository): Response
         {
             $hebergement = new Hebergement();
             $type = $request->query->get('type');
@@ -28,66 +31,65 @@ class HebergementController extends AbstractController
             $form = $this->createForm(HebergementType::class, $hebergement, [
                 'type' => $type,
             ]);
-        
             $form->handleRequest($request);
         
-            if ($form->isSubmitted()) {
-                if (!$form->isValid()) {
-                    foreach ($form->getErrors(true) as $error) {
-                        $this->addFlash('error', $error->getMessage());
+            if ($form->isSubmitted() && $form->isValid()) {
+                try {
+                    // Handle image upload
+                    $imageFile = $form->get('image')->getData();
+                    if ($imageFile) {
+                        $stream = fopen($imageFile->getPathname(), 'rb');
+                        $hebergement->setImage(stream_get_contents($stream));
+                        fclose($stream);
                     }
+        
+                    $em->persist($hebergement);
+        
+                    // Handle specific accommodation types
+                    switch ($form->get('type')->getData()) {
+                        case 'hotel':
+                            $hotel = new Hotel();
+                            $hotel->setPrix($form->get('prix')->getData())
+                                ->setHebergement($hebergement);
+                            $em->persist($hotel);
+                            break;
+        
+                        case 'logement':
+                            $logement = new Logement();
+                            $logement->setPrix($form->get('prix')->getData())
+                                ->setJourDispo($form->get('jourDispo')->getData())
+                                ->setHebergement($hebergement);
+                            $em->persist($logement);
+                            break;
+        
+                        case 'foyer':
+                            $foyer = new Foyer();
+                            $documentsFile = $form->get('documents')->getData();
+                            $fileName = $documentsFile ? $this->uploadFile($documentsFile) : null;
+        
+                            $foyer->setFrais($form->get('frais')->getData())
+                                ->setType($form->get('typeFoyer')->getData())
+                                ->setDocuments($fileName)
+                                ->setHebergement($hebergement);
+                            $em->persist($foyer);
+                            break;
+                    }
+        
+                    $em->flush();
+        
+                    // ✉️ Fetch users and send email
+                    $users = $userRepository->findAll(); // Fetch all users from the database
+                    $this->sendNewHebergementEmail($mailer, $users, $hebergement);
+        
+                    $this->addFlash('success', 'Hébergement ajouté avec succès.');
+                    return $this->redirectToRoute('admin_liste_hebergements');
+        
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
                 }
-        
-                if ($form->isValid()) {
-                    try {
-                        // Handle image upload as BLOB
-                        $imageFile = $form->get('image')->getData();
-                        if ($imageFile) {
-                            $stream = fopen($imageFile->getPathname(), 'rb');
-                            $hebergement->setImage(stream_get_contents($stream));
-                            fclose($stream);
-                        }
-        
-                        $type = $form->get('type')->getData();
-                        $em->persist($hebergement);
-        
-                        // Handle specific accommodation types
-                        switch ($type) {
-                            case 'hotel':
-                                $hotel = new Hotel();
-                                $hotel->setPrix($form->get('prix')->getData())
-                                      ->setHebergement($hebergement);
-                                $em->persist($hotel);
-                                break;
-        
-                            case 'logement':
-                                $logement = new Logement();
-                                $logement->setPrix($form->get('prix')->getData())
-                                         ->setJourDispo($form->get('jourDispo')->getData())
-                                         ->setHebergement($hebergement);
-                                $em->persist($logement);
-                                break;
-        
-                            case 'foyer':
-                                $foyer = new Foyer();
-                                $documentsFile = $form->get('documents')->getData();
-                                $fileName = $documentsFile ? $this->uploadFile($documentsFile) : null;
-        
-                                $foyer->setFrais($form->get('frais')->getData())
-                                      ->setType($form->get('typeFoyer')->getData())
-                                      ->setDocuments($fileName)
-                                      ->setHebergement($hebergement);
-                                $em->persist($foyer);
-                                break;
-                        }
-        
-                        $em->flush();
-                        $this->addFlash('success', 'Hébergement ajouté avec succès.');
-                        return $this->redirectToRoute('admin_liste_hebergements');
-        
-                    } catch (\Exception $e) {
-                        $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
-                    }
+            } elseif ($form->isSubmitted()) {
+                foreach ($form->getErrors(true) as $error) {
+                    $this->addFlash('error', $error->getMessage());
                 }
             }
         
@@ -97,15 +99,35 @@ class HebergementController extends AbstractController
             ]);
         }
         
-    
-    private function uploadFile(UploadedFile $file): string
-    {
-        $fileName = uniqid().'.'.$file->guessExtension();
-        $file->move($this->getParameter('documents_directory'), $fileName);
-        return $fileName;
-    }
-
-    
+        /**
+         * Upload documents and return the filename.
+         */
+        private function uploadFile(UploadedFile $file): string
+        {
+            $fileName = uniqid().'.'.$file->guessExtension();
+            $file->move($this->getParameter('documents_directory'), $fileName);
+            return $fileName;
+        }
+        
+        /**
+         * Send an email notification to users when a new hebergement is added.
+         */
+        public function sendNewHebergementEmail(MailerInterface $mailer, $users, Hebergement $hebergement)
+        {
+            // Create the email
+            $email = (new Email())
+                ->from('your_email@example.com') // Change this to your email
+                ->subject('New Hébergement Added')
+                ->text('A new hébergement has been added: ' . $hebergement->getNom());
+        
+            // Add recipients
+            foreach ($users as $user) {
+                $email->addTo($user->getEmail());
+            }
+        
+            // Send the email
+            $mailer->send($email);
+        }
     
 
     #[Route('/admin/hebergements/{id}/edit', name: 'edit_hebergement')]
@@ -457,7 +479,7 @@ public function index(
 $hebergements = $paginator->paginate(
     $query,
     $page,
-    12,
+    5,
     [
         'wrap-queries' => true,  // This enables output walkers
         'distinct' => false,

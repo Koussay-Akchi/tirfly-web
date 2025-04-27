@@ -148,4 +148,5 @@ class HebergementRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    
 }
