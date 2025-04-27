@@ -1,137 +1,1200 @@
-    {% if type == 'hotel' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails de {{ hebergement.nom }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <style>
+        /* Navbar Styles */
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            transition: all 0.3s ease;
+        }
         
-        <div class="row">
-            <div class="col-md-6">
-                {{ form_row(form.prix, {
-                    'label': 'Prix par nuit (€)',
-                    'attr': {'class': 'form-control'}
-                }) }}
-            </div>
-        </div>
-    {% elseif type == 'logement' %}
+        .navbar-brand img {
+            height: 40px;
+        }
         
-        <div class="row g-3">
-            <div class="col-md-6">
-                {{ form_row(form.prix, {
-                    'label': 'Prix par mois (€)',
-                    'attr': {'class': 'form-control'}
-                }) }}
-            </div>
-            <div class="col-md-6">
-                {{ form_row(form.jourDispo, {
-                    'label': 'Disponible à partir du',
-                    'attr': {'class': 'form-control datepicker'}
-                }) }}
-            </div>
-        </div>
-    {% elseif type == 'foyer' %}
+        .navbar-nav .nav-link {
+            color: #333;
+            font-weight: 500;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+        }
         
-        <div class="row g-3">
-            <div class="col-md-4">
-                {{ form_row(form.frais, {
-                    'label': 'Frais d\'inscription (€)',
-                    'attr': {'class': 'form-control'}
-                }) }}
-            </div>
-            <div class="col-md-4">
-                {{ form_row(form.typeFoyer, {
-                    'label': 'Type de foyer',
-                    'attr': {'class': 'form-select'}
-                }) }}
-            </div>
-            <div class="col-md-4">
-                {{ form_row(form.documents, {
-                    'label': 'Documents (PDF)',
-                    'attr': {'class': 'form-control'}
-                }) }}
-            </div>
-        </div>
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: #2575fc;
+            background-color: rgba(37, 117, 252, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: #2575fc;
+            border-color: #2575fc;
+        }
+        
+        /* Translation Button */
+        .translation-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 1000;
+            background: #2575fc;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* Main Content Styles */
+        .detail-card {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #fff;
+            margin-top: 2rem;
+        }
+        
+        .detail-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem;
+        }
+        
+        .detail-badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin-right: 0.5rem;
+        }
+        
+        .detail-image-container {
+            height: 350px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .detail-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .detail-image-container:hover .detail-image {
+            transform: scale(1.03);
+        }
+        
+        .placeholder-image {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            color: #6c757d;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 180px;
+            display: inline-block;
+        }
+        
+        .info-value {
+            color: #212529;
+        }
+        
+        .section-title {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.75rem;
+            color: #2c3e50;
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+        }
+        
+        .action-btn {
+            min-width: 140px;
+            margin: 0 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reserver {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-plus {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            border: none;
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .star-rating {
+            color: #ffc107;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+        }
+        
+        .service-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: #2575fc;
+        }
+        
+        .service-price {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .service-badge {
+            background-color: #e9f7fe;
+            color: #0d6efd;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        #map {
+            height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        /* Similar Hotels Styles */
+        .similar-hotel-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+        
+        .similar-hotel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+        }
+        
+        .hotel-img-placeholder {
+            height: 150px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        /* Places to Visit Styles */
+        .place-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+        
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+        }
+        
+        .place-img-placeholder {
+            height: 150px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        /* Footer Styles */
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 50px 0 20px;
+        }
+        
+        .footer-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .footer-links a:hover {
+            color: #3498db;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        .go-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2575fc;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            text-decoration: none;
+        }
+        
+        /* API Modal Styles */
+        .api-result-card {
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .api-result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .action-btn {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+            
+            .info-label {
+                min-width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+    
+    <!-- Leaflet CSS -->
+    {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+              integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+              crossorigin=""/>
     {% endif %}
-
-    
-    <div class="row mt-4">
-        <div class="col-12">
-            <h4>Services associés</h4>
-            {% if hebergement.services|length > 0 %}
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Nom</th>
-                                <th>Description</th>
-                                <th>Prix</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for service in hebergement.services %}
-                                <tr>
-                                    <td>{{ service.nom }}</td>
-                                    <td>{{ service.description }}</td>
-                                    <td>{{ service.prix }} €</td>
-                                </tr>
+</head>
+<body id="top">
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="detail-card">
+            <!-- Header Section -->
+            <div class="detail-header d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h1 class="mb-3"><i class="fas fa-hotel me-2"></i>{{ hebergement.nom }}</h1>
+                    <div class="d-flex align-items-center flex-wrap">
+                        <div class="star-rating me-3">
+                            {% for i in 1..5 %}
+                                {% if i <= hebergement.classement %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
                             {% endfor %}
-                        </tbody>
-                    </table>
+                            <span class="ms-2 text-white">{{ hebergement.classement }}/5</span>
+                        </div>
+                        {% if hebergement.hotels is not empty %}
+                            <span class="detail-badge bg-white text-primary">
+                                <i class="fas fa-hotel me-1"></i>Hôtel
+                            </span>
+                        {% elseif hebergement.logements is not empty %}
+                            <span class="detail-badge bg-white text-success">
+                                <i class="fas fa-home me-1"></i>Logement
+                            </span>
+                        {% elseif hebergement.foyers is not empty %}
+                            <span class="detail-badge bg-white text-warning">
+                                <i class="fas fa-users me-1"></i>Foyer
+                            </span>
+                        {% endif %}
+                    </div>
                 </div>
-            {% else %}
-                <div class="alert alert-warning">
-                    Aucun service n'est actuellement associé à cet hébergement.
+                <div class="mt-3 mt-md-0">
+                    <a href="{{ path('app_hebergement_index') }}" class="btn btn-outline-light btn-lg rounded-pill">
+                        <i class="fas fa-arrow-left me-1"></i> Retour
+                    </a>
                 </div>
-            {% endif %}
-        </div>
-    </div>
-    
-<div class="row mt-4">
-    <div class="col-12">
-        <h4 class="section-title">
-            <i class="fas fa-concierge-bell me-2"></i>Services associés
-        </h4>
-        
-        {% if hebergement.services|length > 0 %}
-            <div class="row">
-                {% for service in hebergement.services %}
-                    <div class="col-md-6 col-lg-4 mb-3">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
-                                        <i class="fas 
-                                            {% if 'wifi' in service.nom|lower %}fa-wifi
-                                            {% elseif 'piscine' in service.nom|lower %}fa-swimming-pool
-                                            {% elseif 'restaurant' in service.nom|lower %}fa-utensils
-                                            {% elseif 'parking' in service.nom|lower %}fa-parking
-                                            {% else %}fa-check{% endif %} 
-                                            text-primary">
-                                        </i>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="card-body p-4">
+                <div class="row">
+                    <!-- Image Column -->
+                    <div class="col-lg-5 mb-4 mb-lg-0">
+                        <div class="detail-image-container">
+                            {% if imageData %}
+                                <img src="data:image/jpeg;base64,{{ imageData }}" 
+                                     alt="{{ hebergement.nom }}" 
+                                     class="detail-image">
+                            {% else %}
+                                <div class="placeholder-image">
+                                    <div class="text-center p-4">
+                                        <i class="fas fa-image fa-5x mb-3"></i>
+                                        <h4>Aucune image disponible</h4>
                                     </div>
-                                    <h5 class="mb-0">{{ service.nom }}</h5>
                                 </div>
-                                <p class="text-muted small">{{ service.description }}</p>
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <span class="badge bg-primary bg-opacity-10 text-primary">
-                                        {{ service.prix }} €
-                                    </span>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Quick Info Section -->
+                        <div class="mt-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>En bref</h5>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="fas fa-phone me-2"></i>Contact</span>
+                                            <span>{{ hebergement.contact ?? 'Non renseigné' }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="fas fa-map-marker-alt me-2"></i>Localisation</span>
+                                            <span>
+                                                {% if hebergement.destination %}
+                                                    {{ hebergement.destination.ville }}, {{ hebergement.destination.pays }}
+                                                {% else %}
+                                                    Non spécifiée
+                                                {% endif %}
+                                            </span>
+                                        </li>
+                                        {% if hebergement.hotels is not empty and hebergement.hotels[0] is not null %}
+                                            {% set hotel = hebergement.hotels[0] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Prix par nuit</span>
+                                                <span class="badge bg-primary rounded-pill">{{ hotel.prix ?? 'N/A' }} €</span>
+                                            </li>
+                                        {% elseif hebergement.logements is not empty and hebergement.logements[0] is not null %}
+                                            {% set logement = hebergement.logements[0] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Prix par mois</span>
+                                                <span class="badge bg-success rounded-pill">{{ logement.prix ?? 'N/A' }} €</span>
+                                            </li>
+                                        {% elseif hebergement.foyers is not empty and hebergement.foyers[0] is not null %}
+                                            {% set foyer = hebergement.foyers[0] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Frais de séjour</span>
+                                                <span class="badge bg-warning text-dark rounded-pill">{{ foyer.frais ?? 'N/A' }} €</span>
+                                            </li>
+                                        {% else %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span><i class="fas fa-euro-sign me-2"></i>Tarifs</span>
+                                                <span class="badge bg-secondary rounded-pill">Non disponible</span>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
-                {% endfor %}
+                    
+                    <!-- Details Column -->
+                    <div class="col-lg-7">
+                        <!-- Description Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-align-left me-2"></i>Description
+                            </h3>
+                            <p class="lead">{{ hebergement.description ?? 'Aucune description disponible' }}</p>
+                        </div>
+                        
+                        <!-- Location Map Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-map-marked-alt me-2"></i>Localisation
+                            </h3>
+                            
+                            {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+                                <div id="map"></div>
+                                <div class="mt-2 text-muted small">
+                                    <i class="fas fa-info-circle me-1"></i> 
+                                    {{ hebergement.destination.ville }}, {{ hebergement.destination.pays }}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Aucune localisation précise disponible pour cet hébergement
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Services Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-concierge-bell me-2"></i>Services
+                            </h3>
+                            
+                            {% if hebergement.services|length > 0 %}
+                                <div class="row">
+                                    {% for service in hebergement.services %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="service-card card h-100">
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="service-icon">
+                                                            <i class="fas 
+                                                                {% if 'wifi' in service.nom|lower %}fa-wifi
+                                                                {% elseif 'piscine' in service.nom|lower %}fa-swimming-pool
+                                                                {% elseif 'restaurant' in service.nom|lower %}fa-utensils
+                                                                {% elseif 'parking' in service.nom|lower %}fa-parking
+                                                                {% elseif 'nettoyage' in service.nom|lower %}fa-broom
+                                                                {% elseif 'petit déjeuner' in service.nom|lower %}fa-coffee
+                                                                {% else %}fa-check-circle{% endif %}">
+                                                            </i>
+                                                        </div>
+                                                        <h5 class="mb-0">{{ service.nom }}</h5>
+                                                    </div>
+                                                    <p class="text-muted">{{ service.description ?? 'Aucune description disponible' }}</p>
+                                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                                        <span class="service-price">{{ service.prix ?? '0' }} €</span>
+                                                        <span class="badge bg-light text-primary">Inclus</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Cet hébergement ne propose aucun service supplémentaire pour le moment.
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Nearby Places Section -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-map-marked-alt me-2"></i>Lieux à visiter à proximité
+                            </h3>
+                            <div id="nearbyPlaces" class="row">
+                                <div class="col-12 text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Chargement...</span>
+                                    </div>
+                                    <p class="mt-2">Chargement des lieux à visiter à proximité...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        {% else %}
-            <div class="alert alert-warning">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                Aucun service n'est actuellement associé à cet hébergement.
+            
+            <!-- Similar Hotels in Same Country Section -->
+            <div class="card-body border-top">
+                <h3 class="section-title">
+                    <i class="fas fa-hotel me-2"></i>Hébergements similaires dans {{ hebergement.destination.pays ?? 'cette région' }}
+                </h3>
+                <div id="similarHotels" class="row">
+                    <div class="col-12 text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <p class="mt-2">Chargement des hébergements similaires...</p>
+                    </div>
+                </div>
             </div>
-        {% endif %}
-        
-        
-        <div class="mt-3">
-            <button class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Ajouter un service
-            </button>
+            
+            <!-- Footer Actions -->
+            <div class="card-footer bg-light p-4 d-flex justify-content-between flex-wrap">
+                <div class="mb-3 mb-md-0">
+                    <a href="{{ path('app_hebergement_index') }}" class="btn btn-outline-secondary action-btn rounded-pill">
+                        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                    </a>
+                </div>
+                <div class="d-flex flex-wrap">
+                    <a href="{{ path('ajout_reservation', {'type': 'hebergement', 'id': hebergement.id}) }}" class="btn btn-reserver action-btn rounded-pill me-2">
+                        <i class="fas fa-calendar-check me-1"></i> Réserver
+                    </a>
+                    <button class="btn btn-plus action-btn rounded-pill" id="moreInfoBtn">
+                        <i class="fas fa-plus-circle me-1"></i> Plus d'infos
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- Translation Button -->
+    <div class="translation-btn" id="translationBtn" title="Translate to English">
+        <i class="fas fa-language"></i>
+    </div>
+
+    <!-- API Information Modal -->
+    <div class="modal fade" id="apiModal" tabindex="-1" aria-labelledby="apiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apiModalLabel">Informations complémentaires</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="apiTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="government-tab" data-bs-toggle="tab" data-bs-target="#government" type="button" role="tab">
+                                <i class="fas fa-landmark me-1"></i> Données Officielles
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tripadvisor-tab" data-bs-toggle="tab" data-bs-target="#tripadvisor" type="button" role="tab">
+                                <i class="fas fa-star me-1"></i> TripAdvisor
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="translation-tab" data-bs-toggle="tab" data-bs-target="#translation" type="button" role="tab">
+                                <i class="fas fa-language me-1"></i> Traduction
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="apiTabContent">
+                        <div class="tab-pane fade show active" id="government" role="tabpanel">
+                            <div id="governmentResults">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Chargement...</span>
+                                    </div>
+                                    <p class="mt-2">Chargement des données gouvernementales...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tripadvisor" role="tabpanel">
+                            <div id="tripadvisorResults">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-success" role="status">
+                                        <span class="visually-hidden">Chargement...</span>
+                                    </div>
+                                    <p class="mt-2">Chargement des informations TripAdvisor...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="translation" role="tabpanel">
+                            <div id="translationResults">
+                                <div class="mb-3">
+                                    <label for="translationText" class="form-label">Texte à traduire:</label>
+                                    <textarea class="form-control" id="translationText" rows="3">{{ hebergement.description ?? '' }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="targetLanguage" class="form-label">Langue cible:</label>
+                                    <select class="form-select" id="targetLanguage">
+                                        <option value="en">Anglais</option>
+                                        <option value="es">Espagnol</option>
+                                        <option value="de">Allemand</option>
+                                        <option value="it">Italien</option>
+                                        <option value="pt">Portugais</option>
+                                        <option value="ru">Russe</option>
+                                    </select>
+                                </div>
+                                <button id="translateBtn" class="btn btn-primary">
+                                    <i class="fas fa-language me-1"></i> Traduire
+                                </button>
+                                <div id="translationResult" class="mt-3 p-3 bg-light rounded" style="display: none;">
+                                    <h5>Résultat de la traduction:</h5>
+                                    <p id="translatedText"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>TirFly</h5>
+                    <p>Votre compagnon de voyage pour des expériences inoubliables.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5>Liens rapides</h5>
+                    <div class="footer-links">
+                        <a href="#">Accueil</a>
+                        <a href="#">À propos</a>
+                        <a href="#">Services</a>
+                        <a href="#">Contact</a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Services</h5>
+                    <div class="footer-links">
+                        <a href="#">Vols</a>
+                        <a href="#">Hébergements</a>
+                        <a href="#">Activités</a>
+                        <a href="#">Assurance voyage</a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Contact</h5>
+                    <div class="footer-links">
+                        <a href="#"><i class="fas fa-map-marker-alt me-2"></i> 123 Rue Example, Ville</a>
+                        <a href="#"><i class="fas fa-phone me-2"></i> +123 456 7890</a>
+                        <a href="#"><i class="fas fa-envelope me-2"></i> contact@tirfly.com</a>
+                    </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center pt-3">
+                <p class="mb-0">&copy; 2023 TirFly. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Go Top Button -->
+    <a href="#top" class="go-top">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+        <!-- Load Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+                integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+                crossorigin=""></script>
+    {% endif %}
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize map if available
+        {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+            const map = L.map('map').setView([
+                {{ hebergement.destination.latitude }},
+                {{ hebergement.destination.longitude }}
+            ], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            const customIcon = L.icon({
+                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+            
+            L.marker([
+                {{ hebergement.destination.latitude }},
+                {{ hebergement.destination.longitude }}
+            ], {icon: customIcon}).addTo(map)
+              .bindPopup("<b>{{ hebergement.nom }}</b><br>{{ hebergement.destination.ville }}")
+              .openPopup();
+        {% endif %}
+
+        // Load similar accommodations in same country using OpenTripMap API
+        loadSimilarAccommodations();
+        
+        // Load nearby places to visit
+        loadNearbyPlaces();
+        
+        // Go top button functionality
+        const goTopBtn = document.querySelector('.go-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                goTopBtn.style.display = 'flex';
+            } else {
+                goTopBtn.style.display = 'none';
+            }
+        });
+        
+        goTopBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // API Integration for "Plus d'infos" button
+        const moreInfoBtn = document.getElementById('moreInfoBtn');
+        const apiModal = new bootstrap.Modal(document.getElementById('apiModal'));
+        
+        moreInfoBtn.addEventListener('click', function() {
+            apiModal.show();
+            loadGovernmentData();
+        });
+        
+        // Tab event listeners
+        document.getElementById('tripadvisor-tab').addEventListener('click', function() {
+            loadTripAdvisorData();
+        });
+        
+        // Translation button
+        const translationBtn = document.getElementById('translationBtn');
+        translationBtn.addEventListener('click', function() {
+            apiModal.show();
+            // Switch to translation tab
+            const translationTab = new bootstrap.Tab(document.getElementById('translation-tab'));
+            translationTab.show();
+        });
+        
+        // Translation functionality
+        document.getElementById('translateBtn').addEventListener('click', function() {
+            const text = document.getElementById('translationText').value;
+            const targetLanguage = document.getElementById('targetLanguage').value;
+            
+            if (!text) {
+                alert('Veuillez entrer du texte à traduire');
+                return;
+            }
+            
+            translateText(text, targetLanguage);
+        });
+    });
+
+    // Function to load similar accommodations in the same country using OpenTripMap API
+    function loadSimilarAccommodations() {
+        const container = document.getElementById('similarHotels');
+        const country = "{{ hebergement.destination.pays|default('') }}";
+        const currentId = {{ hebergement.id }};
+        
+        if (!country) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        Pays non spécifié - impossible de trouver des hébergements similaires.
+                    </div>
+                </div>`;
+            return;
+        }
+
+        // OpenTripMap API key (free tier)
+        const apiKey = '5ae2e3f221c38a28845f05b6e1e72f6e6fae9bc6a9473af209e333f9';
+        const limit = 4;
+        const radius = 50000; // 50km radius
+        const kinds = 'accomodations'; // Accommodation types
+        
+        // First get country coordinates from country name
+        fetch(`https://api.opentripmap.com/0.1/en/places/geoname?name=${encodeURIComponent(country)}&apikey=${apiKey}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(countryData => {
+                if (!countryData || !countryData.lat || !countryData.lon) {
+                    throw new Error('Country coordinates not found');
+                }
+                
+                // Now find accommodations in this area
+                return fetch(`https://api.opentripmap.com/0.1/en/places/radius?radius=${radius}&lon=${countryData.lon}&lat=${countryData.lat}&kinds=${kinds}&limit=${limit}&apikey=${apiKey}`);
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                if (data.features && data.features.length > 0) {
+                    let html = '';
+                    let count = 0;
+                    const currentName = "{{ hebergement.nom }}".toLowerCase();
+                    
+                    data.features.forEach(place => {
+                        // Skip current accommodation and limit to 3 results
+                        if (place.properties.name.toLowerCase() === currentName || count >= 3) return;
+                        
+                        const name = place.properties.name || 'Hébergement similaire';
+                        const city = place.properties.city || place.properties.district || '';
+                        const rate = place.properties.rate ? Math.min(5, Math.max(1, Math.round(place.properties.rate/2))) : 3;
+                        
+                        html += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 similar-hotel-card">
+                                <div class="hotel-img-placeholder">
+                                    <i class="fas fa-hotel fa-3x"></i>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">${name}</h5>
+                                    <p class="card-text text-muted small mb-2">
+                                        <i class="fas fa-map-marker-alt"></i> ${city}
+                                    </p>
+                                                                        <div class="star-rating small mb-3">
+                                        ${'<i class="fas fa-star"></i>'.repeat(rate)}
+                                        ${'<i class="far fa-star"></i>'.repeat(5 - rate)}
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <a href="https://www.openstreetmap.org/?mlat=${place.geometry.coordinates[1]}&mlon=${place.geometry.coordinates[0]}" 
+                                       target="_blank" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        Voir sur la carte
+                                    </a>
+                                </div>
+                            </div>
+                        </div>`;
+                        
+                        count++;
+                    });
+                    
+                    container.innerHTML = count > 0 ? html : `
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Aucun hébergement similaire trouvé dans ce pays.
+                            </div>
+                        </div>`;
+                } else {
+                    container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            Aucun hébergement similaire trouvé dans ce pays.
+                        </div>
+                    </div>`;
+                }
+            })
+            .catch(error => {
+                console.error("Error loading similar accommodations:", error);
+                container.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Impossible de charger les hébergements similaires.
+                    </div>
+                </div>`;
+            });
+    }
+
+    // Function to load nearby places to visit using OpenTripMap API
+    function loadNearbyPlaces() {
+        const container = document.getElementById('nearbyPlaces');
+        
+        {% if hebergement.destination and hebergement.destination.latitude and hebergement.destination.longitude %}
+            const lat = {{ hebergement.destination.latitude }};
+            const lon = {{ hebergement.destination.longitude }};
+            
+            // OpenTripMap API key (free tier)
+            const apiKey = '5ae2e3f221c38a28845f05b6e1e72f6e6fae9bc6a9473af209e333f9';
+            const radius = 10000; // 10km radius
+            const limit = 6;
+            const kinds = 'interesting_places,tourist_facilities'; // Types of places
+            
+            fetch(`https://api.opentripmap.com/0.1/en/places/radius?radius=${radius}&lon=${lon}&lat=${lat}&kinds=${kinds}&limit=${limit}&apikey=${apiKey}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.features && data.features.length > 0) {
+                        let html = '';
+                        
+                        data.features.forEach(place => {
+                            const name = place.properties.name || 'Lieu intéressant';
+                            const distance = place.properties.dist ? Math.round(place.properties.dist) : 'N/A';
+                            const rate = place.properties.rate ? Math.min(5, Math.max(1, Math.round(place.properties.rate/2))) : 3;
+                            
+                            // Get appropriate icon based on place kind
+                            let iconClass = 'fa-map-marker-alt';
+                            if (place.properties.kinds) {
+                                if (place.properties.kinds.includes('museum')) iconClass = 'fa-landmark';
+                                else if (place.properties.kinds.includes('park')) iconClass = 'fa-tree';
+                                else if (place.properties.kinds.includes('beach')) iconClass = 'fa-umbrella-beach';
+                                else if (place.properties.kinds.includes('restaurant')) iconClass = 'fa-utensils';
+                                else if (place.properties.kinds.includes('castle')) iconClass = 'fa-chess-rook';
+                            }
+                            
+                            html += `
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 place-card">
+                                    <div class="place-img-placeholder">
+                                        <i class="fas ${iconClass} fa-3x"></i>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">${name}</h5>
+                                        <p class="card-text text-muted small mb-2">
+                                            <i class="fas fa-map-marker-alt"></i> ${distance}m de distance
+                                        </p>
+                                        <div class="star-rating small mb-3">
+                                            ${'<i class="fas fa-star"></i>'.repeat(rate)}
+                                            ${'<i class="far fa-star"></i>'.repeat(5 - rate)}
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-white">
+                                        <a href="https://www.openstreetmap.org/?mlat=${place.geometry.coordinates[1]}&mlon=${place.geometry.coordinates[0]}" 
+                                           target="_blank" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            Voir sur la carte
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>`;
+                        });
+                        
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Aucun lieu intéressant trouvé à proximité.
+                            </div>
+                        </div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading nearby places:", error);
+                    container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Impossible de charger les lieux à visiter à proximité.
+                        </div>
+                    </div>`;
+                });
+        {% else %}
+            container.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Localisation non spécifiée - impossible de trouver des lieux à visiter à proximité.
+                </div>
+            </div>`;
+        {% endif %}
+    }
+
+    // Function to load government data
+    function loadGovernmentData() {
+        const establishmentName = "{{ hebergement.nom }}";
+        const city = "{{ hebergement.destination.ville ?? '' }}";
+        const resultsContainer = document.getElementById('governmentResults');
+        
+        // Using French government OpenData API
+        fetch(`https://tourisme.data.gouv.fr/api/v2/establishments?name=${encodeURIComponent(establishmentName)}&city=${encodeURIComponent(city)}`)
+            .then(response => response.json())
+            .then(data => {
+                let html = '';
+                
+                if (data.data && data.data.length > 0) {
+                    html = '<div class="row">';
+                    data.data.slice(0, 3).forEach(establishment => {
+                        html += `
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 api-result-card">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-hotel"></i> ${establishment.name}</h5>
+                                    <p class="text-muted">${establishment.description || 'Aucune description disponible'}</p>
+                                    <p><i class="fas fa-map-marker-alt"></i> ${establishment.address || 'Adresse non disponible'}</p>
+                                    ${establishment.website ? `<a href="${establishment.website}" target="_blank" class="btn btn-sm btn-outline-primary">Visiter le site</a>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                } else {
+                    html = `
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucune information officielle trouvée pour cet établissement.
+                        <a href="https://tourisme.data.gouv.fr" target="_blank" class="alert-link">Visiter tourisme.data.gouv.fr</a>
+                    </div>`;
+                }
+                
+                resultsContainer.innerHTML = html;
+            })
+            .catch(error => {
+                resultsContainer.innerHTML = `
+                <div class="alert alert-danger mt-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Erreur lors du chargement des données gouvernementales.
+                    <a href="https://tourisme.data.gouv.fr" target="_blank" class="alert-link">Accéder au site</a>
+                </div>`;
+            });
+    }
+    
+    // Function to load TripAdvisor data
+    function loadTripAdvisorData() {
+        const establishmentName = "{{ hebergement.nom }}";
+        const city = "{{ hebergement.destination.ville ?? '' }}";
+        const country = "{{ hebergement.destination.pays ?? '' }}";
+        const resultsContainer = document.getElementById('tripadvisorResults');
+        
+        // Since TripAdvisor API requires authentication, we'll use a search link
+        const tripAdvisorUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(establishmentName + ' ' + city + ' ' + country)}`;
+        
+        resultsContainer.innerHTML = `
+        <div class="text-center py-4">
+            <h5><i class="fas fa-star"></i> Avis sur TripAdvisor</h5>
+            <p class="my-3">Consultez les avis et informations sur TripAdvisor</p>
+            <a href="${tripAdvisorUrl}" target="_blank" class="btn btn-success">
+                <i class="fas fa-external-link-alt me-1"></i> Voir sur TripAdvisor
+            </a>
+            <div class="mt-3">
+                <small class="text-muted">TripAdvisor est un service tiers non affilié à notre site.</small>
+            </div>
+        </div>`;
+    }
+    
+    // New translation function using LibreTranslate API (completely free)
+    function translateText(text, targetLanguage) {
+        const resultContainer = document.getElementById('translationResult');
+        const translatedText = document.getElementById('translatedText');
+        
+        // Show loading state
+        translatedText.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Traduction en cours...';
+        resultContainer.style.display = 'block';
+
+        // Using LibreTranslate API (free and open source)
+        const apiUrl = 'https://libretranslate.de/translate';
+        
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                q: text,
+                source: 'fr',
+                target: targetLanguage
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.translatedText) {
+                translatedText.textContent = data.translatedText;
+            } else {
+                throw new Error('No translation returned');
+            }
+        })
+        .catch(error => {
+            console.error("Translation error:", error);
+            translatedText.textContent = "Erreur de traduction. Veuillez réessayer plus tard.";
+            
+            // Fallback to simple word replacements if API fails
+            const fallbackTranslations = {
+                en: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Room",
+                    "Petit déjeuner": "Breakfast",
+                    "Piscine": "Pool",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Restaurant"
+                },
+                es: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Habitación",
+                    "Petit déjeuner": "Desayuno",
+                    "Piscine": "Piscina",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Restaurante"
+                },
+                de: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Zimmer",
+                    "Petit déjeuner": "Frühstück",
+                    "Piscine": "Schwimmbad",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Restaurant"
+                },
+                it: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Camera",
+                    "Petit déjeuner": "Colazione",
+                    "Piscine": "Piscina",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Ristorante"
+                },
+                pt: {
+                    "Hôtel": "Hotel",
+                    "Chambre": "Quarto",
+                    "Petit déjeuner": "Café da manhã",
+                    "Piscine": "Piscina",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Restaurante"
+                },
+                ru: {
+                    "Hôtel": "Отель",
+                    "Chambre": "Комната",
+                    "Petit déjeuner": "Завтрак",
+                    "Piscine": "Бассейн",
+                    "WiFi": "WiFi",
+                    "Restaurant": "Ресторан"
+                }
+            };
+
+            if (fallbackTranslations[targetLanguage]) {
+                let result = text;
+                for (const [fr, trans] of Object.entries(fallbackTranslations[targetLanguage])) {
+                    result = result.replace(new RegExp(fr, 'gi'), trans);
+                }
+                translatedText.textContent = result || "Translation unavailable";
+            } else {
+                translatedText.textContent = "Translation unavailable";
+            }
+        });
+    }
+</script>
+</body>
+</html>
