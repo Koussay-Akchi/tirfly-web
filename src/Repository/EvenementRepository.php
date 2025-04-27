@@ -96,6 +96,23 @@ public function findUniqueDestinations(): array
         ->getQuery()
         ->getResult();
 }
+public function getEventsCountByDestination(): array
+{
+    $qb = $this->createQueryBuilder('e')
+        ->select('d.ville, d.pays, COUNT(e.id) as eventCount')
+        ->join('e.destination', 'd')
+        ->groupBy('d.id')
+        ->orderBy('eventCount', 'DESC');
+
+    $results = $qb->getQuery()->getResult();
+
+    return array_map(function ($result) {
+        return [
+            'destination' => $result['ville'] . ', ' . $result['pays'],
+            'count' => $result['eventCount'],
+        ];
+    }, $results);
+}
     //    /**
     //     * @return Evenement[] Returns an array of Evenement objects
     //     */

@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ evenement.titre }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ evenement.titre }}</h1>
+        <p>{{ evenement.description }}</p>
+        <p><strong>Prix :</strong> {{ evenement.prix }} €</p>
+        <p><strong>Destination :</strong> {{ evenement.destination.ville }}, {{ evenement.destination.pays }}</p>
+        <p><strong>Dates :</strong> Du {{ evenement.dateDebut|date('d/m/Y') }} au {{ evenement.dateFin|date('d/m/Y') }}</p>
+        {% if evenement.image %}
+            <img src="{{ asset('Uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.titre }}" style="max-width: 100%;">
+        {% endif %}
+        <a href="{{ path('app_evenement_index') }}" class="btn btn-primary mt-3">Retour</a>
+    </div>
+{% endblock %}

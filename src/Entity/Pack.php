@@ -56,11 +56,24 @@ class Pack
     #[Assert\Count(min: 1, minMessage: 'Veuillez sélectionner au moins un voyage.')]
     private Collection $voyages;
 
+
+   
+    #[ORM\ManyToMany(targetEntity: Evenement::class, inversedBy: 'packs')]
+    #[ORM\JoinTable(
+    name: 'packs_evenements',
+    joinColumns: [new ORM\JoinColumn(name: 'pack_id', referencedColumnName: 'id')],
+    inverseJoinColumns: [new ORM\JoinColumn(name: 'evenement_id', referencedColumnName: 'id')]
+    )]
+    #[Assert\Count(min: 0, minMessage: 'Vous pouvez sélectionner des événements')]
+    private Collection $evenements;
+
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
         $this->sejours = new ArrayCollection();
         $this->voyages = new ArrayCollection();
+        $this->evenements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -174,4 +187,24 @@ class Pack
         $this->voyages->removeElement($voyage);
         return $this;
     }
+    
+// Ajoutez les getters et setters
+public function getEvenements(): Collection
+{
+    return $this->evenements;
+}
+
+public function addEvenement(Evenement $evenement): self
+{
+    if (!$this->evenements->contains($evenement)) {
+        $this->evenements->add($evenement);
+    }
+    return $this;
+}
+
+public function removeEvenement(Evenement $evenement): self
+{
+    $this->evenements->removeElement($evenement);
+    return $this;
+}
 }

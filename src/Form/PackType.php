@@ -3,6 +3,7 @@
 // src/Form/PackType.php
 
 namespace App\Form;
+use App\Entity\Evenement;
 
 use App\Entity\Pack;
 use App\Entity\Voyage;
@@ -48,7 +49,20 @@ class PackType extends AbstractType
         'expanded' => false,
         'label' => 'Séjours inclus :',
     ])
-    
+    // Dans PackType.php
+->add('evenements', EntityType::class, [
+    'class' => Evenement::class,
+    'choice_label' => function(Evenement $evenement) {
+        return $evenement->getTitre() . ' - ' . $evenement->getPrix() . ' €';
+    },
+    'multiple' => true,
+    'expanded' => false,
+    'label' => 'Événements inclus :',
+    'attr' => [
+        'class' => 'form-select select2-multiple',
+        'data-placeholder' => 'Sélectionnez un ou plusieurs événements'
+    ]
+])
     ->add('image', FileType::class, [
         'label' => 'Image du Pack :',
         'mapped' => false,
