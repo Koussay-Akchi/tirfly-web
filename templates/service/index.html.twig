@@ -1,56 +1,296 @@
 {% extends 'base-staff.html.twig' %}
 
-{% block title %}Liste des Services
+{% block title %}Liste des Services{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Custom button styles */
+        .btn-custom {
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Action buttons with enhanced hover effects */
+        .btn-action-group {
+            white-space: nowrap;
+        }
+        
+        .btn-action-group .btn {
+            padding: 0.375rem 0.75rem;
+            border-radius: 0;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-action-group .btn:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .btn-action-group .btn:last-child {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        
+        /* View button hover */
+        .btn-outline-info:hover {
+            background-color: #0dcaf0;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        /* Edit button hover */
+        .btn-outline-warning:hover {
+            background-color: #ffc107;
+            color: black;
+            transform: scale(1.05);
+        }
+        
+        /* Delete button hover */
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        /* Add subtle shadow and lift effect on hover for all buttons */
+        .btn:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+        
+        /* Table styling */
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        
+        /* Card styling */
+        .service-card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Filter section */
+        .filter-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-section:hover {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .btn-action-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .btn-action-group .btn {
+                border-radius: 4px !important;
+                width: 100%;
+            }
+            
+            .filter-section .col-md-4, 
+            .filter-section .col-md-3 {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Price highlighting */
+        .price-cell {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        /* Empty state styling */
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .empty-state:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state i {
+            font-size: 2rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .empty-state:hover i {
+            transform: scale(1.1);
+            color: #0d6efd;
+        }
+        
+        /* Input focus effects */
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            transform: scale(1.01);
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
-	<div class="container mt-4">
-		<h1>Liste des Services</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">Liste des Services</h1>
 
-		<a href="{{ path('app_service_new') }}" class="btn btn-primary mb-3">
-			<i class="fas fa-plus"></i>
-			Ajouter un Service
-		</a>
+    <div class="filter-section mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <a href="{{ path('app_service_new') }}" class="btn btn-success btn-custom w-100">
+                    <i class="fas fa-plus me-2"></i> Ajouter un Service
+                </a>
+            </div>
+            <div class="col-md-8">
+                <form method="get" class="row g-3 align-items-center">
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" name="search" class="form-control" placeholder="Rechercher..." 
+                                   value="{{ app.request.query.get('search') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                        <select name="hebergement" class="form-select">
+                            <option value="">Tous les hébergements</option>
+                            {% for hebergement in hebergements %}
+                                <option value="{{ hebergement.id }}"
+                                    {{ app.request.query.get('hebergement') == hebergement.id ? 'selected' }}>
+                                    {{ hebergement.nom }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                        <select name="price_sort" class="form-select">
+                            <option value="">Trier par prix</option>
+                            <option value="asc" {{ app.request.query.get('price_sort') == 'asc' ? 'selected' }}>Prix croissant</option>
+                            <option value="desc" {{ app.request.query.get('price_sort') == 'desc' ? 'selected' }}>Prix décroissant</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-custom flex-grow-1">
+                            <i class="fas fa-filter me-1"></i> Filtrer
+                        </button>
+                        <a href="{{ path('app_service_index') }}" class="btn btn-outline-secondary btn-custom flex-grow-1" title="Réinitialiser">
+                            <i class="fas fa-sync-alt"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>Nom</th>
-					<th>Description</th>
-					<th>Prix</th>
-					<th>Hébergement</th>
-					<th>Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for service in services %}
-					<tr>
-						<td>{{ service.nom }}</td>
-						<td>{{ service.description|slice(0, 50) }}...</td>
-						<td>{{ service.prix }}
-							€</td>
-						<td>{{ service.hebergement.nom }}</td>
-						<td>
-							<a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-sm btn-info">
-								<i class="fas fa-eye"></i>
-							</a>
-							<a href="{{ path('app_service_edit', {'id': service.id}) }}" class="btn btn-sm btn-warning">
-								<i class="fas fa-edit"></i>
-							</a>
-							<form method="post" action="{{ path('app_service_delete', {'id': service.id}) }}" style="display: inline-block" onsubmit="return confirm('Êtes-vous sûr?')">
-								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
-								<button class="btn btn-sm btn-danger">
-									<i class="fas fa-trash"></i>
-								</button>
-							</form>
-						</td>
-					</tr>
-				{% else %}
-					<tr>
-						<td colspan="6">Aucun service trouvé</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="card service-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Nom</th>
+                            <th>Description</th>
+                            <th class="text-end pe-4">Prix</th>
+                            <th>Hébergement</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in services %}
+                            <tr>
+                                <td class="ps-4 fw-semibold">{{ service.nom }}</td>
+                                <td>
+                                    <span class="text-muted">{{ service.description|slice(0, 50) }}{{ service.description|length > 50 ? '...' }}</span>
+                                </td>
+                                <td class="text-end pe-4 price-cell">{{ service.prix|number_format(2, ',', ' ') }} €</td>
+                                <td>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">{{ service.hebergement.nom }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-action-group">
+                                        <a href="{{ path('app_service_show', {'id': service.id}) }}" class="btn btn-outline-info" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_service_edit', {'id': service.id}) }}" class="btn btn-outline-warning" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('app_service_delete', {'id': service.id}) }}" class="d-inline" 
+                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service ?')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+                                            <button type="submit" class="btn btn-outline-danger" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-info-circle"></i>
+                                        <h5 class="mt-3">Aucun service trouvé</h5>
+                                        {% if app.request.query.count() > 0 %}
+                                            <p class="text-muted">avec les filtres actuels</p>
+                                            <a href="{{ path('app_service_index') }}" class="btn btn-primary mt-3">
+                                                Réinitialiser les filtres
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

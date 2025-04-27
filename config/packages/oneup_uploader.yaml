@@ -1,0 +1,8 @@
+# config/packages/oneup_uploader.yaml
+oneup_uploader:
+    mappings:
+        audio:
+            frontend: dropzone
+            storage:
+                directory: "%kernel.project_dir%/public/uploads/audio"
+            max_size: 10M

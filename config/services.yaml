@@ -3,6 +3,9 @@ parameters:
     google_api_key: 'AIzaSyDpxgIqCekHbOLgUL6fyHdavfAGr1KijcQ'
     video_directory: '%kernel.project_dir%/public/uploads/videos'
     evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
+    voyages_images_directory: '%kernel.project_dir%/public/uploads/voyages'
+    destinations_images_directory: '%kernel.project_dir%/public/uploads/destinations'
+    audio_directory: '%kernel.project_dir%/public/uploads/audio'
     huggingface_api_key: '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'
 
 services:
@@ -24,3 +27,29 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+    App\Controller\ClientController:
+        arguments:
+            $passwordHasher: '@security.user_password_hasher'
+    App\Service\EmailService:
+        class: App\Service\EmailService
+        arguments:
+            $mailer: '@mailer'
+
+    App\Controller\AudioController:
+        arguments:
+            $audioDirectory: '%audio_directory%'
+
+    App\Service\HuggingFaceService:
+        arguments:
+            $apiKey: '%env(HUGGINGFACE_API_KEY)%'
+            $model: '%env(HUGGINGFACE_MODEL)%'
+            # config/packages/knp_paginator.yaml
+# config/packages/twig.yaml
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    form_themes: ['bootstrap_5_layout.html.twig']
+    number_format:
+        decimals: 2
+        decimal_point: ','
+        thousands_separator: ' '
+        

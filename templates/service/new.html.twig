@@ -1,4 +1,3 @@
-{# templates/service/new.html.twig #}
 {% extends 'base-staff.html.twig' %}
 
 {% block title %}Ajouter un service{% endblock %}
@@ -13,9 +12,14 @@
         {{ form_row(form.prix) }}
         {{ form_row(form.hebergement) }}
         
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> Enregistrer
-        </button>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+            <a href="{{ path('app_service_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
     {{ form_end(form) }}
 </div>
 {% endblock %}
