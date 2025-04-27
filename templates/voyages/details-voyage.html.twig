@@ -1,9 +1,7 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}
 	Détails du Voyage
 {% endblock %}
-
 {% block body %}
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -48,18 +46,9 @@
 	<main class="main" style="margin-top: 200px;">
 		<div class="card-wrapper">
 			<div class="card">
-				<!-- Climat Badge -->
-				{% set climat_icons = {
-					'2': 'sun.png',
-					'4': 'desert.png',
-					'3': 'snowflake.png',
-					'1': 'tropical.png'
-				} %}
 				<div class="badge-climat">
 					<img src="{{ asset('images/' ~ (climat_icons[voyage.destination.climat] ?? 'default.jpg')) }}" alt="Climat">
 				</div>
-
-				<!-- Product Images -->
 				<div class="product-imgs">
 					<div class="img-display">
 
@@ -70,7 +59,7 @@
 								</span>
 							{% else %}
 								<span class="text-muted">
-									<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut"/>
+									<img src="{{ asset('images/default.jpg') }}"  height="400px" alt="Image par défaut"/>
 								</span>
 							{% endif %}
 						</div>
@@ -78,18 +67,29 @@
 					</div>
 				</div>
 
-				<!-- Product Content -->
 				<div class="product-content">
 					<h2 class="product-title">{{ voyage.nom }}</h2>
 					<div class="product-detail">
 						<h2>Détails du Voyage :</h2>
 
 						<ul>
-							<li>Destination: <span>{{ voyage.destination.ville }}, {{ voyage.destination.pays }}</span></li>
-							<li>Dates: <span>{{ voyage.dateDepart|date('d/m/Y') }} - {{ voyage.dateArrive|date('d/m/Y') }}</span></li>
-							<li>Durée: <span>{{ voyage.dateDepart.diff(voyage.dateArrive).days }} jours</span></li>
-							<li>Formule: <span>{{ voyage.formule|replace({'_': ' '})|lower|capitalize }}</span></li>
-							<li>Note: 
+							<li>Destination :
+								<span>{{ voyage.destination.ville }},
+									{{ voyage.destination.pays }}</span>
+							</li>
+							<li>Dates :
+								<span>{{ voyage.dateDepart|date('d/m/Y') }}
+									-
+									{{ voyage.dateArrive|date('d/m/Y') }}</span>
+							</li>
+							<li>Durée :
+								<span>{{ voyage.dateDepart.diff(voyage.dateArrive).days }}
+									jours</span>
+							</li>
+							<li>Formule :
+								<span>{{ voyage.formule|replace({'_': ' '})|lower|capitalize }}</span>
+							</li>
+							<li>Note :
 								<span class="stars">
 									{% for i in 1..5 %}
 										{% if i <= voyage.note %}
@@ -103,7 +103,7 @@
 								</span>
 							</li>
 							<li>
-								Météo actuelle: 
+								Météo actuelle :
 								<span id="current-temperature">Chargement...</span>
 								<div id="weather" data-lat="{{ voyage.destination.latitude }}" data-lon="{{ voyage.destination.longitude }}" style="display:inline;"></div>
 							</li>
@@ -111,15 +111,22 @@
 						<p>{{ voyage.description }}</p>
 					</div>
 					<div class="product-price">
-						<p class="new-price">Prix: <span>{{ voyage.prix }} DT/Personne</span></p>
+						<p class="new-price">Prix :
+							<span>{{ voyage.prix }}
+								DT/Personne</span>
+						</p>
 					</div>
 					<div class="purchase-info">
 						{% if dejaReserve %}
-							<span data-bs-toggle="tooltip" data-bs-placement="top" title="Vous avez déjà une réservation en attente pour ce voyage.">
-								<button type="button" class="btn reserver" disabled>Réserver</button>
+							<span data-bs-toggle="tooltip" data-bs-placement="top" title="Vous avez déjà une réservation en attente pour ce voyage." style="display: inline-block; position: relative;">
+								<button type="button" class="btn reserver" style="background-color: grey; cursor: not-allowed; pointer-events: none;" disabled>
+									Réserver
+								</button>
 							</span>
 						{% else %}
-							<button type="button" class="btn reserver" onclick="window.location.href='{{ path('ajout_reservation', {'type': 'voyage', 'id': voyage.id}) }}'">Réserver</button>
+							<button type="button" class="btn reserver" onclick="window.location.href='{{ path('ajout_reservation', {'type': 'voyage', 'id': voyage.id}) }}'">
+								Réserver
+							</button>
 						{% endif %}
 						<a href="{{ path('ajouter_feedbackk', {'id': voyage.id}) }}" class="card-feedback-button btn btn-primary">Donner un feedback</a>
 						
@@ -132,11 +139,12 @@
 					Ajouter au Google Calendar 📅
 					</a>
 					</div>
+
+
 				</div>
 			</div>
 		</div>
 
-		<!-- Feedback Section -->
 		<div class="voyage-details-feedback-container mt-4">
 			<h2>Avis des voyageurs</h2>
 			
@@ -163,21 +171,21 @@
 				{% if not clientFeedback %}
 					<form action="{{ path('ajouter_feedbackk', {'id': voyage.id}) }}" method="POST" class="voyage-details-feedback-form">
 						<div class="rating-input">
-							<label for="note">Note :</label>
-							<div class="star-rating">
-								<input type="radio" id="star5" name="note" value="5" required>
-								<label for="star5">★</label>
-								<input type="radio" id="star4" name="note" value="4">
-								<label for="star4">★</label>
-								<input type="radio" id="star3" name="note" value="3">
-								<label for="star3">★</label>
-								<input type="radio" id="star2" name="note" value="2">
-								<label for="star2">★</label>
-								<input type="radio" id="star1" name="note" value="1">
-								<label for="star1">★</label>
-							</div>
-						</div>
-						<label for="comment">Avis :</label>
+					<label for="note">Note :</label>
+					<div class="star-rating">
+						<input type="radio" id="star5" name="note" value="5">
+						<label for="star5">★</label>
+						<input type="radio" id="star4" name="note" value="4">
+						<label for="star4">★</label>
+						<input type="radio" id="star3" name="note" value="3">
+						<label for="star3">★</label>
+						<input type="radio" id="star2" name="note" value="2">
+						<label for="star2">★</label>
+						<input type="radio" id="star1" name="note" value="1">
+						<label for="star1">★</label>
+					</div>
+				</div>
+				<label for="comment">Avis :</label>
 						<textarea name="comment" id="comment" required class="feedback-textarea"></textarea>
 						<input type="hidden" name="_token" value="{{ csrf_token('feedback' ~ voyage.id) }}">
 						<button type="submit" class="submit-feedback-btn">Envoyer</button>
@@ -186,12 +194,12 @@
 			{% else %}
 				<p>Veuillez vous connecter pour laisser un avis.</p>
 			{% endif %}
-
-			<div class="voyage-details-feedback-list" id="feedback-list">
+			<div class="voyage-details-feedback-list">
 				{% for feedback in voyage.feedbacks %}
 					<div class="voyage-details-feedback-item">
 						<div class="feedback-header">
-							<strong>{{ feedback.client.nom }} {{ feedback.client.prenom }}</strong>
+							<strong>{{ feedback.client.nom }}
+								{{ feedback.client.prenom }}</strong>
 							<span class="feedback-date">{{ feedback.dateFeedback|date('d/m/Y') }}</span>
 						</div>
 						<div class="feedback-rating">
