@@ -132,6 +132,10 @@ class FeedbackController extends AbstractController
             $entityManager->persist($feedback);
             $entityManager->flush();
 
+            $nouveauVoyage = $voyage->updateNote();
+            $entityManager->persist($nouveauVoyage);
+            $entityManager->flush();
+
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['message' => 'Feedback ajouté avec succès.'], 200);
             }
@@ -163,6 +167,11 @@ class FeedbackController extends AbstractController
             if ($form->has('dateFeedback')) {
                 $feedback->setDateFeedback(new \DateTime($form->get('dateFeedback')->getData()));
             }
+            $entityManager->flush();
+            
+            $voyage = $feedback->getVoyage();
+            $nouveauVoyage = $voyage->updateNote();
+            $entityManager->persist($nouveauVoyage);
             $entityManager->flush();
 
             $this->addFlash('success', 'Feedback modifié avec succès.');
