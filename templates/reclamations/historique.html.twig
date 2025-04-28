@@ -14,7 +14,6 @@
             <table class="reclamation-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Description</th>
                         <th>État</th>
                         <th>Statut Réponse</th>
@@ -26,7 +25,6 @@
                     {% if reclamations is not empty %}
                         {% for reclamation in reclamations %}
                             <tr class="reclamation-row">
-                                <td>{{ reclamation.id }}</td>
                                 <td>{{ reclamation.description }}</td>
                                 <td>
                                     <span class="status-badge status-{{ reclamation.etat|lower|replace({' ': '-'}) }}">
@@ -62,7 +60,7 @@
                                 </td>
                             </tr>
                             <tr class="response-row" style="display: none;">
-                                <td colspan="6">
+                                <td colspan="5">
                                     <div class="responses-header">Réponses reçues :</div>
                                     {% for reponse in reclamation.reponses %}
                                         <div class="response-item">
@@ -78,7 +76,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="6" class="empty-row">
+                            <td colspan="5" class="empty-row">
                                 <div class="empty-state">
                                     <i class="fas fa-inbox fa-2x"></i>
                                     <p>Aucune réclamation trouvée.</p>
@@ -434,8 +432,8 @@
             font-size: 1rem;
         }
 
-        .reclamation-table th:nth-child(2),
-        .reclamation-table td:nth-child(2) {
+        .reclamation-table th:nth-child(1),
+        .reclamation-table td:nth-child(1) {
             max-width: 120px;
             white-space: nowrap;
             overflow: hidden;

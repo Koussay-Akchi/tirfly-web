@@ -2,14 +2,205 @@
 {% block title %}Gestion des Feedbacks{% endblock %}
 
 {% block body %}
+<style>
+    /* General Styling */
+    body {
+        background: linear-gradient(45deg, #1e3c72, #2a5298);
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* Container Styling */
+    .container {
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 0 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Card Styling */
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        position: relative;
+        transform: translateY(0);
+        transition: all 0.5s ease;
+        animation: slideIn 0.8s ease-out;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Animated Background Effect */
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.2), rgba(255, 255, 255, 0));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+
+    .card:hover::before {
+        opacity: 1;
+    }
+
+    /* Card Header Styling */
+    .card-header {
+        background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+        padding: 1.8rem;
+        border-radius: 15px 15px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent);
+        transform: rotate(45deg);
+        animation: shine 4s infinite;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header i {
+        font-size: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+
+    /* Card Body Styling */
+    .card-body {
+        padding: 2.5rem;
+        text-align: center;
+    }
+
+    .card-body p {
+        font-size: 1.2rem;
+        color: #2c3e50;
+        margin: 0;
+        font-weight: 500;
+        transition: transform 0.3s ease;
+    }
+
+    .card-body p:hover {
+        transform: scale(1.05);
+    }
+
+    .card-body a {
+        color: #ff6b6b;
+        font-weight: 600;
+        text-decoration: none;
+        position: relative;
+        padding-bottom: 3px;
+        transition: all 0.3s ease;
+    }
+
+    .card-body a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background: #ff6b6b;
+        transition: width 0.3s ease;
+    }
+
+    .card-body a:hover::after {
+        width: 100%;
+    }
+
+    .card-body a:hover {
+        color: #e84343;
+        letter-spacing: 0.5px;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes shine {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        50% {
+            transform: translateX(100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.2);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .card-header h2 {
+            font-size: 1.4rem;
+        }
+
+        .card-body p {
+            font-size: 1rem;
+        }
+
+        .card {
+            margin: 1rem;
+        }
+    }
+</style>
+
 <div class="container mt-4">
     <div class="card shadow-lg border-0">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h2 class="h5"><i class="fas fa-comments"></i> Gestion des Feedbacks</h2>
-            <link rel="stylesheet" href="{{ asset('styles/listef.css') }}">
+            <h2><i class="fas fa-comments"></i> Gestion des Feedbacks</h2>
         </div>
         <div class="card-body">
-            <p class="text-center">Cette page est obsolète pour les administrateurs. Veuillez utiliser la <a href="{{ path('admin_liste_feedbacks') }}">liste des voyages</a> pour consulter les feedbacks.</p>
+            <p>Veillez choisir le voyage à consulter <a href="{{ path('admin_liste_feedbacks') }}">liste des voyages</a>.</p>
         </div>
     </div>
 </div>

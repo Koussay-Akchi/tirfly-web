@@ -222,4 +222,26 @@ class FeedbackController extends AbstractController
             'feedbacks' => $pagination,
         ]);
     }
+    #[Route('/admin/feedbacks', name: 'admin_liste_feedbacks')]
+public function adminListeVoyages(EntityManagerInterface $entityManager, PaginatorInterface $paginator, Request $request): Response
+{
+    // Vérifier que l'utilisateur est un administrateur
+    $this->denyAccessUnlessGranted('ROLE_USER');
+
+    // Récupérer tous les voyages
+    $voyagesQuery = $entityManager->getRepository(Voyage::class)->createQueryBuilder('v')
+        ->orderBy('v.nom', 'ASC')
+        ->getQuery();
+
+    // Pagination
+    $pagination = $paginator->paginate(
+        $voyagesQuery,
+        $request->query->getInt('page', 1),
+        5 // Nombre de voyages par page
+    );
+
+    return $this->render('feedbacks/admin_liste_feedbacks.html.twig', [
+        'voyages' => $pagination,
+    ]);
+}
 }
