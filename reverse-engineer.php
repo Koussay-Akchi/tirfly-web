@@ -4,7 +4,7 @@ require_once 'vendor/autoload.php';
 
 // Database configuration - MODIFY THESE VALUES
 $dbHost = 'localhost';
-$dbName = 'pidev';
+$dbName = 'tirfly';
 $dbUser = 'root';
 $dbPass = '';
 $dbPort = 3306;

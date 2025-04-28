@@ -56,7 +56,9 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/intl-extra": "^3.20",
         "twig/twig": "^2.12|^3.0",
-        "wohali/oauth2-discord-new": "^1.2"
+        "wohali/oauth2-discord-new": "^1.2",
+        "knplabs/knp-snappy-bundle": "^1.9",
+        "wemersonjanuario/wkhtmltopdf-windows": "^0.12"
     },
     "config": {
         "allow-plugins": {
@@ -116,5 +118,11 @@
         "symfony/phpunit-bridge": "^7.2",
         "symfony/stopwatch": "6.4.*",
         "symfony/web-profiler-bundle": "6.4.*"
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "http://repo.packagist.org"
+        }
     }
 }

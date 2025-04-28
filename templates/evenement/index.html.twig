@@ -11,52 +11,63 @@
             Participez à nos événements exceptionnels organisés dans les plus belles destinations. 
             Des expériences uniques vous attendent !
         </p>
-     <div class="filters-container mb-5">
-    <form method="get" action="{{ path('app_evenement_index') }}" class="filters-form">
-        <div class="filters d-flex flex-wrap justify-content-center gap-3">
-            <input type="text" 
-                   name="search" 
-                   class="form-control filter-input" 
-                   placeholder="Rechercher un événement..."
-                   value="{{ app.request.query.get('search') }}">
 
-            <input type="date" 
-                   name="dateDebut" 
-                   class="form-control filter-date"
-                   value="{{ app.request.query.get('dateDebut') }}">
-
-            <input type="date" 
-                   name="dateFin" 
-                   class="form-control filter-date"
-                   value="{{ app.request.query.get('dateFin') }}">
-
-            <select name="destination" class="form-select filter-select">
-                <option value="">Toutes destinations</option>
-                {% for dest in destinations %}
-                    <option value="{{ dest.id }}" 
-                        {{ app.request.query.get('destination') == dest.id ? 'selected' }}>
-                        {{ dest.ville }}, {{ dest.pays }}
-                    </option>
-                {% endfor %}
-            </select>
-
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-filter"></i> Filtrer
-            </button>
-
-            <a href="{{ path('app_evenement_index') }}" class="btn btn-secondary">
-                <i class="fas fa-undo"></i> Annuler
-            </a>
+        <!-- Bouton pour afficher le calendrier -->
+        <div class="text-center mb-4">
+            <button id="showCalendarBtn" class="btn btn-primary">Voir le calendrier</button>
         </div>
-    </form>
-</div>
+
+        <!-- Conteneur pour le calendrier, masqué par défaut -->
+        <div id="calendarContainer" class="calendar-container" style="display: none;">
+            <div id="calendar" class="mb-5"></div>
+        </div>
+
+        <div class="filters-container mb-5">
+            <form method="get" action="{{ path('app_evenement_index') }}" class="filters-form">
+                <div class="filters d-flex flex-wrap justify-content-center gap-3">
+                    <input type="text" 
+                           name="search" 
+                           class="form-control filter-input" 
+                           placeholder="Rechercher un événement..."
+                           value="{{ app.request.query.get('search') }}">
+
+                    <input type="date" 
+                           name="dateDebut" 
+                           class="form-control filter-date"
+                           value="{{ app.request.query.get('dateDebut') }}">
+
+                    <input type="date" 
+                           name="dateFin" 
+                           class="form-control filter-date"
+                           value="{{ app.request.query.get('dateFin') }}">
+
+                    <select name="destination" class="form-select filter-select">
+                        <option value="">Toutes destinations</option>
+                        {% for dest in destinations %}
+                            <option value="{{ dest.id }}" 
+                                {{ app.request.query.get('destination') == dest.id ? 'selected' }}>
+                                {{ dest.ville }}, {{ dest.pays }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filtrer
+                    </button>
+
+                    <a href="{{ path('app_evenement_index') }}" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
         <ul class="popular-list">
             {% for evenement in evenements.results %}
                 <li>
                     <div class="popular-card">
                         <figure class="card-img">
                             {% if evenement.image %}
-                                <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" 
+                                <img src="{{ asset('Uploads/evenements/' ~ evenement.image) }}" 
                                      alt="{{ evenement.titre }}" 
                                      class="voyage-image">
                             {% else %}
@@ -108,7 +119,7 @@
             {% endfor %}
         </ul>
 
-        {# Nouvelle Pagination Centrée #}
+        {# Pagination Centrée #}
         {% if evenements.total_pages > 1 %}
             <div class="pagination-wrapper">
                 <div class="pagination">
@@ -162,50 +173,96 @@
 </section>
 
 <style>
+    /* Styles existants conservés, ajout pour le conteneur du calendrier */
+    .calendar-container {
+        transition: all 0.3s ease;
+    }
 
+    .calendar-container.show {
+        display: block;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Style du bouton */
+    #showCalendarBtn {
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 6px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #showCalendarBtn:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    /* Animation pour l'apparition du calendrier */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Styles pour SweetAlert2 */
+    .swal2-popup-custom {
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .swal2-title-custom {
+        font-size: 1.5rem;
+        color: #198754;
+    }
+
+    .swal2-html-container-custom {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    /* Reste des styles inchangés */
     .filters-container {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-}
-
-.filters-form {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.filter-input, .filter-date, .filter-select {
-    min-width: 200px;
-    border-radius: 4px;
-    border: 1px solid #ced4da;
-}
-
-.filter-date {
-    padding: 0.375rem 0.75rem;
-}
-
-@media (max-width: 768px) {
-    .filters {
-        flex-direction: column;
-        align-items: stretch;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
     }
-    
+
+    .filters-form {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
     .filter-input, .filter-date, .filter-select {
-        width: 100%;
+        min-width: 200px;
+        border-radius: 4px;
+        border: 1px solid #ced4da;
     }
-}
-.btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color: white;
-}
 
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-}
-    /* Styles pour uniformiser les images */
+    .filter-date {
+        padding: 0.375rem 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-input, .filter-date, .filter-select {
+            width: 100%;
+        }
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
     .voyage-image {
         width: 100%;
         height: 200px;
@@ -269,7 +326,6 @@
         color: #666;
     }
 
-    /* Nouveau Style de Pagination */
     .pagination-wrapper {
         display: flex;
         justify-content: center;
@@ -327,5 +383,220 @@
         background-color: #17a2b8;
         border-color: #17a2b8;
     }
+
+    #calendar {
+        max-width: 700px;
+        margin: 0 auto 30px auto;
+        font-size: 0.85rem;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        background: #ffffff;
+        transition: transform 0.3s ease;
+    }
+
+    #calendar:hover {
+        transform: translateY(-3px);
+    }
+
+    .fc .fc-toolbar {
+        background: linear-gradient(135deg, #0d6efd, #6610f2);
+        color: white;
+        padding: 8px;
+        border-radius: 12px 12px 0 0;
+        margin-bottom: 0;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .fc .fc-button {
+        background-color: rgba(255,255,255,0.2);
+        border: none;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .fc .fc-button:hover {
+        background-color: rgba(255,255,255,0.3);
+        transform: scale(1.05);
+    }
+
+    .fc .fc-button:focus {
+        box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+    }
+
+    .fc .fc-daygrid-day {
+        height: 60px;
+        border: none;
+        background: #fafafa;
+        transition: background-color 0.2s ease;
+    }
+
+    .fc .fc-daygrid-day:hover {
+        background: #f1f1f1;
+    }
+
+    .fc .fc-daygrid-day-number {
+        font-size: 0.8rem;
+        color: #333;
+        padding: 4px;
+        border-radius: 50%;
+        transition: background-color 0.2s ease;
+    }
+
+    .fc .fc-daygrid-day-number:hover {
+        background: #e0e0e0;
+    }
+
+    .fc-event {
+        padding: 3px 5px;
+        border-radius: 4px;
+        background: #0d6efd;
+        color: white;
+        font-size: 0.75rem;
+        line-height: 1.2;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .fc-event:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .fc-event-main {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .fc .fc-more-link {
+        font-size: 0.7rem;
+        color: #0d6efd;
+        background: rgba(255,255,255,0.9);
+        padding: 2px 6px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .fc .fc-more-link:hover {
+        background: #e0e0e0;
+    }
+
+    .fc .fc-col-header-cell {
+        padding: 5px;
+        font-size: 0.8rem;
+        background: #f8f9fa;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .fc .fc-daygrid-day.fc-day-today {
+        background: rgba(13,110,253,0.1);
+    }
+
+    @media (max-width: 768px) {
+        #calendar {
+            max-width: 100%;
+            font-size: 0.75rem;
+        }
+
+        .fc .fc-daygrid-day {
+            height: 50px;
+        }
+
+        .fc .fc-toolbar-title {
+            font-size: 1rem;
+        }
+
+        .fc .fc-button {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+        }
+
+        .fc-event {
+            font-size: 0.7rem;
+            padding: 2px 4px;
+        }
+    }
 </style>
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarContainer = document.getElementById('calendarContainer');
+            const showCalendarBtn = document.getElementById('showCalendarBtn');
+            let calendarInitialized = false;
+            let calendar = null;
+
+            showCalendarBtn.addEventListener('click', function() {
+                if (!calendarInitialized) {
+                    // Initialiser le calendrier seulement au premier clic
+                    const calendarEl = document.getElementById('calendar');
+                    calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'dayGridMonth',
+                        locale: 'fr',
+                        height: 'auto',
+                        events: [
+                            {% for evenement in evenements.results %}
+                            {
+                                title: '{{ evenement.titre }}',
+                                start: '{{ evenement.dateDebut|date('Y-m-d') }}',
+                                end: '{{ evenement.dateFin|date('Y-m-d') }}',
+                                extendedProps: {
+                                    ville: '{{ evenement.destination.ville }}',
+                                    pays: '{{ evenement.destination.pays }}'
+                                }
+                            }{% if not loop.last %},{% endif %}
+                            {% endfor %}
+                        ],
+                        eventClick: function(info) {
+                            info.jsEvent.preventDefault();
+                            // Afficher une alerte SweetAlert2 avec les détails de l'événement
+                            Swal.fire({
+                                title: info.event.title,
+                                html: `
+                                    <p><strong>Date de début :</strong> ${info.event.start.toLocaleDateString('fr-FR')}</p>
+                                    <p><strong>Date de fin :</strong> ${info.event.end ? info.event.end.toLocaleDateString('fr-FR') : info.event.start.toLocaleDateString('fr-FR')}</p>
+                                    <p><strong>Destination :</strong> ${info.event.extendedProps.ville}, ${info.event.extendedProps.pays}</p>
+                                `,
+                                icon: 'info',
+                                confirmButtonText: 'OK',
+                                customClass: {
+                                    popup: 'swal2-popup-custom',
+                                    title: 'swal2-title-custom',
+                                    htmlContainer: 'swal2-html-container-custom'
+                                }
+                            });
+                        }
+                    });
+                    calendar.render();
+                    calendarInitialized = true;
+                }
+
+                // Basculer l'affichage du calendrier
+                if (calendarContainer.style.display === 'none') {
+                    calendarContainer.style.display = 'block';
+                    calendarContainer.classList.add('show');
+                    showCalendarBtn.textContent = 'Masquer le calendrier';
+                } else {
+                    calendarContainer.style.display = 'none';
+                    calendarContainer.classList.remove('show');
+                    showCalendarBtn.textContent = 'Voir le calendrier';
+                }
+            });
+        });
+    </script>
+{% endblock %}
 {% endblock %}
