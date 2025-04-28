@@ -193,29 +193,34 @@
             right: 15px;
         }
 
-        .google-btn, .facebook-btn, .discord-btn, .faceid-btn, .fingerprint-btn {
-            width: 100%;
-            padding: 15px;
-            background: #ffffff;
-            color: #333;
-            border: 1px solid #ccc;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 1rem;
+        }
+
+        .social-icon {
+            font-size: 24px;
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 1rem;
         }
 
-        .google-btn:hover, .facebook-btn:hover, .discord-btn:hover, .faceid-btn:hover, .fingerprint-btn:hover {
-            background: #f1f1f1;
-            transform: scale(1.05);
+        .social-icon:hover {
+            transform: scale(1.2);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
+
+        .google-icon { color: #DB4437; }
+        .facebook-icon { color: #4267B2; }
+        .discord-icon { color: #5865F2; }
+        .faceid-icon { color: #3498db; }
+        .fingerprint-icon { color: #2ecc71; }
 
         .links {
             margin-top: 2rem;
@@ -362,6 +367,10 @@
             .modal-content {
                 padding: 1.5rem;
             }
+            .social-icon {
+                font-size: 20px;
+                padding: 8px;
+            }
         }
     </style>
 </head>
@@ -378,21 +387,6 @@
     <div class="logo-container">
         <img src="images/logo.svg" alt="Logo TirFly" class="logo-img">
     </div>
-    <a href="/connect/google" class="google-btn">
-        <i class="fab fa-google"></i> Sign in with Google
-    </a>
-    <a href="/connect/facebook" class="facebook-btn">
-        <i class="fab fa-facebook-f"></i> Sign in with Facebook
-    </a>
-    <a href="/connect/discord" class="discord-btn">
-        <i class="fab fa-discord"></i> Sign in with Discord
-    </a>
-    <button class="faceid-btn" id="faceid-btn">
-        <i class="fas fa-user-check"></i> Sign in with Face Recognition
-    </button>
-    <button class="fingerprint-btn" id="fingerprint-btn">
-        <i class="fas fa-fingerprint"></i> Sign in with Fingerprint
-    </button>
     <form id="login-form">
         <div class="form-group">
             <input type="email" name="email" id="email" placeholder="Votre adresse e-mail" required>
@@ -403,6 +397,23 @@
             <i class="fas fa-lock"></i>
         </div>
         <button type="submit">Décollage</button>
+        <div class="social-login">
+            <a href="/connect/google" class="social-icon google-icon" id="google-icon" title="Sign in with Google">
+                <i class="fab fa-google"></i>
+            </a>
+            <a href="/connect/facebook" class="social-icon facebook-icon" id="facebook-icon" title="Sign in with Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="/connect/discord" class="social-icon discord-icon" id="discord-icon" title="Sign in with Discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <span class="social-icon faceid-icon" id="faceid-icon" title="Sign in with Face Recognition">
+                <i class="fas fa-user-check"></i>
+            </span>
+            <span class="social-icon fingerprint-icon" id="fingerprint-icon" title="Sign in with Fingerprint">
+                <i class="fas fa-fingerprint"></i>
+            </span>
+        </div>
         <div class="error-message hidden" id="error-message"></div>
         <div class="links">
             <a href="/forgot-password">Mot de passe oublié ?</a>
@@ -701,7 +712,7 @@ async function handleFaceLogin() {
     });
 }
 
-document.getElementById('fingerprint-btn').addEventListener('click', (e) => {
+document.getElementById('fingerprint-icon').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('fingerprint-modal').style.display = 'flex';
 });
@@ -800,7 +811,7 @@ let modelsLoaded = false;
     }
 })();
 
-document.getElementById('faceid-btn').addEventListener('click', async (e) => {
+document.getElementById('faceid-icon').addEventListener('click', async (e) => {
     e.preventDefault();
     if (!modelsLoaded) {
         displayError("Les modèles de reconnaissance faciale ne sont pas chargés. Veuillez vérifier votre connexion ou réessayer.");
