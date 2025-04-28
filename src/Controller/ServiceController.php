@@ -11,15 +11,36 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\HebergementRepository;
 
 #[Route('/admin/services')]
 class ServiceController extends AbstractController
 {
     #[Route('/', name: 'app_service_index', methods: ['GET'])]
-    public function index(ServiceRepository $serviceRepository): Response
-    {
+    public function index(
+        ServiceRepository $serviceRepository,
+        HebergementRepository $hebergementRepository,
+        Request $request
+    ): Response {
+        // Get filter parameters from request and cast to correct types
+        $searchTerm = $request->query->get('search');
+        $hebergementId = $request->query->has('hebergement') ? 
+            (int)$request->query->get('hebergement') : null;
+        $priceSort = $request->query->get('price_sort');
+
+        // Get all hébergements for the filter dropdown
+        $hebergements = $hebergementRepository->findAll();
+
+        // Get filtered services
+        $services = $serviceRepository->findWithFilters(
+            $searchTerm,
+            $hebergementId,
+            $priceSort
+        );
+
         return $this->render('service/index.html.twig', [
-            'services' => $serviceRepository->findAll(),
+            'services' => $services,
+            'hebergements' => $hebergements,
         ]);
     }
 
@@ -35,7 +56,7 @@ class ServiceController extends AbstractController
             $em->persist($service);
             $em->flush();
 
-            $this->addFlash('success', 'Service créé avec succès!');
+            $this->addFlash('success', 'Service créé avec succès!');    
             return $this->redirectToRoute('app_service_index');
         }
 

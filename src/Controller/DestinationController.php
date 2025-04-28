@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Repository\VoyageRepository;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class DestinationController extends AbstractController
 {
@@ -66,46 +68,35 @@ class DestinationController extends AbstractController
 
 
     #[Route('/admin/destinations/ajout', name: 'ajout_destination')]
-    public function ajoutDestination(Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function ajoutDestination(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger,
+    ): Response {
         $destination = new Destination();
         $form = $this->createForm(DestinationType::class, $destination);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // n5allouha mba3ed image
-/*            
             $imageFile = $form->get('image')->getData();
-            
             if ($imageFile) {
-                $imageErrors = $validator->validate($imageFile, [
-                    new Assert\File([
-                        'maxSize' => '2M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/jpg'],
-                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, JPEG, PNG)',
-                    ])
-                ]);
-
-                if (count($imageErrors) > 0) {
-                    $this->addFlash('error', 'Image invalide.');
-                    return $this->redirectToRoute('ajout_destination');
-                }
-
-                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
                     $imageFile->move(
-                        $this->getParameter('destination_images_directory'),
+                        $this->getParameter('destinations_images_directory'),
                         $newFilename
                     );
-                    $destination->setImage($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
                 }
+
+                $destination->setImage($newFilename);
             }
-            
-*/
+
             $climatValue = $request->request->get('climatSelect');
 
             if ($climatValue !== null) {
@@ -143,12 +134,35 @@ class DestinationController extends AbstractController
     }
 
     #[Route('/admin/destinations/edit/{id}', name: 'edit_destination')]
-    public function edit(Destination $destination, Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function edit(
+        Destination $destination,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger
+    ): Response {
         $form = $this->createForm(DestinationType::class, $destination);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('destinations_images_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
+                }
+
+                $destination->setImage($newFilename);
+            }
+
             $climat = $request->request->get('climatSelect');
             if ($climat !== null) {
                 $destination->setClimat((int) $climat);
@@ -159,7 +173,7 @@ class DestinationController extends AbstractController
             $this->addFlash('success', 'Destination modifiée avec succès.');
             return $this->redirectToRoute('admin_liste_destinations');
         }
-        
+
         return $this->render('destinations/edit-destination.html.twig', [
             'form' => $form->createView(),
             'destination' => $destination

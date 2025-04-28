@@ -1,9 +1,9 @@
-<header class="header" data-header data-home-url="{{ path('home') }}" style="margin-bottom: 150px;">
+<header class="header" data-header data-home-url="{{ path('home') }}" style="margin-bottom: 150px; background-color: #184C91; {% if app.request.pathInfo == path('home') %}padding-top: 60px;{% endif %}">
 	<div class="overlay" data-overlay></div>
 
+	{% if app.request.pathInfo == path('home') %}
 	<div class="header-top">
 		<div class="tir-container">
-
 			<a href="tel:+01123456790" class="helpline-box">
 				<div class="icon-box">
 					<ion-icon name="call-outline"></ion-icon>
@@ -13,59 +13,48 @@
 					<p class="helpline-number">(+214) 40 862 777</p>
 				</div>
 			</a>
-
-			<a href="{{ path('home') }}" class="logo">
+			<a href="{{ path('home') }}" class="logo" style="margin-left: 30%;">
 				<img src="{{ asset('images/logo.svg') }}" alt="Logo TirFly" height="80">
 			</a>
-
 			<div class="header-btn-group">
-				<button class="search-btn" aria-label="Rechercher">
-					<ion-icon name="search"></ion-icon>
-				</button>
 				<button class="nav-open-btn" aria-label="Ouvrir le menu" data-nav-open-btn>
 					<ion-icon name="menu-outline"></ion-icon>
 				</button>
 			</div>
-
 		</div>
 	</div>
+	{% endif %}
 
 	<div class="header-bottom">
 		<div class="container">
-
-			<ul class="social-list">
-				<li>
-					<a href="#" class="social-link">
-						<ion-icon name="logo-facebook"></ion-icon>
-					</a>
-				</li>
-				<li>
-					<a href="#" class="social-link">
-						<ion-icon name="logo-twitter"></ion-icon>
-					</a>
-				</li>
-				<li>
-					<a href="#" class="social-link">
-						<ion-icon name="logo-youtube"></ion-icon>
-					</a>
-				</li>
-			</ul>
-
+			{% if app.request.pathInfo == path('home') %}
+				<ul class="social-list">
+					<li>
+						<a href="#" class="social-link">
+							<ion-icon name="logo-facebook"></ion-icon>
+						</a>
+					</li>
+					<li>
+						<a href="#" class="social-link">
+							<ion-icon name="logo-twitter"></ion-icon>
+						</a>
+					</li>
+					<li>
+						<a href="#" class="social-link">
+							<ion-icon name="logo-youtube"></ion-icon>
+						</a>
+					</li>
+				</ul>
+			{% else %}
+				<a href="{{ path('home') }}" class="logo">
+					<img src="{{ asset('images/logo.svg') }}" alt="Logo TirFly" height="50">
+				</a>
+			{% endif %}
 			<nav class="navbar" data-navbar>
-				<div class="navbar-top">
-					<a href="{{ path('home') }}" class="logo">
-						<img src="{{ asset('images/logo-blue.svg') }}" alt="Logo TirFly">
-					</a>
-					<button class="nav-close-btn" aria-label="Fermer le menu" data-nav-close-btn>
-						<ion-icon name="close-outline"></ion-icon>
-					</button>
-				</div>
-
 				<ul class="tir-navbar-list">
 					<li>
 						<button onclick="window.location.href='{{ path('home') }}'" class="tir-navbar-link" data-nav-link>Accueil</button>
 					</li>
-
 					<li class="tir-navbar-dropdown">
 						<button class="tir-navbar-link" id="offresDropdownToggle">Offres</button>
 						<ul class="dropdown-menu" id="offresDropdown">
@@ -83,7 +72,6 @@
 							</li>
 						</ul>
 					</li>
-
 					<li>
 						<button onclick="window.location.href='{{ path('liste_destinations') }}'" class="tir-navbar-link" data-nav-link>Destinations</button>
 					</li>
@@ -99,7 +87,6 @@
 							</li>
 						</ul>
 					</li>
-
 					<li>
 						<button onclick="window.location.href='{{ path('liste_produits') }}'" class="tir-navbar-link" data-nav-link>Shop</button>
 					</li>
@@ -108,37 +95,110 @@
 					</li>
 				</ul>
 			</nav>
-
-			<a href="{{ path('historique_reservations') }}" style="z-index: 100;">
-				<button class="navbar-btn navbar-btn-primary">Mes Reservations</button>
-			</a>
-
+			<div>
+				{% if app.user %}
+					<div class="user-info">
+						<img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=50&h=50&q=80" alt="User Avatar" class="user-avatar">
+						<div class="user-details">
+							<span class="user-name">{{ app.user.prenom }} {{ app.user.nom }}</span>
+							<span class="user-role">
+								{% if is_granted('ROLE_CLIENT') %}
+									Client
+								{% elseif is_granted('ROLE_ADMIN') %}
+									Admin
+								{% else %}
+									User
+								{% endif %}
+							</span>
+							{% if is_granted('ROLE_CLIENT') and app.user.niveau %}
+							<div class="level-progress">
+								<span class="level-text">Niveau {{ app.user.niveau.niveau }}</span>
+								<div class="progress-bar">
+									<div class="progress-fill" style="width: {{ (app.user.niveau.niveauXP / app.user.niveau.MaxNiveauXP * 100) }}%;"></div>
+								</div>
+								<span class="xp-text">{{ app.user.niveau.niveauXP }} / {{ app.user.niveau.MaxNiveauXP }} XP</span>
+							</div>
+							{% endif %}
+						</div>
+						<button class="settings-btn" id="settingsDropdownToggle" aria-label="User settings">
+							<ion-icon name="ellipsis-vertical"></ion-icon>
+						</button>
+						<ul class="dropdown-menu user-settings-dropdown" id="settingsDropdown">
+							<li>
+								<button onclick="window.location.href='{{ path('client_profile') }}'" class="tir-navbar-link">Profile</button>
+							</li>
+							<li>
+								<button onclick="window.location.href='{{ path('logout') }}'" class="tir-navbar-link">Logout</button>
+							</li>
+						</ul>
+					</div>
+				{% else %}
+					<a href="{{ path('login') }}">
+						<button class="navbar-btn navbar-btn-primary">Login</button>
+					</a>
+				{% endif %}
+			</div>
 		</div>
 	</div>
 </header>
 
 <style>
+	.header {
+		background-color: #184C91;
+	}
+	.header-top .tir-container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.header .header-top {
+		padding: 20px 0;
+	}
+	.header .header-bottom {
+		padding: 20px 0;
+	}
+	.header-bottom .container {
+		display: flex;
+		align-items: center;
+	}
+	.logo {
+		margin-right: 20px;
+	}
+	.social-list {
+		margin-right: 20px;
+	}
+	.tir-navbar-list {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	.tir-navbar-link {
+		color: #fff;
+		padding: 10px 15px;
+		font-size: 16px;
+	}
+	.navbar-user-section {
+		margin-left: auto;
+	}
 	.tir-navbar-dropdown {
 		position: relative;
 	}
-
 	.dropdown-menu {
 		display: none;
 		position: absolute;
 		top: 100%;
 		left: -50px;
-		background-color:  #184C91;
+		background-color: #184C91;
 		min-width: 200px;
 		z-index: 200;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 		border-radius: 8px;
 		padding: 0.5rem 0;
 	}
-
 	.dropdown-menu li {
 		padding: 0;
 	}
-
 	.dropdown-menu .tir-navbar-link {
 		display: block;
 		width: 100%;
@@ -147,15 +207,119 @@
 		background: none;
 		border: none;
 		cursor: pointer;
-		font-size: 16px;
 	}
-
 	.dropdown-menu .tir-navbar-link:hover {
 		background-color: #f0f0f0;
+		color: #184C91;
 	}
-
 	.tir-navbar-dropdown.active .dropdown-menu {
 		display: block;
+	}
+	.navbar-user-section {
+		display: flex;
+		align-items: center;
+		z-index: 100;
+	}
+	.user-info {
+		display: flex;
+		align-items: center;
+		position: relative;
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 25px;
+		padding: 5px 10px;
+		backdrop-filter: blur(5px);
+	}
+	.user-avatar {
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		margin-right: 12px;
+		object-fit: cover;
+		border: 3px solid #fff;
+	}
+	.user-details {
+		display: flex;
+		flex-direction: column;
+		color: #fff;
+	}
+	.user-name {
+		font-size: 16px;
+		font-weight: 600;
+	}
+	.user-role {
+		font-size: 13px;
+		opacity: 0.8;
+	}
+	.level-progress {
+		margin-top: 5px;
+	}
+	.level-text {
+		font-size: 12px;
+		font-weight: 500;
+	}
+	.progress-bar {
+		width: 120px;
+		height: 6px;
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 3px;
+		margin: 4px 0;
+	}
+	.progress-fill {
+		height: 100%;
+		background: #4CAF50;
+		border-radius: 3px;
+	}
+	.xp-text {
+		font-size: 11px;
+		opacity: 0.8;
+	}
+	.settings-btn {
+		background: none;
+		border: none;
+		color: #fff;
+		cursor: pointer;
+		padding: 5px;
+		margin-left: 12px;
+	}
+	.settings-btn ion-icon {
+		font-size: 20px;
+	}
+	.user-settings-dropdown {
+		display: none;
+		position: absolute;
+		top: 100%;
+		right: 0;
+		background-color: #184C91;
+		min-width: 150px;
+		z-index: 200;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+		border-radius: 8px;
+		padding: 0.5rem 0;
+	}
+	.user-settings-dropdown li {
+		padding: 0;
+	}
+	.user-settings-dropdown .tir-navbar-link {
+		display: block;
+		width: 100%;
+		text-align: left;
+		padding: 10px 20px;
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: 14px;
+		color: #fff;
+	}
+	.user-settings-dropdown .tir-navbar-link:hover {
+		background-color: #f0f0f0;
+		color: #184C91;
+	}
+	.user-info.active .user-settings-dropdown {
+		display: block;
+	}
+	.navbar-btn {
+		padding: 8px 16px;
+		font-size: 14px;
 	}
 </style>
 
@@ -163,42 +327,55 @@
 <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const currentUrl = window.location.pathname;
-    const homeUrl = document.querySelector('.header').getAttribute('data-home-url');
+document.addEventListener("DOMContentLoaded", function () {
+	const offresDropdownToggle = document.getElementById('offresDropdownToggle');
+	const offresDropdownWrapper = offresDropdownToggle.closest('.tir-navbar-dropdown');
 
-    if (currentUrl !== homeUrl) {
-      document.querySelector('.header').style.background = 'var(--yale-blue)';
-    }
+	offresDropdownToggle.addEventListener('click', function (e) {
+		e.stopPropagation();
+		offresDropdownWrapper.classList.toggle('active');
+	});
 
-    // Offres Dropdown
-    const offresDropdownToggle = document.getElementById('offresDropdownToggle');
-    const offresDropdownWrapper = offresDropdownToggle.closest('.tir-navbar-dropdown');
-    offresDropdownToggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      // Close Reclamations dropdown if open
-      reclamationsDropdownWrapper.classList.remove('active');
-      offresDropdownWrapper.classList.toggle('active');
-    });
+	const settingsDropdownToggle = document.getElementById('settingsDropdownToggle');
+	if (settingsDropdownToggle) {
+		const settingsDropdownWrapper = settingsDropdownToggle.closest('.user-info');
 
-    // Reclamations Dropdown
-    const reclamationsDropdownToggle = document.getElementById('reclamationsDropdownToggle');
+		settingsDropdownToggle.addEventListener('click', function (e) {
+			e.stopPropagation();
+			settingsDropdownWrapper.classList.toggle('active');
+		});
+	}
+
+	const reclamationsDropdownToggle = document.getElementById('reclamationsDropdownToggle');
     const reclamationsDropdownWrapper = reclamationsDropdownToggle.closest('.tir-navbar-dropdown');
-    reclamationsDropdownToggle.addEventListener('click', function (e) {
+reclamationsDropdownToggle.addEventListener('click', function (e) {
       e.stopPropagation();
       // Close Offres dropdown if open
       offresDropdownWrapper.classList.remove('active');
       reclamationsDropdownWrapper.classList.toggle('active');
-    });
 
-    // Close all dropdowns when clicking outside
     document.addEventListener('click', function (e) {
-      if (!offresDropdownWrapper.contains(e.target)) {
-        offresDropdownWrapper.classList.remove('active');
+      if (!dropdownWrapper.contains(e.target)) {
+        dropdownWrapper.classList.remove('active');
       }
-      if (!reclamationsDropdownWrapper.contains(e.target)) {
+	  if (!reclamationsDropdownWrapper.contains(e.target)) {
         reclamationsDropdownWrapper.classList.remove('active');
       }
     });
   });
+	document.addEventListener('click', function (e) {
+		if (!offresDropdownWrapper.contains(e.target)) {
+			offresDropdownWrapper.classList.remove('active');
+
+}
+		const settingsDropdownWrapper = document.querySelector('.user-info');
+		if (settingsDropdownWrapper && !settingsDropdownWrapper.contains(e.target)) {
+			settingsDropdownWrapper.classList.remove('active');
+		}
+		
+		if (!reclamationsDropdownWrapper.contains(e.target)) {
+			reclamationsDropdownWrapper.classList.remove('active');
+		}
+	});
+});
 </script>

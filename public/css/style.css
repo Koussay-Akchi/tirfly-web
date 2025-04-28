@@ -217,7 +217,6 @@ body { background: var(--white); }
   top: 0;
   left: 0;
   width: 100%;
-  padding-top: 61px;
   z-index: 34;
 }
 
@@ -909,7 +908,6 @@ address {
    * HEADER
    */
 
-  .header { padding-top: 83px; }
 
   .helpline-box .icon-box { padding: 14px; }
 

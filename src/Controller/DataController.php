@@ -49,23 +49,32 @@ final class DataController extends AbstractController{
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_data_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Data $data, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(DataType::class, $data);
-        $form->handleRequest($request);
+   #[Route('/{id}/edit', name: 'app_data_edit', methods: ['GET', 'POST'])]
+public function edit(Request $request, Data $data, EntityManagerInterface $entityManager): Response
+{
+    $form = $this->createForm(DataType::class, $data);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_data_index', [], Response::HTTP_SEE_OTHER);
+    if ($form->isSubmitted()) {
+        // Log the submitted data
+        $submittedData = $request->request->all();
+        dump($submittedData); // Or use a logger to inspect the data
+        if (!$form->isValid()) {
+            // Log form errors
+            dump($form->getErrors(true, true));
         }
-
-        return $this->render('data/edit.html.twig', [
-            'data' => $data,
-            'form' => $form,
-        ]);
     }
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->flush();
+        return $this->redirectToRoute('app_data_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    return $this->render('data/edit.html.twig', [
+        'data' => $data,
+        'form' => $form,
+    ]);
+}
 
     #[Route('/{id}', name: 'app_data_delete', methods: ['POST'])]
     public function delete(Request $request, Data $data, EntityManagerInterface $entityManager): Response

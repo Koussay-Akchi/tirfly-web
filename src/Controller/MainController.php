@@ -14,6 +14,12 @@ final class MainController extends AbstractController
         return $this->render('main/home.html.twig');
     }
 
+    #[Route('/admin', name: 'home_staff')]
+    public function indexStaff(): Response
+    {
+        return $this->render('main/home-staff.html.twig');
+    }
+
     /*
     #[Route('/about', name: 'about')]
     public function about(): Response

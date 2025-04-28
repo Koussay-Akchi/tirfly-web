@@ -6,6 +6,10 @@
     <title>TirFly - Join the Journey</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Roboto:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.7.4/dist/tf.min.js"></script>
+    <!-- Load Face-API.js -->
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -19,12 +23,11 @@
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #1a3c34, #2a4d6e, #1a3c34);
-            overflow: hidden;
             font-family: 'Montserrat', sans-serif;
             position: relative;
+            overflow: auto; /* Allow scrolling if needed */
         }
 
-        /* Animated background elements */
         .bg-decor {
             position: absolute;
             width: 100%;
@@ -58,7 +61,6 @@
             100% { transform: translate(0, 0) rotate(15deg); }
         }
 
-        /* Logo Container */
         .logo-container {
             display: flex;
             align-items: center;
@@ -98,6 +100,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: auto; /* Prevent overflow */
         }
 
         @keyframes float {
@@ -206,6 +209,31 @@
             right: 15px;
         }
 
+        .google-btn, .facebook-btn, .discord-btn {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            background: #ffffff;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .google-btn:hover, .facebook-btn:hover, .discord-btn:hover {
+            background: #f1f1f1;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
         .links {
             margin-top: 2rem;
             text-align: center;
@@ -231,13 +259,106 @@
             font-size: 14px;
             margin-top: 1rem;
             text-align: center;
-            display: none;
             background: rgba(255, 255, 255, 0.7);
             padding: 10px;
             border-radius: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             max-width: 500px;
             width: 100%;
+        }
+
+        .error-message.hidden {
+            display: none;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content p {
+            margin-bottom: 1rem;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .modal-content video {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content button {
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto 1rem;
+        }
+
+        .modal-content .cancel-btn {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+        }
+
+        .modal-content .cancel-btn:hover {
+            background: linear-gradient(90deg, #c0392b, #e74c3c);
+        }
+
+        .modal-content .loading::after {
+            content: 'Chargement...';
+            font-size: 14px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+        }
+
+        .modal-content .loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .modal-content .retry-btn {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+        }
+
+        .modal-content .retry-btn:hover {
+            background: linear-gradient(90deg, #2ecc71, #3498db);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #e74c3c;
         }
 
         @media (max-width: 600px) {
@@ -251,35 +372,15 @@
                 grid-template-columns: 1fr;
                 max-width: 100%;
             }
-            button {
+            button, .google-btn, .facebook-btn, .discord-btn {
                 max-width: 100%;
             }
             .error-message {
                 max-width: 100%;
             }
-            .toggle-password {
-    position: absolute;
-    right: 40px; /* Adjusted to place it left of the lock icon */
-    top: 50%;
-    transform: translateY(-50%);
-    color: #3498db;
-    font-size: 18px;
-    cursor: pointer;
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.toggle-password:hover {
-    color: #2ecc71;
-    transform: translateY(-50%) scale(1.2);
-}
-
-.toggle-password.active::before {
-    content: '\f070'; /* Font Awesome slashed eye icon when password is visible */
-}
-
-input:focus + .fa-lock + .toggle-password {
-    transform: translateY(-50%) scale(1.2);
-}
+            .modal-content {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -296,34 +397,43 @@ input:focus + .fa-lock + .toggle-password {
     <div class="logo-container">
         <img src="images/logo.svg" alt="Logo TirFly" class="logo-img">
     </div>
+    <a href="/connect/google" class="google-btn">
+        <i class="fab fa-google"></i> Sign up with Google
+    </a>
+    <a href="/connect/facebook" class="facebook-btn">
+        <i class="fab fa-facebook-f"></i> Sign up with Facebook
+    </a>
+    <a href="/connect/discord" class="discord-btn">
+        <i class="fab fa-discord"></i> Sign up with Discord
+    </a>
     <form id="signup-form">
         <div class="form-grid">
             <div class="form-group">
-                <input type="email" name="email" id="email" placeholder="Votre e-mail" >
+                <input type="email" name="email" id="email" placeholder="Votre e-mail" required>
                 <i class="fas fa-envelope"></i>
             </div>
             <div class="form-group">
-                <input type="password" name="password" id="password" placeholder="Mot de passe" >
+                <input type="password" name="password" id="password" placeholder="Mot de passe" required>
                 <i class="fas fa-eye toggle-password" id="togglePassword"></i>
             </div>
             <div class="form-group">
-                <input type="text" name="nom" id="nom" placeholder="Nom" >
+                <input type="text" name="nom" id="nom" placeholder="Nom" required>
                 <i class="fas fa-user"></i>
             </div>
             <div class="form-group">
-                <input type="text" name="prenom" id="prenom" placeholder="Prénom" >
+                <input type="text" name="prenom" id="prenom" placeholder="Prénom" required>
                 <i class="fas fa-user"></i>
             </div>
             <div class="form-group">
-                <input type="text" name="adresse" id="adresse" placeholder="Adresse" >
+                <input type="text" name="adresse" id="adresse" placeholder="Adresse" required>
                 <i class="fas fa-map-marker-alt"></i>
             </div>
             <div class="form-group">
-                <input type="number" name="age" id="age" placeholder="Âge">
+                <input type="number" name="age" id="age" placeholder="Âge" required>
                 <i class="fas fa-calendar-alt"></i>
             </div>
             <div class="form-group">
-                <select name="sexe" id="sexe" >
+                <select name="sexe" id="sexe" required>
                     <option value="" disabled selected>Choisir le genre</option>
                     <option value="Homme">Homme</option>
                     <option value="Femme">Femme</option>
@@ -331,12 +441,12 @@ input:focus + .fa-lock + .toggle-password {
                 <i class="fas fa-venus-mars"></i>
             </div>
             <div class="form-group">
-                <input type="tel" name="phoneNumber" id="phoneNumber" placeholder="Numéro de téléphone"  >
+                <input type="tel" name="phoneNumber" id="phoneNumber" placeholder="Numéro de téléphone" required>
                 <i class="fas fa-phone"></i>
             </div>
         </div>
         <button type="submit">Rejoindre TirFly</button>
-        <div class="error-message" id="error-message"></div>
+        <div class="error-message hidden" id="error-message"></div>
         <div class="links">
             <a href="/login">Déjà membre ?</a>
             <a href="/forgot-password">Mot de passe oublié ?</a>
@@ -344,61 +454,373 @@ input:focus + .fa-lock + .toggle-password {
     </form>
 </div>
 
+<!-- Face Capture Modal -->
+<div class="modal" id="faceid-modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-modal">×</span>
+        <p>Veuillez enregistrer votre visage pour la reconnaissance faciale.</p>
+        <video id="video" autoplay muted playsinline></video>
+        <button id="capture-face-btn">Enregistrer mon visage</button>
+        <button id="cancel-face-btn" class="cancel-btn">Annuler</button>
+        <button id="retry-camera-btn" class="retry-btn" style="display: none;">Réessayer la caméra</button>
+    </div>
+</div>
+
 <script>
-document.getElementById('togglePassword').addEventListener('click', function () {
-    const passwordInput = document.getElementById('password');
-    const toggleIcon = this;
-
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.classList.add('active');
-    } else {
-        passwordInput.type = 'password';
-        toggleIcon.classList.remove('active');
-    }
-});
-
-document.getElementById("signup-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    const payload = {
-        email: document.getElementById("email").value,
-        password: document.getElementById("password").value,
-        nom: document.getElementById("nom").value,
-        prenom: document.getElementById("prenom").value,
-        adresse: document.getElementById("adresse").value,
-        age: parseInt(document.getElementById("age").value),
-        sexe: document.getElementById("sexe").value,
-        phoneNumber: document.getElementById("phoneNumber").value,
-        role: "CLIENT"
-    };
-
-    fetch("http://127.0.0.1:8000/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    })
-    .then(res => {
-        if (!res.ok) {
-            return res.json().then(data => {
-                throw new Error(data.error || 'Erreur inconnue');
-            });
+    // Set TensorFlow.js backend to CPU to avoid WebGL issues
+    (async () => {
+        try {
+            await tf.setBackend('cpu');
+            console.log("TensorFlow.js backend set to CPU");
+        } catch (error) {
+            console.error("Failed to set TensorFlow.js backend:", error);
         }
-        return res.json();
-    })
-    .then(data => {
-        alert("Inscription réussie ! Bienvenue chez TirFly !");
-        window.location.href = "/login";
-    })
-    .catch(error => {
+    })();
+
+    // Load Face-API.js models with fallback
+    async function loadModels() {
+        let MODEL_URL = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights/';
+        try {
+            console.log("Attempting to load Face-API.js models from CDN...");
+            await Promise.all([
+                faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL).catch(err => {
+                    console.error("Failed to load ssdMobilenetv1 from CDN:", err);
+                    throw err;
+                }),
+                faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL).catch(err => {
+                    console.error("Failed to load faceLandmark68Net from CDN:", err);
+                    throw err;
+                }),
+                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL).catch(err => {
+                    console.error("Failed to load faceRecognitionNet from CDN:", err);
+                    throw err;
+                })
+            ]);
+            console.log("Models loaded successfully from CDN!");
+            return true;
+        } catch (error) {
+            console.error("CDN loading failed:", error);
+            console.log("Falling back to local weights...");
+            MODEL_URL = '/weights/';
+            try {
+                await Promise.all([
+                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL).catch(err => {
+                        console.error("Failed to load ssdMobilenetv1 locally:", err);
+                        throw err;
+                    }),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL).catch(err => {
+                        console.error("Failed to load faceLandmark68Net locally:", err);
+                        throw err;
+                    }),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL).catch(err => {
+                        console.error("Failed to load faceRecognitionNet locally:", err);
+                        throw err;
+                    })
+                ]);
+                console.log("Models loaded successfully from local weights!");
+                return true;
+            } catch (localError) {
+                console.error("Local loading failed:", localError);
+                displayError("Échec du chargement des modèles de reconnaissance faciale : " + localError.message);
+                return false;
+            }
+        }
+    }
+
+    // Initialize video stream
+    async function startVideo() {
+        const video = document.getElementById('video');
+        try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error("Le navigateur ne prend pas en charge l'accès à la webcam.");
+            }
+
+            console.log("Requesting webcam access...");
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            console.log("Webcam stream started successfully!");
+            return stream;
+        } catch (err) {
+            console.error("Error accessing webcam:", err);
+            let errorMessage = "Échec d'accès à la webcam. Veuillez vérifier les autorisations.";
+            if (err.name === "NotAllowedError") {
+                errorMessage = "L'accès à la webcam a été refusé. Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur.";
+            } else if (err.name === "NotFoundError") {
+                errorMessage = "Aucune webcam n'a été trouvée sur cet appareil.";
+            } else if (err.name === "SecurityError") {
+                errorMessage = "L'accès à la webcam nécessite une connexion sécurisée (HTTPS). Veuillez vérifier que la page est servie via HTTPS.";
+            }
+            throw new Error(errorMessage);
+        }
+    }
+
+    // Stop video stream
+    function stopVideo(video) {
+        if (video.srcObject) {
+            video.srcObject.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+        }
+    }
+
+    // Display error message
+    function displayError(message) {
         const errorMessage = document.getElementById("error-message");
-        errorMessage.textContent = "Échec de l'inscription : " + error.message;
-        errorMessage.style.display = "block";
+        errorMessage.textContent = message;
+        errorMessage.classList.remove('hidden');
         setTimeout(() => {
-            errorMessage.style.display = "none";
+            errorMessage.classList.add('hidden');
         }, 5000);
+        return new Promise(resolve => setTimeout(resolve, 5000));
+    }
+
+    // Handle face capture for signup
+    async function handleFaceCapture(email) {
+        const modal = document.getElementById('faceid-modal');
+        const video = document.getElementById('video');
+        const captureButton = document.getElementById('capture-face-btn');
+        const cancelButton = document.getElementById('cancel-face-btn');
+        const closeModal = document.getElementById('close-modal');
+        const retryButton = document.getElementById('retry-camera-btn');
+
+        // Show the modal
+        modal.style.display = 'flex';
+
+        let stream;
+        try {
+            stream = await startVideo();
+            retryButton.style.display = 'none';
+        } catch (err) {
+            await displayError(err.message);
+            retryButton.style.display = 'block';
+            captureButton.style.display = 'none';
+            cancelButton.style.display = 'block';
+            throw err;
+        }
+
+        return new Promise((resolve, reject) => {
+            let isCapturing = true;
+            let attemptCount = 0;
+            const maxAttempts = 100; // 10 seconds (100 attempts * 100ms)
+
+            // Show loading state on the button
+            captureButton.classList.add('loading');
+            captureButton.textContent = '';
+
+            // Function to continuously detect face until successful or cancelled
+            async function detectFace() {
+                if (!isCapturing) return;
+
+                attemptCount++;
+                if (attemptCount > maxAttempts) {
+                    isCapturing = false;
+                    captureButton.classList.remove('loading');
+                    captureButton.textContent = 'Enregistrer mon visage';
+                    modal.style.display = 'none';
+                    stopVideo(video);
+                    displayError("Temps écoulé : aucun visage détecté. Veuillez réessayer.");
+                    reject(new Error("Timeout: No face detected"));
+                    return;
+                }
+
+                try {
+                    console.log("Attempting face detection... (Attempt " + attemptCount + ")");
+                    const detections = await faceapi
+                        .detectSingleFace(video)
+                        .withFaceLandmarks()
+                        .withFaceDescriptor();
+
+                    if (detections) {
+                        const faceDescriptor = detections.descriptor;
+                        console.log("Face descriptor captured:", faceDescriptor);
+
+                        // Send the face descriptor to the backend
+                        console.log("Sending face descriptor to backend...");
+                        const response = await fetch('/api/signup/face', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, faceDescriptor: Array.from(faceDescriptor) })
+                        });
+
+                        // Log response details for debugging
+                        console.log("Response status:", response.status);
+                        console.log("Response headers:", response.headers.get('content-type'));
+
+                        // Check if the response is JSON
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            const text = await response.text();
+                            console.error("Non-JSON response from backend:", text);
+                            throw new Error("Réponse du serveur non valide : format JSON attendu, reçu : " + (text || "vide"));
+                        }
+
+                        const data = await response.json();
+                        console.log("Backend response:", data);
+
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Erreur inconnue lors de l\'enregistrement du visage');
+                        }
+
+                        alert("Visage enregistré avec succès !");
+                        isCapturing = false;
+                        captureButton.classList.remove('loading');
+                        captureButton.textContent = 'Enregistrer mon visage';
+                        modal.style.display = 'none';
+                        stopVideo(video);
+                        resolve();
+                    } else {
+                        console.log("No face detected, retrying...");
+                        setTimeout(detectFace, 100);
+                    }
+                } catch (error) {
+                    console.error("Error during face capture:", error);
+                    displayError("Échec de l'enregistrement du visage : " + error.message);
+                    isCapturing = false;
+                    captureButton.classList.remove('loading');
+                    captureButton.textContent = 'Enregistrer mon visage';
+                    modal.style.display = 'none';
+                    stopVideo(video);
+                    reject(error);
+                }
+            }
+
+            // Start face detection loop when video is ready
+            video.onloadedmetadata = () => {
+                video.play();
+                detectFace();
+            };
+
+            // Handle capture button click
+            captureButton.addEventListener('click', async () => {
+                if (!isCapturing) return; // Prevent multiple clicks
+                // The detection is already running in the loop
+            });
+
+            // Handle retry button click
+            retryButton.addEventListener('click', async () => {
+                retryButton.style.display = 'none';
+                captureButton.style.display = 'block';
+                try {
+                    stream = await startVideo();
+                    captureButton.classList.add('loading');
+                    captureButton.textContent = '';
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        detectFace();
+                    };
+                } catch (err) {
+                    await displayError(err.message);
+                    retryButton.style.display = 'block';
+                    captureButton.style.display = 'none';
+                }
+            });
+
+            // Handle cancel button click
+            cancelButton.addEventListener('click', () => {
+                isCapturing = false;
+                captureButton.classList.remove('loading');
+                captureButton.textContent = 'Enregistrer mon visage';
+                modal.style.display = 'none';
+                stopVideo(video);
+                window.location.href = "/";
+            });
+
+            // Handle close modal
+            closeModal.addEventListener('click', () => {
+                isCapturing = false;
+                captureButton.classList.remove('loading');
+                captureButton.textContent = 'Enregistrer mon visage';
+                modal.style.display = 'none';
+                stopVideo(video);
+                window.location.href = "/";
+            });
+        });
+    }
+
+    // Initialize models on page load
+    let modelsLoaded = false;
+    (async () => {
+        try {
+            modelsLoaded = await loadModels();
+        } catch (error) {
+            console.error("Initialization failed:", error);
+        }
+    })();
+
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = this;
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.add('active');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('active');
+        }
     });
-});
+
+    // Handle signup form submission
+    document.getElementById("signup-form").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        if (!modelsLoaded) {
+            await displayError("Les modèles de reconnaissance faciale ne sont pas chargés. Veuillez vérifier votre connexion ou réessayer.");
+            window.location.href = "/";
+            return;
+        }
+
+        const payload = {
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            nom: document.getElementById("nom").value,
+            prenom: document.getElementById("prenom").value,
+            adresse: document.getElementById("adresse").value,
+            age: parseInt(document.getElementById("age").value) || null,
+            sexe: document.getElementById("sexe").value,
+            phoneNumber: document.getElementById("phoneNumber").value,
+            role: "CLIENT"
+        };
+
+        try {
+            console.log("Submitting signup form:", payload);
+            const response = await fetch("/api/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error("Non-JSON response from /api/signup:", text);
+                throw new Error("Réponse du serveur non valide : format JSON attendu, reçu : " + (text || "vide"));
+            }
+
+            const data = await response.json();
+            console.log("Signup response:", data);
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erreur inconnue');
+            }
+
+            alert("Inscription réussie ! Bienvenue chez TirFly !");
+
+            // After successful signup, open face capture modal
+            await handleFaceCapture(payload.email).catch(async err => {
+                console.error("Face capture failed or cancelled:", err);
+                await displayError(err.message);
+                window.location.href = "/";
+            });
+
+            // Redirect to homepage if face capture succeeds
+            window.location.href = "/";
+        } catch (error) {
+            console.error("Signup error:", error);
+            await displayError("Échec de l'inscription : " + error.message);
+            window.location.href = "/";
+        }
+    });
 </script>
 
 </body>

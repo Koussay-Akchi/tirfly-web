@@ -20,8 +20,12 @@
 		<img src="{{ asset('images/' ~ (climat_icons[climat_names[destination.climat]] ?? 'default.jpg')) }}" alt="meteo" style="width: 30px; height: 30px; position: absolute; top: 5px; left: 5px; object-fit: cover;">
 	</div>
 
-	<figure class="card-img">
-		<img src="{{ asset('images/default-destination.jpg') }}" alt="Image destination" class="voyage-image" style="width: 100%; height: auto; border-radius: 8px;"/>
+	<figure class="card-img" style="width: 300px; height: 350px; margin: 0 auto; overflow: hidden; border-radius: 8px;">
+		{% if destination.image %}
+			<img src="{{ asset('uploads/destinations/' ~ destination.image) }}" alt="Image destination" class="voyage-image"/>
+		{% else %}
+			<img src="{{ asset('images/default-destination.jpg') }}" alt="Image destination" class="voyage-image"/>
+		{% endif %}
 	</figure>
 	<div class="card-content">
 		<div class="card-rating">

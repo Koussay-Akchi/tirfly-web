@@ -1,7 +1,6 @@
 {% extends 'base-staff.html.twig' %}
 
 {% block title %}Client Details{% endblock %}
-
 {% block head %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 {% endblock %}
@@ -67,7 +66,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="position-relative" style="max-width: 300px; margin: 0 auto;">
-                    <!-- XP Progress Circle -->
+                    
                     <div class="progress-circle position-relative">
                         <svg class="progress-svg" width="300" height="300">
                             <circle class="progress-bg" cx="150" cy="150" r="130"/>
@@ -76,7 +75,7 @@
                                     data-percentage="{{ (client.niveau.niveauXP / client.niveau.maxNiveauXP * 100) | default(0)|round }}"/>
                         </svg>
                         
-                        <!-- Avatar Image -->
+                        
                         <div class="about-avatar position-absolute top-50 start-50 translate-middle">
                             <img src="https://bootdey.com/img/Content/avatar/avatar7.png" 
                                  alt="Client Avatar" 
@@ -85,7 +84,7 @@
                         </div>
                     </div>
                     
-                    <!-- Level Display with Add XP Button -->
+                    
                     <div class="text-center mt-3">
                         <h4 class="theme-color mb-1">
                             Level <span id="level-display">{{ client.niveau.niveau|default('N/A') }}</span>
@@ -114,121 +113,194 @@
     /* Include the provided CSS styles */
     {{ include('client/styles.css.twig') }}
 
-    /* Enhanced Level Up Animations */
-    @keyframes levelUpGlow {
-        0% {
-            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.9);
-            transform: scale(1);
-        }
-        50% {
-            box-shadow: 0 0 40px 20px rgba(40, 167, 69, 0.9);
-            transform: scale(1.08);
-        }
-        100% {
-            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.9);
-            transform: scale(1);
-        }
+/* Enhanced Level Up Animations */
+@keyframes levelUpGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 1);
+        transform: scale(1);
     }
+    50% {
+        box-shadow: 0 0 60px 30px rgba(40, 167, 69, 1), 
+                    0 0 120px 60px rgba(46, 204, 113, 0.8);
+        transform: scale(1.15);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 1);
+        transform: scale(1);
+    }
+}
 
-    @keyframes progressPulse {
-        0% {
-            stroke: #2ecc71;
-            stroke-width: 8;
-        }
-        50% {
-            stroke: #aaf683;
-            stroke-width: 10;
-        }
-        100% {
-            stroke: #2ecc71;
-            stroke-width: 8;
-        }
+@keyframes progressPulse {
+    0% {
+        stroke: #2ecc71;
+        stroke-width: 8;
+        filter: brightness(100%);
     }
+    50% {
+        stroke: #aaf683;
+        stroke-width: 12;
+        filter: brightness(150%) drop-shadow(0 0 10px #aaf683);
+    }
+    100% {
+        stroke: #2ecc71;
+        stroke-width: 8;
+        filter: brightness(100%);
+    }
+}
 
-    @keyframes confetti {
-        0% {
-            opacity: 1;
-            transform: translate(0, 0) scale(1);
-        }
-        100% {
-            opacity: 0;
-            transform: translate(var(--confetti-x), var(--confetti-y)) scale(0.7);
-        }
+@keyframes confettiBurst {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1) rotate(0deg);
     }
+    100% {
+        opacity: 0;
+        transform: translate(var(--confetti-x), var(--confetti-y)) 
+                   scale(0.5) rotate(var(--confetti-rotate));
+    }
+}
 
-    @keyframes xpGain {
-        0% {
-            opacity: 0;
-            transform: translateY(15px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
+@keyframes xpGain {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.8);
+        color: #2ecc71;
     }
+    50% {
+        opacity: 1;
+        transform: translateY(0) scale(1.2);
+        color: #aaf683;
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        color: inherit;
+    }
+}
 
-    @keyframes levelShine {
-        0% {
-            background-position: -100%;
-        }
-        100% {
-            background-position: 200%;
-        }
+@keyframes levelShine {
+    0% {
+        background-position: -200%;
     }
+    100% {
+        background-position: 300%;
+    }
+}
 
-    @keyframes backgroundFlash {
-        0% {
-            background: rgba(40, 167, 69, 0);
-        }
-        50% {
-            background: rgba(40, 167, 69, 0.2);
-        }
-        100% {
-            background: rgba(40, 167, 69, 0);
-        }
+@keyframes backgroundFlash {
+    0% {
+        background: rgba(40, 167, 69, 0);
     }
+    50% {
+        background: rgba(40, 167, 69, 0.4);
+        filter: brightness(120%);
+    }
+    100% {
+        background: rgba(40, 167, 69, 0);
+    }
+}
 
-    .level-up-animation {
-        animation: levelUpGlow 1.5s ease-in-out, backgroundFlash 1.5s ease-in-out;
-        position: relative;
+@keyframes sparkle {
+    0% {
+        opacity: 0;
+        transform: scale(0);
     }
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0);
+    }
+}
 
-    .level-up-animation .progress-bar {
-        animation: progressPulse 1.5s ease-in-out;
-    }
+.level-up-animation {
+    animation: levelUpGlow 2s ease-in-out, backgroundFlash 2s ease-in-out;
+    position: relative;
+    overflow: visible !important;
+}
 
-    .confetti {
-        position: absolute;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        animation: confetti 1.2s ease-out forwards;
-        pointer-events: none;
-    }
+.level-up-animation .progress-bar {
+    animation: progressPulse 2s ease-in-out infinite;
+}
 
-    .xp-gain {
-        animation: xpGain 0.6s ease-out;
-    }
+.confetti {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: confettiBurst 1.5s ease-out forwards;
+    pointer-events: none;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+}
 
-    .level-shine {
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-        background-size: 200%;
-        animation: levelShine 0.8s linear;
-    }
+.xp-gain {
+    animation: xpGain 0.8s ease-out;
+    font-weight: bold;
+}
 
-    /* Button styling */
-    .btn-sm.btn-success {
-        padding: 6px 12px;
-        font-size: 14px;
-        background-color: #2ecc71;
-        border-color: #2ecc71;
-        transition: transform 0.2s, background-color 0.2s;
-    }
+.level-shine {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 1),
+        transparent
+    );
+    background-size: 300%;
+    animation: levelShine 1s linear;
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
 
-    .btn-sm.btn-success:hover {
-        background-color: #27ae60;
-        transform: scale(1.1);
-    }
+/* Sparkle effect for extra flashiness */
+.level-up-animation::before,
+.level-up-animation::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.9) 20%,
+        transparent 70%
+    );
+    border-radius: 50%;
+    animation: sparkle 0.6s ease-in-out;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.level-up-animation::before {
+    top: 20%;
+    left: 20%;
+    animation-delay: 0.1s;
+}
+
+.level-up-animation::after {
+    bottom: 20%;
+    right: 20%;
+    animation-delay: 0.3s;
+}
+
+/* Enhanced button styling for level-up context */
+.btn-sm.btn-success {
+    padding: 8px 16px;
+    font-size: 16px;
+    background: linear-gradient(45deg, #2ecc71, #aaf683);
+    border: none;
+    border-radius: 20px;    
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn-sm.btn-success:hover {
+    background: linear-gradient(45deg, #27ae60, #82e57d);
+    transform: scale(1.2) translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+}
 </style>
 
 <script>

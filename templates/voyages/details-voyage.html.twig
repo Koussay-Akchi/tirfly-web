@@ -1,372 +1,95 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}
 	Détails du Voyage
 {% endblock %}
-
 {% block body %}
-	<!-- External CSS Dependencies -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" integrity="sha512-tS3S5qG0BlhnQROyJXvNjeEM4UpMXHrQfTGmbQ1gKmelCxlSEBUaxhRBj/EFTzpbP4RVSrpEikbmdJobCvhE3g==" crossorigin="anonymous" />
 
-	<!-- Internal CSS -->
-	<style>
-		/* Import Google Fonts */
-		@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap');
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<link rel="stylesheet" href={{ asset('css/details-voyages.css') }} />
 
-		/* Global Reset and Base Styles */
-		* {
-			box-sizing: border-box;
-			padding: 0;
-			margin: 0;
-			font-family: 'Open Sans', sans-serif;
-		}
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script src="https://unpkg.com/leaflet-curve"></script>
 
-		body {
-			line-height: 1.5;
-		}
 
-		/* Card Wrapper */
-		.card-wrapper {
-			max-width: 1100px;
-			margin: 0 auto;
-			padding: 1rem;
-		}
 
-		@media screen and (min-width: 992px) {
-			.card-wrapper {
-				min-height: 100vh;
-				display: flex;
-				justify-content: center;
-				align-items: center;
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" crossorigin="anonymous" />
+
+	<script src="https://unpkg.com/leaflet-rotatedmarker@0.2.0/leaflet.rotatedMarker.js"></script>
+	{% set climat_icons = {
+		'1': 'tropical.png',
+		'2': 'sun.png',
+		'3': 'snowflake.png',
+		'4': 'desert.png',
+	} %}
+
+
+	 <script type="module">
+		import ClimatService from '/js/ClimatService.js';
+
+		document.addEventListener('DOMContentLoaded', async () => {
+			const weatherDiv = document.getElementById('weather');
+			const lat = weatherDiv.dataset.lat;
+			const lon = weatherDiv.dataset.lon;
+			const climatService = new ClimatService();
+			const temperature = await climatService.getTemperature(lat, lon);
+			const tempDisplay = document.getElementById('current-temperature');
+			if (temperature !== null) {
+				tempDisplay.textContent = `${temperature}°C`;
+			} else {
+				tempDisplay.textContent = 'Indisponible';
 			}
-		}
+		});
+	</script>
 
-		/* Card Layout */
-		.card {
-			position: relative;
-		}
-
-		@media screen and (min-width: 992px) {
-			.card {
-				display: grid;
-				grid-template-columns: repeat(2, 1fr);
-				gap: 1.5rem;
-			}
-		}
-
-		/* Images */
-		img {
-			width: 100%;
-			display: block;
-			object-fit: cover;
-		}
-
-		.product-imgs {
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-		}
-
-		.img-display {
-			overflow: hidden;
-			position: relative;
-		}
-
-		.img-showcase {
-			display: flex;
-			width: 100%;
-			transition: transform 0.5s ease;
-		}
-
-		.img-showcase img {
-			min-width: 100%;
-		}
-
-		/* Product Content */
-		.product-content {
-			padding: 2rem 1rem;
-		}
-
-		@media screen and (min-width: 992px) {
-			.product-content {
-				padding-top: 0;
-			}
-		}
-
-		.product-title {
-			font-size: 2rem;
-			text-transform: capitalize;
-			font-weight: 700;
-			color: #12263a;
-			margin: 1rem 0;
-			position: relative;
-		}
-
-		.product-title::after {
-			content: '';
-			position: absolute;
-			left: 0;
-			bottom: -4px;
-			height: 4px;
-			width: 80px;
-			background: #12263a;
-		}
-
-		/* Product Details */
-		.product-detail h2 {
-			text-transform: capitalize;
-			color: #12263a;
-			padding-bottom: 0.6rem;
-			font-size: 1.5rem;
-		}
-
-		.product-detail ul {
-			margin: 1rem 0;
-			font-size: 0.9rem;
-		}
-
-		.product-detail ul li {
-			list-style: none;
-			background: url('https://fadzrinmadu.github.io/hosted-assets/product-detail-page-design-with-image-slider-html-css-and-javascript/checked.png') no-repeat left center;
-			background-size: 18px;
-			padding-left: 1.7rem;
-			margin: 0.4rem 0;
-			font-weight: 600;
-			opacity: 0.9;
-		}
-
-		.product-detail ul li span {
-			font-weight: 400;
-		}
-
-		/* Product Price */
-		.product-price {
-			margin: 1rem 0;
-			font-size: 1rem;
-			font-weight: 700;
-		}
-
-		.product-price span {
-			font-weight: 400;
-		}
-
-		/* Purchase Info */
-		.purchase-info {
-			margin: 1.5rem 0;
-		}
-
-		.purchase-info .btn {
-			border: 1.5px solid #ddd;
-			border-radius: 25px;
-			padding: 0.45rem 0.8rem;
-			margin-right: 0.2rem;
-			margin-bottom: 1rem;
-			text-align: center;
-			cursor: pointer;
-			color: #fff;
-			background: #28a745;
-			transition: opacity 0.3s ease;
-		}
-
-		.purchase-info .btn:hover {
-			opacity: 0.9;
-		}
-
-		.purchase-info .btn:disabled {
-			background-color: grey;
-			cursor: not-allowed;
-		}
-
-		.purchase-info .btn-info {
-			background: #17a2b8;
-		}
-
-		/* Climat Badge */
-		.badge-climat {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 80px;
-			height: 80px;
-			background-color: #007bff;
-			border-bottom-right-radius: 100%;
-			z-index: 1;
-		}
-
-		.badge-climat img {
-			width: 50px;
-			height: 50px;
-			position: absolute;
-			top: 5px;
-			left: 5px;
-			object-fit: contain;
-		}
-
-		/* Feedback Section */
-		.voyage-details-feedback-container {
-			max-width: 1100px;
-			margin: 2rem auto;
-			padding: 1rem;
-		}
-
-		.voyage-details-feedback-container h2 {
-			font-size: 1.8rem;
-			color: #12263a;
-			margin-bottom: 1.5rem;
-		}
-
-		.voyage-details-feedback-form {
-			margin-bottom: 2rem;
-		}
-
-		.rating-input {
-			margin-bottom: 1rem;
-		}
-
-		.star-rating {
-			display: flex;
-			flex-direction: row-reverse;
-			justify-content: flex-end;
-		}
-
-		.star-rating input {
-			display: none;
-		}
-
-		.star-rating label {
-			font-size: 1.5rem;
-			color: #ddd;
-			cursor: pointer;
-			transition: color 0.2s;
-		}
-
-		.star-rating input:checked ~ label,
-		.star-rating label:hover,
-		.star-rating label:hover ~ label {
-			color: #f5c518;
-		}
-
-		.feedback-textarea {
-			width: 100%;
-			min-height: 100px;
-			padding: 0.5rem;
-			margin-bottom: 1rem;
-			border: 1px solid #ddd;
-			border-radius: 4px;
-			resize: vertical;
-		}
-
-		.submit-feedback-btn {
-			background: #28a745;
-			color: #fff;
-			border: none;
-			padding: 0.5rem 1rem;
-			border-radius: 4px;
-			cursor: pointer;
-			transition: opacity 0.3s;
-		}
-
-		.submit-feedback-btn:hover {
-			opacity: 0.9;
-		}
-
-		/* Feedback List */
-		.voyage-details-feedback-item {
-			border-bottom: 1px solid #eee;
-			padding: 1rem 0;
-		}
-
-		.feedback-header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 0.5rem;
-		}
-
-		.feedback-header strong {
-			font-weight: 600;
-			color: #12263a;
-		}
-
-		.feedback-date {
-			font-size: 0.85rem;
-			color: #6c757d;
-		}
-
-		.feedback-rating {
-			margin-bottom: 0.5rem;
-		}
-
-		.filled-star {
-			color: #f5c518;
-		}
-
-		.empty-star {
-			color: #ddd;
-		}
-
-		.feedback-content {
-			font-size: 0.9rem;
-			color: #333;
-		}
-
-		.feedback-error {
-			color: #dc3545;
-			font-size: 0.9rem;
-			margin-bottom: 1rem;
-			display: none;
-		}
-
-		.feedback-success {
-			color: #28a745;
-			font-size: 0.9rem;
-			margin-bottom: 1rem;
-			display: none;
-		}
-
-		.feedback-actions .btn {
-			margin-right: 0.5rem;
-			padding: 0.3rem 0.6rem;
-			font-size: 0.85rem;
-		}
-	</style>
-
-	<!-- Main Content -->
-	<main class="main">
+	<main class="main" style="margin-top: 200px;">
 		<div class="card-wrapper">
 			<div class="card">
-				<!-- Climat Badge -->
-				{% set climat_icons = {
-					'2': 'sun.png',
-					'4': 'desert.png',
-					'3': 'snowflake.png',
-					'1': 'tropical.png'
-				} %}
 				<div class="badge-climat">
 					<img src="{{ asset('images/' ~ (climat_icons[voyage.destination.climat] ?? 'default.jpg')) }}" alt="Climat">
 				</div>
-
-				<!-- Product Images -->
 				<div class="product-imgs">
 					<div class="img-display">
+
 						<div class="img-showcase">
-							<img src="{{ asset(voyage.getImage() ? voyage.getImage() : 'images/default.jpg') }}" alt="Image du voyage">
+							{% if voyage.image %}
+								<span class="text-muted">
+									<img src="{{ asset('uploads/voyages/' ~ voyage.image) }}" height="400px" alt="Image par défaut"/>
+								</span>
+							{% else %}
+								<span class="text-muted">
+									<img src="{{ asset('images/default.jpg') }}"  height="400px" alt="Image par défaut"/>
+								</span>
+							{% endif %}
 						</div>
+						<div id="voyage-map" style="height: 300px; margin-top: 10px; border-radius: 10px; overflow: hidden;"></div>
 					</div>
 				</div>
 
-				<!-- Product Content -->
 				<div class="product-content">
 					<h2 class="product-title">{{ voyage.nom }}</h2>
 					<div class="product-detail">
 						<h2>Détails du Voyage :</h2>
+
 						<ul>
-							<li>Destination: <span>{{ voyage.destination.ville }}, {{ voyage.destination.pays }}</span></li>
-							<li>Dates: <span>{{ voyage.dateDepart|date('d/m/Y') }} - {{ voyage.dateArrive|date('d/m/Y') }}</span></li>
-							<li>Durée: <span>{{ voyage.dateDepart.diff(voyage.dateArrive).days }} jours</span></li>
-							<li>Formule: <span>{{ voyage.formule|replace({'_': ' '})|lower|capitalize }}</span></li>
-							<li>Note: 
+							<li>Destination :
+								<span>{{ voyage.destination.ville }},
+									{{ voyage.destination.pays }}</span>
+							</li>
+							<li>Dates :
+								<span>{{ voyage.dateDepart|date('d/m/Y') }}
+									-
+									{{ voyage.dateArrive|date('d/m/Y') }}</span>
+							</li>
+							<li>Durée :
+								<span>{{ voyage.dateDepart.diff(voyage.dateArrive).days }}
+									jours</span>
+							</li>
+							<li>Formule :
+								<span>{{ voyage.formule|replace({'_': ' '})|lower|capitalize }}</span>
+							</li>
+							<li>Note :
 								<span class="stars">
 									{% for i in 1..5 %}
 										{% if i <= voyage.note %}
@@ -380,7 +103,7 @@
 								</span>
 							</li>
 							<li>
-								Météo actuelle: 
+								Météo actuelle :
 								<span id="current-temperature">Chargement...</span>
 								<div id="weather" data-lat="{{ voyage.destination.latitude }}" data-lon="{{ voyage.destination.longitude }}" style="display:inline;"></div>
 							</li>
@@ -388,23 +111,40 @@
 						<p>{{ voyage.description }}</p>
 					</div>
 					<div class="product-price">
-						<p class="new-price">Prix: <span>{{ voyage.prix }} DT/Personne</span></p>
+						<p class="new-price">Prix :
+							<span>{{ voyage.prix }}
+								DT/Personne</span>
+						</p>
 					</div>
 					<div class="purchase-info">
 						{% if dejaReserve %}
-							<span data-bs-toggle="tooltip" data-bs-placement="top" title="Vous avez déjà une réservation en attente pour ce voyage.">
-								<button type="button" class="btn reserver" disabled>Réserver</button>
+							<span data-bs-toggle="tooltip" data-bs-placement="top" title="Vous avez déjà une réservation en attente pour ce voyage." style="display: inline-block; position: relative;">
+								<button type="button" class="btn reserver" style="background-color: grey; cursor: not-allowed; pointer-events: none;" disabled>
+									Réserver
+								</button>
 							</span>
 						{% else %}
-							<button type="button" class="btn reserver" onclick="window.location.href='{{ path('ajout_reservation', {'type': 'voyage', 'id': voyage.id}) }}'">Réserver</button>
+							<button type="button" class="btn reserver" onclick="window.location.href='{{ path('ajout_reservation', {'type': 'voyage', 'id': voyage.id}) }}'">
+								Réserver
+							</button>
 						{% endif %}
-						<a href="{{ path('voir_feedbacks_voyage', {'id': voyage.id}) }}" class="btn btn-info">Voir les Feedbacks</a>
+						<a href="{{ path('ajouter_feedbackk', {'id': voyage.id}) }}" class="card-feedback-button btn btn-primary">Donner un feedback</a>
+						
+					<a
+					class="btn btn-primary mt-3"
+					href="https://calendar.google.com/calendar/render?action=TEMPLATE&text={{ voyage.nom|url_encode }}&dates={{ voyage.dateDepart|date('Ymd\\THis') }}/{{ voyage.dateArrive|date('Ymd\\THis') }}&details={{ voyage.description|url_encode }}"
+					target="_blank"
+					rel="noopener noreferrer"
+					>
+					Ajouter au Google Calendar 📅
+					</a>
 					</div>
+
+
 				</div>
 			</div>
 		</div>
 
-		<!-- Feedback Section -->
 		<div class="voyage-details-feedback-container mt-4">
 			<h2>Avis des voyageurs</h2>
 			
@@ -431,21 +171,21 @@
 				{% if not clientFeedback %}
 					<form action="{{ path('ajouter_feedbackk', {'id': voyage.id}) }}" method="POST" class="voyage-details-feedback-form">
 						<div class="rating-input">
-							<label for="note">Note :</label>
-							<div class="star-rating">
-								<input type="radio" id="star5" name="note" value="5" required>
-								<label for="star5">★</label>
-								<input type="radio" id="star4" name="note" value="4">
-								<label for="star4">★</label>
-								<input type="radio" id="star3" name="note" value="3">
-								<label for="star3">★</label>
-								<input type="radio" id="star2" name="note" value="2">
-								<label for="star2">★</label>
-								<input type="radio" id="star1" name="note" value="1">
-								<label for="star1">★</label>
-							</div>
-						</div>
-						<label for="comment">Avis :</label>
+					<label for="note">Note :</label>
+					<div class="star-rating">
+						<input type="radio" id="star5" name="note" value="5">
+						<label for="star5">★</label>
+						<input type="radio" id="star4" name="note" value="4">
+						<label for="star4">★</label>
+						<input type="radio" id="star3" name="note" value="3">
+						<label for="star3">★</label>
+						<input type="radio" id="star2" name="note" value="2">
+						<label for="star2">★</label>
+						<input type="radio" id="star1" name="note" value="1">
+						<label for="star1">★</label>
+					</div>
+				</div>
+				<label for="comment">Avis :</label>
 						<textarea name="comment" id="comment" required class="feedback-textarea"></textarea>
 						<input type="hidden" name="_token" value="{{ csrf_token('feedback' ~ voyage.id) }}">
 						<button type="submit" class="submit-feedback-btn">Envoyer</button>
@@ -454,12 +194,12 @@
 			{% else %}
 				<p>Veuillez vous connecter pour laisser un avis.</p>
 			{% endif %}
-
-			<div class="voyage-details-feedback-list" id="feedback-list">
+			<div class="voyage-details-feedback-list">
 				{% for feedback in voyage.feedbacks %}
 					<div class="voyage-details-feedback-item">
 						<div class="feedback-header">
-							<strong>{{ feedback.client.nom }} {{ feedback.client.prenom }}</strong>
+							<strong>{{ feedback.client.nom }}
+								{{ feedback.client.prenom }}</strong>
 							<span class="feedback-date">{{ feedback.dateFeedback|date('d/m/Y') }}</span>
 						</div>
 						<div class="feedback-rating">
@@ -487,47 +227,91 @@
 		</div>
 	</main>
 
-	<!-- External JavaScript Dependencies -->
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-
-	<!-- Internal JavaScript -->
 	<script>
-		// Assuming ClimatService is available globally; adjust if it's a module
-		const ClimatService = window.ClimatService || function() {
-			return {
-				getTemperature: async () => null // Fallback if ClimatService is not defined
-			};
-		};
-
-		document.addEventListener('DOMContentLoaded', () => {
-			// Initialize tooltips
-			const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-			tooltipTriggerList.forEach(tooltipTriggerEl => {
-				new bootstrap.Tooltip(tooltipTriggerEl);
+			document.addEventListener('DOMContentLoaded', function () {
+				var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+				tooltipTriggerList.map(function (tooltipTriggerEl) {
+					return new bootstrap.Tooltip(tooltipTriggerEl);
+				});
 			});
-
-			// Fetch weather data
-			const weatherDiv = document.getElementById('weather');
-			const lat = weatherDiv.dataset.lat;
-			const lon = weatherDiv.dataset.lon;
-			const climatService = new ClimatService();
-			climatService.getTemperature(lat, lon).then(temperature => {
-				const tempDisplay = document.getElementById('current-temperature');
-				if (temperature !== null) {
-					tempDisplay.textContent = `${temperature}°C`;
-				} else {
-					tempDisplay.textContent = 'Indisponible';
-				}
-			});
-
-			// Refresh comments if success flash message is present
-			const successMessages = document.querySelectorAll('.feedback-success');
-			if (successMessages.length > 0) {
-				// Reload the page after 2 seconds to show new feedback
-				setTimeout(() => {
-					window.location.reload();
-				}, 2000);
-			}
-		});
 	</script>
+
+	<script>
+	document.addEventListener('DOMContentLoaded', function () {
+        const fixedLat = 36.78465142459926;
+        const fixedLon = 10.061385612792224;
+        const destinationLat = parseFloat("{{ voyage.destination.latitude }}");
+        const destinationLon = parseFloat("{{ voyage.destination.longitude }}");
+
+        const fixedLatLng = [fixedLat, fixedLon];
+        const destLatLng  = [destinationLat, destinationLon];
+
+        const map = L.map('voyage-map');
+        map.fitBounds([fixedLatLng, destLatLng], { padding: [50, 50] });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker(fixedLatLng).addTo(map).bindPopup("Point de départ");
+        L.marker(destLatLng).addTo(map).bindPopup("Destination : {{ voyage.destination.ville }}");
+
+        const controlPoint = [
+            (fixedLat + destinationLat) / 2 + 5,
+            (fixedLon + destinationLon) / 2
+        ];
+        const curveLatlngs = [
+            'M', fixedLatLng,
+            'Q', controlPoint, destLatLng
+        ];
+        L.curve(curveLatlngs, {
+            color: '#f00',
+            weight: 3,
+            dashArray: '5, 5',
+            opacity: 0.8
+        }).addTo(map);
+
+        const planeIcon = L.icon({
+            iconUrl: '{{ asset("images/plane-icon.png") }}',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+        const planeMarker = L.marker(fixedLatLng, {
+            icon: planeIcon,
+            rotationAngle: 0,
+            rotationOrigin: 'center center'
+        }).addTo(map);
+
+        function getPoint(t, p0, p1, p2) {
+            return [
+                (1 - t)*(1 - t)*p0[0] + 2*(1 - t)*t*p1[0] + t*t*p2[0],
+                (1 - t)*(1 - t)*p0[1] + 2*(1 - t)*t*p1[1] + t*t*p2[1]
+            ];
+        }
+        function getDerivative(t, p0, p1, p2) {
+            return [
+                2*(1 - t)*(p1[0] - p0[0]) + 2*t*(p2[0] - p1[0]),
+                2*(1 - t)*(p1[1] - p0[1]) + 2*t*(p2[1] - p1[1])
+            ];
+        }
+
+        let t = 0;
+        function animatePlane() {
+            t += 0.005;
+            if (t > 1) t = 0;
+
+            const pos = getPoint(t, fixedLatLng, controlPoint, destLatLng);
+            planeMarker.setLatLng(pos);
+
+            const deriv = getDerivative(t, fixedLatLng, controlPoint, destLatLng);
+            const angle = Math.atan2(deriv[1], deriv[0]) * 180 / Math.PI;
+            planeMarker.setRotationAngle(angle);
+
+            requestAnimationFrame(animatePlane);
+        }
+
+        animatePlane();
+    });
+</script>
+
 {% endblock %}

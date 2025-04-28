@@ -5,6 +5,7 @@
 
 {% block body %}
 	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.css" rel="stylesheet"/>
+	<link rel="stylesheet" href={{ asset('css/calendar-voyages.css') }} />
 
 	<div class="btn-group btn-group-lg mb-3 d-flex justify-content-center" role="group" aria-label="Large button group">
 		<button type="button" class="btn btn-primary" id="showTable">Table</button>
@@ -19,8 +20,7 @@
 		{% include 'voyages/calendrier-voyages.html.twig' %}
 	</div>
 
-	 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.js"></script>
- <script>
+<script>
 		document.getElementById('showTable').addEventListener('click', function () {
 			document.getElementById('tableContainer').style.display = 'block';
 			document.getElementById('calendarContainer').style.display = 'none';
@@ -37,4 +37,39 @@
 					document.getElementById('calendarContainer').style.display = 'none';
 				});
 			</script>
+
+			<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const calendarEl = document.getElementById('calendar-holder');
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                editable: false,
+                eventSources: [
+                    {
+                        url: '{{ path('fc_load_events') }}',
+                        method: 'POST',
+                        extraParams: {
+                            filters: JSON.stringify({})
+                        },
+                        failure: () => {
+                            alert('Error fetching events');
+                        },
+						success: (data) => {
+							console.log(data);
+						}
+                    },
+                ],
+                headerToolbar: {
+                    start: 'prev,next today',
+                    center: 'title',
+                    end: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                timeZone: 'UTC',
+            });
+
+            calendar.render();
+        });
+    </script>
 {% endblock %}
