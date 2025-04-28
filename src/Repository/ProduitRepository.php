@@ -54,7 +54,55 @@ public function findDistinctCategories()
         ->getQuery()
         ->getSingleColumnResult();
 }
+// src/Repository/ProduitRepository.php
 
+public function findDistinctCategoriesWithCounts(): array
+{
+    $results = $this->createQueryBuilder('p')
+        ->select('p.categorie as name, COUNT(p.id) as count')
+        ->groupBy('p.categorie')
+        ->getQuery()
+        ->getResult();
+
+    $categories = [];
+    foreach ($results as $result) {
+        $categories[$result['name'] ?? 'Non catégorisé'] = $result['count'];
+    }
+
+    return $categories;
+}
+
+public function countEcoFriendlyProducts(): int
+{
+    return $this->count(['ecoFriendly' => true]);
+}
+
+public function getCategoriesWithCounts(): array
+{
+    $results = $this->createQueryBuilder('p')
+        ->select('p.categorie as name, COUNT(p.id) as count')
+        ->groupBy('p.categorie')
+        ->getQuery()
+        ->getResult();
+
+    $categories = [];
+    foreach ($results as $result) {
+        $categoryName = $result['name'] ?? 'Non catégorisé';
+        $categories[$categoryName] = $result['count'];
+    }
+
+    return $categories;
+}
+
+public function countLowStockProducts(int $threshold): int
+{
+    return $this->createQueryBuilder('p')
+        ->select('COUNT(p.id)')
+        ->where('p.quantiteStock < :threshold')
+        ->setParameter('threshold', $threshold)
+        ->getQuery()
+        ->getSingleScalarResult();
+}
     //    /**
     //     * @return Produit[] Returns an array of Produit objects
     //     */

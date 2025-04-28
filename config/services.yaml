@@ -1,3 +1,4 @@
+# config/services.yaml
 parameters:
     packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
     google_api_key: 'AIzaSyDpxgIqCekHbOLgUL6fyHdavfAGr1KijcQ'
@@ -5,29 +6,52 @@ parameters:
     evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
     voyages_images_directory: '%kernel.project_dir%/public/uploads/voyages'
     destinations_images_directory: '%kernel.project_dir%/public/uploads/destinations'
-
+    app.admin_phone: '+21658911032'
+    app.low_stock_threshold: 10
+    
 
 services:
     _defaults:
         autowire: true
         autoconfigure: true
         public: false
-        bind:
-            $geminiApiKey: '%google_api_key%'
+
+    # Bind parameters that should be available to all services
+    _instanceof:
+        App\Service\CurrencyConverter:
+            bind:
+                $exchangeRateApiKey: '%env(dec3bbdb08a8f599977f5d1e)%'
+
+     
+
+    # Makes classes in src/ available to be used as services
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Tests/'
+
+    # Explicit service configurations
     App\Controller\ClientController:
         arguments:
             $passwordHasher: '@security.user_password_hasher'
+
     App\Service\EmailService:
-        class: App\Service\EmailService
         arguments:
             $mailer: '@mailer'
-    App\Service\CurrencyConverter:
+    App\Service\TwilioSmsService:
         arguments:
-            $exchangeRateApiKey: '%env(dec3bbdb08a8f599977f5d1e)%'
-    
+            $accountSid: '%env(TWILIO_ACCOUNT_SID)%'
+            $authToken: '%env(TWILIO_AUTH_TOKEN)%'
+            $twilioNumber: '%env(TWILIO_PHONE_NUMBER)%'
+            $logger: '@logger'
+
+    App\Service\StockMonitor:
+        arguments:
+            $smsService: '@App\Service\TwilioSmsService'
+            $adminPhone: '%env(ADMIN_PHONE)%'
+    App\Service\BadWordsFilterService:
+        arguments:
+            $geminiApiKey: '%google_api_key%'

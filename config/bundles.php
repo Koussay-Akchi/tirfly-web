@@ -16,6 +16,7 @@ return [
     Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class => ['all' => true],
     Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
      Knp\Bundle\PaginatorBundle\KnpPaginatorBundle::class => ['all' => true],
+     Knp\Bundle\SnappyBundle\KnpSnappyBundle::class => ['all' => true],
 ];
 
 
