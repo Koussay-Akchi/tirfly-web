@@ -15,7 +15,8 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         public:
-            pattern: ^/api/(login|signup|forgot-password|reset-password)
+            # Added fingerprint/verify/[^/]+/? to match /fingerprint/verify/{token}
+            pattern: ^/(fingerprint/enroll/verify/?|fingerprint/verify/[^/]+/?|api/fingerprint/enroll/verify/?|api/fingerprint/enroll/?|api/fingerprint/enroll/status/[^/]+/?|api/fingerprint/qr/?|api/fingerprint/verify/?|api/fingerprint/status/[^/]+/?)$
             security: false
         api:
             pattern: ^/
@@ -29,13 +30,21 @@ security:
         - { path: ^/connect/google, roles: PUBLIC_ACCESS }
         - { path: ^/connect/facebook, roles: PUBLIC_ACCESS }
         - { path: ^/connect/discord, roles: PUBLIC_ACCESS }
+        - { path: ^/api/fingerprint/enroll/verify, roles: PUBLIC_ACCESS }
+        - { path: ^/api/fingerprint/enroll, roles: PUBLIC_ACCESS }
+        - { path: ^/api/fingerprint/qr, roles: PUBLIC_ACCESS }
+        - { path: ^/api/fingerprint/verify, roles: PUBLIC_ACCESS }
+        - { path: ^/api/fingerprint/status/[^/]+, roles: PUBLIC_ACCESS }
+        - { path: ^/api/fingerprint/enroll/status/[^/]+, roles: PUBLIC_ACCESS }
+        - { path: ^/fingerprint/enroll/verify, roles: PUBLIC_ACCESS }
+        - { path: ^/fingerprint/verify/[^/]+, roles: PUBLIC_ACCESS }
         - { path: ^/api/forgot-password, roles: PUBLIC_ACCESS }
         - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
         - { path: ^/reset-password, roles: PUBLIC_ACCESS }
-        - { path: "^/api/reset-password/{token}", roles: PUBLIC_ACCESS }  # Quoted the path to avoid issues with curly braces
+        - { path: ^/api/reset-password/, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/signup, roles: PUBLIC_ACCESS }
         - { path: ^/client/, roles: ROLE_CLIENT }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/voyages, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

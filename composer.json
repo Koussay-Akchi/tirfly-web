@@ -8,10 +8,12 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "amphp/http-client": "4.2.1",
+        "bacon/bacon-qr-code": "^3.0",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "*",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
+        "endroid/qr-code": "6.0.7",
         "knplabs/knp-paginator-bundle": "^6.8",
         "knpuniversity/oauth2-client-bundle": "^2.18",
         "league/oauth2-facebook": "^2.2",
@@ -52,6 +54,7 @@
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
+        "web-auth/webauthn-symfony-bundle": "^5.2",
         "wohali/oauth2-discord-new": "^1.2"
     },
     "config": {

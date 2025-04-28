@@ -1,9 +1,9 @@
+# config/services.yaml
 parameters:
     packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
     google_api_key: 'AIzaSyDpxgIqCekHbOLgUL6fyHdavfAGr1KijcQ'
     video_directory: '%kernel.project_dir%/public/uploads/videos'
     evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
-
 
 services:
     _defaults:
@@ -12,17 +12,22 @@ services:
         public: false
         bind:
             $geminiApiKey: '%google_api_key%'
+    
+    Endroid\QrCode\Factory\QrCodeFactoryInterface:
+        class: Endroid\QrCode\Factory\QrCodeFactory
+        
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
     App\Controller\ClientController:
         arguments:
             $passwordHasher: '@security.user_password_hasher'
+
     App\Service\EmailService:
         class: App\Service\EmailService
         arguments:
             $mailer: '@mailer'
-    

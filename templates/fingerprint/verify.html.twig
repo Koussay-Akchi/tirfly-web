@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Fingerprint</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .error-message {
+            color: red;
+            margin-top: 1rem;
+            display: none;
+        }
+        .info-message {
+            color: green;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Verify Your Fingerprint</h2>
+        <p>Email: {{ email }}</p>
+        <p><strong>Important:</strong> Use the exact same finger you enrolled with (e.g., the one you chose during enrollment). Do not use a PIN or another finger.</p>
+        <button id="verify-fingerprint-btn">Verify Fingerprint</button>
+        <button id="password-fallback-btn" style="background-color: #666; margin-left: 10px;">Use Password Instead</button>
+        <div class="info-message" id="info-message"></div>
+        <div class="error-message" id="error-message"></div>
+    </div>
+
+    <script>
+        async function verifyFingerprint() {
+            const token = '{{ token }}';
+            const email = '{{ email }}';
+            const credentialIdBase64 = '{{ credentialId }}';
+            const errorMessage = document.getElementById('error-message');
+            const infoMessage = document.getElementById('info-message');
+            errorMessage.style.display = 'none';
+            infoMessage.style.display = 'none';
+
+            try {
+                if (!window.PublicKeyCredential) {
+                    throw new Error('WebAuthn is not supported in this browser. Please use a modern browser like Chrome, Edge, or Firefox.');
+                }
+
+                const credentialId = Uint8Array.from(atob(credentialIdBase64), c => c.charCodeAt(0));
+
+                const publicKey = {
+                    challenge: new Uint8Array(32).map(() => Math.floor(Math.random() * 256)),
+                    rpId: window.location.hostname,
+                    allowCredentials: [{
+                        type: "public-key",
+                        id: credentialId
+                    }],
+                    authenticatorSelection: {
+                        authenticatorAttachment: "platform",
+                        userVerification: "required",
+                        requireResidentKey: false
+                    },
+                    timeout: 60000,
+                    extensions: {
+                        uvm: true // Request user verification method information
+                    }
+                };
+
+                console.log('Requesting WebAuthn credential with publicKey:', publicKey);
+
+                const credential = await navigator.credentials.get({ publicKey });
+                if (!credential) {
+                    throw new Error('No credential was returned. Please ensure a fingerprint is enrolled.');
+                }
+
+                console.log('Credential retrieved:', credential);
+
+                const response = credential.response;
+                if (!response.authenticatorData) {
+                    throw new Error('Authentication failed: No authenticator data returned.');
+                }
+
+                // Check for User Verification Method (UVM) extension to detect if a fingerprint was used
+                const clientExtensionResults = credential.getClientExtensionResults();
+                if (clientExtensionResults && clientExtensionResults.uvm) {
+                    const uvmValues = clientExtensionResults.uvm;
+                    // UVM value of 2 indicates biometric (fingerprint) usage
+                    const fingerprintUsed = uvmValues.some(value => value === 2);
+                    if (!fingerprintUsed) {
+                        throw new Error('Authentication failed: A PIN or non-fingerprint method was used. Please use the enrolled fingerprint.');
+                    }
+                } else {
+                    console.warn('UVM extension not supported or returned by the browser.');
+                }
+
+                const credentialIdReturned = Array.from(new Uint8Array(credential.rawId));
+                const credentialIdReturnedBase64 = btoa(String.fromCharCode(...credentialIdReturned));
+                if (credentialIdBase64 !== credentialIdReturnedBase64) {
+                    throw new Error('Credential ID mismatch. Please use the same fingerprint as enrolled.');
+                }
+
+                const fingerprintTemplate = Array.from({ length: 128 }, (_, i) => {
+                    const byte = credentialIdReturned[i % credentialIdReturned.length] || 0;
+                    return byte / 255;
+                });
+
+                console.log('Generated fingerprint template:', fingerprintTemplate);
+
+                const fetchResponse = await fetch('/api/fingerprint/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: token,
+                        fingerprintTemplate: fingerprintTemplate
+                    })
+                });
+
+                const data = await fetchResponse.json();
+                if (!fetchResponse.ok) {
+                    throw new Error(data.error || 'Failed to verify fingerprint');
+                }
+
+                infoMessage.textContent = 'Fingerprint verified successfully!';
+                infoMessage.style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } catch (error) {
+                console.error('Verification error:', error);
+                let errorMsg = error.message;
+                if (error.name === 'NotAllowedError') {
+                    errorMsg = 'Authentication cancelled or not allowed. Please use the exact same fingerprint as enrolled, and do not use a PIN.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMsg = 'No fingerprint credential found for this user. Please enroll your fingerprint again.';
+                } else if (error.name === 'SecurityError') {
+                    errorMsg = 'This operation requires a secure context (HTTPS). Please access the site over HTTPS.';
+                } else if (error.name === 'InvalidStateError') {
+                    errorMsg = 'Invalid authenticator state. Please ensure your device supports fingerprint authentication.';
+                }
+                errorMessage.textContent = 'Error: ' + errorMsg;
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        async function checkBiometricSupport() {
+            try {
+                const isBiometricSupported = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                if (!isBiometricSupported) {
+                    const errorMessage = document.getElementById('error-message');
+                    errorMessage.textContent = 'Error: This device does not support fingerprint authentication. Please use a device with a fingerprint scanner.';
+                    errorMessage.style.display = 'block';
+                    document.getElementById('verify-fingerprint-btn').disabled = true;
+                }
+            } catch (error) {
+                console.error('Error checking biometric support:', error);
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = 'Error: Unable to verify biometric support. Please use a modern browser and device.';
+                errorMessage.style.display = 'block';
+                document.getElementById('verify-fingerprint-btn').disabled = true;
+            }
+        }
+
+        checkBiometricSupport();
+        document.getElementById('verify-fingerprint-btn').addEventListener('click', verifyFingerprint);
+        document.getElementById('password-fallback-btn').addEventListener('click', () => {
+            window.location.href = '/login';
+        });
+    </script>
+</body>
+</html>

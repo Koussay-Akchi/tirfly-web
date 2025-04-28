@@ -29,6 +29,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
     // the image of face id auth
     #[ORM\Column(type: 'json', nullable: true,name:"faceDescriptor")]
     private ?array $faceDescriptor = null;
+    
+    #[ORM\Column(type: 'json', nullable: true, name: "fingerprintTemplate")]
+    private $fingerprintTemplate;
+
+    #[ORM\Column(type: 'string', nullable: true, name: "credentialId")]
+    private ?string $credentialId = null;
 
     #[ORM\Column(type: 'datetime', nullable: true, name: "dateCreation")]
     private ?\DateTimeInterface $dateCreation = null;
@@ -126,9 +132,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
     {
         $this->faceDescriptor = $faceDescriptor;
         return $this;
+    }    
+
+    public function getFingerprintTemplate(): ?array
+    {
+        return $this->fingerprintTemplate;
+    }
+
+    public function setFingerprintTemplate(?array $fingerprintTemplate): self
+    {
+        $this->fingerprintTemplate = $fingerprintTemplate;
+        return $this;
     }
     
-
     public function getDateCreation(): ?\DateTimeInterface
     {
         return $this->dateCreation;
@@ -297,5 +313,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
     public function getPassword(): ?string
     {
         return $this->motDePasse;
+    }
+    public function getCredentialId(): ?string
+    {
+        return $this->credentialId;
+    }
+
+    public function setCredentialId(?string $credentialId): self
+    {
+        $this->credentialId = $credentialId;
+        return $this;
     }
 }

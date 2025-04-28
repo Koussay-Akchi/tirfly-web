@@ -4,8 +4,111 @@
 
 {% block head %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .modal-content p {
+            margin-bottom: 1rem;
+            font-size: 16px;
+            color: #333;
+        }
+        .modal-content img {
+            display: block;
+            margin: 1rem auto;
+            max-width: 200px;
+        }
+        .modal-content button {
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto 1rem;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .modal-content .theme-button {
+            background: linear-gradient(90deg, #2ecc71, #3498db);
+            color: white;
+        }
+        .modal-content .theme-button:hover {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+        }
+        .modal-content .cancel-btn {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .modal-content .cancel-btn:hover {
+            background: linear-gradient(90deg, #c0392b, #e74c3c);
+        }
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+        }
+        .close-modal:hover {
+            color: #e74c3c;
+        }
+        .form-group {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+            font-size: 14px;
+        }
+        .form-group i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #3498db;
+            font-size: 18px;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 1rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+        }
+        .error-message.hidden {
+            display: none;
+        }
+    </style>
 {% endblock %}
-
 
 {% block body %}
 <section class="section about-section gray-bg">
@@ -50,11 +153,13 @@
                     <div class="mt-4">
                         <a href="{{ path('client_profile_edit') }}" class="btn theme-button">Edit Profile</a>
                         <a href="{{ path('client_change_password') }}" class="btn theme-secondary">Change Password</a>
+                        <button class="btn theme-button" id="fingerprint-btn">Register Fingerprint</button>
                         <form method="post" action="{{ path('client_profile_delete') }}" onsubmit="return confirm('Are you sure you want to delete your account?');" style="display: inline;">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
                             <button type="submit" class="btn btn-danger">Delete Account</button>
                         </form>
                     </div>
+                    <div class="error-message hidden" id="error-message"></div>
                 </div>
             </div>
             <div class="col-lg-6">
@@ -87,6 +192,123 @@
         </div>
     </div>
 </section>
+
+<!-- Fingerprint Enrollment Modal -->
+<div class="modal" id="fingerprint-modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-fingerprint-modal">×</span>
+        <p>Enter your email and scan the QR code with your phone to enroll your fingerprint.</p>
+        <div class="form-group">
+            <input type="email" id="fingerprint-email" placeholder="Your email address" value="{{ user.email|default('') }}" readonly>
+            <i class="fas fa-envelope"></i>
+        </div>
+        <button id="generate-qr-btn" class="theme-button">Generate QR Code</button>
+        <div id="qr-code-container" style="display: none;">
+            <p>Scan this QR code with your phone:</p>
+            <img id="qr-code-image" src="" alt="QR Code">
+        </div>
+        <button id="cancel-fingerprint-btn" class="cancel-btn">Cancel</button>
+    </div>
+</div>
+
+<script>
+    function displayError(message) {
+        const errorMessage = document.getElementById("error-message");
+        errorMessage.textContent = message;
+        errorMessage.classList.remove('hidden');
+        setTimeout(() => {
+            errorMessage.classList.add('hidden');
+        }, 5000);
+    }
+
+    async function handleFingerprintEnrollment(email) {
+        const modal = document.getElementById('fingerprint-modal');
+        const generateQrButton = document.getElementById('generate-qr-btn');
+        const cancelButton = document.getElementById('cancel-fingerprint-btn');
+        const closeModal = document.getElementById('close-fingerprint-modal');
+        const qrCodeContainer = document.getElementById('qr-code-container');
+        const qrCodeImage = document.getElementById('qr-code-image');
+
+        modal.style.display = 'flex';
+
+        generateQrButton.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/fingerprint/enroll', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to generate QR code');
+                }
+
+                qrCodeImage.src = data.qrCode;
+                qrCodeContainer.style.display = 'block';
+
+                pollFingerprintEnrollmentStatus(data.token);
+            } catch (error) {
+                console.error("Error:", error);
+                displayError("Failed to generate QR code: " + error.message);
+            }
+        });
+
+        cancelButton.addEventListener('click', () => {
+            modal.style.display = 'none';
+            qrCodeContainer.style.display = 'none';
+        });
+
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+            qrCodeContainer.style.display = 'none';
+        });
+    }
+
+    async function pollFingerprintEnrollmentStatus(token) {
+        const interval = setInterval(async () => {
+            try {
+                const response = await fetch(`/api/fingerprint/enroll/status/${token}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to check enrollment status');
+                }
+
+                if (data.status === 'pending') {
+                    return;
+                }
+
+                clearInterval(interval);
+
+                if (data.status === 'success') {
+                    alert("Fingerprint enrolled successfully!");
+                    document.getElementById('fingerprint-modal').style.display = 'none';
+                    document.getElementById('qr-code-container').style.display = 'none';
+                } else {
+                    displayError("Fingerprint enrollment failed.");
+                    document.getElementById('qr-code-container').style.display = 'none';
+                }
+            } catch (error) {
+                clearInterval(interval);
+                displayError("Error checking enrollment status: " + error.message);
+                document.getElementById('qr-code-container').style.display = 'none';
+            }
+        }, 2000);
+    }
+
+    document.getElementById('fingerprint-btn').addEventListener('click', () => {
+        const email = '{{ user.email|default('') }}';
+        if (!email) {
+            displayError("Email is required to enroll fingerprint.");
+            return;
+        }
+        handleFingerprintEnrollment(email);
+    });
+</script>
 
 <style>
     .btn-danger {

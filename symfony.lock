@@ -288,6 +288,18 @@
             "./templates/base.html.twig"
         ]
     },
+    "symfony/uid": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.2",
+            "ref": "d294ad4add3e15d7eb1bae0221588ca89b38e558"
+        },
+        "files": [
+            "./config/packages/uid.yaml"
+        ]
+    },
     "symfony/ux-turbo": {
         "version": "2.23",
         "recipe": {
@@ -324,5 +336,18 @@
     },
     "twig/extra-bundle": {
         "version": "v3.20.0"
+    },
+    "web-auth/webauthn-symfony-bundle": {
+        "version": "5.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "a5dff33bd46575bea263af94069650af7742dcb6"
+        },
+        "files": [
+            "./config/packages/webauthn.yaml",
+            "./config/routes/webauthn_routes.yaml"
+        ]
     }
 }

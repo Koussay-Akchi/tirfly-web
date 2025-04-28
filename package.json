@@ -1,0 +1,24 @@
+{
+  "name": "tirfly-web",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/app": "^7.0.1",
+    "@capacitor/cli": "^7.2.0",
+    "@capacitor/core": "^7.2.0",
+    "@capgo/capacitor-native-biometric": "^7.1.7",
+    "capacitor-native-biometric": "^4.2.2",
+    "tirfly-web": "file:"
+  }
+}

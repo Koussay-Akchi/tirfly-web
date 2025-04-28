@@ -1,0 +1,12 @@
+{
+  "appId": "com.example.app",
+  "appName": "TirFly",
+  "webDir": "public",
+  "server": {
+    "url": "https://f1be-197-27-202-109.ngrok-free.app",
+    "cleartext": false,
+    "allowNavigation": [
+      "f1be-197-27-202-109.ngrok-free.app"
+    ]
+  }
+  }

@@ -225,7 +225,7 @@ class SecurityController extends AbstractController
             );
             return new JsonResponse(['message' => 'Password reset email sent'], 200);
         } catch (\Exception $e) {
-            return new JsonResponse([' error' => 'Failed to send email: ' . $e->getMessage()], 500);
+            return new JsonResponse(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
         }
     }
 
@@ -333,11 +333,11 @@ class SecurityController extends AbstractController
                 $user->setNom($googleUser->getLastName() ?? 'Unknown');
                 $user->setPrenom($googleUser->getFirstName() ?? 'Unknown');
                 $user->setDateCreation(new \DateTime());
-                $user->setMotDePasse(''); // No password for OAuth users
-                $user->setAdresse(''); // Default empty, can be updated later
-                $user->setAge(18); // Default age, can be updated later
-                $user->setSexe(''); // Default empty, can be updated later
-                $user->setPhoneNumber(''); // Default empty, can be updated later
+                $user->setMotDePasse('');
+                $user->setAdresse('');
+                $user->setAge(18);
+                $user->setSexe('');
+                $user->setPhoneNumber('');
 
                 $niveau = new Niveau();
                 $niveau->setNiveau(1);
@@ -352,7 +352,7 @@ class SecurityController extends AbstractController
             }
 
             $token = $jwtManager->create($user);
-            $response = new RedirectResponse('/'); // Redirect to homepage
+            $response = new RedirectResponse('/');
             $cookie = new Cookie(
                 'BEARER',
                 $token,
@@ -366,7 +366,6 @@ class SecurityController extends AbstractController
 
             return $response;
         } catch (\Exception $e) {
-            // Redirect to login page with an error message
             return new RedirectResponse('/login?error=' . urlencode('Google authentication failed: ' . $e->getMessage()));
         }
     }
@@ -400,11 +399,11 @@ class SecurityController extends AbstractController
                 $user->setNom($facebookUser->getLastName() ?? 'Unknown');
                 $user->setPrenom($facebookUser->getFirstName() ?? 'Unknown');
                 $user->setDateCreation(new \DateTime());
-                $user->setMotDePasse(''); // No password for OAuth users
-                $user->setAdresse(''); // Default empty, can be updated later
-                $user->setAge(18); // Default age, can be updated later
-                $user->setSexe(''); // Default empty, can be updated later
-                $user->setPhoneNumber(''); // Default empty, can be updated later
+                $user->setMotDePasse('');
+                $user->setAdresse('');
+                $user->setAge(18);
+                $user->setSexe('');
+                $user->setPhoneNumber('');
 
                 $niveau = new Niveau();
                 $niveau->setNiveau(1);
@@ -419,7 +418,7 @@ class SecurityController extends AbstractController
             }
 
             $token = $jwtManager->create($user);
-            $response = new RedirectResponse('/'); // Redirect to homepage
+            $response = new RedirectResponse('/');
             $cookie = new Cookie(
                 'BEARER',
                 $token,
@@ -433,7 +432,6 @@ class SecurityController extends AbstractController
 
             return $response;
         } catch (\Exception $e) {
-            // Redirect to login page with an error message
             return new RedirectResponse('/login?error=' . urlencode('Facebook authentication failed: ' . $e->getMessage()));
         }
     }
@@ -465,16 +463,15 @@ class SecurityController extends AbstractController
             if (!$user) {
                 $user = new Client();
                 $user->setEmail($email);
-                // Discord doesn't provide separate first/last names, use username
                 $username = $discordUser->getUsername();
                 $user->setNom($username ?? 'Unknown');
-                $user->setPrenom(''); // No first name available
+                $user->setPrenom('');
                 $user->setDateCreation(new \DateTime());
-                $user->setMotDePasse(''); // No password for OAuth users
-                $user->setAdresse(''); // Default empty, can be updated later
-                $user->setAge(18); // Default age, can be updated later
-                $user->setSexe(''); // Default empty, can be updated later
-                $user->setPhoneNumber(''); // Default empty, can be updated later
+                $user->setMotDePasse('');
+                $user->setAdresse('');
+                $user->setAge(18);
+                $user->setSexe('');
+                $user->setPhoneNumber('');
 
                 $niveau = new Niveau();
                 $niveau->setNiveau(1);
@@ -489,7 +486,7 @@ class SecurityController extends AbstractController
             }
 
             $token = $jwtManager->create($user);
-            $response = new RedirectResponse('/'); // Redirect to homepage
+            $response = new RedirectResponse('/');
             $cookie = new Cookie(
                 'BEARER',
                 $token,

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="{{ asset('js/app.js') }}" type="module"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Fingerprint</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .error-message {
+            color: red;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Verify Your Fingerprint</h2>
+        <p>Email: {{ email }}</p>
+        <button id="verify-fingerprint-btn">Verify Fingerprint</button>
+        <div class="error-message" id="error-message"></div>
+    </div>
+
+    <script type="module">
+        // Import Capacitor Native Biometric plugin
+        import { NativeBiometric } from 'capacitor-native-biometric';
+
+        document.getElementById('verify-fingerprint-btn').addEventListener('click', async () => {
+            const token = '{{ token }}';
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'none';
+
+            try {
+                // Check if running in a Capacitor environment
+                if (typeof NativeBiometric === 'undefined') {
+                    throw new Error('Biometric authentication is only available in the mobile app. Please use the TirFly app to verify your fingerprint.');
+                }
+
+                // Check if biometric authentication is available
+                const availability = await NativeBiometric.isAvailable();
+                if (!availability.isAvailable) {
+                    throw new Error('Biometric authentication is not available on this device. Please ensure fingerprint is set up.');
+                }
+
+                // Prompt the user to scan their fingerprint
+                await NativeBiometric.verifyIdentity({
+                    reason: 'Please scan your fingerprint to verify your identity',
+                    title: 'Fingerprint Verification',
+                    subtitle: 'Authenticate to proceed',
+                    description: 'Use your fingerprint to verify your identity',
+                    maxAttempts: 3,
+                    useFallback: true // Allow fallback to device PIN/password
+                });
+
+                // If authentication succeeds, send success to the server
+                const response = await fetch('/api/fingerprint/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: token,
+                        biometricSuccess: true
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to verify fingerprint');
+                }
+
+                alert(data.message);
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Verification error:', error);
+                errorMessage.textContent = 'Error: ' + error.message;
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
