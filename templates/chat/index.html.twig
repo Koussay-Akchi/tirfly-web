@@ -1,26 +1,26 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ChatcontrollerController!{% endblock %}
+{% block title %}Messagerie{% endblock %}
 
 {% block body %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chat</title>
+    <title>Messagerie</title>
     <style>
         :root {
             --primary-color: #007bff;
             --secondary-color: #f8f9fa;
             --border-color: #dee2e6;
             --text-color: #333;
-            --dark-primary: #0056b3; /* Remplacement de darken() pour CSS pur */
+            --dark-primary: #0056b3;
         }
 
         .chat-container {
             display: flex;
             height: 80vh;
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 20px auto;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -111,14 +111,14 @@
             margin-top: 5px;
         }
 
-        form {
+        .message-input {
             display: flex;
             gap: 10px;
             padding: 10px 0;
             border-top: 1px solid var(--border-color);
         }
 
-        form textarea {
+        .message-input textarea {
             flex: 1;
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -127,7 +127,7 @@
             font-size: 1rem;
         }
 
-        form button {
+        .message-input button {
             padding: 10px 20px;
             background: var(--primary-color);
             color: white;
@@ -137,8 +137,14 @@
             transition: background 0.2s;
         }
 
-        form button:hover {
+        .message-input button:hover {
             background: var(--dark-primary);
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 5px;
         }
 
         @media (max-width: 768px) {
@@ -160,15 +166,15 @@
 <body>
     <div class="chat-container">
         <div class="chat-list">
-            <h3>Your Chats</h3>
+            <h3>Vos conversations</h3>
             <ul>
                 {% for chat in chats %}
                     <li>
-                        <a href="{{ path('chat_index', {'chat': chat.id}) }}">
+                        <a href="{{ path('chat_show', {'chat': chat.id}) }}">
                             {% if chat.client.id == app.user.id %}
-                                {{ chat.support.prenom }} {{ chat.support.nom }}
+                                {{ chat.support.prenom|capitalize }} {{ chat.support.nom|capitalize }}
                             {% else %}
-                                {{ chat.client.prenom }} {{ chat.client.nom }}
+                                {{ chat.client.prenom|capitalize }} {{ chat.client.nom|capitalize }}
                             {% endif %}
                         </a>
                     </li>
@@ -177,33 +183,115 @@
         </div>
         <div class="chat-messages">
             {% if selectedChat %}
-                <h2>Chat with 
+                <h2>Conversation avec 
                     {% if selectedChat.client.id == app.user.id %}
-                        {{ selectedChat.support.prenom }} {{ selectedChat.support.nom }}
+                        {{ selectedChat.support.prenom|capitalize }} {{ selectedChat.support.nom|capitalize }}
                     {% else %}
-                        {{ selectedChat.client.prenom }} {{ selectedChat.client.nom }}
+                        {{ selectedChat.client.prenom|capitalize }} {{ selectedChat.client.nom|capitalize }}
                     {% endif %}
                 </h2>
-                <div class="messages">
+                <div class="messages" id="messages">
                     {% for message in messages %}
                         <p class="{{ message.expediteur.id == app.user.id ? 'me' : 'other' }}">
-                            {{ message.expediteur.prenom }} {{ message.expediteur.nom }}: 
+                            {{ message.expediteur.prenom|capitalize }} {{ message.expediteur.nom|capitalize }}: 
                             {{ message.message }} 
-                            <small>({{ message.dateEnvoi|date('Y-m-d H:i') }})</small>
+                            <small>{{ message.dateEnvoi|date('d/m/Y H:i') }}</small>
                         </p>
                     {% endfor %}
                 </div>
-                {% if form %}
-                    {{ form_start(form) }}
-                        {{ form_widget(form.message, {'attr': {'rows': '2'}}) }}
-                        <button type="submit">Send</button>
-                    {{ form_end(form) }}
-                {% endif %}
+                <div class="message-input">
+                    <textarea id="messageInput" rows="2"></textarea>
+                    <button onclick="sendMessage()">Envoyer</button>
+                    <div id="errorMessage" class="error-message"></div>
+                </div>
             {% else %}
-                <p>Select a chat to start messaging.</p>
+                <p>Sélectionnez une conversation pour commencer à discuter.</p>
             {% endif %}
         </div>
     </div>
+
+    {% if selectedChat %}
+        <script>
+            const ws = new WebSocket('ws://localhost:8081');
+            const messagesDiv = document.getElementById('messages');
+            const messageInput = document.getElementById('messageInput');
+            const errorMessageDiv = document.getElementById('errorMessage');
+            const userId = {{ app.user.id }};
+            const chatId = {{ selectedChat.id }};
+
+            if (!userId) {
+                console.error('User not authenticated');
+                errorMessageDiv.textContent = 'Veuillez vous reconnecter.';
+            }
+
+            ws.onopen = function() {
+                console.log('Connected to WebSocket server');
+            };
+
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.chatId === chatId && data.userId !== userId) {
+                    const messageClass = 'other';
+                    const userName = 'Support';
+                    const messageElement = document.createElement('p');
+                    messageElement.className = messageClass;
+                    messageElement.innerHTML = `${userName}: ${data.message} <small>${data.date}</small>`;
+                    messagesDiv.appendChild(messageElement);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }
+            };
+
+            ws.onclose = function() {
+                console.log('Disconnected from WebSocket server');
+                errorMessageDiv.textContent = 'Connexion au serveur perdue. Veuillez rafraîchir la page.';
+            };
+
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    const messageData = {
+                        chatId: chatId,
+                        userId: userId,
+                        message: message
+                    };
+                    ws.send(JSON.stringify(messageData));
+                    const messageElement = document.createElement('p');
+                    messageElement.className = 'me';
+                    messageElement.innerHTML = `Vous: ${message} <small>${new Date().toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</small>`;
+                    messagesDiv.appendChild(messageElement);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    fetch('{{ path('chat_message') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(messageData)
+                    }).then(response => {
+                        if (!response.ok) {
+                            console.error('Failed to save message:', response.status, response.statusText);
+                            errorMessageDiv.textContent = 'Erreur: le message n’a pas été enregistré. Réessayez.';
+                            return response.json().then(data => { throw new Error(data.error || 'Unknown error'); });
+                        }
+                        console.log('Message saved successfully');
+                        errorMessageDiv.textContent = '';
+                        return response.json();
+                    }).catch(error => {
+                        console.error('Error saving message:', error.message);
+                        errorMessageDiv.textContent = `Erreur: ${error.message}`;
+                    });
+                    messageInput.value = '';
+                }
+            }
+
+            messageInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    sendMessage();
+                }
+            });
+        </script>
+    {% endif %}
 </body>
 </html>
 {% endblock %}

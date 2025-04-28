@@ -15,38 +15,53 @@ class ReclamationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Reclamation::class);
     }
-    // Dans ReclamationRepository.php
-public function getCountByEtat()
-{
-    return $this->createQueryBuilder('r')
-        ->select('r.etat as etat, COUNT(r.id) as count')
-        ->groupBy('r.etat')
-        ->getQuery()
-        ->getResult();
-}
 
-    //    /**
-    //     * @return Reclamation[] Returns an array of Reclamation objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('r.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getCountByEtat()
+    {
+        return $this->createQueryBuilder('r')
+            ->select('r.etat as etat, COUNT(r.id) as count')
+            ->groupBy('r.etat')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Reclamation
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findByEtat(string $etat): array
+    {
+        return $this->createQueryBuilder('r')
+            ->where('r.etat = :etat')
+            ->setParameter('etat', $etat)
+            ->orderBy('r.dateCreation', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByFilters(?string $etat, ?string $urgence, ?bool $nonRepondu): \Doctrine\ORM\QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->orderBy('r.dateCreation', 'DESC'); // Add sorting by dateCreation
+
+        if ($etat) {
+            $qb->andWhere('r.etat = :etat')
+               ->setParameter('etat', $etat);
+        }
+
+        if ($urgence) {
+            $qb->andWhere('r.urgence = :urgence')
+               ->setParameter('urgence', $urgence);
+        }
+
+        // Gestion du filtre nonRepondu
+        if ($nonRepondu !== null) {
+            if ($nonRepondu === true) {
+                // Réclamations non répondues (aucune réponse)
+                $qb->leftJoin('r.reponses', 'rep')
+                   ->andWhere('rep.id IS NULL');
+            } else {
+                // Réclamations répondues (au moins une réponse)
+                $qb->innerJoin('r.reponses', 'rep');
+            }
+        }
+
+        return $qb;
+    }
 }

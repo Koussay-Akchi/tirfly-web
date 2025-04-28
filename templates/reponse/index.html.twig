@@ -1,0 +1,165 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reponse index{% endblock %}
+
+{% block body %}
+    <style>
+        /* General styling for the response index page */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Table styling */
+        .table {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table thead {
+            background-color: #3498db;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        .table th, .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table th {
+            font-weight: 600;
+        }
+
+        .table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f8ff;
+        }
+
+        /* Actions column styling */
+        .table td:last-child a {
+            text-decoration: none;
+            margin-right: 10px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .table td:last-child a:first-child {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+
+        .table td:last-child a:first-child:hover {
+            background-color: #27ae60;
+        }
+
+        .table td:last-child a:last-child {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .table td:last-child a:last-child:hover {
+            background-color: #c0392b;
+        }
+
+        /* No records found styling */
+        .table tbody tr td[colspan="4"] {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* Create new button */
+        a[href*='app_reponse_new'] {
+            display: inline-block;
+            margin: 20px auto;
+            padding: 12px 20px;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        a[href*='app_reponse_new']:hover {
+            background-color: #2980b9;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .table th, .table td {
+                min-width: 120px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+
+    <h1>Reponse index</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Contenu</th>
+                <th>DateReponse</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for reponse in reponses %}
+            <tr>
+                <td>{{ reponse.id }}</td>
+                <td>{{ reponse.contenu }}</td>
+                <td>{{ reponse.dateReponse ? reponse.dateReponse|date('Y-m-d') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_reponse_show', {'id': reponse.id}) }}">show</a>
+                    <a href="{{ path('app_reponse_edit', {'id': reponse.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_reponse_new') }}">Create new</a>
+{% endblock %}

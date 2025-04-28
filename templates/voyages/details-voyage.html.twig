@@ -59,7 +59,7 @@
 								</span>
 							{% else %}
 								<span class="text-muted">
-									<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut"/>
+									<img src="{{ asset('images/default.jpg') }}"  height="400px" alt="Image par défaut"/>
 								</span>
 							{% endif %}
 						</div>
@@ -136,7 +136,7 @@
 					target="_blank"
 					rel="noopener noreferrer"
 					>
-					Ajouter au Google Calendar 📅
+					Ajouter au Google Calendar
 					</a>
 					</div>
 
@@ -147,8 +147,30 @@
 
 		<div class="voyage-details-feedback-container mt-4">
 			<h2>Avis des voyageurs</h2>
-			<form method="post" class="voyage-details-feedback-form">
-				<div class="rating-input">
+			
+			{% for message in app.flashes('success') %}
+				<div class="feedback-success" style="display: block;">
+					{{ message }}
+				</div>
+			{% endfor %}
+			
+			{% for message in app.flashes('error') %}
+				<div class="feedback-error" style="display: block;">
+					{{ message }}
+				</div>
+			{% endfor %}
+			
+			{% if app.user %}
+				{% set clientFeedback = null %}
+				{% for feedback in voyage.feedbacks %}
+					{% if feedback.client == app.user %}
+						{% set clientFeedback = feedback %}
+					{% endif %}
+				{% endfor %}
+				
+				{% if not clientFeedback %}
+					<form action="{{ path('ajouter_feedbackk', {'id': voyage.id}) }}" method="POST" class="voyage-details-feedback-form">
+						<div class="rating-input">
 					<label for="note">Note :</label>
 					<div class="star-rating">
 						<input type="radio" id="star5" name="note" value="5">
@@ -164,10 +186,14 @@
 					</div>
 				</div>
 				<label for="comment">Avis :</label>
-				<textarea name="comment" required class="feedback-textarea"></textarea>
-				<button type="submit" class="submit-feedback-btn">Envoyer</button>
-			</form>
-
+						<textarea name="comment" id="comment" required class="feedback-textarea"></textarea>
+						<input type="hidden" name="_token" value="{{ csrf_token('feedback' ~ voyage.id) }}">
+						<button type="submit" class="submit-feedback-btn">Envoyer</button>
+					</form>
+				{% endif %}
+			{% else %}
+				<p>Veuillez vous connecter pour laisser un avis.</p>
+			{% endif %}
 			<div class="voyage-details-feedback-list">
 				{% for feedback in voyage.feedbacks %}
 					<div class="voyage-details-feedback-item">
@@ -186,6 +212,15 @@
 							{% endfor %}
 						</div>
 						<p class="feedback-content">{{ feedback.contenu }}</p>
+						{% if app.user and feedback.client == app.user %}
+							<div class="feedback-actions">
+								<a href="{{ path('edit_feedback', {'id': feedback.id}) }}" class="btn btn-warning">Modifier</a>
+								<form action="{{ path('delete_feedback', {'id': feedback.id}) }}" method="POST" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce feedback ?')">
+									<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ feedback.id) }}">
+									<button type="submit" class="btn btn-danger">Supprimer</button>
+								</form>
+							</div>
+						{% endif %}
 					</div>
 				{% endfor %}
 			</div>

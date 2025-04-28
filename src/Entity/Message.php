@@ -11,24 +11,22 @@ class Message
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')]
     private ?int $id = null;
 
-    #[ORM\Column(name: "dateEnvoi", type: 'datetime')]
+    #[ORM\Column(name: 'dateEnvoi', type: 'datetime', options: ['precision' => 6])]
     private ?\DateTimeInterface $dateEnvoi = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $message = null;
 
     #[ORM\ManyToOne(targetEntity: Chat::class, inversedBy: 'messages')]
-    #[ORM\JoinColumn(name: 'chat_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'chat_id', referencedColumnName: 'id', nullable: false)] // Changed to non-nullable
     private ?Chat $chat = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'expediteur_id', referencedColumnName: 'id', nullable: false)]
     private ?User $expediteur = null;
-
-    // ========== Getters / Setters ==========
 
     public function getId(): ?int
     {

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -29,14 +28,14 @@ class Feedback
     #[ORM\Column(type: 'datetime', nullable: true, name: 'dateFeedback')]
     private ?\DateTimeInterface $dateFeedback = null;
 
-    #[ORM\Column(type: 'decimal', precision: 2)]
+    #[ORM\Column(type: 'integer')]
     #[Assert\NotNull(message: "La note est obligatoire.")]
     #[Assert\Range(
         notInRangeMessage: "La note doit être comprise entre {{ min }} et {{ max }}.",
-        min: 0,
-        max: 10
+        min: 1,
+        max: 5
     )]
-    private ?float $note = null;
+    private ?int $note = null;
 
     #[ORM\ManyToOne(targetEntity: Voyage::class)]
     private ?Voyage $voyage = null;
@@ -71,16 +70,12 @@ class Feedback
         return $this;
     }
 
-    
-
-
-
-    public function getNote(): ?float
+    public function getNote(): ?int
     {
         return $this->note;
     }
 
-    public function setNote(float $note): self
+    public function setNote(int $note): self
     {
         $this->note = $note;
         return $this;

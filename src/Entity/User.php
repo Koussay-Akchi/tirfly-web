@@ -26,6 +26,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+    // the image of face id auth
+    #[ORM\Column(type: 'json', nullable: true,name:"faceDescriptor")]
+    private ?array $faceDescriptor = null;
 
     #[ORM\Column(type: 'datetime', nullable: true, name: "dateCreation")]
     private ?\DateTimeInterface $dateCreation = null;
@@ -115,6 +118,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
         $this->id = $id;
         return $this;
     }
+    public function getFaceDescriptor(): ?array
+    {
+        return $this->faceDescriptor;
+    }
+    public function setFaceDescriptor(?array $faceDescriptor): self
+    {
+        $this->faceDescriptor = $faceDescriptor;
+        return $this;
+    }
+    
 
     public function getDateCreation(): ?\DateTimeInterface
     {
