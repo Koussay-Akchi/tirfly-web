@@ -49,7 +49,7 @@
     <div class="container">
         <h2>Verify Your Fingerprint</h2>
         <p>Email: {{ email }}</p>
-        <p><strong>Important:</strong> Use the exact same finger you enrolled with (e.g., the one you chose during enrollment). Do not use a PIN or another finger.</p>
+        <p>Please use the same finger you enrolled with (e.g., the one you chose during enrollment).</p>
         <button id="verify-fingerprint-btn">Verify Fingerprint</button>
         <button id="password-fallback-btn" style="background-color: #666; margin-left: 10px;">Use Password Instead</button>
         <div class="info-message" id="info-message"></div>
@@ -85,10 +85,7 @@
                         userVerification: "required",
                         requireResidentKey: false
                     },
-                    timeout: 60000,
-                    extensions: {
-                        uvm: true // Request user verification method information
-                    }
+                    timeout: 60000
                 };
 
                 console.log('Requesting WebAuthn credential with publicKey:', publicKey);
@@ -102,20 +99,7 @@
 
                 const response = credential.response;
                 if (!response.authenticatorData) {
-                    throw new Error('Authentication failed: No authenticator data returned.');
-                }
-
-                // Check for User Verification Method (UVM) extension to detect if a fingerprint was used
-                const clientExtensionResults = credential.getClientExtensionResults();
-                if (clientExtensionResults && clientExtensionResults.uvm) {
-                    const uvmValues = clientExtensionResults.uvm;
-                    // UVM value of 2 indicates biometric (fingerprint) usage
-                    const fingerprintUsed = uvmValues.some(value => value === 2);
-                    if (!fingerprintUsed) {
-                        throw new Error('Authentication failed: A PIN or non-fingerprint method was used. Please use the enrolled fingerprint.');
-                    }
-                } else {
-                    console.warn('UVM extension not supported or returned by the browser.');
+                    throw new Error('Non-biometric authenticator used. Please use your fingerprint.');
                 }
 
                 const credentialIdReturned = Array.from(new Uint8Array(credential.rawId));
@@ -154,7 +138,7 @@
                 console.error('Verification error:', error);
                 let errorMsg = error.message;
                 if (error.name === 'NotAllowedError') {
-                    errorMsg = 'Authentication cancelled or not allowed. Please use the exact same fingerprint as enrolled, and do not use a PIN.';
+                    errorMsg = 'Authentication cancelled or not allowed. Please use the same fingerprint as enrolled.';
                 } else if (error.name === 'NotFoundError') {
                     errorMsg = 'No fingerprint credential found for this user. Please enroll your fingerprint again.';
                 } else if (error.name === 'SecurityError') {

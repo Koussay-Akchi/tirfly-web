@@ -30,15 +30,15 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="f1be-197-27-202-109.ngrok-free.app" android:pathPrefix="/fingerprint/verify" />
+                <data android:scheme="https" android:host="a7e4-196-239-29-149.ngrok-free.app" android:pathPrefix="/fingerprint/verify" />
             </intent-filter>
 
-            <!-- Intent filter for custom deep link scheme (more generic) -->
+            <!-- Intent filter for custom deep link scheme (tirfly://) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="tirfly" />
+                <data android:scheme="tirfly" android:host="fingerprint" android:pathPrefix="/verify" />
             </intent-filter>
 
         </activity>
