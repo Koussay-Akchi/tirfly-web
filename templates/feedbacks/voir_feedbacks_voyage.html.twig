@@ -89,7 +89,7 @@
                 <p class="text-center">Aucun feedback pour ce voyage.</p>
             {% endif %}
 
-            <a href="{{ path('details_voyage', {'id': voyage.id}) }}" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left"></i> Retour aux détails du voyage</a>
+            <a href="{{ path('admin_liste_feedbacks', {'id': voyage.id}) }}" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left"></i> Retour aux détails du voyage</a>
         </div>
     </div>
 </div>

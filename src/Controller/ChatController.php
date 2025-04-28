@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+// Importation des classes nécessaires (entités, repositories, services Symfony...)
 use App\Entity\Chat;
 use App\Entity\Message;
 use App\Entity\User;
@@ -17,17 +18,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+// Contrôleur qui gère toute la logique des discussions (chat)
 class ChatController extends AbstractController
 {
     private $logger;
 
+    // Injecte un service de journalisation pour enregistrer des messages de debug ou d'erreur
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
+    // Route pour afficher tous les chats de l'utilisateur et les messages du chat sélectionné
     #[Route('/chat', name: 'chat_index', defaults: ['chat' => null])]
-    #[Route('/chat/{chat<\d+>}', name: 'chat_show')] // Restrict {chat} to digits
+    #[Route('/chat/{chat<\d+>}', name: 'chat_show')] // {chat} doit être un nombre uniquement
     public function index(
         ?Chat $chat,
         ChatRepository $chatRepository,
@@ -41,10 +45,12 @@ class ChatController extends AbstractController
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
     
+        // Récupère les chats existants pour cet utilisateur
         $chats = $chatRepository->findChatsForUser($user);
     
+        // Si l'utilisateur est un client et n'a pas de chats => créer un nouveau chat avec un support
         if (empty($chats) && in_array('ROLE_CLIENT', $user->getRoles())) {
-            // Find support users
+            // Cherche tous les utilisateurs ayant le rôle SUPPORT
             $rsm = new ResultSetMapping();
             $rsm->addEntityResult(User::class, 'u');
             $rsm->addFieldResult('u', 'id', 'id');
@@ -66,13 +72,14 @@ class ChatController extends AbstractController
             $supportUsers = $query->getResult();
     
             if (empty($supportUsers)) {
+                // Si aucun support n'existe, afficher une erreur avec les rôles disponibles
                 $allRoles = $em->createNativeQuery('SELECT DISTINCT role FROM users', new ResultSetMapping())->getResult();
                 throw $this->createNotFoundException(
                     'Aucun utilisateur de support disponible. Rôles trouvés : ' . json_encode($allRoles)
                 );
             }
     
-            // Find the support user with the least chats
+            // Trouver le support avec le moins de chats (moins occupé)
             $supportChatCounts = [];
             foreach ($supportUsers as $support) {
                 $chatCount = $chatRepository->createQueryBuilder('c')
@@ -84,18 +91,17 @@ class ChatController extends AbstractController
                 $supportChatCounts[$support->getId()] = $chatCount;
             }
     
-            // Find the minimum chat count
-            $minChatCount = min($supportChatCounts);
+            $minChatCount = min($supportChatCounts); // Trouver le minimum
     
-            // Get all support users with the minimum chat count
+            // Prendre tous les supports qui ont ce minimum de chats
             $leastBusySupports = array_filter($supportUsers, function ($support) use ($supportChatCounts, $minChatCount) {
                 return $supportChatCounts[$support->getId()] === $minChatCount;
             });
     
-            // Pick a random support user from the least busy ones
+            // Choisir un support au hasard parmi ceux les moins occupés
             $randomSupport = $leastBusySupports[array_rand($leastBusySupports)];
     
-            // Create new chat
+            // Créer un nouveau chat entre le client et le support choisi
             $newChat = new Chat();
             $newChat->setClient($user);
             $newChat->setSupport($randomSupport);
@@ -106,8 +112,10 @@ class ChatController extends AbstractController
             $chat = $newChat;
         }
     
+        // Récupérer les messages du chat sélectionné
         $messages = [];
         if ($chat) {
+            // Vérifie si l'utilisateur appartient bien à ce chat (soit client soit support)
             if ($chat->getClient() !== $user && $chat->getSupport() !== $user) {
                 throw $this->createAccessDeniedException('Vous n’avez pas accès à ce chat.');
             }
@@ -120,6 +128,7 @@ class ChatController extends AbstractController
                 ->getResult();
         }
     
+        // Affiche la page avec les chats et les messages
         return $this->render('chat/index.html.twig', [
             'chats' => $chats,
             'selectedChat' => $chat,
@@ -127,6 +136,7 @@ class ChatController extends AbstractController
         ]);
     }
 
+    // Route pour initialiser un chat entre un client et un support spécifique (supportId)
     #[Route('/chat/init/{supportId}', name: 'chat_init')]
     public function initChat(
         int $supportId,
@@ -138,6 +148,7 @@ class ChatController extends AbstractController
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
 
+        // Vérifie si un chat existe déjà entre ce client et ce support
         $existingChat = $chatRepository->createQueryBuilder('c')
             ->where('c.client = :client')
             ->andWhere('c.support = :support')
@@ -147,6 +158,7 @@ class ChatController extends AbstractController
             ->getOneOrNullResult();
 
         if (!$existingChat) {
+            // Si pas de chat existant, on crée un nouveau
             $supportUser = $em->getRepository(User::class)->find($supportId);
             if (!$supportUser) {
                 throw $this->createNotFoundException('Utilisateur support non trouvé.');
@@ -159,9 +171,11 @@ class ChatController extends AbstractController
             $em->flush();
         }
 
+        // Redirige vers la liste des chats
         return $this->redirectToRoute('chat_index');
     }
 
+    // Route pour enregistrer un nouveau message dans un chat
     #[Route('/chat/message', name: 'chat_message', methods: ['POST'])]
     public function saveMessage(Request $request, EntityManagerInterface $em): JsonResponse
     {
@@ -176,6 +190,7 @@ class ChatController extends AbstractController
             return new JsonResponse(['error' => 'Utilisateur non connecté'], 401);
         }
 
+        // Lecture et vérification des données envoyées en JSON
         $data = json_decode($request->getContent(), true);
         if ($data === null) {
             $this->logger->error('Invalid JSON', ['content' => $request->getContent()]);
@@ -187,12 +202,14 @@ class ChatController extends AbstractController
             return new JsonResponse(['error' => 'Données invalides'], 400);
         }
 
+        // Vérifie que le chat existe
         $chat = $em->getRepository(Chat::class)->find($data['chatId']);
         if (!$chat) {
             $this->logger->error('Chat not found', ['chatId' => $data['chatId']]);
             return new JsonResponse(['error' => 'Chat non trouvé'], 404);
         }
 
+        // Vérifie que l'utilisateur appartient bien à ce chat
         if ($chat->getClient() !== $user && $chat->getSupport() !== $user) {
             $this->logger->error('Unauthorized access', [
                 'chatId' => $data['chatId'],
@@ -201,6 +218,7 @@ class ChatController extends AbstractController
             return new JsonResponse(['error' => 'Accès non autorisé'], 403);
         }
 
+        // Crée et enregistre le nouveau message
         $message = new Message();
         $message->setChat($chat);
         $message->setExpediteur($user);
