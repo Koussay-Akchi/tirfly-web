@@ -36,7 +36,7 @@
 
 			<div id="carousel" style="display: none; overflow-x: auto; white-space: nowrap; padding: 20px 0; margin-top: 30px;">
 				{% for destination in destinations %}
-					<div style="display: inline-block; width: 250px; margin-right: 20px; vertical-align: top;">
+					<div style="display: inline-block; margin-right: 20px; vertical-align: top;">
 						<a href="{{ path('details_destination', {id: destination.id}) }}" style="text-decoration: none; color: inherit;">
 							{{ include('destinations/card-destination.html.twig', { destination: destination, climat_names: climat_names }) }}
 						</a>

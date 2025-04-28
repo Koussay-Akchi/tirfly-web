@@ -130,7 +130,7 @@
 {% block body %}
     <div class="container my-5">
         <div class="detail-card">
-            <!-- Header Section -->
+            
             <div class="detail-header d-flex justify-content-between align-items-center flex-wrap">
                 <div>
                     <h1 class="mb-3"><i class="fas fa-hotel me-2"></i>{{ hebergement.nom }}</h1>
@@ -167,10 +167,10 @@
                 </div>
             </div>
             
-            <!-- Main Content -->
+            
             <div class="card-body p-4">
                 <div class="row">
-                    <!-- Image Column -->
+                    
                     <div class="col-lg-5 mb-4 mb-lg-0">
                         <div class="detail-image-container">
                             {% if imageData %}
@@ -187,7 +187,7 @@
                             {% endif %}
                         </div>
                         
-                        <!-- Quick Info Section -->
+                        
                         <div class="mt-4">
                             <div class="card border-0 shadow-sm">
                                 <div class="card-body">
@@ -232,9 +232,9 @@
                         </div>
                     </div>
                     
-                    <!-- Details Column -->
+                    
                     <div class="col-lg-7">
-                        <!-- Description Section -->
+                        
                         <div class="mb-5">
                             <h3 class="section-title">
                                 <i class="fas fa-align-left me-2"></i>Description
@@ -242,7 +242,7 @@
                             <p class="lead">{{ hebergement.description ?? 'Aucune description disponible' }}</p>
                         </div>
                         
-                        <!-- Services Section -->
+                        
                         <div class="mb-5">
                             <h3 class="section-title">
                                 <i class="fas fa-concierge-bell me-2"></i>Services
@@ -286,7 +286,7 @@
                             {% endif %}
                         </div>
                         
-                        <!-- Additional Details Section -->
+                        
                         <div>
                             <h3 class="section-title">
                                 <i class="fas fa-list-alt me-2"></i>Détails complémentaires
@@ -354,7 +354,7 @@
                                     </div>
                                 {% endif %}
                                 
-                                <!-- Policies Card -->
+                                
                                 <div class="col-md-6 mb-3">
                                     <div class="card border-secondary h-100">
                                         <div class="card-header bg-secondary text-white">
@@ -378,7 +378,7 @@
                 </div>
             </div>
             
-            <!-- Footer Actions -->
+            
             <div class="card-footer bg-light p-4 d-flex justify-content-between flex-wrap">
                 <div class="mb-3 mb-md-0">
                     <a href="{{ path('admin_liste_hebergements') }}" class="btn btn-outline-secondary action-btn rounded-pill">

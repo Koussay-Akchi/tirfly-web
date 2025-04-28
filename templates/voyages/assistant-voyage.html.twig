@@ -1,0 +1,763 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Assistant Voyage
+{% endblock %}
+
+{% block body %}
+
+	<link rel="stylesheet" href={{ asset('css/audio.css') }} />
+
+	<div class="container my-4">
+		<div style="text-align: center; display: flex;">
+			<h1 class="mb-4">Assistant TirFly AI</h1>
+			<img src="{{ asset('images/ai.png') }}" alt="Logo" style="width: 50px; height: 50px;">
+		</div>
+
+		<form method="get" action="{{ path('assistant_voyage') }}" id="filter-form">
+			<div class="card mb-4" id="filters-carousel-container">
+				<div class="card-body">
+					<div class="carousel-container">
+
+						<div class="carousel-indicators mb-3">
+							<span class="filter-step active" data-step="1">Durée</span>
+							<span class="filter-step" data-step="2">Destination</span>
+							<span class="filter-step" data-step="3">Budget</span>
+							<span class="filter-step" data-step="4">Formules</span>
+							<span class="filter-step" data-step="5">Note</span>
+						</div>
+						<div class="carousel-items">
+							<div class="carousel-item active" data-step="1">
+								<div class="mb-3">
+									<label for="maxDuree" class="form-label">Durée maximale du voyage (jours)</label>
+									<input type="range" class="form-range" id="maxDuree" name="maxDuree" min="0" max="90" value="{{ filters.maxDuree }}">
+									<span id="maxDureeLabel">{{ filters.maxDuree }}
+										jours</span>
+									{% if suggestions.suggestionDuree %}
+										<div class="alert alert-info mt-2">
+											Suggestion basée sur vos précédents voyages : environ
+											{{ suggestions.suggestionDuree|number_format(0) }}
+											jours.
+											<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.getElementById('maxDuree').value='{{ suggestions.suggestionDuree|number_format(0) }}'; document.getElementById('maxDureeLabel').innerText='{{ suggestions.suggestionDuree|number_format(0) }} jours';">
+												Appliquer prediction
+											</button>
+										</div>
+									{% endif %}
+								</div>
+								<div class="carousel-navigation mt-4">
+									<button type="button" class="btn btn-primary carousel-apply" data-step="1">Appliquer</button>
+									<button type="button" class="btn btn-primary carousel-skip" data-step="1">Passer</button>
+								</div>
+							</div>
+							<div class="carousel-item" data-step="2">
+								<div class="mb-3">
+									<label for="selectedPays" class="form-label">Pays de Destination</label>
+									<select class="form-select" id="selectedPays" name="selectedPays">
+										<option value="">-- Choisir un pays --</option>
+										{% for pays in allCountries %}
+											<option value="{{ pays }}" {{ pays == filters.selectedPays ? 'selected' : '' }}>{{ pays }}</option>
+										{% endfor %}
+									</select>
+									{% if suggestions.suggestionPays %}
+										<div class="alert alert-info mt-2" style="margin-top: 10px; margin-bottom: 10px;">
+											{{ suggestions.suggestionPays }} est votre destination la plus fréquente.
+											Votre destination la plus fréquente :
+											{{ suggestions.suggestionPays }}.
+											<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.getElementById('selectedPays').value='{{ suggestions.suggestionPays }}';">
+												Appliquer prediction
+											</button>
+										</div>
+									{% endif %}
+									<div class="mt-3 d-flex">
+										<input type="text" class="form-control me-2" id="aiDescription" name="aiDescription" placeholder="Donnez une description" value="{{ filters.aiDescription }}">
+										<button type="button" class="ai-btn ai-btn-secondary me-2" id="tirflyAiBtn">Consulter Tirfly AI</button>
+										<button type="button" class="ai-btn ai-btn-secondary" id="geminiBtn">Consulter Gemini</button>
+									</div>
+									<div class="recording-controls" id="description-recording-controls">
+										<button type="button" class="btn btn-record"  id="record-description">
+											<i class="fas fa-microphone"></i> Enregistrer la description
+										</button>
+										<button type="button" class="btn btn-stop" id="stop-description" style="display:none;">
+											<i class="fas fa-stop"></i> Arrêter
+										</button>
+										<span id="description-recording-status"></span>
+										<div class="transcription-target" id="description-transcription"></div>
+									</div>
+									<div id="aiSuggestionBox" class="alert alert-info mt-2" style="display: none;">
+										<div id="aiSuggestionContent"></div>
+										<button type="button" class="btn btn-sm btn-primary mt-2" id="applySuggestionBtn" style="display: none;">
+											Appliquer cette suggestion
+										</button>
+									</div>
+								</div>
+								<div class="carousel-navigation mt-4">
+									<button type="button" class="btn btn-primary carousel-apply" data-step="2">Appliquer</button>
+									<button type="button" class="btn btn-primary carousel-skip" data-step="2">Passer</button>
+								</div>
+							</div>
+
+							<div class="carousel-item" data-step="3">
+								<div class="mb-3">
+									<label for="maxBudget" class="form-label">Budget maximal</label>
+									<input type="range" class="form-range" id="maxBudget" name="maxBudget" min="0" max="10000" step="100" value="{{ filters.maxBudget is defined ? filters.maxBudget : 1000 }}">
+									<span id="maxBudgetLabel">{{ filters.maxBudget is defined ? filters.maxBudget : 1000 }}
+										DT</span>
+									{% if suggestions.suggestionBudget %}
+										<div class="alert alert-info mt-2">
+											Budget moyen précédent :
+											{{ suggestions.suggestionBudget|number_format(2) }}
+											DT.
+											<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.getElementById('maxBudget').value='{{ suggestions.suggestionBudget|number_format(0) }}'; document.getElementById('maxBudgetLabel').innerText='{{ suggestions.suggestionBudget|number_format(2) }} DT';">
+												Appliquer prediction
+											</button>
+										</div>
+									{% endif %}
+								</div>
+								<div class="carousel-navigation mt-4">
+									<button type="button" class="btn btn-primary carousel-apply" data-step="3">Appliquer</button>
+									<button type="button" class="btn btn-primary carousel-skip" data-step="3">Passer</button>
+								</div>
+							</div>
+							<div class="carousel-item" data-step="4">
+								<div class="mb-3">
+									<label class="form-label">Formule(s) de voyage</label>
+									<div class="mb-2">
+										{% for formule in allFormules %}
+											<div class="form-check form-check-inline">
+												<input class="form-check-input" type="checkbox" name="formules[]" value="{{ formule }}" id="formule_{{ formule }}" {% if filters.formules is defined and formule in filters.formules %} checked {% endif %}>
+												<label class="form-check-label" for="formule_{{ formule }}">{{ formule }}</label>
+											</div>
+										{% endfor %}
+									</div>
+									{% if suggestions.suggestionFormule %}
+										<div class="alert alert-info mt-2">
+											Formule la plus fréquente :
+											{{ suggestions.suggestionFormule }}.
+											<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.querySelector('input[value=\'{{ suggestions.suggestionFormule }}\']').checked = true;">
+												Appliquer prediction
+											</button>
+										</div>
+									{% endif %}
+								</div>
+								<div class="carousel-navigation mt-4">
+									<button type="button" class="btn btn-primary carousel-apply" data-step="4">Appliquer</button>
+									<button type="button" class="btn btn-primary carousel-skip" data-step="4">Passer</button>
+								</div>
+							</div>
+							<div class="carousel-item" data-step="5">
+								<div class="mb-3">
+									<label for="minNote" class="form-label">Note minimale</label>
+									<input type="range" class="form-range" id="minNote" name="minNote" min="0" max="5" step="0.5" value="{{ filters.minNote }}">
+									<span id="minNoteLabel">{{ filters.minNote }}
+										⭐</span>
+									{% if suggestions.suggestionNote %}
+										<div class="alert alert-info mt-2">
+											Note moyenne :
+											{{ suggestions.suggestionNote|number_format(1) }}
+											⭐.
+											<button type="button" class="btn btn-sm btn-primary ms-2" onclick="document.getElementById('minNote').value='{{ suggestions.suggestionNote|number_format(1) }}'; document.getElementById('minNoteLabel').innerText='{{ suggestions.suggestionNote|number_format(1) }} ⭐';">
+												Appliquer prediction
+											</button>
+										</div>
+									{% endif %}
+								</div>
+								<div class="carousel-navigation mt-4">
+									<button type="button" class="btn btn-primary" id="apply-all-filters">Appliquer les filtres</button>
+									<button type="button" class="btn btn-primary" style="background-color: #dc3545; border-color: #dc3545;" id="reset-filters">Réinitialiser</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+
+		<div class="row" id="voyages-results" style="display: none;">
+			{% if voyages is empty %}
+				<div class="col-12">
+					<div class="alert alert-danger text-center">
+						Aucun voyage disponible.
+					</div>
+				</div>
+			{% else %}
+				<div class="d-flex justify-content-between mb-3">
+					<h3>Résultats ({{ voyages|length }}
+						voyages)</h3>
+					<button class="btn btn-outline-primary" id="show-filters">Modifier les filtres</button>
+				</div>
+				<div class="voyage-grid">
+					{% for voyage in voyages %}
+						<a href="{{ path('details_voyage', {'id': voyage.id}) }}" class="voyage-card-link">
+							<div class="voyage-card">
+								{% if voyage.image %}
+									<img src="{{ asset('uploads/voyages/' ~ voyage.image) }}" alt="Image du voyage" class="card-image">
+								{% else %}
+									<img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image"/>
+								{% endif %}
+								<div class="card-title">{{ voyage.nom }}</div>
+								<div class="card-details">
+									{{ voyage.dateDepart | date('d-M-Y') }}<br>
+									{{ voyage.dateDepart.diff(voyage.dateArrive).days }}
+									jours<br>
+									{{ voyage.destination.ville }},
+									{{ voyage.destination.pays }}
+								</div>
+								<div class="card-price">{{ voyage.prix }}
+									DT</div>
+								<button class="card-reserve-button">Détails</button>
+							</div>
+						</a>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+
+	<style>
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			color: #333;
+		}
+		h1 {
+			font-size: 2.5rem;
+			text-align: center;
+		}
+		form {
+			background: #fff;
+			border-radius: 8px;
+			padding: 30px;
+		}
+		#filter-form {
+			transition: box-shadow 0.3s ease;
+		}
+
+		#filter-form[style*="display: none"] {
+			box-shadow: none !important;
+		}
+		.form-label {
+			font-weight: 600;
+			color: #555;
+		}
+		.form-control,
+		.form-select,
+		.form-range {
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			padding: 10px;
+			width: 100%;
+			transition: border-color 0.3s;
+		}
+		.form-control:focus,
+		.form-select:focus,
+		.form-range:focus {
+			border-color: #0d6efd;
+			outline: none;
+		}
+		.btn {
+			padding: 10px 20px;
+			border-radius: 5px;
+			border: none;
+			font-size: 1rem;
+			transition: background 0.3s;
+			margin-top: 10px;
+		}
+
+		.ai-btn {
+			padding: 10px 20px;
+			border-radius: 5px;
+			font-size: 1rem;
+			transition: background 0.3s;
+			margin-top: 10px;
+			background-color : #628EED !important;
+		}
+
+		#tirflyAiBtn,
+		#geminiBtn {
+			display: inline-block !important;
+			visibility: visible !important;
+			opacity: 1 !important;
+		}
+
+		.btn-primary {
+			background: #0d6efd;
+			color: #fff;
+		}
+		.btn-primary:hover {
+			background: #0056b3;
+		}
+		.btn-secondary {
+			background: #6c757d;
+			color: #fff;
+		}
+
+		.ai-btn-secondary {
+			background: #6c757d;
+			color: #fff;
+		}
+
+		.btn-secondary:hover {
+			background: #5a6268;
+		}
+
+		.ai-btn-secondary:hover {
+			background: #5a6268;
+		}
+
+		.btn-outline-primary {
+			background: transparent;
+			border: 2px solid #0d6efd;
+			color: #0d6efd;
+		}
+		.btn-outline-primary:hover {
+			background: #0d6efd;
+			color: #fff;
+		}
+		.carousel-container {
+			position: relative;
+			overflow: hidden;
+		}
+		.carousel-indicators {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 20px;
+			border-bottom: 1px solid #eee;
+			padding-bottom: 10px;
+		}
+		.filter-step {
+			position: relative;
+			padding: 5px 0;
+			color: #6c757d;
+			font-weight: 500;
+			font-size: 0.9rem;
+		}
+		.filter-step.active {
+			color: #0d6efd;
+			font-weight: bold;
+		}
+		.filter-step.completed {
+			color: #198754;
+		}
+		.filter-step.active:after {
+			content: '';
+			position: absolute;
+			bottom: -11px;
+			left: 0;
+			width: 100%;
+			height: 3px;
+			background-color: #0d6efd;
+		}
+		.carousel-items {
+			position: relative;
+		}
+		.carousel-item {
+			display: none;
+			transition: opacity 0.3s ease;
+		}
+		.carousel-item.active {
+			display: block;
+		}
+		.carousel-navigation {
+			display: flex;
+			justify-content: space-between;
+		}
+		.alert {
+			background-color: #e7f3ff;
+			border: 1px solid #cce5ff;
+			color: #004085;
+			border-radius: 4px;
+			padding: 10px 15px;
+		}
+		.alert-info {
+			background: #e7f3ff;
+			border-color: #cce5ff;
+			color: #004085;
+		}
+		.alert-danger {
+			background: #f8d7da;
+			border-color: #f5c6cb;
+			color: #721c24;
+		}
+		.d-flex {
+			display: flex;
+		}
+		.justify-content-between {
+			justify-content: space-between;
+		}
+		.me-2 {
+			margin-right: 0.5rem;
+		}
+		.ms-2 {
+			margin-left: 0.5rem;
+		}
+		.mb-4 {
+			margin-bottom: 1.5rem;
+		}
+		.mt-4 {
+			margin-top: 1.5rem;
+		}
+		.my-4 {
+			margin-top: 1.5rem;
+			margin-bottom: 1.5rem;
+		}
+		.mb-3 {
+			margin-bottom: 1rem;
+		}
+		#aiSuggestionBox {
+			margin-top: 10px;
+			padding: 10px;
+			border-radius: 4px;
+		}
+		.spinner-border {
+			display: inline-block;
+			width: 1rem;
+			height: 1rem;
+			vertical-align: text-bottom;
+			border: 0.25em solid currentColor;
+			border-right-color: transparent;
+			border-radius: 50%;
+			animation: spinner-border 0.75s linear infinite;
+		}
+		@keyframes spinner-border {
+			to { transform: rotate(360deg); }
+		}
+	</style>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const maxDureeInput = document.getElementById('maxDuree');
+			const maxDureeLabel = document.getElementById('maxDureeLabel');
+			maxDureeInput.addEventListener('input', function () {
+				maxDureeLabel.innerText = this.value + " jours";
+			});
+			const maxBudgetInput = document.getElementById('maxBudget');
+			const maxBudgetLabel = document.getElementById('maxBudgetLabel');
+			maxBudgetInput.addEventListener('input', function () {
+				maxBudgetLabel.innerText = this.value + " DT";
+			});
+			const minNoteInput = document.getElementById('minNote');
+			const minNoteLabel = document.getElementById('minNoteLabel');
+			minNoteInput.addEventListener('input', function () {
+				minNoteLabel.innerText = this.value + " ⭐";
+			});
+			const carouselApplyButtons = document.querySelectorAll('.carousel-apply');
+			const carouselSkipButtons = document.querySelectorAll('.carousel-skip');
+			const carouselItems = document.querySelectorAll('.carousel-item');
+			const filterSteps = document.querySelectorAll('.filter-step');
+			const applyAllFiltersBtn = document.getElementById('apply-all-filters');
+			const resetFiltersBtn = document.getElementById('reset-filters');
+			const filterForm = document.getElementById('filter-form');
+			const voyagesResults = document.getElementById('voyages-results');
+			const filtersContainer = document.getElementById('filters-carousel-container');
+			const showFiltersBtn = document.getElementById('show-filters');
+			function showStep(step) {
+				carouselItems.forEach(item => {
+					item.classList.remove('active');
+				});
+				const currentItem = document.querySelector(`.carousel-item[data-step="${step}"]`);
+				if (currentItem) {
+					currentItem.classList.add('active');
+				}
+				filterSteps.forEach(stepIndicator => {
+					stepIndicator.classList.remove('active');
+					if (parseInt(stepIndicator.dataset.step) === step) {
+						stepIndicator.classList.add('active');
+					} else if (parseInt(stepIndicator.dataset.step) < step) {
+						stepIndicator.classList.add('completed');
+					}
+				});
+			}
+			carouselApplyButtons.forEach(button => {
+				button.addEventListener('click', function() {
+					const currentStep = parseInt(this.dataset.step);
+					const nextStep = currentStep + 1;
+					const currentStepIndicator = document.querySelector(`.filter-step[data-step="${currentStep}"]`);
+					currentStepIndicator.classList.add('completed');
+					if (nextStep <= 5) {
+						showStep(nextStep);
+					}
+				});
+			});
+			carouselSkipButtons.forEach(button => {
+				button.addEventListener('click', function() {
+					const currentStep = parseInt(this.dataset.step);
+					const nextStep = currentStep + 1;
+					if (nextStep <= 5) {
+						showStep(nextStep);
+					}
+				});
+			});
+			applyAllFiltersBtn.addEventListener('click', function() {
+				filterForm.submit();
+			});
+			resetFiltersBtn.addEventListener('click', function() {
+				window.location.href = "{{ path('assistant_voyage') }}";
+			});
+			showFiltersBtn.addEventListener('click', function() {
+				voyagesResults.style.display = 'none';
+				filtersContainer.style.display = 'block';
+				filterForm.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+				showStep(1);
+			});
+			const urlParams = new URLSearchParams(window.location.search);
+			if (urlParams.toString()) {
+				filtersContainer.style.display = 'none';
+				filterForm.style.boxShadow = 'none';
+				voyagesResults.style.display = 'block';
+			}else{
+				filterForm.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+			}
+			
+			Promise.all([
+				import('/js/AiService.js'),
+				import('/js/geminiClient.js')
+			]).then(([aiServiceModule, geminiModule]) => {
+				const aiService = new aiServiceModule.default();
+				const geminiClient = new geminiModule.default();
+				
+				const tirflyAiBtn = document.getElementById('tirflyAiBtn');
+				const geminiBtn = document.getElementById('geminiBtn');
+				const aiDescriptionInput = document.getElementById('aiDescription');
+				const aiSuggestionBox = document.getElementById('aiSuggestionBox');
+				const aiSuggestionContent = document.getElementById('aiSuggestionContent');
+				const applySuggestionBtn = document.getElementById('applySuggestionBtn');
+				const selectedPaysSelect = document.getElementById('selectedPays');
+				
+				function getAllCountries() {
+					const options = Array.from(selectedPaysSelect.options);
+					return options
+						.filter(option => option.value !== '')
+						.map(option => option.value);
+				}
+				
+				if (tirflyAiBtn) {
+					tirflyAiBtn.addEventListener('click', async function () {
+						const description = aiDescriptionInput.value;
+						if (description) {
+							aiSuggestionBox.style.display = 'block';
+							aiSuggestionContent.innerHTML = '<div class="text-center"><span class="spinner-border" role="status"></span> Consultation de TirFly AI en cours...</div>';
+							applySuggestionBtn.style.display = 'none';
+
+							try {
+								const countries = getAllCountries();
+								const result = await aiService.getSuggestion(countries, description);
+								console.log('TirFly AI Suggestion:', result);
+								
+								const { suggestion, raw_model_output } = result;
+
+								aiSuggestionContent.textContent = raw_model_output;
+
+								const matchingCountry = countries.find(country => 
+									suggestion.toLowerCase().includes(country.toLowerCase())
+								);
+								
+								applySuggestionBtn.style.display = 'block';
+								if (matchingCountry) {
+									applySuggestionBtn.onclick = function() {
+										selectedPaysSelect.value = matchingCountry;
+									};
+								} else {
+									applySuggestionBtn.onclick = function() {
+										selectedPaysSelect.value = countries[0];
+									};
+								}
+							} catch (error) {
+								aiSuggestionContent.textContent = "Erreur lors de la consultation de TirFly AI. Veuillez réessayer.";
+							}
+						} else {
+							alert('Veuillez entrer une description pour consulter TirFly AI');
+						}
+					});
+				}
+				
+				if (geminiBtn) {
+					geminiBtn.addEventListener('click', async function() {
+						const description = aiDescriptionInput.value;
+						if (description) {
+							aiSuggestionBox.style.display = 'block';
+							aiSuggestionContent.innerHTML = '<div class="text-center"><span class="spinner-border" role="status"></span> Consultation de Gemini en cours...</div>';
+							applySuggestionBtn.style.display = 'none';
+
+							try {
+								const countries = getAllCountries();
+								const suggestionText = await geminiClient.getSuggestedCity(countries, description);
+								console.log('Gemini Suggestion:', suggestionText);
+								
+								aiSuggestionContent.textContent = suggestionText;
+
+								const matchingCountry = countries.find(country => 
+									suggestionText.toLowerCase().includes(country.toLowerCase())
+								);
+								
+								applySuggestionBtn.style.display = 'block';
+								if (matchingCountry) {
+									applySuggestionBtn.onclick = function() {
+										selectedPaysSelect.value = matchingCountry;
+									};
+								} else {
+									applySuggestionBtn.onclick = function() {
+										selectedPaysSelect.value = countries[0];
+									};
+								}
+							} catch (error) {
+								aiSuggestionContent.textContent = "Erreur lors de la consultation de Gemini. Veuillez réessayer.";
+							}
+						} else {
+							alert('Veuillez entrer une description pour consulter Gemini');
+						}
+					});
+				}
+			}).catch(error => {
+				console.error('Failed to load AI service modules:', error);
+			});
+		});
+	</script>
+
+
+	<script>
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!('MediaRecorder' in window)) {
+        alert('Votre navigateur ne supporte pas l\'enregistrement audio. Veuillez utiliser Chrome, Firefox, ou Edge.');
+        return;
+    }
+
+    const descriptionButton = document.getElementById('record-description');
+    const descriptionStopButton = document.getElementById('stop-description');
+    const descriptionStatus = document.getElementById('description-recording-status');
+    const descriptionTranscription = document.getElementById('description-transcription');
+    const descriptionInput = document.getElementById('aiDescription');
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let currentField = null;
+    let recognition = null;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'fr-FR';
+
+        recognition.onresult = function(event) {
+            const transcriptionEl = descriptionTranscription;
+            const inputEl = descriptionInput;
+            
+            let interimTranscript = '';
+            let finalTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            transcriptionEl.innerHTML = `<div>${finalTranscript + interimTranscript}</div>`;
+
+            if (finalTranscript) {
+                inputEl.value += finalTranscript + ' ';
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error', event.error);
+            yiziEnregistrement();
+        };
+    } else {
+        alert('La reconnaissance vocale n\'est pas supportée par votre navigateur.');
+    }
+
+    descriptionButton.addEventListener('click', function() {
+        enregistrement('description');
+    });
+
+
+    descriptionStopButton.addEventListener('click', function() {
+        yiziEnregistrement();
+    });
+
+    async function enregistrement(field) {
+        try {
+            currentField = field;
+            const button = field === 'description' ? descriptionButton : descButton;
+            const stopButton = field === 'description' ? descriptionStopButton : descStopButton;
+            const status = field === 'description' ? descriptionStatus : descStatus;
+            
+            button.style.display = 'none';
+            stopButton.style.display = 'inline-block';
+            status.innerHTML = '<span class="recording">Enregistrement en cours...</span>';
+
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            if (recognition) {
+                recognition.start();
+            }
+
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.addEventListener('dataavailable', event => {
+                audioChunks.push(event.data);
+            });
+
+            mediaRecorder.addEventListener('stop', async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                await uploadAudio(audioBlob, field);
+            });
+
+            mediaRecorder.start();
+        } catch (err) {
+            console.error('Erreur debut:', err);
+            alert("Impossible de demarrer l'enregistrement");
+        }
+    }
+
+    function yiziEnregistrement() {
+        if (recognition) {
+            recognition.stop();
+        }
+
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        }
+
+        const button =  descriptionButton;
+        const stopButton =  descriptionStopButton;
+        const status =  descriptionStatus;
+
+        button.style.display = 'inline-block';
+        stopButton.style.display = 'none';
+        status.innerHTML = '<span>Enregistrement terminé</span>';
+    }
+
+    async function uploadAudio(blob, field) {
+        try {
+            const formData = new FormData();
+            formData.append('audio', blob, `${field}_enregistrement.webm`);
+            formData.append('field', field);
+
+            const response = await fetch('/audio/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur envoi');
+            }
+
+            const result = await response.json();
+        } catch (err) {
+            console.error('Erreur upload:', err);
+        }
+    }
+});
+</script>
+
+
+{% endblock %}

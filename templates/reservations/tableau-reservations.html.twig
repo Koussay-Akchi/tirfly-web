@@ -56,10 +56,35 @@
 								<tr class="reservation-row">
 									<td>{{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y') : 'N/A' }}</td>
 									<td>{{ reservation.client ? reservation.client.email : '—' }}</td>
-									<td class="voyage-col">{{ reservation.voyage ? reservation.voyage.nom : '—' }}</td>
-									<td class="sejour-col d-none">{{ reservation.sejour ? reservation.sejour.hebergement.nom : '—' }}</td>
+									<td class="voyage-col">
+										{% if reservation.voyage %}
+											<a href="{{ path('details_voyage_admin', { id: reservation.voyage.id }) }}">
+												{{ reservation.voyage.nom }}
+											</a>
+										{% else %}
+											—
+										{% endif %}
+									</td>
+
+									<td class="sejour-col d-none">
+										{% if reservation.sejour and reservation.sejour.hebergement %}
+											<a href="{{ path('hebergement_show', { id: reservation.sejour.hebergement.id }) }}">
+												{{ reservation.sejour.hebergement.nom }}
+											</a>
+										{% else %}
+											—
+										{% endif %}
+									</td>
 									<td class="jours-col d-none">{{ reservation.sejour ? reservation.sejour.jours : '—' }}</td>
-									<td class="pack-col d-none">{{ reservation.pack ? reservation.pack.nom : '—' }}</td>
+									<td class="pack-col d-none">
+										{% if reservation.pack %}
+											<a href="{{ path('app_pack_show', { id: reservation.pack.id }) }}">
+												{{ reservation.pack.nom }}
+											</a>
+										{% else %}
+											—
+										{% endif %}
+									</td>
 									<td>{{ reservation.nombrePersonnes }}</td>
 									<td>{{ reservation.prixTotal|number_format(2, '.', ',') }}
 										DT</td>

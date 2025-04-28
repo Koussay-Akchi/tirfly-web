@@ -26,9 +26,8 @@ class Voyage
     #[ORM\Column(type: 'string', nullable: true, name: 'description')]
        private ?string $description = null;
 
-
-    #[ORM\Column(type: 'blob', nullable: true, name: 'image')]
-    private $image = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $image = null;
 
     #[ORM\Column(type: 'string', nullable: true, name: 'nom')]
     private ?string $nom = null;
@@ -111,11 +110,7 @@ class Voyage
         return $this;
     }
 
-    public function getImage()
-    {
-        return $this->image;
-    }
-
+    /*
     public function setImage($image): self
     {
         if (is_string($image) && str_contains($image, 'base64')) {
@@ -124,20 +119,17 @@ class Voyage
         $this->image = $image;
         return $this;
     }
-
-    public function getImageUrl(): ?string
+    */
+        
+    public function getImage(): ?string
     {
-        if (!$this->image) {
-            return null;
-        }
+        return $this->image;
+    }
 
-        if (is_resource($this->image)) {
-            rewind($this->image);
-            $content = stream_get_contents($this->image);
-            return 'data:image/jpeg;base64,'.base64_encode($content);
-        }
-
-        return 'data:image/jpeg;base64,'.base64_encode($this->image);
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
+        return $this;
     }
 
     public function getNom(): ?string
