@@ -4,6 +4,9 @@ parameters:
     google_api_key: 'AIzaSyDpxgIqCekHbOLgUL6fyHdavfAGr1KijcQ'
     video_directory: '%kernel.project_dir%/public/uploads/videos'
     evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
+    voyages_images_directory: '%kernel.project_dir%/public/uploads/voyages'
+    destinations_images_directory: '%kernel.project_dir%/public/uploads/destinations'
+    audio_directory: '%kernel.project_dir%/public/uploads/audio'
 
 services:
     _defaults:
@@ -31,3 +34,8 @@ services:
         class: App\Service\EmailService
         arguments:
             $mailer: '@mailer'
+
+    App\Controller\AudioController:
+        arguments:
+            $audioDirectory: '%audio_directory%'
+    

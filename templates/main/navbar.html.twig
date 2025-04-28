@@ -1,4 +1,4 @@
-<header class="header" data-header data-home-url="{{ path('home') }}" style="margin-bottom: 150px; background-color: #184C91;">
+<header class="header" data-header data-home-url="{{ path('home') }}" style="margin-bottom: 150px; background-color: #184C91; {% if app.request.pathInfo == path('home') %}padding-top: 60px;{% endif %}">
 	<div class="overlay" data-overlay></div>
 
 	{% if app.request.pathInfo == path('home') %}
@@ -13,7 +13,7 @@
 					<p class="helpline-number">(+214) 40 862 777</p>
 				</div>
 			</a>
-			<a href="{{ path('home') }}" class="logo">
+			<a href="{{ path('home') }}" class="logo" style="margin-left: 30%;">
 				<img src="{{ asset('images/logo.svg') }}" alt="Logo TirFly" height="80">
 			</a>
 			<div class="header-btn-group">
@@ -86,7 +86,7 @@
 					</li>
 				</ul>
 			</nav>
-			<div class="navbar-user-section">
+			<div>
 				{% if app.user %}
 					<div class="user-info">
 						<img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=50&h=50&q=80" alt="User Avatar" class="user-avatar">

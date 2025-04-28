@@ -74,14 +74,13 @@
 			<div
 				class="voyage-details-grid-container">
 				<div class="voyage-details-grid-image">
-					{% if false %}
-						<img src="{{ asset(destination.getImage()) }}" alt="Image du destination" class="voyage-image">
+					{% if destination.image %}
+						<img src="{{ asset('uploads/destinations/' ~ destination.image) }}" alt="Image du destination" style="width: 300px; height: 300px;"/>
 					{% else %}
 						<img src="{{ asset('images/default-destination.jpg') }}" alt="Image par défaut"/>
 					{% endif %}
 				</div>
-
-				<!-- Texte -->
+				
 				<div class="voyage-details-grid-text">
 					<div class="voyage-details-details-grid">
 						<div>
