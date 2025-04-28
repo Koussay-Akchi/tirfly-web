@@ -12,50 +12,50 @@
 	 <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
 
 	 <script type="module">
-		import ClimatService from '/js/ClimatService.js';
-	
-		document.addEventListener('DOMContentLoaded', async () => {
-			const climatService = new ClimatService();
-			const weatherDiv = document.getElementById('weather');
-			const lat = weatherDiv.dataset.lat;
-			const lon = weatherDiv.dataset.lon;
-			const temperature = await climatService.getTemperature(lat, lon);
-			const tempDisplay = document.getElementById('current-temperature');
-			if (temperature !== null) {
-				tempDisplay.textContent = `${temperature}°C`;
-			} else {
-				tempDisplay.textContent = 'Indisponible';
-			}
-		});
-	
-		document.addEventListener("DOMContentLoaded", function () {
-			const map = new jsVectorMap({
-				map: "world",
-				selector: "#destination_map",
-				zoomButtons: true,
-				markers: [{
-					coords: [{{ destination.latitude }}, {{ destination.longitude }}],
-					name: "{{ destination.ville }} - {{ destination.pays }}"
-				}],
-				markerStyle: {
-					initial: {
-						r: 9,
-						strokeWidth: 7,
-						strokeOpacity: .4,
-						fill: "#0d6efd"
+			import ClimatService from '/js/ClimatService.js';
+		
+			document.addEventListener('DOMContentLoaded', async () => {
+				const climatService = new ClimatService();
+				const weatherDiv = document.getElementById('weather');
+				const lat = weatherDiv.dataset.lat;
+				const lon = weatherDiv.dataset.lon;
+				const temperature = await climatService.getTemperature(lat, lon);
+				const tempDisplay = document.getElementById('current-temperature');
+				if (temperature !== null) {
+					tempDisplay.textContent = `${temperature}°C`;
+				} else {
+					tempDisplay.textContent = 'Indisponible';
+				}
+			});
+		
+			document.addEventListener("DOMContentLoaded", function () {
+				const map = new jsVectorMap({
+					map: "world",
+					selector: "#destination_map",
+					zoomButtons: true,
+					markers: [{
+						coords: [{{ destination.latitude }}, {{ destination.longitude }}],
+						name: "{{ destination.ville }} - {{ destination.pays }}"
+					}],
+					markerStyle: {
+						initial: {
+							r: 9,
+							strokeWidth: 7,
+							strokeOpacity: .4,
+							fill: "#0d6efd"
+						},
+						hover: {
+							fill: "#0d6efd",
+							stroke: "#0d6efd"
+						}
 					},
-					hover: {
-						fill: "#0d6efd",
-						stroke: "#0d6efd"
-					}
-				},
-				zoomOnScroll: false
+					zoomOnScroll: false
+				});
+				window.addEventListener("resize", () => {
+					map.updateSize();
+				});
 			});
-			window.addEventListener("resize", () => {
-				map.updateSize();
-			});
-		});
-	</script>
+		</script>
 
 		<style>
 #destination_map {
@@ -72,7 +72,7 @@
 			</h1>
 
 			<div
-				class="voyage-details-grid-container">
+class="voyage-details-grid-container">
 				<div class="voyage-details-grid-image">
 					{% if destination.image %}
 						<img src="{{ asset('uploads/destinations/' ~ destination.image) }}" alt="Image du destination" style="width: 300px; height: 300px;"/>
@@ -80,7 +80,7 @@
 						<img src="{{ asset('images/default-destination.jpg') }}" alt="Image par défaut"/>
 					{% endif %}
 				</div>
-				
+
 				<div class="voyage-details-grid-text">
 					<div class="voyage-details-details-grid">
 						<div>
@@ -100,6 +100,11 @@
 						</div>
 						<div id="weather" data-lat="{{ destination.latitude }}" data-lon="{{ destination.longitude }}">
 							<span id="current-temperature">Chargement...</span>
+						</div>
+						<div class="mt-3">
+							<a href="https://www.google.com/maps?q={{ destination.latitude }},{{ destination.longitude }}&z=10" target="_blank" class="btn btn-primary mt-3">
+								Voir sur Google Maps
+							</a>
 						</div>
 					</div>
 				</div>
