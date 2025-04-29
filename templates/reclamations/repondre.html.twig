@@ -160,11 +160,7 @@ body {
             </div>
 
             {{ form_start(form, {'attr': {'class': 'response-form'}}) }}
-                <div class="form-group">
-                    {{ form_label(form.sujet, 'Sujet', {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.sujet, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.sujet) }}
-                </div>
+
                 <div class="form-group">
                     {{ form_label(form.contenu, 'Contenu', {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'rows': '5'}}) }}

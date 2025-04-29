@@ -21,9 +21,16 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Knp\Component\Pager\PaginatorInterface; 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\UserRepository;
+use App\Service\EmailService;
+
 class HebergementController extends AbstractController
     {#[Route('/hebergements/ajout', name: 'app_hebergement_add')]
-        public function add(Request $request, EntityManagerInterface $em, MailerInterface $mailer, UserRepository $userRepository): Response
+        public function add(
+            Request $request, 
+            EntityManagerInterface $em, 
+            EmailService $emailService, // <-- Inject your EmailService
+            UserRepository $userRepository
+        ): Response 
         {
             $hebergement = new Hebergement();
             $type = $request->query->get('type');
@@ -35,17 +42,23 @@ class HebergementController extends AbstractController
         
             if ($form->isSubmitted() && $form->isValid()) {
                 try {
-                    // Handle image upload
                     $imageFile = $form->get('image')->getData();
+                    $generatedImage = $request->request->get('generated_image');
+        
                     if ($imageFile) {
                         $stream = fopen($imageFile->getPathname(), 'rb');
                         $hebergement->setImage(stream_get_contents($stream));
                         fclose($stream);
+                    } elseif ($generatedImage) {
+                        if (str_starts_with($generatedImage, 'data:image/')) {
+                            [$meta, $content] = explode(',', $generatedImage, 2);
+                            $imageData = base64_decode($content);
+                            $hebergement->setImage($imageData);
+                        }
                     }
         
                     $em->persist($hebergement);
         
-                    // Handle specific accommodation types
                     switch ($form->get('type')->getData()) {
                         case 'hotel':
                             $hotel = new Hotel();
@@ -77,14 +90,17 @@ class HebergementController extends AbstractController
         
                     $em->flush();
         
-                    // ✉️ Fetch users and send email
-                    $users = $userRepository->findAll(); // Fetch all users from the database
-                    $this->sendNewHebergementEmail($mailer, $users, $hebergement);
+                    // 🔥 Send the email after saving
+                    $adminEmail = 'chahd.khaldi@esprit.tn '; // You can change this or fetch from config
+                    $subject = 'Nouveau hébergement ajouté';
+                    $body = 'Un nouvel hébergement a été ajouté avec succès. ID: ' . $hebergement->getId();
         
-                    $this->addFlash('success', 'Hébergement ajouté avec succès.');
+                    $emailService->sendEmail($adminEmail, $subject, $body);
+        
+                    $this->addFlash('success', 'Hébergement ajouté et notification envoyée avec succès.');
                     return $this->redirectToRoute('admin_liste_hebergements');
         
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
                 }
             } elseif ($form->isSubmitted()) {
@@ -100,35 +116,18 @@ class HebergementController extends AbstractController
         }
         
         /**
-         * Upload documents and return the filename.
+         * Handle document file upload for foyer
          */
-        private function uploadFile(UploadedFile $file): string
+        private function uploadFile(UploadedFile $file): ?string
         {
-            $fileName = uniqid().'.'.$file->guessExtension();
-            $file->move($this->getParameter('documents_directory'), $fileName);
+            $uploadDir = $this->getParameter('documents_directory');
+            $fileName = uniqid() . '.' . $file->guessExtension();
+        
+            $file->move($uploadDir, $fileName);
+        
             return $fileName;
         }
         
-        /**
-         * Send an email notification to users when a new hebergement is added.
-         */
-        public function sendNewHebergementEmail(MailerInterface $mailer, $users, Hebergement $hebergement)
-        {
-            // Create the email
-            $email = (new Email())
-                ->from('your_email@example.com') // Change this to your email
-                ->subject('New Hébergement Added')
-                ->text('A new hébergement has been added: ' . $hebergement->getNom());
-        
-            // Add recipients
-            foreach ($users as $user) {
-                $email->addTo($user->getEmail());
-            }
-        
-            // Send the email
-            $mailer->send($email);
-        }
-    
 
     #[Route('/admin/hebergements/{id}/edit', name: 'edit_hebergement')]
     public function edit(Hebergement $hebergement, Request $request, EntityManagerInterface $em): Response
