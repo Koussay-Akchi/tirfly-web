@@ -14,8 +14,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Form\ProduitType;
+use Knp\Snappy\Pdf;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use App\Service\StockMonitor;
+use App\Service\TwilioSmsService;
+use Psr\Log\LoggerInterface;
 
 class ProduitController extends AbstractController
 {
@@ -82,34 +86,60 @@ class ProduitController extends AbstractController
     }
 
     #[Route('/admin/produits', name: 'admin_liste_produits')]
-    public function adminProduits(ProduitRepository $produitRepository): Response
-    {
-        return $this->render('produits/tableau-produits.html.twig', [
-            'produits' => $produitRepository->findAllOrderedByName(),
-        ]);
-    }
-
-    #[Route('/admin/produits/edit/{id}', name: 'edit_produit', requirements: ['id' => '\d+'])]
-public function edit(Produit $produit, Request $request, EntityManagerInterface $entityManager): Response
+public function adminProduits(ProduitRepository $produitRepository): Response
 {
+    $produits = $produitRepository->findAllOrderedByName();
+    $categories = $produitRepository->getCategoriesWithCounts();
+    $ecoCount = $produitRepository->count(['ecoFriendly' => true]);
+    $lowStockCount = $produitRepository->countLowStockProducts(10);
+
+    return $this->render('produits/tableau-produits.html.twig', [
+        'produits' => $produits,
+        'categories' => $categories,
+        'ecoCount' => $ecoCount,
+        'lowStockCount' => $lowStockCount
+    ]);
+}
+
+#[Route('/test-twilio')]
+public function testTwilio(TwilioSmsService $twilio): Response
+{
+    $result = $twilio->sendLowStockAlert(
+        'TEST PRODUCT',
+        '+21658911032' // Your number
+    );
+    return new Response($result ? 'Sent!' : 'Failed - check logs');
+}
+#[Route('/admin/produits/edit/{id}', name: 'edit_produit', requirements: ['id' => '\d+'])]
+public function edit(
+    Produit $produit, 
+    Request $request, 
+    EntityManagerInterface $entityManager,
+    StockMonitor $stockMonitor,
+    LoggerInterface $logger
+): Response {
     $form = $this->createForm(ProduitType::class, $produit);
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
-        // Handle image upload only if a new image was provided
+        // Handle image upload
         $imageFile = $form->get('image')->getData();
-        
         if ($imageFile) {
             try {
-                $imageContent = file_get_contents($imageFile->getPathname());
-                $produit->setImage($imageContent);
+                $produit->setImage(file_get_contents($imageFile->getPathname()));
             } catch (FileException $e) {
+                $logger->error('Image upload failed', ['error' => $e->getMessage()]);
                 $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
                 return $this->redirectToRoute('edit_produit', ['id' => $produit->getId()]);
             }
         }
 
+        // Update and save changes
         $entityManager->flush();
+        
+        // Check for low stock after saving
+        $stockMonitor->checkLowStock($produit);
+
         $this->addFlash('success', 'Le produit a été mis à jour avec succès.');
         return $this->redirectToRoute('admin_liste_produits');
     }
@@ -224,4 +254,28 @@ public function delete(Request $request, Produit $produit, EntityManagerInterfac
             'ETag' => md5($imageContent)
         ]);
     }
+    #[Route('/admin/produits/export-pdf', name: 'export_products_pdf')]
+public function exportPdf(Pdf $knpSnappyPdf, ProduitRepository $produitRepository): Response
+{
+    $produits = $produitRepository->findAllOrderedByName();
+    $categories = $produitRepository->getCategoriesWithCounts();
+
+    $html = $this->renderView('produits/export_pdf.html.twig', [
+        'produits' => $produits,
+        'categories' => $categories,
+        'date' => new \DateTime()
+    ]);
+
+    // Generate unique filename
+    $filename = 'products_export_'.date('Y-m-d').'.pdf';
+
+    return new Response(
+        $knpSnappyPdf->getOutputFromHtml($html),
+        200,
+        [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"'
+        ]
+    );
+}
 }

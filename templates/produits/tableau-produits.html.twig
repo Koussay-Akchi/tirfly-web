@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
     <style>
         .product-image-container {
             width: 60px;
@@ -35,6 +36,20 @@
         .stock-ok {
             color: #28a745;
         }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 30px;
+        }
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .export-buttons .btn {
+            margin-left: 10px;
+        }
     </style>
 {% endblock %}
 
@@ -42,12 +57,17 @@
     <div class="container-fluid py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 mb-0">Gestion des Produits</h1>
-            <a href="{{ path('ajout_produit') }}" class="btn btn-success">
-                <i class="fas fa-plus me-1"></i> Ajouter un produit
-            </a>
+            <div>
+                <a href="{{ path('ajout_produit') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i> Ajouter un produit
+                </a>
+                <a href="{{ path('export_products_pdf') }}" class="btn btn-primary ms-2">
+                    <i class="fas fa-file-pdf me-1"></i> Exporter en PDF
+                </a>
+            </div>
         </div>
 
-        <div class="card shadow-sm">
+        <div class="card shadow-sm mb-4">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
@@ -120,5 +140,169 @@
                 </div>
             </div>
         </div>
+
+        {# Statistics Section #}
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Statistiques des Produits</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="stockChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="priceDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="ecoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Stock Status Chart
+            const stockCtx = document.getElementById('stockChart').getContext('2d');
+            new Chart(stockCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Stock suffisant', 'Stock faible'],
+                    datasets: [{
+                        data: [
+                            {{ produits|filter(p => p.quantiteStock >= 10)|length }},
+                            {{ produits|filter(p => p.quantiteStock < 10)|length }}
+                        ],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'État des stocks',
+                            font: { size: 16 }
+                        },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Price Distribution Chart
+            const priceCtx = document.getElementById('priceDistributionChart').getContext('2d');
+            new Chart(priceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-50€', '50-100€', '100-200€', '200€+'],
+                    datasets: [{
+                        label: 'Nombre de produits',
+                        data: [
+                            {{ produits|filter(p => p.prixUnitaire <= 50)|length }},
+                            {{ produits|filter(p => p.prixUnitaire > 50 and p.prixUnitaire <= 100)|length }},
+                            {{ produits|filter(p => p.prixUnitaire > 100 and p.prixUnitaire <= 200)|length }},
+                            {{ produits|filter(p => p.prixUnitaire > 200)|length }}
+                        ],
+                        backgroundColor: '#007bff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Distribution des prix',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+
+            // Category Distribution Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            {% if categories is defined and categories is not empty %}
+                new Chart(categoryCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: {{ categories|keys|json_encode|raw }},
+                        datasets: [{
+                            data: {{ categories|map(c => c)|json_encode|raw }},
+                            backgroundColor: [
+                                '#ff6384', '#36a2eb', '#ffce56', '#4bc0c0',
+                                '#9966ff', '#ff9f40', '#8ac24a', '#607d8b'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Répartition par catégorie',
+                                font: { size: 16 }
+                            },
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            {% else %}
+                categoryCtx.font = '16px Arial';
+                categoryCtx.fillText('Aucune donnée de catégorie disponible', 10, 50);
+            {% endif %}
+
+            // Eco-Friendly Chart
+            const ecoCtx = document.getElementById('ecoChart').getContext('2d');
+            new Chart(ecoCtx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Éco-responsables', 'Non éco-responsables'],
+                    datasets: [{
+                        data: [
+                            {{ produits|filter(p => p.ecoFriendly)|length }},
+                            {{ produits|filter(p => not p.ecoFriendly)|length }}
+                        ],
+                        backgroundColor: ['#28a745', '#6c757d'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Produits éco-responsables',
+                            font: { size: 16 }
+                        },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    
 {% endblock %}
