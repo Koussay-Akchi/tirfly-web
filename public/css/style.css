@@ -2063,3 +2063,35 @@ address {
   font-size: 0.65rem;
   font-weight: bold;
 }
+
+.custom-pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination-list {
+  display: inline-flex;
+  list-style: none;
+  padding: 0;
+}
+
+.pagination-link {
+  display: block;
+  padding: 8px 12px;
+  margin: 0 4px;
+  text-decoration: none;
+  color: #007bff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-link:hover {
+  background-color: #f0f0f0;
+}
+
+.pagination-link.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}

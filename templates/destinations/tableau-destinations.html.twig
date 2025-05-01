@@ -95,7 +95,31 @@
 				</table>
 			</h1>
 			<div class="pagination">
-				{{ knp_pagination_render(destinations) }}
+				{% if destinations.pageCount > 1 %}
+				<nav class="custom-pagination">
+					<div class="pagination-list" style="display: flex; gap: 10px; background-color: #f8f9fa;">
+						{% if destinations.currentPageNumber > 1 %}
+							<div>
+								<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({'page': destinations.currentPageNumber - 1})) }}" class="pagination-link">&laquo; Précédent</a>
+							</div>
+						{% endif %}
+
+						{% for i in 1..destinations.pageCount %}
+							<div>
+								<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({'page': i})) }}" class="pagination-link {{ destinations.currentPageNumber == i ? 'active' : '' }}">
+									{{ i }}
+								</a>
+							</div>
+						{% endfor %}
+
+						{% if destinations.currentPageNumber < destinations.pageCount %}
+							<div>
+								<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({'page': destinations.currentPageNumber + 1})) }}" class="pagination-link">Suivant &raquo;</a>
+							</div>
+						{% endif %}
+					</div>
+				</nav>
+			{% endif %}
 			</div>
 		</div>
 	</div>
