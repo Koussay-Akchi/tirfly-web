@@ -17,8 +17,34 @@ Agence de voyages moderne et innovante intégrant des fonctionnalités d'IA et d
 
 Développé dans le cadre d'un projet PIdev 2024-25 Esprit (Esprit School of Engineering) sous la supervision de la professeure Emna Rbii durant une semestre. L'objectif était de créer une application web full-stack permettant aux employés de l'agence d'effectuer des opérations CRUD avec les offres proposées par l'agence elle-même, et aux clients de l'application de réserver des offres de voyages, hebergements, packs et evennements. L'application est développée avec Symfony, Bootstrap et Tailwind CSS, et communique avec plusieurs APIs externes .
 
-
 ## Screenshots
+
+<table>
+  <tr>
+    <td><img src="screenshots/ss (12).png" width="500"/></td>
+    <td><img src="screenshots/ss (6).png" width="500"/></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/ss (1).png" width="500"/></td>
+    <td><img src="screenshots/ss (10).png" width="500"/></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/ss (5).png" width="500"/></td>
+    <td><img src="screenshots/ss (2).png" width="500"/></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/ss (7).png" width="500"/></td>
+    <td><img src="screenshots/ss (4).png" width="500"/></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/ss (9).png" width="500"/></td>
+    <td><img src="screenshots/ss (8).png" width="500"/></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/ss (11).png" width="500"/></td>
+    <td><img src="screenshots/ss (3).png" width="500"/></td>
+  </tr>
+</table>
 
 ## Tech Stack
 
