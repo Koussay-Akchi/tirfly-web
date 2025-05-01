@@ -5,7 +5,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "2.10",
-            "ref": "c170ded8fc587d6bd670550c43dafcf093762245"
+            "ref": "d1778a69711a9b06bb4e202977ca6c4a0d16933d"
         },
         "files": [
             "./config/packages/doctrine.yaml",
@@ -27,7 +27,19 @@
         ]
     },
     "knplabs/knp-paginator-bundle": {
-        "version": "v6.7.0"
+        "version": "v6.8.0"
+    },
+    "knplabs/knp-snappy-bundle": {
+        "version": "1.10",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.5",
+            "ref": "c81bdcf4a9d4e7b1959071457f9608631865d381"
+        },
+        "files": [
+            "./config/packages/knp_snappy.yaml"
+        ]
     },
     "knpuniversity/oauth2-client-bundle": {
         "version": "2.18",
@@ -176,7 +188,7 @@
         ]
     },
     "symfony/maker-bundle": {
-        "version": "1.62",
+        "version": "1.63",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -262,7 +274,7 @@
         ]
     },
     "symfony/stimulus-bundle": {
-        "version": "2.23",
+        "version": "2.24",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -302,7 +314,7 @@
         ]
     },
     "symfony/ux-turbo": {
-        "version": "2.23",
+        "version": "2.24",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",

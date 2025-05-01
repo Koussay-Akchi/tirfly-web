@@ -7,6 +7,8 @@ parameters:
     destinations_images_directory: '%kernel.project_dir%/public/uploads/destinations'
     audio_directory: '%kernel.project_dir%/public/uploads/audio'
     huggingface_api_key: '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'
+    app.admin_phone: '+21658911032'
+    app.low_stock_threshold: 10
 
 services:
     _defaults:
@@ -20,6 +22,12 @@ services:
         arguments:
             $httpClient: '@http_client'
             $apiKey: '%huggingface_api_key%'
+    _instanceof:
+        App\Service\CurrencyConverter:
+            bind:
+                $exchangeRateApiKey: '%env(dec3bbdb08a8f599977f5d1e)%'
+
+     
 
     App\:
         resource: '../src/'
@@ -27,6 +35,8 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Tests/'
+
     App\Controller\ClientController:
         arguments:
             $passwordHasher: '@security.user_password_hasher'
@@ -34,6 +44,12 @@ services:
         class: App\Service\EmailService
         arguments:
             $mailer: '@mailer'
+    App\Service\TwilioSmsService:
+        arguments:
+            $accountSid: '%env(TWILIO_ACCOUNT_SID)%'
+            $authToken: '%env(TWILIO_AUTH_TOKEN)%'
+            $twilioNumber: '%env(TWILIO_PHONE_NUMBER)%'
+            $logger: '@logger'
 
     App\Controller\AudioController:
         arguments:
@@ -43,8 +59,15 @@ services:
         arguments:
             $apiKey: '%env(HUGGINGFACE_API_KEY)%'
             $model: '%env(HUGGINGFACE_MODEL)%'
-            # config/packages/knp_paginator.yaml
-# config/packages/twig.yaml
+            
+    App\Service\StockMonitor:
+        arguments:
+            $smsService: '@App\Service\TwilioSmsService'
+            $adminPhone: '%env(ADMIN_PHONE)%'
+            
+    App\Service\BadWordsFilterService:
+        arguments:
+            $geminiApiKey: '%google_api_key%'
 twig:
     default_path: '%kernel.project_dir%/templates'
     form_themes: ['bootstrap_5_layout.html.twig']

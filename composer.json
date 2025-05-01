@@ -17,6 +17,7 @@
         "knpuniversity/oauth2-client-bundle": "^2.18",
         "league/oauth2-facebook": "^2.2",
         "league/oauth2-google": "^4.0",
+        "knplabs/knp-snappy": "^1.5",
         "lexik/jwt-authentication-bundle": "^2.18",
         "nelmio/cors-bundle": "^2.5",
         "oneup/uploader-bundle": "*",
@@ -58,7 +59,8 @@
         "twig/twig": "^2.12|^3.0",
         "wohali/oauth2-discord-new": "^1.2",
         "knplabs/knp-snappy-bundle": "^1.9",
-        "wemersonjanuario/wkhtmltopdf-windows": "^0.12"
+        "wemersonjanuario/wkhtmltopdf-windows": "^0.12",
+        "twilio/sdk": "^8.5"
     },
     "config": {
         "allow-plugins": {
@@ -118,11 +120,5 @@
         "symfony/phpunit-bridge": "^7.2",
         "symfony/stopwatch": "6.4.*",
         "symfony/web-profiler-bundle": "6.4.*"
-    },
-    "repositories": {
-        "packagist": {
-            "type": "composer",
-            "url": "http://repo.packagist.org"
-        }
     }
 }
