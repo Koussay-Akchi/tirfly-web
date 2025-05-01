@@ -7,10 +7,9 @@ Agence de voyages moderne et innovante intégrant des fonctionnalités d'IA et d
 
 - [Description](#description)
 - [Screenshots](#screenshots)
-- [Tech Stack](#techstack)
+- [Tech Stack](#tech-stack)
 - [Prerequis](#prerequis)
 - [Installation](#installation)
-- [Fonctionalites](#fonctionalites)
 - [Contributions](#contributions)
 - [License](#license)
 
