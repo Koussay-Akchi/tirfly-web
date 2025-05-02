@@ -1,0 +1,308 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Gestion des Produits{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        .product-image-container {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .product-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .badge-eco {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+        }
+        .action-buttons .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .stock-low {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .stock-ok {
+            color: #28a745;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 30px;
+        }
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .export-buttons .btn {
+            margin-left: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Gestion des Produits</h1>
+            <div>
+                <a href="{{ path('ajout_produit') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i> Ajouter un produit
+                </a>
+                <a href="{{ path('export_products_pdf') }}" class="btn btn-primary ms-2">
+                    <i class="fas fa-file-pdf me-1"></i> Exporter en PDF
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="40">Image</th>
+                                <th>Nom</th>
+                                <th>Prix</th>
+                                <th>Stock</th>
+                                <th>Catégorie</th>
+                                <th width="100">Éco</th>
+                                <th width="180">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for produit in produits %}
+                                <tr>
+                                    <td>
+                                        <div class="product-image-container">
+                                            {% if produit.image %}
+                                                <img src="{{ path('produit_image', {id: produit.id}) }}" 
+                                                     alt="{{ produit.nom }}" 
+                                                     class="product-image">
+                                            {% else %}
+                                                <i class="fas fa-box-open text-muted"></i>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>{{ produit.nom }}</td>
+                                    <td>{{ produit.prixUnitaire|number_format(2, ',', ' ') }} €</td>
+                                    <td class="{{ produit.quantiteStock < 10 ? 'stock-low' : 'stock-ok' }}">
+                                        {{ produit.quantiteStock }}
+                                        {% if produit.quantiteStock < 10 %}
+                                            <i class="fas fa-exclamation-triangle ms-1"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ produit.categorie ?? '-' }}</td>
+                                    <td>
+                                        {% if produit.ecoFriendly %}
+                                            <span class="badge bg-success badge-eco">Oui</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary badge-eco">Non</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="action-buttons">
+                                        <a href="{{ path('edit_produit', {id: produit.id}) }}" 
+                                           class="btn btn-sm btn-primary"
+                                           title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('delete_produit', {id: produit.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="fas fa-box-open fa-2x mb-3"></i>
+                                        <h5 class="mb-1">Aucun produit trouvé</h5>
+                                        <p class="mb-0">Commencez par ajouter un produit</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {# Statistics Section #}
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Statistiques des Produits</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="stockChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="priceDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="ecoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Stock Status Chart
+            const stockCtx = document.getElementById('stockChart').getContext('2d');
+            new Chart(stockCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Stock suffisant', 'Stock faible'],
+                    datasets: [{
+                        data: [
+                            {{ produits|filter(p => p.quantiteStock >= 10)|length }},
+                            {{ produits|filter(p => p.quantiteStock < 10)|length }}
+                        ],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'État des stocks',
+                            font: { size: 16 }
+                        },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Price Distribution Chart
+            const priceCtx = document.getElementById('priceDistributionChart').getContext('2d');
+            new Chart(priceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-50€', '50-100€', '100-200€', '200€+'],
+                    datasets: [{
+                        label: 'Nombre de produits',
+                        data: [
+                            {{ produits|filter(p => p.prixUnitaire <= 50)|length }},
+                            {{ produits|filter(p => p.prixUnitaire > 50 and p.prixUnitaire <= 100)|length }},
+                            {{ produits|filter(p => p.prixUnitaire > 100 and p.prixUnitaire <= 200)|length }},
+                            {{ produits|filter(p => p.prixUnitaire > 200)|length }}
+                        ],
+                        backgroundColor: '#007bff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Distribution des prix',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+
+            // Category Distribution Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            {% if categories is defined and categories is not empty %}
+                new Chart(categoryCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: {{ categories|keys|json_encode|raw }},
+                        datasets: [{
+                            data: {{ categories|map(c => c)|json_encode|raw }},
+                            backgroundColor: [
+                                '#ff6384', '#36a2eb', '#ffce56', '#4bc0c0',
+                                '#9966ff', '#ff9f40', '#8ac24a', '#607d8b'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Répartition par catégorie',
+                                font: { size: 16 }
+                            },
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            {% else %}
+                categoryCtx.font = '16px Arial';
+                categoryCtx.fillText('Aucune donnée de catégorie disponible', 10, 50);
+            {% endif %}
+
+            // Eco-Friendly Chart
+            const ecoCtx = document.getElementById('ecoChart').getContext('2d');
+            new Chart(ecoCtx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Éco-responsables', 'Non éco-responsables'],
+                    datasets: [{
+                        data: [
+                            {{ produits|filter(p => p.ecoFriendly)|length }},
+                            {{ produits|filter(p => not p.ecoFriendly)|length }}
+                        ],
+                        backgroundColor: ['#28a745', '#6c757d'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Produits éco-responsables',
+                            font: { size: 16 }
+                        },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    
+{% endblock %}

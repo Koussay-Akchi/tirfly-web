@@ -1,0 +1,67 @@
+{% extends 'base-staff.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .admin-home {
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: calc(50vh - 60px);
+        }
+        .admin-home h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+        .image-stack {
+            position: relative;
+            width: 500px;
+            height: 350px;
+        }
+        .image-stack .logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: auto;
+            z-index: 10;
+        }
+        .image-stack .gif {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            z-index: 100;
+        }
+        @media (max-width: 600px) {
+            .admin-home {
+                padding: 20px;
+            }
+            .admin-home h1 {
+                font-size: 20px;
+                margin-bottom: 16px;
+            }
+            .image-stack {
+                width: 300px;
+                height: 200px;
+            }
+            .image-stack .logo {
+                width: 120px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="admin-home">
+    <h1>Bienvenue à Tirfly</h1>
+    <div class="image-stack">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo Tirfly" class="logo" />
+        <img src="{{ asset('images/planes.gif') }}" alt="Animation de planes" class="gif" />
+    </div>
+</div>
+{% endblock %}

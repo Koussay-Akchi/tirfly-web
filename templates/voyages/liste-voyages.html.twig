@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Voyages{% endblock %}
+
+{% block body %}
+<main class="main">
+    <article>
+        <section>
+            <div class="container mt-4">
+                <h2 class="text-center">Liste des Voyages</h2>
+                <div style="text-align: center; display: flex;">
+                    <a href="{{ path('assistant_voyage') }}" style="display: flex; align-items: center; margin-top: 20px; margin-bottom: 20px;">
+                        <h1 class="mb-4">→ Assistant TirFly AI</h1>
+                        <img src="{{ asset('images/ai.png') }}" alt="Logo" style="width: 20px; height: 20px;">
+                        </a>
+                </div>
+
+                <div class="filters-container">
+                    <div class="filters d-flex flex-wrap justify-content-center gap-3">
+                        <input type="text" id="searchField" class="form-control filter-input" placeholder="Rechercher un voyage...">
+                        <input type="date" id="dateDepartPicker" class="form-control filter-date">
+                        <span class="mx-2" style="color: grey;">➜</span>
+                        <input type="date" id="dateArrivePicker" class="form-control filter-date">
+                        <select id="countryComboBox" class="form-select filter-select">
+                            <option value="">Pays</option>
+                            {% for country in countries %}
+                                <option value="{{ country }}">{{ country }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn filter-button-primary" onclick="filterVoyages()">Filtrer</button>
+                        <button class="btn filter-button-danger" onclick="clearFilters()">Effacer filtres</button>
+                    </div>
+                </div>
+
+                <div class="voyage-grid">
+                    {% for voyage in voyages %}
+                        <a href="{{ path('details_voyage', {'id': voyage.id}) }}" class="voyage-card-link">
+                            <div class="voyage-card">
+                                {% if voyage.image %}
+                                    <img src="{{ asset('uploads/voyages/' ~ voyage.image) }}" height="100px" alt="Image du voyage" class="card-image">
+                                {% else %}
+                                    <img src="{{ asset('images/default.jpg') }}" height="100px" alt="Image par défaut" class="card-image" />
+                                {% endif %}
+                                
+                                <div class="card-title">{{ voyage.nom }}</div>
+                                
+                                <div class="card-details">
+                                    {{ voyage.dateDepart | date('Y-m-d') }} - {{ voyage.dateArrive | date('Y-m-d') }}<br>
+                                    {{ voyage.destination.ville }}, {{ voyage.destination.pays }}
+                                </div>
+                                
+                                <div class="card-price">{{ voyage.prix }} DT</div>
+                                
+                                <button class="card-reserve-button">Détails</button>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </article>
+</main>
+
+<script>
+    function filterVoyages() {
+        let searchText = document.getElementById("searchField").value.toLowerCase();
+        let departDate = document.getElementById("dateDepartPicker").value;
+        let arriveDate = document.getElementById("dateArrivePicker").value;
+        let selectedCountry = document.getElementById("countryComboBox").value;
+
+        let url = new URL(window.location.href);
+        url.searchParams.set('search', searchText);
+        if (departDate) url.searchParams.set('depart', departDate);
+        if (arriveDate) url.searchParams.set('arrive', arriveDate);
+        if (selectedCountry) url.searchParams.set('country', selectedCountry);
+
+        window.location.href = url.toString();
+    }
+    
+    function clearFilters() {
+        window.location.href = window.location.pathname;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Favoris - TirFly Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}"> <!-- Your main stylesheet -->
+    
+    <!-- Favorites page specific styles -->
+    <style>
+        /* Favorites-specific styles only */
+        .favorites-container {
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+        }
+        
+        .favorites-title {
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .product-card {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .favorite-heart {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: #ccc;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .favorite-heart.active {
+            color: #ff4757;
+        }
+        
+        .product-image {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .product-info {
+            padding: 1.5rem;
+        }
+        
+        .product-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+        
+        .product-badges {
+            margin-bottom: 0.75rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        
+        .eco-badge {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .stock-badge {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .out-of-stock {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .add-to-cart-form {
+            padding: 0 1.5rem 1.5rem;
+        }
+        
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 5px;
+        }
+        
+        /* Empty state */
+        .favorites-empty {
+            text-align: center;
+            padding: 3rem 0;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'main/navbar.html.twig' %}
+
+    <main>
+        <div class="container favorites-container">
+            <h1 class="favorites-title">Mes Favoris</h1>
+            
+            {% if favorites|length > 0 %}
+                <div class="product-grid">
+                    {% for produit in favorites %}
+                        <div class="product-card">
+                            <div class="favorite-heart active" data-product-id="{{ produit.id }}">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            
+                            <div class="product-image">
+                                <a href="{{ path('details_produit', {id: produit.id}) }}">
+                                    {% if produit.image %}
+                                        <img src="{{ path('produit_image', {id: produit.id}) }}" 
+                                             alt="{{ produit.nom|e }}" 
+                                             loading="lazy">
+                                    {% else %}
+                                        <img src="{{ asset('images/default-product.png') }}" 
+                                             alt="Produit par défaut"
+                                             loading="lazy">
+                                    {% endif %}
+                                </a>
+                            </div>
+
+                            <div class="product-info">
+                                <div class="product-badges">
+                                    {% if produit.ecoFriendly %}
+                                        <span class="badge eco-badge">🌱 Éco-responsable</span>
+                                    {% endif %}
+                                    <span class="badge {% if produit.quantiteStock > 0 %}stock-badge{% else %}out-of-stock{% endif %}">
+                                        {% if produit.quantiteStock > 0 %}En stock ({{ produit.quantiteStock }}){% else %}Rupture{% endif %}
+                                    </span>
+                                </div>
+
+                                <a href="{{ path('details_produit', {id: produit.id}) }}">
+                                    <h3 class="product-title">{{ produit.nom|e }}</h3>
+                                </a>
+                                <div class="product-price">{{ produit.prixUnitaire|number_format(2, ',', ' ') }} €</div>
+                            </div>
+
+                            <div class="add-to-cart-form">
+                                {% if produit.quantiteStock > 0 %}
+                                    <form action="{{ path('ajouter_article', {produitId: produit.id}) }}" method="post">
+                                        <div class="quantity-selector">
+                                            <input type="number" 
+                                                   name="quantite" 
+                                                   value="1" 
+                                                   min="1" 
+                                                   max="{{ produit.quantiteStock }}">
+                                        </div>
+                                        <button type="submit" class="btn btn-dark add-to-cart-btn">
+                                            <i class="fas fa-cart-plus"></i> Ajouter au panier
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <div class="text-muted">Produit indisponible</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="favorites-empty">
+                    <i class="fas fa-heart-broken fa-3x mb-3 text-muted"></i>
+                    <h4>Vous n'avez aucun favoris</h4>
+                    <p class="text-muted">Ajoutez des produits à vos favoris en cliquant sur l'icône cœur</p>
+                    <a href="{{ path('liste_produits') }}" class="btn btn-primary mt-3">
+                        <i class="fas fa-store me-2"></i> Voir la boutique
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    {% include 'main/footer.html.twig' %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Favorite toggle functionality
+            $('.favorite-heart').on('click', function() {
+                const productId = $(this).data('product-id');
+                const heart = $(this);
+                
+                $.ajax({
+                    url: '/toggle-favorite/' + productId,
+                    method: 'POST',
+                    success: function(response) {
+                        if (response.isFavorite) {
+                            heart.addClass('active');
+                        } else {
+                            heart.removeClass('active');
+                            // Optional: Remove the card from view if on favorites page
+                            if (window.location.pathname.includes('favoris')) {
+                                heart.closest('.product-card').fadeOut(300, function() {
+                                    $(this).remove();
+                                    // If no favorites left, show empty state
+                                    if ($('.product-card').length === 0) {
+                                        window.location.reload();
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

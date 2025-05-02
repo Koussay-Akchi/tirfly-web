@@ -1,0 +1,529 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Gestion des Réclamations{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <!-- Bouton pour basculer le thème -->
+    <button id="themeToggle" class="btn btn-theme-toggle">Activer le mode sombre</button>
+
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+            <h2 class="h5 mb-0"><i class="fas fa-tasks mr-2"></i>Réclamations</h2>
+        </div>
+        <div class="card-body">
+            <!-- Affichage du nombre de réclamations reçues aujourd'hui -->
+            <div class="daily-reclamation-count mb-4">
+                <h4>Réclamations reçues aujourd'hui</h4>
+                <span class="badge badge-primary" style="font-size: 1.2rem; padding: 0.5em 1em;">
+                    {{ daily_reclamation_count }}
+                </span>
+            </div>
+
+            <!-- Section des statistiques -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h4>Statistiques des réclamations par état</h4>
+                    <canvas id="reclamationChart" height="200"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <h4>Statistiques des réclamations par réponse</h4>
+                    <canvas id="responseChart" height="200"></canvas>
+                </div>
+            </div>
+            <hr>
+
+            <!-- Formulaire de recherche par état, urgence et non répondu -->
+            <div class="mb-4">
+                <form method="get" action="{{ path('liste_reclamations') }}" class="form-inline">
+                    <div class="form-group mr-2">
+                        <label for="etat" class="mr-2">Rechercher par état :</label>
+                        <select name="etat" id="etat" class="form-control">
+                            <option value="">Tous les états</option>
+                            {% for etat in etats %}
+                                <option value="{{ etat }}" {{ etat_selectionne == etat ? 'selected' : '' }}>
+                                    {{ etat }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <label for="urgence" class="mr-2">Rechercher par urgence :</label>
+                        <select name="urgence" id="urgence" class="form-control">
+                            <option value="">Toutes les urgences</option>
+                            {% for urgence in urgences %}
+                                <option value="{{ urgence }}" {{ urgence_selectionnee == urgence ? 'selected' : '' }}>
+                                    {{ urgence }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <label for="nonRepondu" class="mr-2">Statut de réponse :</label>
+                        <select name="nonRepondu" id="nonRepondu" class="form-control">
+                            <option value="">Tous les statuts</option>
+                            <option value="0" {{ non_repondu_selectionne == '0' ? 'selected' : '' }}>
+                                Réclamations répondues
+                            </option>
+                            <option value="1" {{ non_repondu_selectionne == '1' ? 'selected' : '' }}>
+                                Réclamations non répondues
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Rechercher</button>
+                </form>
+            </div>
+
+            <!-- Section du tableau -->
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width: 15%">Titre</th>
+                            <th style="width: 20%">État</th>
+                            <th style="width: 15%">Urgence</th>
+                            <th style="width: 15%">Date de Création</th> <!-- Nouvelle colonne -->
+                            <th style="width: 25%">Description</th>
+                            <th style="width: 25%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reclamation in reclamations %}
+                            <tr>
+                                <td class="text-truncate" style="max-width: 150px;">
+                                    {{ reclamation.titre|escape }}
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if reclamation.etat == 'Qualité de service' %}badge-warning
+                                        {% elseif reclamation.etat == 'Retard' %}badge-danger
+                                        {% elseif reclamation.etat == 'Annulation' %}badge-info
+                                        {% elseif reclamation.etat == 'Répondu' %}badge-success
+                                        {% else %}badge-secondary{% endif %}">
+                                        {{ reclamation.etat }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if reclamation.urgence == 'Inacceptable' %}badge-danger
+                                        {% elseif reclamation.urgence == 'Urgent' %}badge-warning
+                                        {% else %}badge-success{% endif %}">
+                                        {{ reclamation.urgence|default('Normal') }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {{ reclamation.dateCreation|date('d/m/Y H:i:s') }} <!-- Afficher la date -->
+                                </td>
+                                <td class="text-truncate" style="max-width: 200px;">
+                                    {{ reclamation.description|escape }}
+                                </td>
+                                <td>
+                                    <div class="d-flex action-buttons">
+                                        <a href="{{ path('details_reclamation', {'id': reclamation.id}) }}" 
+                                           class="btn btn-action btn-view" 
+                                           data-tooltip="Voir les détails">
+                                            <i class="fas fa-eye action-icon"></i>
+                                        </a>
+                                        {% set response = reclamation.reponses|first %}
+                                        {% if response %}
+                                            <a href="{{ path('app_reponse_edit', {'id': response.id}) }}" 
+                                               class="btn btn-action btn-edit" 
+                                               data-tooltip="Modifier la réponse">
+                                                <i class="fas fa-edit action-icon"></i>
+                                            </a>
+                                        {% endif %}
+                                        <a href="{{ path('delete_reclamation', {'id': reclamation.id}) }}" 
+                                           class="btn btn-action btn-delete" 
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?')"
+                                           data-tooltip="Supprimer">
+                                            <i class="fas fa-trash-alt action-icon"></i>
+                                        </a>
+                                        {% if reclamation.reponses|length == 0 %}
+                                            <a href="{{ path('repondre_reclamation', {'id': reclamation.id}) }}" 
+                                               class="btn btn-action btn-reply" 
+                                               data-tooltip="Répondre">
+                                                <i class="fas fa-reply action-icon"></i>
+                                            </a>
+                                        {% else %}
+                                            <button class="btn btn-action btn-disabled" 
+                                                    disabled 
+                                                    data-tooltip="Réponse déjà envoyée">
+                                                <i class="fas fa-reply action-icon"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 bg-light">
+                                    <div class="text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-3"></i><br>
+                                        Aucune réclamation trouvée
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    Total : {{ reclamations.getTotalItemCount }} réclamations
+                </small>
+                {{ knp_pagination_render(reclamations) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inclure Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique des états
+    const ctx = document.getElementById('reclamationChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_labels|json_encode|raw }},
+            datasets: [{
+                data: {{ chart_data|json_encode|raw }},
+                backgroundColor: ['#ff9f43', '#d63031', '#0984e3', '#00b894', '#636e72'],
+                borderWidth: 1,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Répartition des réclamations par état' }
+            }
+        }
+    });
+
+    // Graphique des réponses
+    const responseCtx = document.getElementById('responseChart').getContext('2d');
+    new Chart(responseCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ response_chart_labels|json_encode|raw }},
+            datasets: [{
+                data: {{ response_chart_data|json_encode|raw }},
+                backgroundColor: ['#00b894', '#ff7675'],
+                borderWidth: 1,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Répartition des réclamations par statut de réponse' }
+            }
+        }
+    });
+
+    // Gestion du thème
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('dark-mode');
+        this.textContent = document.body.classList.contains('dark-mode') 
+            ? 'Activer le mode clair' 
+            : 'Activer le mode sombre';
+    });
+});
+</script>
+
+<!-- Lien CSS externe -->
+<link rel="stylesheet" href="{{ asset('styles/style.css') }}">
+
+<!-- Styles CSS -->
+<style>
+/* Importation des polices et icônes */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(145deg, #d9e4f5, #f5e4e9);
+    color: #2d3436;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 25px;
+}
+
+.card {
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(145deg, #6c5ce7, #a29bfe);
+    border-radius: 20px 20px 0 0;
+    padding: 18px 28px;
+}
+
+.card-header h2 {
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.card-header .btn-light {
+    background: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 18px;
+    font-weight: 500;
+    color: #6c5ce7;
+    transition: all 0.4s ease;
+}
+
+.card-header .btn-light:hover {
+    background: #f1f2f6;
+    color: #a29bfe;
+    transform: scale(1.05);
+}
+
+.card-body h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 20px;
+}
+
+canvas#reclamationChart, canvas#responseChart {
+    max-width: 100%;
+    border-radius: 10px;
+    background: #f9f9f9;
+    padding: 10px;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-inline .form-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #2d3436;
+}
+
+.form-inline .form-control {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 0.9rem;
+    background: #f9f9f9;
+}
+
+.form-inline .form-control:focus {
+    border-color: #6c5ce7;
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.form-inline .btn-primary {
+    background: linear-gradient(145deg, #6c5ce7, #a29bfe);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: #ffffff;
+}
+
+.form-inline .btn-primary:hover {
+    background: linear-gradient(145deg, #a29bfe, #6c5ce7);
+}
+
+.table thead th {
+    background: #2d3436;
+    color: #dfe6e9;
+    font-weight: 500;
+    padding: 14px;
+}
+
+.table tbody tr:hover {
+    background: #f5f6fa;
+}
+
+.table td {
+    padding: 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.table td .badge {
+    font-size: 0.8rem;
+    padding: 5px 12px;
+    border-radius: 25px;
+}
+
+.badge-primary {
+    background: linear-gradient(145deg, #6c5ce7, #a29bfe);
+    color: #ffffff;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .badge-primary {
+    background: linear-gradient(145deg, #a29bfe, #6c5ce7);
+    color: #ffffff;
+}
+
+.daily-reclamation-count .badge-primary {
+    padding: 0.5em 1em;
+    font-size: 1.2rem;
+    border-radius: 25px;
+}
+
+.badge-danger {
+    background: linear-gradient(145deg, #ff7675, #d63031);
+    color: #ffffff;
+}
+
+.badge-warning {
+    background: linear-gradient(145deg, #ffbe76, #ff9f43);
+    color: #2d3436;
+}
+
+.badge-success {
+    background: linear-gradient(145deg, #55efc4, #00b894);
+    color: #ffffff;
+}
+
+.badge-info {
+    background: linear-gradient(145deg, #74b9ff, #0984e3);
+    color: #ffffff;
+}
+
+.badge-secondary {
+    background: linear-gradient(145deg, #b2bec3, #636e72);
+    color: #ffffff;
+}
+
+.action-buttons {
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-action {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-action:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-view { background: linear-gradient(145deg, #74b9ff, #0984e3); color: #ffffff; }
+.btn-edit { background: linear-gradient(145deg, #ffbe76, #ff9f43); color: #ffffff; }
+.btn-delete { background: linear-gradient(145deg, #ff7675, #d63031); color: #ffffff; }
+.btn-reply { background: linear-gradient(145deg, #6c5ce7, #a29bfe); color: #ffffff; }
+.btn-disabled { background: #b2bec3; color: #ffffff; cursor: not-allowed; }
+
+.btn-action[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-action:hover[data-tooltip]::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+.card-footer {
+    background: #f9f9f9;
+    border-radius: 0 0 20px 20px;
+    padding: 15px 25px;
+}
+
+.btn-theme-toggle {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(145deg, #6c5ce7, #a29bfe);
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    transition: all 0.4s ease;
+}
+
+body.dark-mode {
+    background: linear-gradient(145deg, #2d3436, #636e72);
+    color: #dfe6e9;
+}
+
+body.dark-mode .card { background: #2d3436; }
+body.dark-mode .card-header { background: linear-gradient(145deg, #a29bfe, #6c5ce7); }
+body.dark-mode .table thead th { background: #2d3436; }
+body.dark-mode .table tbody tr { background: #2d3436; border-bottom: 1px solid #636e72; }
+body.dark-mode .table tbody tr:hover { background: #636e72; }
+body.dark-mode .form-control { background: #3e4444; color: #dfe6e9; border-color: #636e72; }
+
+/* Style pour le compteur de réclamations quotidiennes */
+.daily-reclamation-count {
+    text-align: center;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.daily-reclamation-count h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+}
+
+body.dark-mode .daily-reclamation-count {
+    background: #3e4444;
+}
+
+body.dark-mode .daily-reclamation-count h4 {
+    color: #dfe6e9;
+}
+</style>
+{% endblock %}

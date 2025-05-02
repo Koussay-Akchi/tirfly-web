@@ -1,0 +1,11 @@
+nelmio_cors:
+    defaults:
+        origin_regex: true
+        allow_origin: ['http://127.0.0.1:8000']  # Make sure this is set correctly in .env
+        allow_methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE']
+        allow_headers: ['Content-Type', 'Authorization']
+        expose_headers: ['Link']
+        allow_credentials: true  # This is crucial for cookies
+        max_age: 3600
+    paths:
+        '^/': null

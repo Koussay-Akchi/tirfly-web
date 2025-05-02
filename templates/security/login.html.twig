@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TirFly - Take Off</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.7.4/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+	<link rel="shortcut icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a3c34, #2a4d6e, #1a3c34);
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            position: relative;
+        }
+
+        .bg-decor {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .cloud {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 2.5rem;
+            animation: drift 25s linear infinite;
+        }
+
+        .plane {
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.3);
+            animation: soar 12s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            0% { transform: translateX(-200px); }
+            100% { transform: translateX(1500px); }
+        }
+
+        @keyframes soar {
+            0% { transform: translate(0, 0) rotate(15deg); }
+            50% { transform: translate(80px, -40px) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(15deg); }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .logo-img {
+            width: 200px;
+            height: auto;
+            animation: fly 3s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes fly {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 3rem 2.5rem;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 480px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(8px);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(46, 204, 113, 0.2), transparent);
+            animation: pulse 10s infinite;
+            z-index: -1;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+            font-size: 16px;
+            transition: all 0.4s ease;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3);
+            background: white;
+            transform: scale(1.02);
+        }
+
+        .form-group i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #3498db;
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        input:focus + i {
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #2ecc71, #3498db);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button::after {
+            content: '→';
+            position: absolute;
+            right: 20px;
+            font-size: 20px;
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        button:hover::after {
+            opacity: 1;
+            right: 15px;
+        }
+
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 1rem;
+        }
+
+        .social-icon {
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .google-icon { color: #DB4437; }
+        .facebook-icon { color: #4267B2; }
+        .discord-icon { color: #5865F2; }
+        .faceid-icon { color: #3498db; }
+        .fingerprint-icon { color: #2ecc71; }
+
+        .links {
+            margin-top: 2rem;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .links a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.4s ease;
+            display: inline-block;
+        }
+
+        .links a:hover {
+            color: #2ecc71;
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 1rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message.hidden {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content p {
+            margin-bottom: 1rem;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .modal-content video {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content img {
+            display: block;
+            margin: 1rem auto;
+            max-width: 200px;
+        }
+
+        .modal-content button {
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto 1rem;
+        }
+
+        .modal-content .cancel-btn {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+        }
+
+        .modal-content .cancel-btn:hover {
+            background: linear-gradient(90deg, #c0392b, #e74c3c);
+        }
+
+        .modal-content .loading::after {
+            content: 'Chargement...';
+            font-size: 14px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+        }
+
+        .modal-content .loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .modal-content .retry-btn {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+        }
+
+        .modal-content .retry-btn:hover {
+            background: linear-gradient(90deg, #2ecc71, #3498db);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #e74c3c;
+        }
+
+        .modal-content .form-group {
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem;
+            }
+            .logo-img {
+                width: 150px;
+            }
+            .modal-content {
+                padding: 1.5rem;
+            }
+            .social-icon {
+                font-size: 20px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-decor">
+    <i class="fas fa-cloud cloud" style="top: 15%; left: 0;"></i>
+    <i class="fas fa-cloud cloud" style="top: 35%; left: 25%; animation-delay: -8s;"></i>
+    <i class="fas fa-cloud cloud" style="top: 65%; left: 10%; animation-delay: -15s;"></i>
+    <i class="fas fa-plane plane" style="top: 45%; left: 15%;"></i>
+    <i class="fas fa-plane plane" style="top: 75%; left: 55%; animation-delay: -4s;"></i>
+</div>
+
+<div class="login-container">
+    <div class="logo-container">
+        <img src="images/logo.svg" alt="Logo TirFly" class="logo-img">
+    </div>
+    <form id="login-form">
+        <div class="form-group">
+            <input type="email" name="email" id="email" placeholder="Votre adresse e-mail" required>
+            <i class="fas fa-envelope"></i>
+        </div>
+        <div class="form-group">
+            <input type="password" name="password" id="password" placeholder="Mot de passe" required>
+            <i class="fas fa-lock"></i>
+        </div>
+        <button type="submit">Décollage</button>
+        <div class="social-login">
+            <a href="/connect/google" class="social-icon google-icon" id="google-icon" title="Sign in with Google">
+                <i class="fab fa-google"></i>
+            </a>
+            <a href="/connect/facebook" class="social-icon facebook-icon" id="facebook-icon" title="Sign in with Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="/connect/discord" class="social-icon discord-icon" id="discord-icon" title="Sign in with Discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <span class="social-icon faceid-icon" id="faceid-icon" title="Sign in with Face Recognition">
+                <i class="fas fa-user-check"></i>
+            </span>
+            <span class="social-icon fingerprint-icon" id="fingerprint-icon" title="Sign in with Fingerprint">
+                <i class="fas fa-fingerprint"></i>
+            </span>
+        </div>
+        <div class="error-message hidden" id="error-message"></div>
+        <div class="links">
+            <a href="/forgot-password">Mot de passe oublié ?</a>
+            <a href="/signup">Rejoindre TirFly</a>
+        </div>
+    </form>
+</div>
+
+<div class="modal" id="faceid-modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-modal">×</span>
+        <p>Veuillez entrer votre e-mail et utiliser votre visage pour vous connecter.</p>
+        <div class="form-group">
+            <input type="email" id="faceid-email" placeholder="Votre adresse e-mail" required>
+            <i class="fas fa-envelope"></i>
+        </div>
+        <video id="video" width="300" height="225" autoplay muted playsinline></video>
+        <button id="capture-face-btn">Connexion par visage</button>
+        <button id="cancel-face-btn" class="cancel-btn">Annuler</button>
+        <button id="retry-camera-btn" class="retry-btn" style="display: none;">Réessayer la caméra</button>
+    </div>
+</div>
+
+<div class="modal" id="fingerprint-modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-fingerprint-modal">×</span>
+        <p>Entrez votre e-mail et scannez le QR code avec votre téléphone pour vérifier votre empreinte digitale.</p>
+        <div class="form-group">
+            <input type="email" id="fingerprint-email" placeholder="Votre adresse e-mail" required>
+            <i class="fas fa-envelope"></i>
+        </div>
+        <button id="generate-qr-btn">Générer le QR Code</button>
+        <div id="qr-code-container" style="display: none;">
+            <p>Scannez ce QR code avec votre téléphone :</p>
+            <img id="qr-code-image" src="" alt="QR Code">
+        </div>
+        <button id="cancel-fingerprint-btn" class="cancel-btn">Annuler</button>
+    </div>
+</div>
+
+<script>
+(async () => {
+    try {
+        await tf.setBackend('cpu');
+        console.log("TensorFlow.js backend set to CPU");
+    } catch (error) {
+        console.error("Failed to set TensorFlow.js backend:", error);
+        displayError("Échec de l'initialisation du backend TensorFlow.js : " + error.message);
+    }
+})();
+
+async function loadModels() {
+    let MODEL_URL = 'https://unpkg.com/face-api.js@0.22.2/weights/';
+    try {
+        console.log("Attempting to load Face-API.js models from CDN...");
+        await Promise.all([
+            faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL).catch(err => {
+                console.error("Failed to load ssdMobilenetv1 from CDN:", err);
+                throw err;
+            }),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL).catch(err => {
+                console.error("Failed to load faceLandmark68Net from CDN:", err);
+                throw err;
+            }),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL).catch(err => {
+                console.error("Failed to load faceRecognitionNet from CDN:", err);
+                throw err;
+            })
+        ]);
+        console.log("Models loaded successfully from CDN!");
+        return true;
+    } catch (error) {
+        console.error("CDN loading failed:", error);
+        console.log("Falling back to local weights...");
+        MODEL_URL = '/weights/';
+        try {
+            await Promise.all([
+                faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL).catch(err => {
+                    console.error("Failed to load ssdMobilenetv1 locally:", err);
+                    throw err;
+                }),
+                faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL).catch(err => {
+                    console.error("Failed to load faceLandmark68Net locally:", err);
+                    throw err;
+                }),
+                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL).catch(err => {
+                    console.error("Failed to load faceRecognitionNet locally:", err);
+                    throw err;
+                })
+            ]);
+            console.log("Models loaded successfully from local weights!");
+            return true;
+        } catch (localError) {
+            console.error("Local loading failed:", localError);
+            displayError("Échec du chargement des modèles de reconnaissance faciale : " + localError.message);
+            return false;
+        }
+    }
+}
+
+async function startVideo() {
+    const video = document.getElementById('video');
+    try {
+        console.log("Requesting webcam access...");
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 300, height: 225 } });
+        video.srcObject = stream;
+        console.log("Webcam stream started.");
+        return stream;
+    } catch (err) {
+        console.error("Error accessing webcam:", err);
+        let errorMessage = "Échec d'accès à la webcam. Veuillez vérifier les autorisations.";
+        if (err.name === "NotAllowedError") {
+            errorMessage = "L'accès à la webcam a été refusé. Veuillez autoriser l'accès à la caméra.";
+        } else if (err.name === "NotFoundError") {
+            errorMessage = "Aucune webcam n'a été trouvée sur cet appareil.";
+        } else if (err.name === "SecurityError") {
+            errorMessage = "L'accès à la webcam nécessite une connexion sécurisée (HTTPS).";
+        }
+        throw new Error(errorMessage);
+    }
+}
+
+function stopVideo(video) {
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+    }
+}
+
+function displayError(message) {
+    const errorMessage = document.getElementById("error-message");
+    errorMessage.textContent = message;
+    errorMessage.classList.remove('hidden');
+    setTimeout(() => {
+        errorMessage.classList.add('hidden');
+    }, 10000);
+}
+
+async function handleFaceLogin() {
+    const modal = document.getElementById('faceid-modal');
+    const video = document.getElementById('video');
+    const emailInput = document.getElementById('faceid-email');
+    const captureButton = document.getElementById('capture-face-btn');
+    const cancelButton = document.getElementById('cancel-face-btn');
+    const closeModal = document.getElementById('close-modal');
+    const retryButton = document.getElementById('retry-camera-btn');
+
+    modal.style.display = 'flex';
+
+    let stream;
+    try {
+        stream = await startVideo();
+        retryButton.style.display = 'none';
+    } catch (err) {
+        await displayError(err.message);
+        retryButton.style.display = 'block';
+        captureButton.style.display = 'none';
+        cancelButton.style.display = 'block';
+        return;
+    }
+
+    let isCapturing = false;
+    let attemptCount = 0;
+    const maxAttempts = 100;
+
+    async function detectFace() {
+        if (!isCapturing) return;
+
+        attemptCount++;
+        if (attemptCount > maxAttempts) {
+            isCapturing = false;
+            captureButton.classList.remove('loading');
+            captureButton.textContent = 'Connexion par visage';
+            modal.style.display = 'none';
+            stopVideo(video);
+            displayError("Temps écoulé : aucun visage détecté. Assurez-vous que votre visage est bien visible et réessayez.");
+            return;
+        }
+
+        try {
+            console.log("Attempting face detection... (Attempt " + attemptCount + ")");
+            const detections = await faceapi
+                .detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+
+            if (detections) {
+                console.log("Face detected successfully!");
+                const faceDescriptor = detections.descriptor;
+                console.log("Face descriptor captured:", faceDescriptor);
+
+                const email = emailInput.value.trim();
+                if (!email) {
+                    isCapturing = false;
+                    captureButton.classList.remove('loading');
+                    captureButton.textContent = 'Connexion par visage';
+                    displayError("Veuillez entrer votre adresse e-mail.");
+                    return;
+                }
+
+                console.log("Sending face descriptor to backend for email:", email);
+                const response = await fetch('/api/login/face', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, faceDescriptor: Array.from(faceDescriptor) })
+                });
+
+                let data;
+                try {
+                    console.log("Response status:", response.status);
+                    data = await response.json();
+                    console.log("Backend response:", data);
+                } catch (err) {
+                    console.error("Non-JSON response:", await response.text());
+                    throw new Error("Réponse du serveur non valide : format JSON attendu.");
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Erreur inconnue lors de la connexion');
+                }
+
+                alert("Connexion réussie avec reconnaissance faciale !");
+                isCapturing = false;
+                captureButton.classList.remove('loading');
+                captureButton.textContent = 'Connexion par visage';
+                modal.style.display = 'none';
+                stopVideo(video);
+                window.location.href = "/";
+            } else {
+                console.log("No face detected on attempt " + attemptCount + ", retrying...");
+                setTimeout(detectFace, 100);
+            }
+        } catch (error) {
+            console.error("Face login error:", error);
+            displayError("Échec de la connexion : " + error.message);
+            isCapturing = false;
+            captureButton.classList.remove('loading');
+            captureButton.textContent = 'Connexion par visage';
+            modal.style.display = 'none';
+            stopVideo(video);
+            return;
+        }
+    }
+
+    video.onloadedmetadata = () => {
+        video.play();
+        console.log("Video stream ready for face detection.");
+    };
+
+    captureButton.addEventListener('click', async () => {
+        if (isCapturing) return;
+
+        const email = emailInput.value.trim();
+        if (!email) {
+            displayError("Veuillez entrer votre adresse e-mail.");
+            return;
+        }
+
+        isCapturing = true;
+        captureButton.classList.add('loading');
+        captureButton.textContent = '';
+        attemptCount = 0;
+        detectFace();
+    });
+
+    retryButton.addEventListener('click', async () => {
+        retryButton.style.display = 'none';
+        captureButton.style.display = 'block';
+        try {
+            stream = await startVideo();
+            video.onloadedmetadata = () => {
+                video.play();
+                console.log("Video stream ready for face detection after retry.");
+            };
+        } catch (err) {
+            await displayError(err.message);
+            retryButton.style.display = 'block';
+            captureButton.style.display = 'none';
+        }
+    });
+
+    cancelButton.addEventListener('click', () => {
+        isCapturing = false;
+        captureButton.classList.remove('loading');
+        captureButton.textContent = 'Connexion par visage';
+        modal.style.display = 'none';
+        stopVideo(video);
+    });
+
+    closeModal.addEventListener('click', () => {
+        isCapturing = false;
+        captureButton.classList.remove('loading');
+        captureButton.textContent = 'Connexion par visage';
+        modal.style.display = 'none';
+        stopVideo(video);
+    });
+}
+
+document.getElementById('fingerprint-icon').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('fingerprint-modal').style.display = 'flex';
+});
+
+document.getElementById('generate-qr-btn').addEventListener('click', async () => {
+    const email = document.getElementById('fingerprint-email').value.trim();
+    if (!email) {
+        displayError("Veuillez entrer votre adresse e-mail.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/fingerprint/qr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        console.log("Response status:", response.status);
+        let data;
+        try {
+            data = await response.json();
+            console.log("Response data:", data);
+        } catch (err) {
+            console.error("Failed to parse JSON response:", await response.text());
+            throw new Error("Réponse du serveur non valide : format JSON attendu.");
+        }
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Échec de la génération du QR code');
+        }
+
+        const qrCodeImage = document.getElementById('qr-code-image');
+        qrCodeImage.src = data.qrCode;
+        document.getElementById('qr-code-container').style.display = 'block';
+
+        pollFingerprintStatus(data.token);
+    } catch (error) {
+        console.error("Error generating QR code:", error);
+        displayError("Échec de la génération du QR code : " + error.message);
+    }
+});
+
+async function pollFingerprintStatus(token) {
+    const interval = setInterval(async () => {
+        try {
+            const response = await fetch(`/api/fingerprint/status/${token}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Échec de la vérification de l\'état');
+            }
+
+            if (data.status === 'pending') {
+                return;
+            }
+
+            clearInterval(interval);
+
+            if (data.status === 'success') {
+                alert("Connexion réussie avec empreinte digitale !");
+                document.getElementById('fingerprint-modal').style.display = 'none';
+                window.location.href = "/";
+            } else {
+                displayError("Échec de la vérification de l'empreinte digitale : " + (data.error || 'Erreur inconnue'));
+                document.getElementById('qr-code-container').style.display = 'none';
+            }
+        } catch (error) {
+            clearInterval(interval);
+            displayError("Erreur lors de la vérification : " + error.message);
+            document.getElementById('qr-code-container').style.display = 'none';
+        }
+    }, 2000);
+}
+
+document.getElementById('cancel-fingerprint-btn').addEventListener('click', () => {
+    document.getElementById('fingerprint-modal').style.display = 'none';
+    document.getElementById('qr-code-container').style.display = 'none';
+});
+
+document.getElementById('close-fingerprint-modal').addEventListener('click', () => {
+    document.getElementById('fingerprint-modal').style.display = 'none';
+    document.getElementById('qr-code-container').style.display = 'none';
+});
+
+let modelsLoaded = false;
+(async () => {
+    try {
+        modelsLoaded = await loadModels();
+    } catch (error) {
+        console.error("Initialization failed:", error);
+        displayError("Échec de l'initialisation des modèles : " + error.message);
+    }
+})();
+
+document.getElementById('faceid-icon').addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (!modelsLoaded) {
+        displayError("Les modèles de reconnaissance faciale ne sont pas chargés. Veuillez vérifier votre connexion ou réessayer.");
+        return;
+    }
+    console.log("Opening face recognition modal...");
+    handleFaceLogin();
+});
+
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+const errorMessage = getQueryParam('error');
+const errorMessageElement = document.getElementById('error-message');
+if (errorMessage) {
+    errorMessageElement.textContent = decodeURIComponent(errorMessage);
+    errorMessageElement.classList.remove('hidden');
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+document.getElementById("login-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const payload = {
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value
+    };
+
+    fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(data => {
+                throw new Error(data.error || 'Erreur inconnue');
+            });
+        }
+        return res.json();
+    })
+    .then(data => {
+            console.log(data);
+            alert("Connexion réussie !");
+            if (data.role === "ROLE_CLIENT") {
+                window.location.href = "/";
+            } else {
+                window.location.href = "/admin";
+            }
+    })
+    .catch(error => {
+        errorMessageElement.textContent = "Échec de la connexion : " + error.message;
+        errorMessageElement.classList.remove('hidden');
+        setTimeout(() => {
+            errorMessageElement.classList.add('hidden');
+        }, 10000);
+    });
+});
+</script>
+<script src="{{ asset('js/app.js') }}" type="module"></script>
+</body>
+</html>

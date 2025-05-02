@@ -1,0 +1,320 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réserver
+	{{ type }}
+{% endblock %}
+
+{% block body %}
+	<div class="mainscreen">
+		<div class="card">
+			<div class="leftside">
+				<img src="{{ asset('images/default-reservation.png') }}" class="product" alt="Réservation"/>
+			</div>
+			<div class="rightside">
+				<form method="post">
+					<h1>Réservation</h1>
+					<h2>
+						{{ type == 'voyage' ? 'Voyage' : (type == 'hebergement' ? 'Hébergement' : 'Pack') }}
+						:
+						{{ selected.nom }}
+					</h2>
+
+					{% if app.flashes('success') %}
+						<div class="alert alert-success">
+					{% for msg in app.flashes('success') %}
+							{{ msg }}
+							{% endfor %}
+						</div>
+					{% endif %}
+					{% if app.flashes('error') %}
+						<div class="alert alert-danger">
+					{% for msg in app.flashes('error') %}
+							{{ msg }}
+							{% endfor %}
+						</div>
+					{% endif %}
+
+					<p>Nombre de personnes</p>
+					<input type="number" id="personCount" name="personCount" class="inputbox" min="1" max="10" required value="{{ formData.personCount }}">
+
+					{% if type == 'hebergement' %}
+						<p>Nombre de jours</p>
+						<input type="number" id="jours" name="jours" class="inputbox" min="1" max="30" required value="{{ formData.jours }}">
+
+						<p>Date de réservation</p>
+						<input type="date" id="reservationDate" name="reservationDate" class="inputbox" required value="{{ formData.reservationDate }}">
+					{% elseif type == 'voyage' or type == 'pack' %}
+						<input type="hidden" id="reservationDate" name="reservationDate" value="{{ formData.reservationDate }}">
+					{% endif %}
+
+					<div class="coupon-section">
+						<p>Coupon (facultatif)</p>
+						<div class="coupon-input-group">
+							<input type="text" id="coupon" name="coupon" class="inputbox" placeholder="Entrez le code coupon">
+							<button type="button" id="applyCoupon" class="button-secondary">Appliquer coupon</button>
+						</div>
+						<div id="couponMessage" style="display: none; margin: 10px 0; padding: 10px; border-radius: 5px;"></div>
+					</div>
+
+					<p>Prix total :</p>
+					<div id="priceDetails" style="font-weight: bold; margin-bottom: 1rem;">0.000 DT</div>
+					<div id="discountedPrice" style="font-weight: bold; color: #28a745; margin-bottom: 1rem; display: none;"></div>
+
+					<button type="submit" class="button">Confirmer la réservation</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<style>
+		body {
+			font-family: 'Roboto', sans-serif !important;
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		.mainscreen {
+			min-height: 100vh;
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			background-color: #DFDBE5;
+			background-image: url("/images/bg-airport.jpg");
+			background-size: cover;
+			color: #963E7B;
+		}
+
+		.card {
+			width: 60rem;
+			margin: 200px auto 50px;
+			background: white;
+			position: center;
+			align-self: center;
+			top: 50rem;
+			border-radius: 1.5rem;
+			box-shadow: 4px 3px 20px #3535358c;
+			display: flex;
+			flex-direction: row;
+		}
+
+		.leftside {
+			width: 25rem;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			border-top-left-radius: 1.5rem;
+			border-bottom-left-radius: 1.5rem;
+		}
+
+		.product {
+			object-fit: cover;
+			width: 20em;
+			height: 20em;
+		}
+
+		.rightside {
+			background-color: #ffffff;
+			width: 35rem;
+			border-bottom-right-radius: 1.5rem;
+			border-top-right-radius: 1.5rem;
+			padding: 1rem 2rem 3rem 3rem;
+		}
+
+		p {
+			display: block;
+			font-size: 1.1rem;
+			font-weight: 400;
+			margin: 0.8rem 0;
+		}
+
+		.inputbox {
+			color: #030303;
+			width: 100%;
+			padding: 0.5rem;
+			border: none;
+			border-bottom: 1.5px solid #ccc;
+			margin-bottom: 1rem;
+			border-radius: 0.3rem;
+			font-family: 'Roboto', sans-serif;
+			color: #615a5a;
+			font-size: 1.1rem;
+			font-weight: 500;
+			outline: none;
+		}
+
+		.coupon-input-group {
+			display: flex;
+			gap: 10px;
+		}
+
+		.coupon-input-group .inputbox {
+			flex-grow: 1;
+			margin-bottom: 0;
+		}
+
+		.button-secondary {
+			background: linear-gradient(135deg, #6a737b 0%, #333333 100%);
+			padding: 10px 15px;
+			border: none;
+			border-radius: 5px;
+			color: white;
+			font-weight: 400;
+			font-size: 0.9rem;
+			cursor: pointer;
+			outline: none;
+		}
+
+		.button-secondary:hover {
+			transform: scale(1.05);
+			box-shadow: 2px 2px 4px #38373785;
+		}
+
+		.expcvv {
+			display: flex;
+			justify-content: space-between;
+			padding-top: 0.6rem;
+		}
+
+		.expcvv_text {
+			padding-right: 1rem;
+		}
+		.expcvv_text2 {
+			padding: 0 1rem;
+		}
+
+		.button {
+			background: linear-gradient(135deg , #753370 0%, #298096 100%);
+			padding: 15px;
+			border: none;
+			border-radius: 50px;
+			color: white;
+			font-weight: 400;
+			font-size: 1.2rem;
+			margin-top: 10px;
+			width: 100%;
+			letter-spacing: 0.11rem;
+			outline: none;
+			cursor: pointer;
+		}
+
+		.button:hover {
+			transform: scale(1.05) translateY(-3px);
+			box-shadow: 3px 3px 6px #38373785;
+		}
+
+		@media only screen and(max-width: 1000px) {
+			.card {
+				flex-direction: column;
+				width: auto;
+
+			}
+
+			.leftside {
+				width: 100%;
+				border-top-right-radius: 0;
+				border-bottom-left-radius: 0;
+				border-top-right-radius: 0;
+				border-radius: 0;
+			}
+
+			.rightside {
+				width: auto;
+				border-bottom-left-radius: 1.5rem;
+				padding: 0.5rem 3rem 3rem 2rem;
+				border-radius: 0;
+			}
+		}
+	</style>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			const type = "{{ type }}";
+			const selectedPrice = parseFloat("{{ selectedPrice }}");
+			let appliedDiscount = 0;
+
+			const personCountInput = document.getElementById("personCount");
+			const joursInput = document.getElementById("jours");
+			const priceDetails = document.getElementById("priceDetails");
+			const discountedPrice = document.getElementById("discountedPrice");
+			const couponInput = document.getElementById("coupon");
+			const applyCouponBtn = document.getElementById("applyCoupon");
+			const couponMessage = document.getElementById("couponMessage");
+
+			function updateTotalPrice(discount = 0) {
+				const personCount = parseInt(personCountInput.value) || 1;
+				let jours = 1;
+				if (type === "hebergement" && joursInput) {
+					jours = parseInt(joursInput.value) || 1;
+				}
+				const totalPrice = personCount * selectedPrice * (type === "hebergement" ? jours : 1);
+				priceDetails.textContent = totalPrice.toFixed(3) + " DT";
+
+				if (discount > 0) {
+					const discounted = totalPrice * ((100 - discount) / 100);
+					discountedPrice.textContent = "Prix après remise: " + discounted.toFixed(3) + " DT";
+					discountedPrice.style.display = "block";
+				} else {
+					discountedPrice.style.display = "none";
+				}
+			}
+
+			personCountInput.addEventListener("change", function() {
+				updateTotalPrice(appliedDiscount);
+			});
+			
+			if (joursInput) {
+				joursInput.addEventListener("change", function() {
+					updateTotalPrice(appliedDiscount);
+				});
+			}
+
+			applyCouponBtn.addEventListener("click", function() {
+				const couponCode = couponInput.value.trim();
+				
+				if (!couponCode) {
+					couponMessage.innerHTML = "Veuillez entrer un code coupon";
+					couponMessage.style.display = "block";
+					couponMessage.style.backgroundColor = "#f8d7da";
+					couponMessage.style.color = "#721c24";
+					appliedDiscount = 0;
+					updateTotalPrice();
+					return;
+				}
+
+				fetch(`/check-coupon/${couponCode}`, {
+					method: 'GET',
+					headers: {
+						'X-Requested-With': 'XMLHttpRequest'
+					}
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.valid) {
+						couponMessage.innerHTML = `Coupon appliqué : -${data.remise}%`;
+						couponMessage.style.display = "block";
+						couponMessage.style.backgroundColor = "#d4edda";
+						couponMessage.style.color = "#155724";
+						appliedDiscount = data.remise;
+					} else {
+						couponMessage.innerHTML = "Aucun coupon trouvé avec ce code";
+						couponMessage.style.display = "block";
+						couponMessage.style.backgroundColor = "#f8d7da";
+						couponMessage.style.color = "#721c24";
+						appliedDiscount = 0;
+					}
+					updateTotalPrice(appliedDiscount);
+				})
+				.catch(error => {
+					console.error('Erreur:', error);
+					couponMessage.innerHTML = "Erreur lors de la vérification du coupon";
+					couponMessage.style.display = "block";
+					couponMessage.style.backgroundColor = "#f8d7da";
+					couponMessage.style.color = "#721c24";
+				});
+			});
+
+			updateTotalPrice();
+		});
+	</script>
+{% endblock %}

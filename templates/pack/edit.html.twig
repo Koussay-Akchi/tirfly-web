@@ -1,0 +1,134 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Modifier le Pack{% endblock %}
+
+{% block body %}
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="card shadow p-4" style="width: 100%; max-width: 600px; border-radius: 1rem;">
+            <h2 class="text-center mb-4">Modifier le Pack</h2>
+
+            {% if pack.image %}
+                <div class="text-center mb-4">
+                    <p class="mb-2">Image actuelle :</p>
+                    <img src="{{ asset('uploads/packs/' ~ pack.image) }}" alt="Image du pack"
+                         class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
+                </div>
+            {% endif %}
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
+
+            <div class="form-group mb-3">
+                {{ form_label(form.nom, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.nom, {'attr': {
+                    'class': 'form-control ' ~ (form.nom.vars.errors|length ? 'is-invalid' : ''),
+                    'placeholder': 'Nom du pack'
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.nom) }}
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form_label(form.prix, null, {'label_attr': {'class': 'form-label'}}) }}
+                <div class="input-group">
+                    <span class="input-group-text">€</span>
+                    {{ form_widget(form.prix, {'attr': {
+                        'class': 'form-control ' ~ (form.prix.vars.errors|length ? 'is-invalid' : ''),
+                        'placeholder': '0.00'
+                    }}) }}
+                </div>
+                <div class="invalid-feedback">
+                    {{ form_errors(form.prix) }}
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form_label(form.voyages, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.voyages, {'attr': {
+                    'class': 'form-select ' ~ (form.voyages.vars.errors|length ? 'is-invalid' : '')
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.voyages) }}
+                </div>
+                <small class="form-text text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs voyages</small>
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form_label(form.sejours, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.sejours, {'attr': {
+                    'class': 'form-select ' ~ (form.sejours.vars.errors|length ? 'is-invalid' : '')
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.sejours) }}
+                </div>
+            </div>
+            {# Après le bloc sejours #}
+<div class="form-group mb-3">
+    {{ form_label(form.evenements, null, {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(form.evenements, {'attr': {
+        'class': 'form-select ' ~ (form.evenements.vars.errors|length ? 'is-invalid' : '')
+    }}) }}
+    <div class="invalid-feedback">
+        {{ form_errors(form.evenements) }}
+    </div>
+    <small class="form-text text-muted">Sélectionnez les événements inclus dans ce pack</small>
+</div>
+
+            <div class="form-group mb-3">
+                {{ form_label(form.image, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.image, {'attr': {
+                    'class': 'form-control ' ~ (form.image.vars.errors|length ? 'is-invalid' : '')
+                }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.image) }}
+                </div>
+                <small class="form-text text-muted">Formats acceptés: JPG, PNG, WEBP (max 2MB)</small>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-save me-1"></i> Mettre à jour
+                </button>
+                <a href="{{ path('admin_pack_list') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Annuler
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <style>
+        .form-select-multiple {
+            height: auto;
+            min-height: 120px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .card { 
+            border: none;
+        }
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+        }
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        .is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const multiSelects = document.querySelectorAll('select[multiple]');
+            multiSelects.forEach(select => {
+                select.classList.add('form-select-multiple');
+            });
+        });
+    </script>
+{% endblock %}

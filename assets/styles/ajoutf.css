@@ -1,0 +1,277 @@
+/* styles/ajoutf.css */
+/* Main container avec fond dégradé vibrant */
+.form-container {
+    max-width: 750px;
+    margin: 3rem auto;
+    padding: 3rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effet de vague décorative en arrière-plan */
+.form-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(106,17,203,0.08) 0%, rgba(37,117,252,0) 70%);
+    z-index: 0;
+}
+
+/* Contenu par-dessus l'arrière-plan */
+.form-container > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Titre principal avec effet "neon" subtil */
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 3rem;
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 1.5rem;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 5px;
+    background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(106,17,203,0.3);
+}
+
+/* Style des sections avec titres bien espacés */
+.form-group {
+    margin-bottom: 2.5rem;
+    position: relative;
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border-left: 4px solid #6a11cb;
+}
+
+.form-group:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+/* Titres des sections très visibles */
+form label {
+    display: block;
+    margin-bottom: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+form label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: #6a11cb;
+    border-radius: 50%;
+}
+
+/* Champs de formulaire avec style moderne */
+form input, 
+form textarea, 
+form select {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3.5rem;
+    border: 2px solid #e0e6ed;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+    color: #2d3748;
+    margin-top: 0.5rem;
+}
+
+form input:hover, 
+form textarea:hover, 
+form select:hover {
+    border-color: #a5b4cb;
+}
+
+form input:focus, 
+form textarea:focus, 
+form select:focus {
+    border-color: #6a11cb;
+    box-shadow: 0 5px 20px rgba(106,17,203,0.15);
+    background-color: white;
+}
+
+/* Icônes stylisées */
+.input-icon {
+    position: absolute;
+    left: 20px;
+    top: 55px;
+    color: #6a11cb;
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+}
+
+/* Zone de texte */
+textarea {
+    min-height: 150px;
+    padding-left: 3.5rem !important;
+    line-height: 1.7;
+}
+
+/* Conteneur des boutons */
+.button-container {
+    display: flex;
+    gap: 2rem;
+    margin-top: 3rem;
+    justify-content: center;
+}
+
+/* Bouton principal avec effet 3D */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    padding: 1.1rem 2.5rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    letter-spacing: 0.8px;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    transition: all 0.4s ease;
+    opacity: 0.9;
+}
+
+.btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+}
+
+.btn:active {
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    color: white;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+}
+
+.btn-success::before {
+    background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+    opacity: 0;
+}
+
+.btn-success:hover::before {
+    opacity: 1;
+}
+
+.btn-secondary {
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn-secondary::before {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    opacity: 0;
+}
+
+.btn-secondary:hover::before {
+    opacity: 1;
+}
+
+.btn i {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+/* Animation au survol des sections */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+}
+
+.form-group:hover {
+    animation: pulse 1.5s infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-container {
+        margin: 1.5rem;
+        padding: 2rem;
+        border-radius: 20px;
+    }
+    
+    h1 {
+        font-size: 2.2rem;
+    }
+    
+    .button-container {
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 1rem;
+    }
+    
+    .form-group {
+        padding: 1.2rem;
+    }
+}
+
+/* Effet de lumière dynamique */
+@keyframes lightEffect {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.form-container {
+    background-size: 200% 200%;
+    animation: lightEffect 15s ease infinite;
+}

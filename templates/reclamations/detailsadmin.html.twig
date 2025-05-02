@@ -1,0 +1,246 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Détails de la Réclamation{% endblock %}
+
+{% block body %}
+<div class="container">
+    <header class="page-header">
+        <h1>Détails de la Réclamation #{{ reclamation.id }}</h1>
+    </header>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="reclamation-details">
+              
+                <div class="detail-item">
+                    <span class="detail-label">Titre</span>
+                    <span class="detail-value">{{ reclamation.titre }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Description</span>
+                    <span class="detail-value">{{ reclamation.description }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">État</span>
+                    <span class="detail-value">{{ reclamation.etat }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">{{ reclamation.dateCreation ? reclamation.dateCreation|date('d/m/Y H:i') : 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Client</span>
+                    <span class="detail-value">{{ reclamation.client ? reclamation.client.nom : 'Inconnu' }}</span>
+                </div>
+            </div>
+
+            {% if reclamation.videoPath %}
+                <div class="video-section">
+                    <h4 class="section-title">Vidéo associée</h4>
+                    <video controls class="reclamation-video">
+                        <source src="{{ asset('Uploads/videos/' ~ reclamation.videoPath) }}" type="video/mp4">
+                        Votre navigateur ne supporte pas la balise vidéo.
+                    </video>
+                </div>
+            {% endif %}
+
+            <div class="responses-section">
+                <h4 class="section-title">Réponses</h4>
+                {% if reclamation.reponses|length > 0 %}
+                    {% for reponse in reclamation.reponses %}
+                        <div class="response-card">
+                            <div class="response-header">
+                                <div class="response-author">
+                                    <strong>{{ reponse.auteur.nom }}</strong>
+                                    <span class="author-role">({{ reponse.auteur.roles|join(', ')|replace({'ROLE_': ''}) }})</span>
+                                </div>
+                                <small class="response-date">{{ reponse.dateReponse|date('d/m/Y H:i') }}</small>
+                            </div>
+                            <div class="response-content">
+                                {{ reponse.contenu|nl2br }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>Aucune réponse pour le moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="actions">
+                <a href="{{ path('liste_reclamations') }}" class="btn btn-secondary">
+                   retour à la liste des réclamations
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* General Styling */
+    body {
+        font-family: Arial, sans-serif;
+        background: #fff;
+        margin: 0;
+        padding: 1rem;
+        color: #333;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Page Header */
+    .page-header {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* Card Styling */
+    .card {
+        border: 1px solid #ccc;
+        background: #fff;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    /* Reclamation Details */
+    .reclamation-details {
+        display: block;
+    }
+
+    .detail-item {
+        margin-bottom: 1rem;
+    }
+
+    .detail-label {
+        display: block;
+        font-size: 1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        display: block;
+        color: #333;
+    }
+
+    /* Remove status-badge styling since it's not styled in the image */
+    .status-badge {
+        font-size: 1rem;
+        color: #333;
+    }
+
+    /* Video Section */
+    .video-section {
+        margin: 1rem 0;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .reclamation-video {
+        width: 100%;
+        max-width: 500px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    /* Responses Section */
+    .responses-section {
+        margin: 1rem 0;
+    }
+
+    .response-card {
+        border: 1px solid #ccc;
+        margin-bottom: 0.5rem;
+    }
+
+    .response-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem;
+    }
+
+    .response-author {
+        font-size: 1rem;
+        color: #333;
+    }
+
+    .response-author strong {
+        font-weight: bold;
+    }
+
+    .author-role {
+        font-size: 1rem;
+        color: #333;
+    }
+
+    .response-date {
+        font-size: 0.9rem;
+        color: #333;
+    }
+
+    .response-content {
+        padding: 0.5rem;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 1rem;
+        color: #333;
+    }
+
+    .empty-state p {
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    /* Action Buttons */
+    .actions {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        text-decoration: none;
+        background-color: #333;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background-color: #333;
+        color: #fff;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .reclamation-details {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

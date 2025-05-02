@@ -1,0 +1,180 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Répondre à la Réclamation{% endblock %}
+
+{% block body %}
+<style>/* General Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7fa;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* Card Styling */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-bottom: none;
+}
+
+.card-header h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Table Styling */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #343a40;
+    color: white;
+    border: none;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table .badge {
+    font-size: 0.9rem;
+    padding: 0.5em 1em;
+}
+
+.table .btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+}
+
+.table .btn i {
+    margin: 0;
+}
+
+/* Form Styling */
+.response-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.response-form .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.response-form .form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+    font-size: 1rem;
+}
+
+.response-form .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.response-form textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.response-form button.btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+
+.btn-info, .btn-warning, .btn-danger, .btn-primary, .btn-secondary {
+    color: white;
+}
+
+/* Chart Container */
+.chart-container {
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .table .text-truncate {
+        max-width: 150px;
+    }
+
+    .table .btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+    }
+
+    .card-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .response-form .form-control {
+        font-size: 0.9rem;
+    }
+}</style>
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h2 class="h5 mb-0"><i class="fas fa-reply mr-2"></i>Répondre à la Réclamation #{{ reclamation.id }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h5>Réclamation: {{ reclamation.titre }}</h5>
+                <p class="text-muted">{{ reclamation.description|escape }}</p>
+            </div>
+
+            {{ form_start(form, {'attr': {'class': 'response-form'}}) }}
+
+                <div class="form-group">
+                    {{ form_label(form.contenu, 'Contenu', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'rows': '5'}}) }}
+                    {{ form_errors(form.contenu) }}
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">
+                    <i class="fas fa-paper-plane mr-2"></i>Envoyer la Réponse
+                </button>
+            {{ form_end(form) }}
+
+            <a href="{{ path('liste_reclamations') }}" class="btn btn-secondary mt-3">
+                <i class="fas fa-arrow-left mr-2"></i>Retour à la liste
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

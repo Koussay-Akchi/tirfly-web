@@ -1,0 +1,213 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Modifier {{ produit.nom }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .product-form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        .current-image-container {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .current-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .image-preview {
+            margin-top: 1rem;
+            display: none;
+        }
+        .image-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 4px;
+        }
+        @media (max-width: 768px) {
+            .product-form-container {
+                padding: 1rem;
+            }
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="product-form-container">
+            <h1 class="mb-4">Modifier {{ produit.nom }}</h1>
+            
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+            
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.nom, {
+                            'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Nom du produit'
+                            }
+                        }) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.categorie, {
+                            'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'Catégorie'
+                            }
+                        }) }}
+                    </div>
+                </div>
+                
+                {{ form_row(form.description, {
+                    'attr': {
+                        'class': 'form-control',
+                        'rows': 4,
+                        'placeholder': 'Description complète du produit...'
+                    }
+                }) }}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.prixUnitaire, {
+                            'attr': {
+                                'class': 'form-control',
+                                'min': 0,
+                                'step': '0.01'
+                            }
+                        }) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.quantiteStock, {
+                            'attr': {
+                                'class': 'form-control',
+                                'min': 0
+                            }
+                        }) }}
+                    </div>
+                </div>
+                
+                <div class="form-check form-switch mb-4">
+                    {{ form_widget(form.ecoFriendly, {
+                        'attr': {'class': 'form-check-input'}
+                    }) }}
+                    {{ form_label(form.ecoFriendly, null, {
+                        'label_attr': {'class': 'form-check-label'}
+                    }) }}
+                </div>
+                
+                <div class="current-image-container">
+                    <h5 class="mb-3">Image actuelle</h5>
+                    {% if produit.image %}
+                        <img src="{{ path('produit_image', {'id': produit.id}) }}" 
+                             alt="{{ produit.nom }}" 
+                             class="current-image mb-2">
+                        <div>
+                            <a href="{{ path('produit_image', {'id': produit.id}) }}" 
+                               target="_blank" 
+                               class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fas fa-expand me-1"></i> Agrandir
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteImageModal">
+                                <i class="fas fa-trash me-1"></i> Supprimer
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle me-2"></i> Aucune image définie
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    {{ form_label(form.image) }}
+                    {{ form_widget(form.image, {
+                        'attr': {
+                            'class': 'form-control',
+                            'onchange': 'previewImage(this)'
+                        }
+                    }) }}
+                    <div class="form-text">
+                        Formats acceptés: JPG, PNG, WEBP (max 2MB). Laissez vide pour conserver l'image actuelle.
+                    </div>
+                    <div class="image-preview mt-2" id="imagePreview">
+                        <img id="previewImage" src="#" alt="Aperçu de l'image" class="img-thumbnail">
+                    </div>
+                    {{ form_errors(form.image) }}
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Enregistrer
+                    </button>
+                    <a href="{{ path('admin_liste_produits') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Annuler
+                    </a>
+                </div>
+                
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    
+    {% if produit.image %}
+    <div class="modal fade" id="deleteImageModal" tabindex="-1" aria-labelledby="deleteImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteImageModalLabel">Supprimer l'image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Êtes-vous sûr de vouloir supprimer l'image de ce produit ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    
+                        <i class="fas fa-trash me-1"></i> Supprimer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('previewImage');
+            const previewContainer = document.getElementById('imagePreview');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        }
+    </script>
+{% endblock %}

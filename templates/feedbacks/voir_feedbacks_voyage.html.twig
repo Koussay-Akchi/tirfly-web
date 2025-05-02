@@ -1,0 +1,96 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Feedbacks pour {{ voyage.nom }}{% endblock %}
+
+{% block body %}
+    <style>
+        .voyage-details-feedback-list {
+            margin-top: 1rem;
+        }
+
+        .voyage-details-feedback-item {
+            border-bottom: 1px solid #ddd;
+            padding: 1rem 0;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-rating {
+            margin-bottom: 0.5rem;
+        }
+
+        .filled-star {
+            color: #f1c40f;
+        }
+
+        .empty-star {
+            color: #ccc;
+        }
+
+        .feedback-content {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .feedback-actions .btn {
+            margin-right: 0.5rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.85rem;
+        }
+    </style>
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-info text-white text-center">
+            <h2 class="h5 m-0"><i class="fas fa-comments"></i> Feedbacks pour {{ voyage.nom }}</h2>
+        </div>
+        <div class="card-body">
+            {% if feedbacks|length > 0 %}
+                <div class="voyage-details-feedback-list">
+                    {% for feedback in feedbacks %}
+                        <div class="voyage-details-feedback-item">
+                            <div class="feedback-header">
+                                <strong>{{ feedback.client.nom }} {{ feedback.client.prenom }}</strong>
+                                <span class="feedback-date">{{ feedback.dateFeedback|date('d/m/Y') }}</span>
+                            </div>
+                            <div class="feedback-rating">
+                                {% for i in 1..5 %}
+                                    {% if i <= feedback.note %}
+                                        <span class="filled-star">★</span>
+                                    {% else %}
+                                        <span class="empty-star">☆</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="feedback-content">{{ feedback.contenu }}</p>
+                            {% if app.user and feedback.client == app.user %}
+                                <div class="feedback-actions">
+                                    <a href="{{ path('edit_feedback', {'id': feedback.id}) }}" class="btn btn-warning">Modifier</a>
+                                    <form action="{{ path('delete_feedback', {'id': feedback.id}) }}" method="POST" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce feedback ?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ feedback.id) }}">
+                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {# Pagination block #}
+                <div class="d-flex justify-content-center mt-4">
+                    {{ knp_pagination_render(feedbacks) }}
+                </div>
+            {% else %}
+                <p class="text-center">Aucun feedback pour ce voyage.</p>
+            {% endif %}
+
+            <a href="{{ path('admin_liste_feedbacks', {'id': voyage.id}) }}" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left"></i> Retour aux détails du voyage</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

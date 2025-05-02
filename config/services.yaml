@@ -1,0 +1,78 @@
+parameters:
+    packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
+    google_api_key: 'AIzaSyDpxgIqCekHbOLgUL6fyHdavfAGr1KijcQ'
+    video_directory: '%kernel.project_dir%/public/uploads/videos'
+    evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
+    voyages_images_directory: '%kernel.project_dir%/public/uploads/voyages'
+    destinations_images_directory: '%kernel.project_dir%/public/uploads/destinations'
+    audio_directory: '%kernel.project_dir%/public/uploads/audio'
+    huggingface_api_key: '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'
+    app.admin_phone: '+21658911032'
+    app.low_stock_threshold: 10
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+        bind:
+            $geminiApiKey: '%google_api_key%'
+
+    App\Service\SentimentAnalysisService:
+        arguments:
+            $httpClient: '@http_client'
+            $apiKey: '%huggingface_api_key%'
+    _instanceof:
+        App\Service\CurrencyConverter:
+            bind:
+                $exchangeRateApiKey: '%env(dec3bbdb08a8f599977f5d1e)%'
+
+     
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/Tests/'
+
+    App\Controller\ClientController:
+        arguments:
+            $passwordHasher: '@security.user_password_hasher'
+    App\Service\EmailService:
+        class: App\Service\EmailService
+        arguments:
+            $mailer: '@mailer'
+    App\Service\TwilioSmsService:
+        arguments:
+            $accountSid: '%env(TWILIO_ACCOUNT_SID)%'
+            $authToken: '%env(TWILIO_AUTH_TOKEN)%'
+            $twilioNumber: '%env(TWILIO_PHONE_NUMBER)%'
+            $logger: '@logger'
+
+    App\Controller\AudioController:
+        arguments:
+            $audioDirectory: '%audio_directory%'
+
+    App\Service\HuggingFaceService:
+        arguments:
+            $apiKey: '%env(HUGGINGFACE_API_KEY)%'
+            $model: '%env(HUGGINGFACE_MODEL)%'
+            
+    App\Service\StockMonitor:
+        arguments:
+            $smsService: '@App\Service\TwilioSmsService'
+            $adminPhone: '%env(ADMIN_PHONE)%'
+            
+    App\Service\BadWordsFilterService:
+        arguments:
+            $geminiApiKey: '%google_api_key%'
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    form_themes: ['bootstrap_5_layout.html.twig']
+    number_format:
+        decimals: 2
+        decimal_point: ','
+        thousands_separator: ' '
+        

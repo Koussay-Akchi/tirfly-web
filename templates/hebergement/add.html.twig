@@ -1,0 +1,375 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* General */
+        .form-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #0d6efd;
+        }
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 350px;
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875em;
+        }
+
+        /* Type Selector */
+        .type-selector-btn {
+            transition: all 0.3s ease;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border: 2px solid #dee2e6;
+            background-color: white;
+            color: #495057;
+            margin-right: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        .type-selector-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+        .type-selector-btn.active {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Image Upload & Generation */
+        .image-preview, #generatedImage {
+            max-height: 200px;
+            margin-top: 1rem;
+            display: none;
+            border-radius: 0.5rem;
+            border: 1px solid #dee2e6;
+        }
+        .image-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-option-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+        .image-option-btn:hover {
+            background: #f0f0f0;
+        }
+        .image-option-btn.active {
+            background: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+        #generateImageBtn {
+            margin-top: 10px;
+        }
+        #generatedImageContainer {
+            margin-top: 15px;
+            display: none;
+        }
+        .use-generated-btn {
+            margin-top: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+
+    <div class="alert-container">
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h1 class="mb-4 text-center">
+        <i class="fas fa-hotel me-2"></i>Ajouter un hébergement
+    </h1>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+
+            <!-- Type Selection -->
+            <div class="mb-4">
+                <label class="form-label fw-bold mb-3">Type d'hébergement</label>
+                <div class="d-flex flex-wrap">
+                    <button type="button" class="type-selector-btn {{ initial_type == 'hotel' ? 'active' : '' }}"
+                            data-type="hotel" onclick="selectType('hotel')">
+                        <i class="fas fa-hotel me-2"></i>Hôtel
+                    </button>
+                    <button type="button" class="type-selector-btn {{ initial_type == 'logement' ? 'active' : '' }}"
+                            data-type="logement" onclick="selectType('logement')">
+                        <i class="fas fa-home me-2"></i>Logement
+                    </button>
+                    <button type="button" class="type-selector-btn {{ initial_type == 'foyer' ? 'active' : '' }}"
+                            data-type="foyer" onclick="selectType('foyer')">
+                        <i class="fas fa-building me-2"></i>Foyer
+                    </button>
+                </div>
+                {{ form_widget(form.type) }}
+            </div>
+
+            <!-- General Information -->
+            <div class="form-section">
+                <h5 class="fw-bold mb-3 text-primary">
+                    <i class="fas fa-info-circle me-2"></i>Informations générales
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">{{ form_row(form.nom, {'attr': {'class': 'form-control'}}) }}</div>
+                    <div class="col-md-6">{{ form_row(form.destination, {'attr': {'class': 'form-select'}}) }}</div>
+                    <div class="col-md-4">{{ form_row(form.classement, {'attr': {'class': 'form-control'}}) }}</div>
+                    <div class="col-md-8">{{ form_row(form.contact, {'attr': {'class': 'form-control'}}) }}</div>
+                    <div class="col-12">{{ form_row(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}</div>
+
+                    <!-- Image upload + generate -->
+                    <div class="col-md-6">
+                        {{ form_row(form.image, {'attr': {'class': 'form-control', 'onchange': 'previewImage(this)'}}) }}
+                        <img id="imagePreview" class="image-preview" alt="Aperçu de l'image">
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted">Ou générer une image aléatoire :</p>
+                        <div class="image-options">
+                            <button type="button" class="image-option-btn active" data-type="hotel">Hôtel</button>
+                            <button type="button" class="image-option-btn" data-type="apartment">Appartement</button>
+                            <button type="button" class="image-option-btn" data-type="hostel">Auberge</button>
+                        </div>
+                        <button type="button" id="generateImageBtn" class="btn btn-outline-primary">
+                            <i class="fas fa-magic me-2"></i>Générer une image
+                        </button>
+                        <div id="generatedImageContainer">
+                            <img id="generatedImage" alt="Image générée">
+                            <button type="button" class="btn btn-success use-generated-btn" onclick="useGeneratedImage()">
+                                <i class="fas fa-check me-2"></i>Utiliser cette image
+                            </button>
+                            <input type="hidden" id="generatedImageData" name="generated_image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Specific Information -->
+            <div class="form-section">
+                <h5 class="fw-bold mb-3 text-primary">
+                    <i class="fas fa-cog me-2"></i>Caractéristiques spécifiques
+                </h5>
+                {% if initial_type == 'hotel' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form_row(form.prix, {'attr': {'class': 'form-control'}, 'label': 'Prix par nuit (€)'}) }}
+                        </div>
+                    </div>
+                {% elseif initial_type == 'logement' %}
+                    <div class="row g-3">
+                        <div class="col-md-6">{{ form_row(form.prix, {'attr': {'class': 'form-control'}, 'label': 'Prix par nuit (€)'}) }}</div>
+                        <div class="col-md-6">{{ form_row(form.jourDispo, {'attr': {'class': 'form-control'}, 'label': 'Date de disponibilité'}) }}</div>
+                    </div>
+                {% elseif initial_type == 'foyer' %}
+                    <div class="row g-3">
+                        <div class="col-md-4">{{ form_row(form.frais, {'attr': {'class': 'form-control'}, 'label': 'Frais d\'inscription (€)'}) }}</div>
+                        <div class="col-md-4">{{ form_row(form.typeFoyer, {'attr': {'class': 'form-select'}, 'label': 'Type de foyer'}) }}</div>
+                        <div class="col-md-4">{{ form_row(form.documents, {'attr': {'class': 'form-control'}, 'label': 'Documents (PDF)'}) }}</div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save me-2"></i>Enregistrer
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            let currentGeneratedImage = null;
+            
+            // Set up event listeners for image option buttons
+            const imageOptionBtns = document.querySelectorAll('.image-option-btn');
+            imageOptionBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    imageOptionBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Set up generate image button
+            document.getElementById('generateImageBtn').addEventListener('click', generateRandomImage);
+            
+            // Set up form validation
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    if (!validateForm()) {
+                        event.preventDefault();
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            }
+        });
+
+        // Function to select an accommodation type
+        function selectType(type) {
+            window.location.href = "{{ path('app_hebergement_add') }}?type=" + type;
+        }
+
+        // Preview the image before uploading
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Replace the existing generateRandomImage() function with this improved version
+function generateRandomImage() {
+    const selectedType = document.querySelector('.image-option-btn.active').dataset.type;
+    const btn = document.getElementById('generateImageBtn');
+    const originalText = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Génération en cours...';
+
+    // Better image queries for each accommodation type
+    const imageQueries = {
+        'hotel': ['luxury+hotel', 'hotel+lobby', 'hotel+room', 'resort', '5+star+hotel'],
+        'apartment': ['modern+apartment', 'apartment+building', 'apartment+interior', 'studio+apartment'],
+        'hostel': ['hostel+dorm', 'youth+hostel', 'budget+accommodation', 'shared+room']
+    };
+
+    // Select a random query from the appropriate category
+    const queries = imageQueries[selectedType] || ['accommodation'];
+    const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+    
+    // Use Unsplash API for better quality images
+    const unsplashUrl = `https://source.unsplash.com/800x600/?${randomQuery},accommodation`;
+    
+    // Fallback to Picsum if Unsplash fails
+    const picsumUrl = `https://picsum.photos/800/600?random=${Math.random()}`;
+
+    // Try Unsplash first
+    fetch(unsplashUrl)
+        .then(response => {
+            if (!response.ok) throw new Error('Unsplash failed');
+            return response.blob();
+        })
+        .catch(() => {
+            // Fallback to Picsum
+            return fetch(picsumUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Picsum failed');
+                    return response.blob();
+                });
+        })
+        .then(blob => {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const container = document.getElementById('generatedImageContainer');
+                const img = document.getElementById('generatedImage');
+                
+                img.src = reader.result;
+                img.style.display = 'block';
+                container.style.display = 'block';
+                currentGeneratedImage = reader.result;
+                document.getElementById('generatedImageData').value = reader.result;
+                
+                container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            };
+            reader.readAsDataURL(blob);
+        })
+        .catch(error => {
+            console.error('Error generating image:', error);
+            alert('Erreur lors de la génération de l\'image. Veuillez réessayer.');
+        })
+        .finally(() => {
+            const btn = document.getElementById('generateImageBtn');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+}
+
+        // Use the generated image and upload it as the selected file
+        function useGeneratedImage() {
+            if (!currentGeneratedImage) return;
+
+            fetch(currentGeneratedImage)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], 'generated-image.jpg', { type: 'image/jpeg' });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    
+                    const fileInput = document.querySelector('input[type="file"]');
+                    fileInput.files = dataTransfer.files;
+                    
+                    const event = new Event('change');
+                    fileInput.dispatchEvent(event);
+                    
+                    document.getElementById('generatedImageContainer').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error using generated image:', error);
+                    alert('Erreur lors de l\'utilisation de l\'image générée.');
+                });
+        }
+
+        // Validate the form before submission
+        function validateForm() {
+            let isValid = true;
+            const requiredFields = document.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            return isValid;
+        }
+    </script>
+{% endblock %}

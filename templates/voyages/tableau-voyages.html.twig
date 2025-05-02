@@ -1,0 +1,82 @@
+<div class="table-container">
+	<h1 class="table-title">Liste des Voyages</h1>
+	<div class="table-responsive">
+		<table class="table table-striped table-hover voyage-table">
+			<thead class="table-dark">
+				<tr>
+					<th>Nom</th>
+					<th>Destination</th>
+					<th>Date Départ</th>
+					<th>Date Arrivée</th>
+					<th>Prix</th>
+					<th>Image</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for voyage in voyages.items %}
+					<tr>
+						<td>{{ voyage.nom }}</td>
+						<td>{{ voyage.destination.ville }},
+							{{ voyage.destination.pays }}</td>
+						<td>{{ voyage.dateDepart|date('d/m/Y') }}</td>
+						<td>{{ voyage.dateArrive|date('d/m/Y') }}</td>
+						<td>{{ voyage.prix }}
+							DT</td>
+						<td>
+							{% if voyage.image %}
+								<span class="text-muted">
+									<img src="{{ asset('uploads/voyages/' ~ voyage.image) }}" alt="Image par défaut" class="table-image" height="50" width="50" style="border-radius: 8px;"/>
+								</span>
+							{% else %}
+								<span class="text-muted">
+									<img src="{{ asset('images/default.jpg') }}" alt="Image par défaut" class="table-image" height="50" width="50" style="border-radius: 8px;"/>
+								</span>
+							{% endif %}
+						</td>
+						<td>
+							<div class="table-actions" style="display: flex; gap: 5px">
+								<button class="btn btn-success" onclick="window.location.href='{{ path('details_voyage_admin', {'id': voyage.id}) }}'">Details</button>
+								<button class="btn btn-primary" onclick="window.location.href='{{ path('edit_voyage', {'id': voyage.id}) }}'">Modifier</button>
+								<button class="btn btn-danger" onclick="if(confirm('Supprimer ce voyage ?')) window.location.href='{{ path('delete_voyage', {'id': voyage.id}) }}'">Supprimer</button>
+							</div>
+						</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="8" class="text-center">Aucun voyage trouvé.</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+		<div class="pagination">
+			{% if voyages.pageCount > 1 %}
+				<nav class="custom-pagination">
+					<div class="pagination-list" style="display: flex; gap: 10px; background-color: #f8f9fa;">
+						{% if voyages.currentPageNumber > 1 %}
+							<div>
+								<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({'page': voyages.currentPageNumber - 1})) }}" class="pagination-link">&laquo; Précédent</a>
+							</div>
+						{% endif %}
+
+						{% for i in 1..voyages.pageCount %}
+							<div>
+								<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({'page': i})) }}" class="pagination-link {{ voyages.currentPageNumber == i ? 'active' : '' }}">
+									{{ i }}
+								</a>
+							</div>
+						{% endfor %}
+
+						{% if voyages.currentPageNumber < voyages.pageCount %}
+							<div>
+								<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({'page': voyages.currentPageNumber + 1})) }}" class="pagination-link">Suivant &raquo;</a>
+							</div>
+						{% endif %}
+					</div>
+				</nav>
+			{% endif %}
+
+		</div>
+	</div>
+</div>

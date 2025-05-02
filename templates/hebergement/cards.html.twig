@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hébergements Disponibles | TirFly</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="shortcut icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@accessible360/accessible-slick@1.0.1/slick/slick.min.css">
+        <style>
+            /* Base template styles */
+            .navbar {
+                transition: all 0.3s ease;
+            }
+
+            .go-top {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 1000;
+            }
+            
+            /* Cards template styles */
+            /* Main Layout Adjustments */
+            .main-content {
+                padding-top: 2rem;
+                padding-bottom: 4rem;
+            }
+            
+            .hebergement-container {
+                display: grid;
+                grid-template-columns: 280px 1fr;
+                gap: 2rem;
+                margin-top: 2rem;
+            }
+            
+            /* Filter Section */
+            .filter-section {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 1.5rem;
+                height: fit-content;
+                position: sticky;
+                top: 120px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .filter-group {
+                margin-bottom: 1.5rem;
+            }
+            
+            .filter-title {
+                font-weight: 600;
+                margin-bottom: 0.75rem;
+                display: block;
+                color: #333;
+            }
+            
+            /* Autocomplete styles */
+            .autocomplete-container {
+                position: relative;
+            }
+
+            .autocomplete-results {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: white;
+                border: 1px solid #ced4da;
+                border-top: none;
+                border-radius: 0 0 4px 4px;
+                max-height: 300px;
+                overflow-y: auto;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                display: none;
+            }
+
+            .autocomplete-item {
+                padding: 8px 12px;
+                cursor: pointer;
+            }
+
+            .autocomplete-item:hover {
+                background-color: #f8f9fa;
+            }
+
+            .autocomplete-highlight {
+                font-weight: bold;
+                color: #0d6efd;
+            }
+
+            .autocomplete-item .details {
+                font-size: 0.8em;
+                color: #6c757d;
+            }
+
+            .autocomplete-item.active {
+                background-color: #e9ecef;
+            }
+            
+            /* Results Section */
+            .results-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .results-count {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #333;
+            }
+            
+            /* Cards Grid */
+            .hebergement-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1.5rem;
+            }
+            
+            .hebergement-card {
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                overflow: hidden;
+                transition: all 0.3s ease;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                background: white;
+            }
+            
+            .hebergement-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+            
+            .card-image {
+                height: 200px;
+                overflow: hidden;
+                background-color: #f8f9fa;
+                position: relative;
+            }
+            
+            .card-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+            
+            .hebergement-card:hover .card-image img {
+                transform: scale(1.05);
+            }
+            
+            .card-body {
+                padding: 1.25rem;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .card-badge {
+                margin-bottom: 0.5rem;
+            }
+            
+            .badge {
+                display: inline-block;
+                padding: 0.35em 0.65em;
+                font-size: 0.75em;
+                font-weight: 700;
+                line-height: 1;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: baseline;
+                border-radius: 0.25rem;
+            }
+            
+            .bg-primary {
+                background-color: #0d6efd!important;
+                color: white;
+            }
+            
+            .bg-success {
+                background-color: #198754!important;
+                color: white;
+            }
+            
+            .bg-warning {
+                background-color: #ffc107!important;
+                color: #212529;
+            }
+            
+            .card-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+                color: #333;
+            }
+            
+            .card-location {
+                color: #6c757d;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .card-price {
+                font-weight: 700;
+                color: #2b8a3e;
+                margin-top: auto;
+                padding-top: 0.75rem;
+            }
+            
+            .card-rating {
+                margin-bottom: 0.5rem;
+            }
+            
+            .fa-star {
+                font-size: 0.9rem;
+            }
+            
+            /* Empty State */
+            .empty-state {
+                grid-column: 1 / -1;
+                text-align: center;
+                padding: 3rem 0;
+            }
+            
+            .empty-state i {
+                color: #6c757d;
+            }
+            
+            /* Form Elements */
+            .form-control, .form-select, .form-range {
+                border: 1px solid #ced4da;
+                border-radius: 0.25rem;
+                padding: 0.375rem 0.75rem;
+            }
+            
+            .form-check-input {
+                margin-right: 0.5rem;
+            }
+            
+            /* Buttons */
+            .btn {
+                display: inline-block;
+                font-weight: 400;
+                line-height: 1.5;
+                text-align: center;
+                text-decoration: none;
+                vertical-align: middle;
+                cursor: pointer;
+                user-select: none;
+                border: 1px solid transparent;
+                padding: 0.375rem 0.75rem;
+                font-size: 1rem;
+                border-radius: 0.25rem;
+                transition: all 0.15s ease-in-out;
+            }
+            
+            .btn-primary {
+                color: #fff;
+                background-color: #0d6efd;
+                border-color: #0d6efd;
+            }
+            
+            .btn-outline-primary {
+                color: #0d6efd;
+                border-color: #0d6efd;
+            }
+            
+            .btn-outline-primary:hover {
+                color: #fff;
+                background-color: #0d6efd;
+            }
+            
+            .btn-outline-secondary {
+                color: #6c757d;
+                border-color: #6c757d;
+            }
+            
+            .btn-outline-secondary:hover {
+                color: #fff;
+                background-color: #6c757d;
+            }
+            
+            /* Responsive */
+            @media (max-width: 992px) {
+                .hebergement-container {
+                    grid-template-columns: 1fr;
+                }
+                
+                .filter-section {
+                    position: static;
+                    margin-bottom: 2rem;
+                    top: auto;
+                }
+                
+                .results-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .hebergement-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                }
+            }
+        </style>
+    </head>
+    <body id="top">
+        {% include 'main/navbar.html.twig' %}
+
+        {% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
+            <div style="margin-bottom: 180px;"></div>
+        {% endif %}
+
+        <main>
+            <div class="main-content">
+                <div class="container">
+                    <h1 class="my-4">Nos Hébergements</h1>
+                    
+                    <div class="hebergement-container">
+                        <!-- Filter Sidebar -->
+                        <aside class="filter-section">
+                            <h2 class="h5 mb-3">Filtrer les résultats</h2>
+                            
+                            <form method="get" action="{{ path('app_hebergement_index') }}">
+                                <!-- Search -->
+                                <div class="filter-group">
+                                    <label for="search" class="filter-title">Recherche</label>
+                                    <div class="autocomplete-container">
+                                        <input type="text" id="search" name="query" class="form-control" 
+                                               value="{{ app.request.query.get('query', '') }}" 
+                                               placeholder="Nom, lieu..." autocomplete="off">
+                                        <div id="autocompleteResults" class="autocomplete-results"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Type Filter -->
+                                <div class="filter-group">
+                                    <span class="filter-title">Type</span>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="type" id="type_all" value="" 
+                                               {{ app.request.query.get('type') is empty ? 'checked' }}>
+                                        <label class="form-check-label" for="type_all">Tous types</label>
+                                    </div>
+                                    {% for type in ['hotel', 'logement', 'foyer'] %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="type" id="type_{{ type }}" 
+                                                   value="{{ type }}" {{ app.request.query.get('type') == type ? 'checked' }}>
+                                            <label class="form-check-label" for="type_{{ type }}">{{ type|capitalize }}</label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Destination -->
+                                <div class="filter-group">
+                                    <label for="destination" class="filter-title">Destination</label>
+                                    <select class="form-select" id="destination" name="destination">
+                                        <option value="">Toutes destinations</option>
+                                        {% for destination in destinations %}
+                                            <option value="{{ destination.id }}" 
+                                                    {{ app.request.query.get('destination') == destination.id ? 'selected' }}>
+                                                {{ destination.ville }}, {{ destination.pays }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <!-- Price -->
+                                <div class="filter-group">
+                                    <label for="price" class="filter-title">Prix max</label>
+                                    <input type="range" class="form-range" id="price" name="max_price" 
+                                           min="0" max="1000" step="50" 
+                                           value="{{ app.request.query.get('max_price', 500) }}">
+                                    <div class="d-flex justify-content-between">
+                                        <span>0 €</span>
+                                        <span id="priceValue">{{ app.request.query.get('max_price', 500) }} €</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Rating -->
+                                <div class="filter-group">
+                                    <span class="filter-title">Note minimale</span>
+                                    <select class="form-select" name="min_rating">
+                                        <option value="0" {{ app.request.query.get('min_rating', 0) == 0 ? 'selected' }}>Toutes notes</option>
+                                        {% for i in 1..5 %}
+                                            <option value="{{ i }}" {{ app.request.query.get('min_rating', 0) == i ? 'selected' }}>
+                                                {{ i }} étoile{% if i > 1 %}s{% endif %}+
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <!-- Amenities -->
+                                <div class="filter-group">
+                                    <span class="filter-title">Équipements</span>
+                                    {% for service in allServices %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="amenities[]" 
+                                                   id="amenity_{{ service.id }}" value="{{ service.id }}"
+                                                   {{ service.id in app.request.query.all('amenities')|default([]) ? 'checked' }}>
+                                            <label class="form-check-label" for="amenity_{{ service.id }}">{{ service.nom }}</label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Sort -->
+                                <input type="hidden" name="sort" id="sortInput" value="{{ app.request.query.get('sort', '') }}">
+                                
+                                <!-- Actions -->
+                                <button type="submit" class="btn btn-primary w-100 mt-2">Appliquer</button>
+                                <a href="{{ path('app_hebergement_index') }}" class="btn btn-outline-secondary w-100 mt-2">
+                                    Réinitialiser
+                                </a>
+                            </form>
+                        </aside>
+                        
+                        <!-- Main Content -->
+                        <div class="results-section">
+                            <div class="results-header">
+                                <div class="results-count">
+                                    {{ hebergements.getTotalItemCount }} résultat(s) trouvé(s)
+                                </div>
+                            </div>
+                            
+                            {% if hebergements|length > 0 %}
+                                <div class="hebergement-grid">
+                                    {% for hebergement in hebergements %}
+                                        <article class="hebergement-card">
+                                            <a href="{{ path('hebergement_specific_fields', {id: hebergement.id}) }}" class="text-decoration-none text-dark">
+                                                <div class="card-image">
+                                                    {% if hebergement.image %}
+                                                        {# Smart image detection #}
+                                                        {% if hebergement.image matches '{^[a-zA-Z0-9/._-]+\.(jpg|jpeg|png|gif|webp)$}' %}
+                                                            {# It's a filename #}
+                                                            <img src="{{ asset('uploads/hebergements/' ~ hebergement.image) }}" alt="{{ hebergement.nom }}" loading="lazy">
+                                                        {% elseif hebergement.image starts with '/uploads/' %}
+                                                            {# It's a full upload path #}
+                                                            <img src="{{ asset(hebergement.image) }}" alt="{{ hebergement.nom }}" loading="lazy">
+                                                        {% elseif hebergement.image starts with 'http' %}
+                                                            {# It's an external URL #}
+                                                            <img src="{{ hebergement.image }}" alt="{{ hebergement.nom }}" loading="lazy">
+                                                        {% else %}
+                                                            {# Assume it's binary data #}
+                                                            {% if imageData is defined and imageData[hebergement.id] is defined %}
+                                                                <img src="data:image/jpeg;base64,{{ imageData[hebergement.id] }}" alt="{{ hebergement.nom }}" loading="lazy">
+                                                            {% else %}
+                                                                <img src="data:image/jpeg;base64,{{ hebergement.image }}" alt="{{ hebergement.nom }}" loading="lazy">
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {# No image available #}
+                                                        <img src="{{ asset('images/default-hebergement.jpg') }}" alt="Hébergement par défaut" loading="lazy"/>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="card-badge">
+                                                        {% if hebergement.hotels is not empty %}
+                                                            <span class="badge bg-primary">Hôtel</span>
+                                                        {% elseif hebergement.logements is not empty %}
+                                                            <span class="badge bg-success">Logement</span>
+                                                        {% elseif hebergement.foyers is not empty %}
+                                                            <span class="badge bg-warning text-dark">Foyer</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <h3 class="card-title">{{ hebergement.nom }}</h3>
+                                                    <p class="card-location">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                                        {% if hebergement.destination %}
+                                                            {{ hebergement.destination.ville }}, {{ hebergement.destination.pays }}
+                                                        {% else %}
+                                                            Localisation non spécifiée
+                                                        {% endif %}
+                                                    </p>
+                                                    <div class="card-rating mb-2">
+                                                        {% set rating = hebergement.classement ?? 0 %}
+                                                        {% for i in 1..5 %}
+                                                            <i class="{{ i <= rating ? 'fas' : 'far' }} fa-star text-warning"></i>
+                                                        {% endfor %}
+                                                        <small class="text-muted ms-1">({{ rating }}/5)</small>
+                                                    </div>
+                                                    <div class="card-price">
+                                                        {% if hebergement.hotels is not empty %}
+                                                            {{ hebergement.hotels[0].prix|number_format(2, ',', ' ') }} € /nuit
+                                                        {% elseif hebergement.logements is not empty %}
+                                                            {{ hebergement.logements[0].prix|number_format(2, ',', ' ') }} € /nuit
+                                                        {% elseif hebergement.foyers is not empty %}
+                                                            {{ hebergement.foyers[0].frais|number_format(2, ',', ' ') }} € frais
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </article>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Pagination -->
+                                <div class="mt-4">
+                                    {{ knp_pagination_render(hebergements, null, {}, {
+                                        'wrap-queries': true
+                                    }) }}
+                                </div>
+                            {% else %}
+                                <div class="empty-state">
+                                    <i class="fas fa-hotel fa-3x mb-3 text-muted"></i>
+                                    <h3>Aucun hébergement trouvé</h3>
+                                    <p class="text-muted">Essayez d'ajuster vos critères de recherche</p>
+                                    <a href="{{ path('app_hebergement_index') }}" class="btn btn-primary mt-2">
+                                        Réinitialiser les filtres
+                                    </a>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <div class="mt-3">
+                                            <a href="{{ path('app_hebergement_add') }}" class="btn btn-outline-primary">
+                                                <i class="fas fa-plus me-2"></i>Ajouter un hébergement
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        {% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
+            <div style="margin-bottom: 50px;"></div>
+        {% endif %}
+
+        {% include 'main/footer.html.twig' %}
+
+        <a href="#top" class="go-top" data-go-top>
+            <ion-icon name="chevron-up-outline"></ion-icon>
+        </a>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="{{ asset('js/script.js') }}"></script>
+        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Price range display
+                const priceSlider = document.getElementById('price');
+                const priceValue = document.getElementById('priceValue');
+                if (priceSlider && priceValue) {
+                    priceValue.textContent = priceSlider.value + ' €';
+                    priceSlider.addEventListener('input', function() {
+                        priceValue.textContent = this.value + ' €';
+                    });
+                }
+                
+                // Sort select
+                const sortSelect = document.getElementById('sortSelect');
+                const sortInput = document.getElementById('sortInput');
+                if (sortSelect && sortInput) {
+                    sortSelect.addEventListener('change', function() {
+                        sortInput.value = this.value;
+                        this.closest('form').submit();
+                    });
+                }
+                
+                // Mobile filters toggle
+                const filterSection = document.querySelector('.filter-section');
+                const resultsSection = document.querySelector('.results-section');
+                
+                if (window.innerWidth < 992) {
+                    // Create toggle button
+                    const mobileFilterToggle = document.createElement('button');
+                    mobileFilterToggle.className = 'btn btn-primary d-lg-none mb-3 w-100';
+                    mobileFilterToggle.innerHTML = '<i class="fas fa-filter me-2"></i>Filtres';
+                    resultsSection.insertBefore(mobileFilterToggle, resultsSection.firstChild);
+                    
+                    // Initially hide filter section on mobile
+                    filterSection.style.display = 'none';
+                    
+                    // Toggle functionality
+                    mobileFilterToggle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (filterSection.style.display === 'none') {
+                            filterSection.style.display = 'block';
+                            this.innerHTML = '<i class="fas fa-times me-2"></i>Fermer';
+                        } else {
+                            filterSection.style.display = 'none';
+                            this.innerHTML = '<i class="fas fa-filter me-2"></i>Filtres';
+                        }
+                    });
+                    
+                    // Close when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (window.innerWidth < 992 && 
+                            !filterSection.contains(e.target) && 
+                            e.target !== mobileFilterToggle) {
+                            filterSection.style.display = 'none';
+                            if (mobileFilterToggle) {
+                                mobileFilterToggle.innerHTML = '<i class="fas fa-filter me-2"></i>Filtres';
+                            }
+                        }
+                    });
+                }
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    const filterSection = document.querySelector('.filter-section');
+                    const mobileFilterToggle = document.querySelector('.results-section button.btn');
+                    
+                    if (window.innerWidth >= 992) {
+                        filterSection.style.display = 'block';
+                    } else if (mobileFilterToggle && filterSection.style.display === 'block') {
+                        filterSection.style.display = 'none';
+                        mobileFilterToggle.innerHTML = '<i class="fas fa-filter me-2"></i>Filtres';
+                    }
+                });
+
+                // Autocomplete functionality
+                const searchInput = document.getElementById('search');
+                const autocompleteResults = document.getElementById('autocompleteResults');
+                
+                if (searchInput && autocompleteResults) {
+                    let timeoutId;
+                    
+                    searchInput.addEventListener('input', function() {
+                        clearTimeout(timeoutId);
+                        const query = this.value.trim();
+                        
+                        if (query.length < 2) {
+                            autocompleteResults.style.display = 'none';
+                            return;
+                        }
+                        
+                        timeoutId = setTimeout(() => {
+                            fetch(`/api/hebergement/autocomplete?query=${encodeURIComponent(query)}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.length > 0) {
+                                        autocompleteResults.innerHTML = '';
+                                        data.forEach(item => {
+                                            const div = document.createElement('div');
+                                            div.className = 'autocomplete-item';
+                                            
+                                            const name = document.createElement('div');
+                                            name.innerHTML = highlightMatch(item.name, query);
+                                            name.style.fontWeight = 'bold';
+                                            
+                                            const details = document.createElement('div');
+                                            details.className = 'details';
+                                            details.innerHTML = `${item.type} · ${highlightMatch(item.location, query)}`;
+                                            
+                                            div.appendChild(name);
+                                            div.appendChild(details);
+                                            
+                                            div.addEventListener('click', function() {
+                                                searchInput.value = item.name;
+                                                autocompleteResults.style.display = 'none';
+                                                searchInput.closest('form').submit();
+                                            });
+                                            
+                                            autocompleteResults.appendChild(div);
+                                        });
+                                        autocompleteResults.style.display = 'block';
+                                    } else {
+                                        autocompleteResults.style.display = 'none';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Autocomplete error:', error);
+                                    autocompleteResults.style.display = 'none';
+                                });
+                        }, 300);
+                    });
+                    
+                    // Hide results when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!searchInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
+                            autocompleteResults.style.display = 'none';
+                        }
+                    });
+                    
+                    // Handle keyboard navigation
+                    searchInput.addEventListener('keydown', function(e) {
+                        const items = autocompleteResults.querySelectorAll('.autocomplete-item');
+                        let activeItem = autocompleteResults.querySelector('.autocomplete-item.active');
+                        
+                        if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            if (!activeItem) {
+                                items[0]?.classList.add('active');
+                            } else {
+                                activeItem.classList.remove('active');
+                                const next = activeItem.nextElementSibling;
+                                if (next) {
+                                    next.classList.add('active');
+                                    next.scrollIntoView({ block: 'nearest' });
+                                } else {
+                                    items[0]?.classList.add('active');
+                                }
+                            }
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            if (activeItem) {
+                                activeItem.classList.remove('active');
+                                const prev = activeItem.previousElementSibling;
+                                if (prev) {
+                                    prev.classList.add('active');
+                                    prev.scrollIntoView({ block: 'nearest' });
+                                } else {
+                                    items[items.length - 1]?.classList.add('active');
+                                }
+                            }
+                        } else if (e.key === 'Enter' && activeItem) {
+                            e.preventDefault();
+                            searchInput.value = activeItem.querySelector('div:first-child').textContent;
+                            autocompleteResults.style.display = 'none';
+                            searchInput.closest('form').submit();
+                        } else if (e.key === 'Escape') {
+                            autocompleteResults.style.display = 'none';
+                        }
+                    });
+                }
+                
+                function highlightMatch(text, query) {
+                    if (!query) return text;
+                    const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+                    return text.replace(regex, '<span class="autocomplete-highlight">$1</span>');
+                }
+                
+                function escapeRegExp(string) {
+                    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                }
+            });
+        </script>
+    </body>
+</html>

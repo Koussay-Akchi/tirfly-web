@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Panier - TirFly</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="shortcut icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Cart-specific styles */
+        .cart-container {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            background-color: transparent;
+        }
+        
+        .table th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+        }
+        
+        .table td, .table th {
+            padding: 0.75rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .form-control-sm {
+            width: 80px;
+            display: inline-block;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
+        }
+        
+        .btn-lg {
+            padding: 0.5rem 1.5rem;
+            font-size: 1.25rem;
+            line-height: 1.5;
+            border-radius: 0.3rem;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+        }
+        
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        /* Validation styles */
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        /* Go-top button */
+        .go-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #2f3542;
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        .go-top:hover {
+            opacity: 1;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body id="top">
+
+    {% include 'main/navbar.html.twig' %}
+
+    {% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
+        <div style="margin-bottom: 180px;"></div>
+    {% endif %}
+
+    <main class="container cart-container">
+        <h1>Mon Panier</h1>
+
+        {% if articles|length > 0 %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Prix unitaire</th>
+                            <th>Quantité</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in articles %}
+                            <tr>
+                                <td>{{ article.produit.nom }}</td>
+                                <td>{{ article.produit.prixUnitaire|number_format(2, ',', ' ') }} €</td>
+                                <td>
+                                    <form method="post" action="{{ path('modifier_quantite_article', {'id': article.id}) }}" class="form-inline update-form">
+                                        <input type="number" name="quantite" value="{{ article.quantite }}" 
+                                               min="1" max="{{ article.produit.quantiteStock }}" 
+                                               class="form-control form-control-sm quantity-input">
+                                        <button type="submit" class="btn btn-sm btn-primary ml-2">Mettre à jour</button>
+                                        <div class="error-message"></div>
+                                    </form>
+                                </td>
+                                <td>{{ article.total|number_format(2, ',', ' ') }} €</td>
+                                <td>
+                                    <form method="post" action="{{ path('supprimer_article', {'id': article.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article?')">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>Total :</strong></td>
+                            <td><strong>{{ total|number_format(2, ',', ' ') }} €</strong></td>
+                            <td>
+                                <form method="post" action="{{ path('vider_panier') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir vider votre panier?')">
+                                    <button type="submit" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-trash-alt"></i> Vider le panier
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="text-right mt-4">
+                <a href="{{ path('checkout') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-credit-card"></i> Passer la commande
+                </a>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Votre panier est vide.
+            </div>
+            <a href="{{ path('liste_produits') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag"></i> Continuer vos achats
+            </a>
+        {% endif %}
+    </main>
+
+    {% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
+        <div style="margin-bottom: 50px;"></div>
+    {% endif %}
+
+    {% include 'main/footer.html.twig' %}
+
+    <a href="#top" class="go-top" data-go-top>
+        <ion-icon name="chevron-up-outline"></ion-icon>
+    </a>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/script.js') }}"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize quantity validation for all update forms
+        const updateForms = document.querySelectorAll('.update-form');
+        
+        updateForms.forEach(form => {
+            const quantityInput = form.querySelector('.quantity-input');
+            const errorMessage = form.querySelector('.error-message');
+            const maxQuantity = parseInt(quantityInput.max);
+            const submitButton = form.querySelector('button[type="submit"]');
+            
+            // Validate on input change
+            quantityInput.addEventListener('change', function() {
+                validateQuantity(this, maxQuantity, errorMessage, submitButton);
+            });
+            
+            // Validate on form submission
+            form.addEventListener('submit', function(e) {
+                if (!validateQuantity(quantityInput, maxQuantity, errorMessage, submitButton)) {
+                    e.preventDefault();
+                    quantityInput.focus();
+                }
+            });
+        });
+        
+        function validateQuantity(input, maxQuantity, errorElement, submitButton) {
+            const quantity = parseInt(input.value) || 0;
+            let isValid = true;
+            let errorMsg = '';
+            
+            if (quantity < 1) {
+                errorMsg = 'La quantité doit être au moins 1';
+                isValid = false;
+            } else if (quantity > maxQuantity) {
+                errorMsg = `Stock disponible: ${maxQuantity} seulement`;
+                isValid = false;
+            }
+            
+            // Update UI based on validation
+            input.classList.toggle('is-invalid', !isValid);
+            errorElement.textContent = errorMsg;
+            errorElement.style.display = isValid ? 'none' : 'block';
+            
+            if (submitButton) {
+                submitButton.disabled = !isValid;
+            }
+            
+            return isValid;
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ produit.nom }} | TirFly</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="shortcut icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .produit-details {
+            display: flex;
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .produit-images {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .produit-images img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .produit-info {
+            flex: 1;
+            padding: 1rem;
+        }
+
+        .produit-info h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .price-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .original-price {
+            font-size: 1.2rem;
+            color: #666;
+            text-decoration: line-through;
+        }
+
+        .currency-selector {
+            margin-left: 1rem;
+            padding: 0.3rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .category {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .eco-friendly {
+            color: #28a745;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .description {
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: #444;
+        }
+
+        .stock-info {
+            margin-bottom: 2rem;
+        }
+
+        .in-stock {
+            color: #28a745;
+            font-weight: 500;
+        }
+
+        .out-of-stock {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        .quantity-selector {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quantity-selector input {
+            width: 80px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background-color: #2c3e50;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 4px;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a252f;
+            color: white;
+        }
+
+        .admin-actions {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .navbar {
+            transition: all 0.3s ease;
+        }
+
+        .go-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #2c3e50;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .go-top:hover {
+            background: #1a252f;
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 768px) {
+            .produit-details {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .produit-images {
+                min-width: auto;
+                padding: 1rem;
+            }
+
+            .price-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .currency-selector {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body id="top">
+    {% include 'main/navbar.html.twig' %}
+
+    {% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
+        <div style="margin-bottom: 180px;"></div>
+    {% endif %}
+
+    <main>
+        <div class="produit-details">
+            <div class="produit-images">
+                {% if produit.image %}
+                    <img src="{{ path('produit_image', {'id': produit.id}) }}" 
+                         alt="{{ produit.nom }}"
+                         onerror="this.onerror=null;this.src='{{ asset('images/default-product.png') }}'">
+                {% else %}
+                    <img src="{{ asset('images/default-product.png') }}" alt="Produit par défaut">
+                {% endif %}
+            </div>
+            
+            <div class="produit-info">
+                <h1>{{ produit.nom }}</h1>
+                <div class="price-container">
+                    <div>
+                        <span class="price" id="converted-price">{{ produit.prixUnitaire|number_format(2, ',', ' ') }} €</span>
+                        <span class="original-price" id="original-price">{{ produit.prixUnitaire|number_format(2, ',', ' ') }} €</span>
+                    </div>
+                    <select class="currency-selector" id="currency-selector">
+                        <option value="EUR">EUR €</option>
+                        <option value="USD">USD $</option>
+                        <option value="GBP">GBP £</option>
+                        <option value="CAD">CAD $</option>
+                        <option value="JPY">JPY ¥</option>
+                    </select>
+                </div>
+                
+                <p class="category">Catégorie: {{ produit.categorie ?? 'Non spécifiée' }}</p>
+                
+                {% if produit.ecoFriendly %}
+                    <p class="eco-friendly">🌱 Produit éco-responsable</p>
+                {% endif %}
+                
+                <p class="description">{{ produit.description ?? 'Aucune description disponible' }}</p>
+                
+                <div class="stock-info">
+                    {% if produit.quantiteStock > 0 %}
+                        <p class="in-stock">En stock ({{ produit.quantiteStock }} disponible(s))</p>
+                    {% else %}
+                        <p class="out-of-stock">Rupture de stock</p>
+                    {% endif %}
+                </div>
+                
+                {% if produit.quantiteStock > 0 %}
+                    <form action="{{ path('ajouter_article', {produitId: produit.id}) }}" method="post">
+                        <div class="quantity-selector">
+                            <label for="quantite">Quantité:</label>
+                            <input type="number" 
+                                   id="quantite" 
+                                   name="quantite" 
+                                   value="1" 
+                                   min="1" 
+                                   max="{{ produit.quantiteStock }}"
+                                   required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-cart-plus me-2"></i>Ajouter au panier
+                        </button>
+                        <input type="hidden" name="_token" value="{{ csrf_token('add_to_cart_' ~ produit.id) }}">
+                    </form>
+                {% endif %}
+                
+                {% if is_granted('ROLE_ADMIN') %}
+                    <div class="admin-actions mt-4">
+                        <a href="{{ path('edit_produit', {id: produit.id}) }}" class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="fas fa-edit me-1"></i>Modifier
+                        </a>
+                        <form method="post" action="{{ path('delete_produit', {id: produit.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_' ~ produit.id) }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash me-1"></i>Supprimer
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    {% if app.request.pathInfo != '/' and not(app.request.pathInfo starts with '/reservations/new') %}
+        <div style="margin-bottom: 50px;"></div>
+    {% endif %}
+
+    {% include 'main/footer.html.twig' %}
+
+    <a href="#top" class="go-top" data-go-top>
+        <ion-icon name="chevron-up-outline"></ion-icon>
+    </a>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/script.js') }}"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currencySelector = document.getElementById('currency-selector');
+            const convertedPriceElement = document.getElementById('converted-price');
+            const originalPriceElement = document.getElementById('original-price');
+            const originalPrice = {{ produit.prixUnitaire }};
+            
+            // Load saved currency preference
+            const savedCurrency = localStorage.getItem('currencyPreference');
+            if (savedCurrency) {
+                currencySelector.value = savedCurrency;
+            }
+            
+            // Convert price on page load
+            convertPrice(currencySelector.value);
+            
+            // Convert price when currency changes
+            currencySelector.addEventListener('change', function() {
+                localStorage.setItem('currencyPreference', this.value);
+                convertPrice(this.value);
+            });
+            
+            function convertPrice(currency) {
+                if (currency === 'EUR') {
+                    convertedPriceElement.textContent = originalPrice.toFixed(2).replace('.', ',') + ' €';
+                    originalPriceElement.style.display = 'none';
+                    return;
+                }
+                
+                // Using Devise API (free tier)
+                fetch(`https://api.exchangerate-api.com/v4/latest/EUR`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const rate = data.rates[currency];
+                        if (rate) {
+                            const convertedPrice = originalPrice * rate;
+                            const symbol = getCurrencySymbol(currency);
+                            convertedPriceElement.textContent = convertedPrice.toFixed(2) + ' ' + symbol;
+                            originalPriceElement.style.display = 'inline';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error converting currency:', error);
+                        convertedPriceElement.textContent = originalPrice.toFixed(2).replace('.', ',') + ' €';
+                        originalPriceElement.style.display = 'none';
+                    });
+            }
+            
+            function getCurrencySymbol(currency) {
+                const symbols = {
+                    'USD': '$',
+                    'GBP': '£',
+                    'CAD': '$',
+                    'JPY': '¥'
+                };
+                return symbols[currency] || currency;
+            }
+        });
+    </script>
+</body>
+</html>

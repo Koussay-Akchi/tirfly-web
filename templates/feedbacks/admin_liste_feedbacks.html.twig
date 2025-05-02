@@ -1,0 +1,327 @@
+{% extends 'base-staff.html.twig' %}
+
+{% block title %}Liste des Voyages{% endblock %}
+
+{% block body %}
+<style>
+    /* General Styling */
+    body {
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        min-height: 100vh;
+        font-family: 'Poppins', sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* Container Styling */
+    .container {
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 0 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Card Styling */
+    .card {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        transform: translateY(0);
+        transition: all 0.5s ease;
+        animation: slideIn 0.8s ease-out;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Card Header Styling */
+    .card-header {
+        background: linear-gradient(135deg, #0984e3, #74b9ff);
+        padding: 1.5rem;
+        border-radius: 20px 20px 0 0;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent);
+        transform: rotate(45deg);
+        animation: shine 6s infinite;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.75rem;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header i {
+        font-size: 1.6rem;
+        animation: pulse 2s infinite;
+    }
+
+    /* Card Body Styling */
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Table Styling */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: transparent;
+    }
+
+    .table-hover tbody tr {
+        transition: all 0.3s ease;
+        background: rgba(245, 245, 245, 0.7);
+        border-radius: 10px;
+    }
+
+    .table-hover tbody tr:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .thead-dark th {
+        background: #2d3436;
+        color: #fff;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 1rem;
+        border: none;
+        font-size: 0.95rem;
+    }
+
+    .thead-dark th:first-child {
+        border-top-left-radius: 10px;
+    }
+
+    .thead-dark th:last-child {
+        border-top-right-radius: 10px;
+    }
+
+    td {
+        padding: 1rem;
+        font-size: 1rem;
+        color: #2c3e50;
+        vertical-align: middle;
+        border: none;
+    }
+
+    /* Button Styling */
+    .btn-info {
+        background: #00b894;
+        border: none;
+        color: #fff;
+        padding: 0.5rem 1.2rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-info:hover {
+        background: #00a678;
+        transform: translateY(-2px);
+        color: #fff;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-info i {
+        font-size: 1rem;
+    }
+
+    /* Pagination Styling */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .pagination .page-item .page-link {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ecf0f1;
+        color: #2c3e50;
+        border: none;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #00b894;
+        color: #fff;
+    }
+
+    .pagination .page-item .page-link:hover {
+        background: #00b894;
+        color: #fff;
+        transform: scale(1.1);
+    }
+
+    /* No Voyages Message */
+    .text-center {
+        font-size: 1.2rem;
+        color: #7f8c8d;
+        font-style: italic;
+        margin: 2rem 0;
+        animation: fadeIn 1s ease-out;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes shine {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        50% {
+            transform: translateX(100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.15);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .card-header h2 {
+            font-size: 1.4rem;
+        }
+
+        .table {
+            font-size: 0.9rem;
+        }
+
+        .thead-dark th {
+            font-size: 0.85rem;
+            padding: 0.8rem;
+        }
+
+        td {
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-info {
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .thead-dark th, td {
+            min-width: 120px;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center">
+            <h2 class="h5 m-0"><i class="fas fa-suitcase"></i> Liste des Voyages</h2>
+        </div>
+        <div class="card-body">
+            {% if voyages|length > 0 %}
+                <table class="table table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nom du Voyage</th>
+                            <th>Destination</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for voyage in voyages %}
+                            <tr>
+                                <td>{{ voyage.nom }}</td>
+                                <td>{{ voyage.destination.ville }}, {{ voyage.destination.pays }}</td>
+                                <td>
+                                    <a href="{{ path('voir_feedbacks_voyage', {'id': voyage.id}) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-comments"></i> Voir les Feedbacks
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {# Pagination block #}
+                <div class="d-flex justify-content-center mt-4">
+                    {{ knp_pagination_render(voyages) }}
+                </div>
+            {% else %}
+                <p class="text-center">Aucun voyage trouvé.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
