@@ -31,7 +31,7 @@ class Reponse
     #[ORM\JoinColumn(name: 'auteur_id', referencedColumnName: 'id', nullable: true)]
     private ?User $auteur = null;
 
-   
+
 
     // --- Getters & Setters ---
 
@@ -84,14 +84,5 @@ class Reponse
         return $this;
     }
 
-    public function getSujet(): ?string
-    {
-        return $this->sujet;
-    }
 
-    public function setSujet(?string $sujet): self
-    {
-        $this->sujet = $sujet;
-        return $this;
-    }
 }

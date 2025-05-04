@@ -34,6 +34,7 @@ services:
         class: App\Service\EmailService
         arguments:
             $mailer: '@mailer'
+          
 
     App\Controller\AudioController:
         arguments:
