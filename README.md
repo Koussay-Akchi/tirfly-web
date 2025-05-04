@@ -7,7 +7,7 @@ Agence de voyages moderne et innovante intégrant des fonctionnalités d'IA et d
 
 - [Description](#description)
 - [Screenshots](#screenshots)
-- [Tech Stack](#tech-stack)
+- [Technologies](#technologies)
 - [Prerequis](#prerequis)
 - [Installation](#installation)
 - [Contributions](#contributions)
@@ -46,7 +46,7 @@ Développé dans le cadre d'un projet PIdev 2024-25 Esprit (Esprit School of Eng
   </tr>
 </table>
 
-## Tech Stack
+## Technologies
 
 ### Frontend🖥
 
@@ -81,7 +81,7 @@ Avant de procéder à l'installation, assurez-vous d'avoir les éléments suivan
 
 ```bash
 git clone https://github.com/Koussay-Akchi/tirfly-web
-cd tirfly
+cd tirfly-web
 ```
 
 #### 2. Installation des dépendances PHP
@@ -114,7 +114,7 @@ php bin/console app:websocket:server
 
 ```bash
 git clone https://github.com/Koussay-Akchi/llama-destinations
-cd llm-project
+cd llama-destinations
 ```
 
 #### 7. Activation de l’environnement et Lancement
@@ -123,6 +123,7 @@ cd llm-project
 venv\Scripts\activate
 python app3.py
 ```
+---
 
 #### 8. Lancement du serveur Symfony
 
