@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'base-staff.html.twig' %}
 
 {% block title %}Messagerie{% endblock %}
 
@@ -170,7 +170,7 @@
             <ul>
                 {% for chat in chats %}
                     <li>
-                        <a href="{{ path('chat_show', {'chat': chat.id}) }}">
+                        <a href="{{ path('chat_staff_show', {'chat': chat.id}) }}">
                             {% if chat.client.id == app.user.id %}
                                 {{ chat.support.prenom|capitalize }} {{ chat.support.nom|capitalize }}
                             {% else %}
@@ -212,8 +212,7 @@
 
     {% if selectedChat %}
         <script>
-            const ws = new WebSocket(`ws://${window.location.hostname}:8081`);
-
+            const ws = new WebSocket('ws://192.168.43.217:8081');
             const messagesDiv = document.getElementById('messages');
             const messageInput = document.getElementById('messageInput');
             const errorMessageDiv = document.getElementById('errorMessage');

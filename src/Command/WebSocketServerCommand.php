@@ -40,7 +40,8 @@ class WebSocketServerCommand extends Command // On crée une commande Symfony sp
                     new ChatServer() // C'est notre propre serveur qui gère les utilisateurs et leurs messages
                 )
             ),
-            8081 // 🔥 Le serveur écoute sur le port 8081 (adresse locale : http://localhost:8081)
+            8081,
+            '0.0.0.0' // 🔥 Le serveur écoute sur le port 8081 (adresse locale : http://localhost:8081)
         );
 
         $server->run(); // 🚀 Le serveur commence à tourner : il attend que les gens se connectent

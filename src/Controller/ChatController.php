@@ -136,6 +136,113 @@ class ChatController extends AbstractController
         ]);
     }
 
+
+    #[Route('/admin/chat', name: 'chat-staff_index', defaults: ['chat' => null])]
+    #[Route('/admin/chat/{chat<\d+>}', name: 'chat_staff_show')] // {chat} doit être un nombre uniquement
+    public function indexStaff(
+        ?Chat $chat,
+        ChatRepository $chatRepository,
+        MessageRepository $messageRepository,
+        UserRepository $userRepository,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+    
+        // Récupère les chats existants pour cet utilisateur
+        $chats = $chatRepository->findChatsForUser($user);
+    
+        // Si l'utilisateur est un client et n'a pas de chats => créer un nouveau chat avec un support
+        if (empty($chats) && in_array('ROLE_CLIENT', $user->getRoles())) {
+            // Cherche tous les utilisateurs ayant le rôle SUPPORT
+            $rsm = new ResultSetMapping();
+            $rsm->addEntityResult(User::class, 'u');
+            $rsm->addFieldResult('u', 'id', 'id');
+            $rsm->addFieldResult('u', 'dateCreation', 'dateCreation');
+            $rsm->addFieldResult('u', 'email', 'email');
+            $rsm->addFieldResult('u', 'MotDePasse', 'motDePasse');
+            $rsm->addFieldResult('u', 'nom', 'nom');
+            $rsm->addFieldResult('u', 'prenom', 'prenom');
+            $rsm->addFieldResult('u', 'resetToken', 'resetToken');
+            $rsm->addFieldResult('u', 'resetTokenExpiresAt', 'resetTokenExpiresAt');
+    
+            $query = $em->createNativeQuery(
+                'SELECT id, dateCreation, email, MotDePasse, nom, prenom, resetToken, resetTokenExpiresAt 
+                 FROM users 
+                 WHERE UPPER(role) = :role',
+                $rsm
+            );
+            $query->setParameter('role', 'SUPPORT');
+            $supportUsers = $query->getResult();
+    
+            if (empty($supportUsers)) {
+                // Si aucun support n'existe, afficher une erreur avec les rôles disponibles
+                $allRoles = $em->createNativeQuery('SELECT DISTINCT role FROM users', new ResultSetMapping())->getResult();
+                throw $this->createNotFoundException(
+                    'Aucun utilisateur de support disponible. Rôles trouvés : ' . json_encode($allRoles)
+                );
+            }
+    
+            // Trouver le support avec le moins de chats (moins occupé)
+            $supportChatCounts = [];
+            foreach ($supportUsers as $support) {
+                $chatCount = $chatRepository->createQueryBuilder('c')
+                    ->select('COUNT(c.id)')
+                    ->where('c.support = :support')
+                    ->setParameter('support', $support)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+                $supportChatCounts[$support->getId()] = $chatCount;
+            }
+    
+            $minChatCount = min($supportChatCounts); // Trouver le minimum
+    
+            // Prendre tous les supports qui ont ce minimum de chats
+            $leastBusySupports = array_filter($supportUsers, function ($support) use ($supportChatCounts, $minChatCount) {
+                return $supportChatCounts[$support->getId()] === $minChatCount;
+            });
+    
+            // Choisir un support au hasard parmi ceux les moins occupés
+            $randomSupport = $leastBusySupports[array_rand($leastBusySupports)];
+    
+            // Créer un nouveau chat entre le client et le support choisi
+            $newChat = new Chat();
+            $newChat->setClient($user);
+            $newChat->setSupport($randomSupport);
+            $em->persist($newChat);
+            $em->flush();
+    
+            $chats = [$newChat];
+            $chat = $newChat;
+        }
+    
+        // Récupérer les messages du chat sélectionné
+        $messages = [];
+        if ($chat) {
+            // Vérifie si l'utilisateur appartient bien à ce chat (soit client soit support)
+            if ($chat->getClient() !== $user && $chat->getSupport() !== $user) {
+                throw $this->createAccessDeniedException('Vous n’avez pas accès à ce chat.');
+            }
+    
+            $messages = $messageRepository->createQueryBuilder('m')
+                ->where('m.chat = :chat')
+                ->setParameter('chat', $chat)
+                ->orderBy('m.dateEnvoi', 'ASC')
+                ->getQuery()
+                ->getResult();
+        }
+    
+        // Affiche la page avec les chats et les messages
+        return $this->render('chat/index-staff.html.twig', [
+            'chats' => $chats,
+            'selectedChat' => $chat,
+            'messages' => $messages,
+        ]);
+    }
+
     // Route pour initialiser un chat entre un client et un support spécifique (supportId)
     #[Route('/chat/init/{supportId}', name: 'chat_init')]
     public function initChat(
