@@ -1,9 +1,9 @@
 <div class="add-to-cart-form mt-3">
     {% if produit.quantiteStock > 0 %}
-        <form method="post" action="{{ path('ajouter_article', {produitId: produit.id}) }}" class="cart-form">
+        <form method="post" action="{{ path('ajouter_article', {produitId: produit.id}) }}">
             <div class="input-group mb-3">
                 <input type="number" name="quantite" value="1" min="1" 
-                       max="{{ produit.quantiteStock }}" class="form-control quantity-input">
+                       max="{{ produit.quantiteStock }}" class="form-control">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-cart-plus me-2"></i> Ajouter au panier
                 </button>
@@ -16,87 +16,3 @@
         </div>
     {% endif %}
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const cartForms = document.querySelectorAll('.cart-form');
-    
-    cartForms.forEach(form => {
-        const quantityInput = form.querySelector('.quantity-input');
-        const maxQuantity = parseInt(quantityInput.max);
-        const submitButton = form.querySelector('button[type="submit"]');
-        
-        // Create error message element
-        const errorElement = document.createElement('div');
-        errorElement.className = 'quantity-error text-danger small mb-2';
-        errorElement.style.display = 'none';
-        form.insertBefore(errorElement, form.lastElementChild);
-        
-        // Update error message content
-        function updateErrorMessage() {
-            errorElement.innerHTML = `
-                <i class="fas fa-exclamation-circle me-1"></i>
-                La quantité demandée dépasse le stock disponible (${maxQuantity} disponibles)
-            `;
-        }
-        updateErrorMessage();
-        
-        // Validate on various input events
-        quantityInput.addEventListener('input', validateInput);
-        quantityInput.addEventListener('change', validateInput);
-        quantityInput.addEventListener('blur', validateInput);
-        
-        // Validate on form submission
-        form.addEventListener('submit', function(e) {
-            if (!validateInput()) {
-                e.preventDefault();
-                quantityInput.focus();
-                quantityInput.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-            }
-        });
-        
-        function validateInput() {
-            const quantity = parseInt(quantityInput.value) || 0;
-            const isValid = quantity > 0 && quantity <= maxQuantity;
-            
-            // Update UI based on validation
-            quantityInput.classList.toggle('is-invalid', !isValid);
-            errorElement.style.display = isValid ? 'none' : 'block';
-            submitButton.disabled = !isValid;
-            
-            return isValid;
-        }
-        
-        // Initial validation
-        validateInput();
-    });
-});
-</script>
-
-<style>
-.is-invalid {
-    border-color: #dc3545 !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-}
-
-.is-invalid:focus {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
-}
-
-.quantity-error {
-    display: none;
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>

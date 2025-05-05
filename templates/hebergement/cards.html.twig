@@ -44,7 +44,7 @@
                 padding: 1.5rem;
                 height: fit-content;
                 position: sticky;
-                top: 120px;
+                top: 120px; /* Adjusted for navbar height */
                 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             }
             
@@ -57,50 +57,6 @@
                 margin-bottom: 0.75rem;
                 display: block;
                 color: #333;
-            }
-            
-            /* Autocomplete styles */
-            .autocomplete-container {
-                position: relative;
-            }
-
-            .autocomplete-results {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-                background: white;
-                border: 1px solid #ced4da;
-                border-top: none;
-                border-radius: 0 0 4px 4px;
-                max-height: 300px;
-                overflow-y: auto;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                display: none;
-            }
-
-            .autocomplete-item {
-                padding: 8px 12px;
-                cursor: pointer;
-            }
-
-            .autocomplete-item:hover {
-                background-color: #f8f9fa;
-            }
-
-            .autocomplete-highlight {
-                font-weight: bold;
-                color: #0d6efd;
-            }
-
-            .autocomplete-item .details {
-                font-size: 0.8em;
-                color: #6c757d;
-            }
-
-            .autocomplete-item.active {
-                background-color: #e9ecef;
             }
             
             /* Results Section */
@@ -337,12 +293,9 @@
                                 <!-- Search -->
                                 <div class="filter-group">
                                     <label for="search" class="filter-title">Recherche</label>
-                                    <div class="autocomplete-container">
-                                        <input type="text" id="search" name="query" class="form-control" 
-                                               value="{{ app.request.query.get('query', '') }}" 
-                                               placeholder="Nom, lieu..." autocomplete="off">
-                                        <div id="autocompleteResults" class="autocomplete-results"></div>
-                                    </div>
+                                    <input type="text" id="search" name="query" class="form-control" 
+                                           value="{{ app.request.query.get('query', '') }}" 
+                                           placeholder="Nom, lieu...">
                                 </div>
                                 
                                 <!-- Type Filter -->
@@ -621,122 +574,6 @@
                         mobileFilterToggle.innerHTML = '<i class="fas fa-filter me-2"></i>Filtres';
                     }
                 });
-
-                // Autocomplete functionality
-                const searchInput = document.getElementById('search');
-                const autocompleteResults = document.getElementById('autocompleteResults');
-                
-                if (searchInput && autocompleteResults) {
-                    let timeoutId;
-                    
-                    searchInput.addEventListener('input', function() {
-                        clearTimeout(timeoutId);
-                        const query = this.value.trim();
-                        
-                        if (query.length < 2) {
-                            autocompleteResults.style.display = 'none';
-                            return;
-                        }
-                        
-                        timeoutId = setTimeout(() => {
-                            fetch(`/api/hebergement/autocomplete?query=${encodeURIComponent(query)}`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.length > 0) {
-                                        autocompleteResults.innerHTML = '';
-                                        data.forEach(item => {
-                                            const div = document.createElement('div');
-                                            div.className = 'autocomplete-item';
-                                            
-                                            const name = document.createElement('div');
-                                            name.innerHTML = highlightMatch(item.name, query);
-                                            name.style.fontWeight = 'bold';
-                                            
-                                            const details = document.createElement('div');
-                                            details.className = 'details';
-                                            details.innerHTML = `${item.type} · ${highlightMatch(item.location, query)}`;
-                                            
-                                            div.appendChild(name);
-                                            div.appendChild(details);
-                                            
-                                            div.addEventListener('click', function() {
-                                                searchInput.value = item.name;
-                                                autocompleteResults.style.display = 'none';
-                                                searchInput.closest('form').submit();
-                                            });
-                                            
-                                            autocompleteResults.appendChild(div);
-                                        });
-                                        autocompleteResults.style.display = 'block';
-                                    } else {
-                                        autocompleteResults.style.display = 'none';
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Autocomplete error:', error);
-                                    autocompleteResults.style.display = 'none';
-                                });
-                        }, 300);
-                    });
-                    
-                    // Hide results when clicking outside
-                    document.addEventListener('click', function(e) {
-                        if (!searchInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
-                            autocompleteResults.style.display = 'none';
-                        }
-                    });
-                    
-                    // Handle keyboard navigation
-                    searchInput.addEventListener('keydown', function(e) {
-                        const items = autocompleteResults.querySelectorAll('.autocomplete-item');
-                        let activeItem = autocompleteResults.querySelector('.autocomplete-item.active');
-                        
-                        if (e.key === 'ArrowDown') {
-                            e.preventDefault();
-                            if (!activeItem) {
-                                items[0]?.classList.add('active');
-                            } else {
-                                activeItem.classList.remove('active');
-                                const next = activeItem.nextElementSibling;
-                                if (next) {
-                                    next.classList.add('active');
-                                    next.scrollIntoView({ block: 'nearest' });
-                                } else {
-                                    items[0]?.classList.add('active');
-                                }
-                            }
-                        } else if (e.key === 'ArrowUp') {
-                            e.preventDefault();
-                            if (activeItem) {
-                                activeItem.classList.remove('active');
-                                const prev = activeItem.previousElementSibling;
-                                if (prev) {
-                                    prev.classList.add('active');
-                                    prev.scrollIntoView({ block: 'nearest' });
-                                } else {
-                                    items[items.length - 1]?.classList.add('active');
-                                }
-                            }
-                        } else if (e.key === 'Enter' && activeItem) {
-                            e.preventDefault();
-                            searchInput.value = activeItem.querySelector('div:first-child').textContent;
-                            autocompleteResults.style.display = 'none';
-                            searchInput.closest('form').submit();
-                        } else if (e.key === 'Escape') {
-                            autocompleteResults.style.display = 'none';
-                        }
-                    });
-                }
-                
-                function highlightMatch(text, query) {
-                    if (!query) return text;
-                    const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
-                    return text.replace(regex, '<span class="autocomplete-highlight">$1</span>');
-                }
-                
-                function escapeRegExp(string) {
-                    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                }
             });
         </script>
     </body>

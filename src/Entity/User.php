@@ -93,6 +93,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
     #[ORM\ManyToMany(targetEntity: Produit::class)]
     #[ORM\JoinTable(name: 'user_favorites')]
     private Collection $favorites;
+    #[ORM\OneToMany(targetEntity: Commande::class, mappedBy: 'client')]
+    private Collection $commandes;
 
     public function __construct()
     {
@@ -100,6 +102,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
         $this->notifications = new ArrayCollection();
         $this->clients = new ArrayCollection();
         $this->favorites = new ArrayCollection();
+        $this->commandes = new ArrayCollection();
     }
     public function isEqualTo(UserInterface $user): bool
     {
@@ -327,5 +330,29 @@ public function removeFavorite(Produit $product): self
 public function hasFavorite(Produit $product): bool
 {
     return $this->favorites->contains($product);
+}
+
+public function getCommandes(): Collection
+{
+    return $this->commandes;
+}
+
+public function addCommande(Commande $commande): self
+{
+    if (!$this->commandes->contains($commande)) {
+        $this->commandes->add($commande);
+        $commande->setClient($this);
+    }
+    return $this;
+}
+
+public function removeCommande(Commande $commande): self
+{
+    if ($this->commandes->removeElement($commande)) {
+        if ($commande->getClient() === $this) {
+            $commande->setClient(null);
+        }
+    }
+    return $this;
 }
 }

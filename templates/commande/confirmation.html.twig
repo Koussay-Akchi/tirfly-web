@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Order Confirmation</h1>
+    <div class="alert alert-success">
+        Your order #{{ commande.id }} has been successfully placed!
+    </div>
+    
+    <h2>Order Details</h2>
+    <div class="card">
+        <div class="card-body">
+            <p><strong>Status:</strong> {{ commande.statut }}</p>
+            <p><strong>Total Amount:</strong> {{ commande.montantTotal|format_currency('EUR') }}</p>
+            <p><strong>Order Date:</strong> {{ commande.dateCommande|date('d/m/Y H:i') }}</p>
+            <p><strong>Delivery Address:</strong> {{ commande.adresseLivraison }}</p>
+        </div>
+    </div>
+    
+    <a href="{{ path('home') }}" class="btn btn-primary mt-3">payer</a>
+</div>
+{% endblock %}

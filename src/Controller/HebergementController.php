@@ -28,9 +28,8 @@ class HebergementController extends AbstractController
         public function add(
             Request $request, 
             EntityManagerInterface $em, 
-            EmailService $emailService,
-            UserRepository $userRepository,
-            SluggerInterface $slugger
+            EmailService $emailService, // <-- Inject your EmailService
+            UserRepository $userRepository
         ): Response 
         {
             $hebergement = new Hebergement();
@@ -43,7 +42,6 @@ class HebergementController extends AbstractController
         
             if ($form->isSubmitted() && $form->isValid()) {
                 try {
-                    // Handle image upload
                     $imageFile = $form->get('image')->getData();
                     $generatedImage = $request->request->get('generated_image');
         
@@ -61,7 +59,6 @@ class HebergementController extends AbstractController
         
                     $em->persist($hebergement);
         
-                    // Handle specific accommodation types
                     switch ($form->get('type')->getData()) {
                         case 'hotel':
                             $hotel = new Hotel();
@@ -81,7 +78,7 @@ class HebergementController extends AbstractController
                         case 'foyer':
                             $foyer = new Foyer();
                             $documentsFile = $form->get('documents')->getData();
-                            $fileName = $documentsFile ? $this->uploadFile($documentsFile, $slugger) : null;
+                            $fileName = $documentsFile ? $this->uploadFile($documentsFile) : null;
         
                             $foyer->setFrais($form->get('frais')->getData())
                                 ->setType($form->get('typeFoyer')->getData())
@@ -93,37 +90,18 @@ class HebergementController extends AbstractController
         
                     $em->flush();
         
-                    // Send notification email
-                    try {
-                        $emailService->sendEmail(
-                            'chahd.khaldi@esprit.tn', // Recipient
-                            'Nouvel hébergement ajouté', // Subject
-                            sprintf(
-                                "Un nouvel hébergement a été ajouté:\n\n" .
-                                "Type: %s\n" .
-                                "Nom: %s\n" .
-                                "Date: %s",
-                                $type,
-                                $hebergement->getNom(),
-                                $hebergement->getId(),
-                                (new \DateTime())->format('Y-m-d H:i:s')
-                            )
-                        );
-                        $this->addFlash('success', 'Hébergement ajouté et notification envoyée avec succès.');
-                    } catch (\Exception $emailException) {
-                        $this->addFlash(
-                            'warning', 
-                            'Hébergement ajouté mais l\'email de notification n\'a pas pu être envoyé: ' . 
-                            $emailException->getMessage()
-                        );
-                    }
+                    // 🔥 Send the email after saving
+                    $adminEmail = 'chahd.khaldi@esprit.tn '; // You can change this or fetch from config
+                    $subject = 'Nouveau hébergement ajouté';
+                    $body = 'Un nouvel hébergement a été ajouté avec succès. ID: ' . $hebergement->getId();
         
+                    $emailService->sendEmail($adminEmail, $subject, $body);
+        
+                    $this->addFlash('success', 'Hébergement ajouté et notification envoyée avec succès.');
                     return $this->redirectToRoute('admin_liste_hebergements');
         
                 } catch (\Throwable $e) {
                     $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
-                    // Log the full error for debugging
-                    error_log('Hebergement add error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
                 }
             } elseif ($form->isSubmitted()) {
                 foreach ($form->getErrors(true) as $error) {
@@ -137,23 +115,20 @@ class HebergementController extends AbstractController
             ]);
         }
         
-        private function uploadFile(UploadedFile $file, SluggerInterface $slugger): string
+        /**
+         * Handle document file upload for foyer
+         */
+        private function uploadFile(UploadedFile $file): ?string
         {
             $uploadDir = $this->getParameter('documents_directory');
-            
-            // Generate a safe filename
-            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $safeFilename = $slugger->slug($originalFilename);
-            $fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+            $fileName = uniqid() . '.' . $file->guessExtension();
         
-            try {
-                $file->move($uploadDir, $fileName);
-            } catch (FileException $e) {
-                throw new \RuntimeException('Could not upload file: '.$e->getMessage());
-            }
+            $file->move($uploadDir, $fileName);
         
             return $fileName;
         }
+        
+
     #[Route('/admin/hebergements/{id}/edit', name: 'edit_hebergement')]
     public function edit(Hebergement $hebergement, Request $request, EntityManagerInterface $em): Response
     {
@@ -232,6 +207,10 @@ class HebergementController extends AbstractController
                             $specific->setType($form->get('typeFoyer')->getData());
                             
                             $documentsFile = $form->get('documents')->getData();
+                            if ($documentsFile) {
+                                $fileName = $this->uploadFile($documentsFile);
+                                $specific->setDocuments($fileName);
+                            }
                             break;
                     }
     

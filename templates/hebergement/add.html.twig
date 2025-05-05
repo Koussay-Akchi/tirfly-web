@@ -263,72 +263,58 @@
             }
         }
 
-        // Replace the existing generateRandomImage() function with this improved version
-function generateRandomImage() {
-    const selectedType = document.querySelector('.image-option-btn.active').dataset.type;
-    const btn = document.getElementById('generateImageBtn');
-    const originalText = btn.innerHTML;
-    
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Génération en cours...';
-
-    // Better image queries for each accommodation type
-    const imageQueries = {
-        'hotel': ['luxury+hotel', 'hotel+lobby', 'hotel+room', 'resort', '5+star+hotel'],
-        'apartment': ['modern+apartment', 'apartment+building', 'apartment+interior', 'studio+apartment'],
-        'hostel': ['hostel+dorm', 'youth+hostel', 'budget+accommodation', 'shared+room']
-    };
-
-    // Select a random query from the appropriate category
-    const queries = imageQueries[selectedType] || ['accommodation'];
-    const randomQuery = queries[Math.floor(Math.random() * queries.length)];
-    
-    // Use Unsplash API for better quality images
-    const unsplashUrl = `https://source.unsplash.com/800x600/?${randomQuery},accommodation`;
-    
-    // Fallback to Picsum if Unsplash fails
-    const picsumUrl = `https://picsum.photos/800/600?random=${Math.random()}`;
-
-    // Try Unsplash first
-    fetch(unsplashUrl)
-        .then(response => {
-            if (!response.ok) throw new Error('Unsplash failed');
-            return response.blob();
-        })
-        .catch(() => {
-            // Fallback to Picsum
-            return fetch(picsumUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error('Picsum failed');
-                    return response.blob();
-                });
-        })
-        .then(blob => {
-            const reader = new FileReader();
-            reader.onload = function() {
-                const container = document.getElementById('generatedImageContainer');
-                const img = document.getElementById('generatedImage');
-                
-                img.src = reader.result;
-                img.style.display = 'block';
-                container.style.display = 'block';
-                currentGeneratedImage = reader.result;
-                document.getElementById('generatedImageData').value = reader.result;
-                
-                container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            };
-            reader.readAsDataURL(blob);
-        })
-        .catch(error => {
-            console.error('Error generating image:', error);
-            alert('Erreur lors de la génération de l\'image. Veuillez réessayer.');
-        })
-        .finally(() => {
+        // Generate a random image based on selected type
+        function generateRandomImage() {
+            const selectedType = document.querySelector('.image-option-btn.active').dataset.type;
             const btn = document.getElementById('generateImageBtn');
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        });
-}
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Génération en cours...';
+
+            // Using Unsplash Source API (no key required)
+            const width = 800;
+            const height = 600;
+            let query = '';
+            
+            switch(selectedType) {
+                case 'hotel': query = 'luxury+hotel'; break;
+                case 'apartment': query = 'modern+apartment'; break;
+                case 'hostel': query = 'cozy+hostel'; break;
+                default: query = 'accommodation';
+            }
+
+            fetch(`https://picsum.photos/800/600?random=${Math.random()}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch image');
+                    return response.blob();
+                })
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const container = document.getElementById('generatedImageContainer');
+                        const img = document.getElementById('generatedImage');
+                        
+                        img.src = reader.result;
+                        img.style.display = 'block';
+                        container.style.display = 'block';
+                        currentGeneratedImage = reader.result;
+                        document.getElementById('generatedImageData').value = reader.result;
+                        
+                        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(error => {
+                    console.error('Error generating image:', error);
+                    alert('Erreur lors de la génération de l\'image. Veuillez réessayer.');
+                })
+                .finally(() => {
+                    const btn = document.getElementById('generateImageBtn');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        }
 
         // Use the generated image and upload it as the selected file
         function useGeneratedImage() {
