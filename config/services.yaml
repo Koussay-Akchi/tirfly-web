@@ -18,32 +18,39 @@ services:
         bind:
             $geminiApiKey: '%google_api_key%'
 
+    App\Controller\PaymentController:
+        arguments:
+            $logger: '@monolog.logger.payment'
+
     App\Service\SentimentAnalysisService:
         arguments:
             $httpClient: '@http_client'
             $apiKey: '%huggingface_api_key%'
+
     _instanceof:
         App\Service\CurrencyConverter:
             bind:
                 $exchangeRateApiKey: '%env(dec3bbdb08a8f599977f5d1e)%'
 
-     
-
     App\:
-        resource: '../src/'
+        resource: '../src/*'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
-            - '../src/Kernel.php'
+            - '../src/Migrations/'
             - '../src/Tests/'
+            - '../src/AdvancedPaginationBundle/'
+            - '../src/Kernel.php'
 
     App\Controller\ClientController:
         arguments:
             $passwordHasher: '@security.user_password_hasher'
+
     App\Service\EmailService:
         class: App\Service\EmailService
         arguments:
             $mailer: '@mailer'
+
     App\Service\TwilioSmsService:
         arguments:
             $accountSid: '%env(TWILIO_ACCOUNT_SID)%'
@@ -59,20 +66,12 @@ services:
         arguments:
             $apiKey: '%env(HUGGINGFACE_API_KEY)%'
             $model: '%env(HUGGINGFACE_MODEL)%'
-            
+
     App\Service\StockMonitor:
         arguments:
             $smsService: '@App\Service\TwilioSmsService'
             $adminPhone: '%env(ADMIN_PHONE)%'
-            
+
     App\Service\BadWordsFilterService:
         arguments:
             $geminiApiKey: '%google_api_key%'
-twig:
-    default_path: '%kernel.project_dir%/templates'
-    form_themes: ['bootstrap_5_layout.html.twig']
-    number_format:
-        decimals: 2
-        decimal_point: ','
-        thousands_separator: ' '
-        

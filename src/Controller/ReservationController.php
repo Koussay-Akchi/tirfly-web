@@ -28,11 +28,10 @@ use App\Entity\Hebergement;
 use App\Entity\Pack;
 use App\Repository\CouponRepository;
 
-
+#[Route('/reservations')]
 class ReservationController extends AbstractController
 {
-
-    #[Route('/reservations', name: 'historique_reservations')]
+    #[Route('', name: 'historique_reservations')]
     public function historiqueReservations(
         Request $request,
         ReservationRepository $reservationRepository,
@@ -65,7 +64,7 @@ class ReservationController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/reservations', name: 'admin_liste_reservations')]
+    #[Route('/admin', name: 'admin_liste_reservations')]
     public function adminReservations(Request $request, ReservationRepository $reservationRepository, PaginatorInterface $paginator): Response
     {
         $query = $reservationRepository->createQueryBuilder('v')->getQuery();
@@ -83,7 +82,7 @@ class ReservationController extends AbstractController
         ]);
     }
 
-    #[Route('/reservations/new/{type}/{id}', name: 'ajout_reservation')]
+    #[Route('/new/{type}/{id}', name: 'ajout_reservation')]
     public function new(
         string $type,
         int $id,
@@ -200,7 +199,7 @@ class ReservationController extends AbstractController
             $em->persist($reservation);
             $em->flush();
 
-            $this->addFlash('success', 'Réservation confirmée !');
+            $this->addFlash('success', 'Réservation créée ! Veuillez procéder au paiement.');
             return $this->redirectToRoute('historique_reservations');
         }
 
@@ -212,7 +211,7 @@ class ReservationController extends AbstractController
         ]);
     }
 
-    #[Route('/check-coupon/{code}', name: 'check_coupon')]
+    #[Route('/check-coupon/{id}', name: 'check_coupon')]
     public function checkCoupon(
         string $code,
         Request $request,
