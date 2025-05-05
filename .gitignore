@@ -29,3 +29,4 @@
 ###< lexik/jwt-authentication-bundle ###
 public/uploads/audio/
 node_modules/
+android/
