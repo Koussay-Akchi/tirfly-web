@@ -14,6 +14,8 @@
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
         "knplabs/knp-paginator-bundle": "^6.8",
+        "knplabs/knp-snappy": "^1.5",
+        "knplabs/knp-snappy-bundle": "^1.10",
         "knpuniversity/oauth2-client-bundle": "^2.18",
         "league/oauth2-facebook": "^2.2",
         "league/oauth2-google": "^4.0",
@@ -56,6 +58,8 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/intl-extra": "^3.20",
         "twig/twig": "^2.12|^3.0",
+        "twilio/sdk": "^8.5",
+        "wemersonjanuario/wkhtmltopdf-windows": "^0.12",
         "wohali/oauth2-discord-new": "^1.2"
     },
     "config": {

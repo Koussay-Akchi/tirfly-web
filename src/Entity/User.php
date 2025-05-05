@@ -90,12 +90,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
         inverseJoinColumns: [new ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
     )]
     private Collection $clients;
+    #[ORM\ManyToMany(targetEntity: Produit::class)]
+    #[ORM\JoinTable(name: 'user_favorites')]
+    private Collection $favorites;
 
     public function __construct()
     {
         $this->messages = new ArrayCollection();
         $this->notifications = new ArrayCollection();
         $this->clients = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
     }
     public function isEqualTo(UserInterface $user): bool
     {
@@ -298,4 +302,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface,Equatabl
     {
         return $this->motDePasse;
     }
+    public function getFavorites(): Collection
+{
+    return $this->favorites;
+}
+
+public function addFavorite(Produit $product): self
+{
+    if (!$this->favorites->contains($product)) {
+        $this->favorites[] = $product;
+    }
+
+    return $this;
+}
+
+public function removeFavorite(Produit $product): self
+{
+    if ($this->favorites->contains($product)) {
+        $this->favorites->removeElement($product);
+    }
+
+    return $this;
+}
+public function hasFavorite(Produit $product): bool
+{
+    return $this->favorites->contains($product);
+}
 }

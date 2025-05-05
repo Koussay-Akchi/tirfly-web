@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Export des Produits - {{ date|date('d/m/Y') }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h1 { color: #333; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .text-center { text-align: center; }
+        .page-break { page-break-after: always; }
+    </style>
+</head>
+<body>
+    <h1>Liste des Produits</h1>
+    <p class="text-center">Export généré le {{ date|date('d/m/Y à H:i') }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prix</th>
+                <th>Stock</th>
+                <th>Catégorie</th>
+                <th>Éco-responsable</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produit in produits %}
+                <tr>
+                    <td>{{ produit.nom }}</td>
+                    <td>{{ produit.prixUnitaire|number_format(2, ',', ' ') }} €</td>
+                    <td>{{ produit.quantiteStock }}</td>
+                    <td>{{ produit.categorie ?? '-' }}</td>
+                    <td>{{ produit.ecoFriendly ? 'Oui' : 'Non' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

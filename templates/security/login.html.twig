@@ -194,29 +194,34 @@
             right: 15px;
         }
 
-        .google-btn, .facebook-btn, .discord-btn, .faceid-btn {
-            width: 100%;
-            padding: 15px;
-            background: #ffffff;
-            color: #333;
-            border: 1px solid #ccc;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 1rem;
+        }
+
+        .social-icon {
+            font-size: 24px;
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 1rem;
         }
 
-        .google-btn:hover, .facebook-btn:hover, .discord-btn:hover, .faceid-btn:hover {
-            background: #f1f1f1;
-            transform: scale(1.05);
+        .social-icon:hover {
+            transform: scale(1.2);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
+
+        .google-icon { color: #DB4437; }
+        .facebook-icon { color: #4267B2; }
+        .discord-icon { color: #5865F2; }
+        .faceid-icon { color: #3498db; }
+        .fingerprint-icon { color: #2ecc71; }
 
         .links {
             margin-top: 2rem;
@@ -254,7 +259,6 @@
             display: none;
         }
 
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -290,6 +294,12 @@
             max-width: 300px;
             border-radius: 10px;
             margin-bottom: 1rem;
+        }
+
+        .modal-content img {
+            display: block;
+            margin: 1rem auto;
+            max-width: 200px;
         }
 
         .modal-content button {
@@ -358,6 +368,10 @@
             .modal-content {
                 padding: 1.5rem;
             }
+            .social-icon {
+                font-size: 20px;
+                padding: 8px;
+            }
         }
     </style>
 </head>
@@ -374,18 +388,6 @@
     <div class="logo-container">
         <img src="images/logo.svg" alt="Logo TirFly" class="logo-img">
     </div>
-    <a href="/connect/google" class="google-btn">
-        <i class="fab fa-google"></i> Sign in with Google
-    </a>
-    <a href="/connect/facebook" class="facebook-btn">
-        <i class="fab fa-facebook-f"></i> Sign in with Facebook
-    </a>
-    <a href="/connect/discord" class="discord-btn">
-        <i class="fab fa-discord"></i> Sign in with Discord
-    </a>
-    <button class="faceid-btn" id="faceid-btn">
-        <i class="fas fa-user-check"></i> Sign in with Face Recognition
-    </button>
     <form id="login-form">
         <div class="form-group">
             <input type="email" name="email" id="email" placeholder="Votre adresse e-mail" required>
@@ -396,6 +398,23 @@
             <i class="fas fa-lock"></i>
         </div>
         <button type="submit">Décollage</button>
+        <div class="social-login">
+            <a href="/connect/google" class="social-icon google-icon" id="google-icon" title="Sign in with Google">
+                <i class="fab fa-google"></i>
+            </a>
+            <a href="/connect/facebook" class="social-icon facebook-icon" id="facebook-icon" title="Sign in with Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="/connect/discord" class="social-icon discord-icon" id="discord-icon" title="Sign in with Discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <span class="social-icon faceid-icon" id="faceid-icon" title="Sign in with Face Recognition">
+                <i class="fas fa-user-check"></i>
+            </span>
+            <span class="social-icon fingerprint-icon" id="fingerprint-icon" title="Sign in with Fingerprint">
+                <i class="fas fa-fingerprint"></i>
+            </span>
+        </div>
         <div class="error-message hidden" id="error-message"></div>
         <div class="links">
             <a href="/forgot-password">Mot de passe oublié ?</a>
@@ -404,7 +423,6 @@
     </form>
 </div>
 
-<!-- Face Login Modal -->
 <div class="modal" id="faceid-modal">
     <div class="modal-content">
         <span class="close-modal" id="close-modal">×</span>
@@ -420,8 +438,24 @@
     </div>
 </div>
 
+<div class="modal" id="fingerprint-modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-fingerprint-modal">×</span>
+        <p>Entrez votre e-mail et scannez le QR code avec votre téléphone pour vérifier votre empreinte digitale.</p>
+        <div class="form-group">
+            <input type="email" id="fingerprint-email" placeholder="Votre adresse e-mail" required>
+            <i class="fas fa-envelope"></i>
+        </div>
+        <button id="generate-qr-btn">Générer le QR Code</button>
+        <div id="qr-code-container" style="display: none;">
+            <p>Scannez ce QR code avec votre téléphone :</p>
+            <img id="qr-code-image" src="" alt="QR Code">
+        </div>
+        <button id="cancel-fingerprint-btn" class="cancel-btn">Annuler</button>
+    </div>
+</div>
+
 <script>
-// Set TensorFlow.js backend to CPU to avoid WebGL issues
 (async () => {
     try {
         await tf.setBackend('cpu');
@@ -432,9 +466,8 @@
     }
 })();
 
-// Load Face-API.js models with fallback
 async function loadModels() {
-    let MODEL_URL = 'https://unpkg.com/face-api.js@0.22.2/weights/'; // Try unpkg CDN
+    let MODEL_URL = 'https://unpkg.com/face-api.js@0.22.2/weights/';
     try {
         console.log("Attempting to load Face-API.js models from CDN...");
         await Promise.all([
@@ -482,7 +515,6 @@ async function loadModels() {
     }
 }
 
-// Initialize video stream
 async function startVideo() {
     const video = document.getElementById('video');
     try {
@@ -505,7 +537,6 @@ async function startVideo() {
     }
 }
 
-// Stop video stream
 function stopVideo(video) {
     if (video.srcObject) {
         video.srcObject.getTracks().forEach(track => track.stop());
@@ -513,17 +544,15 @@ function stopVideo(video) {
     }
 }
 
-// Display error message
 function displayError(message) {
     const errorMessage = document.getElementById("error-message");
     errorMessage.textContent = message;
     errorMessage.classList.remove('hidden');
     setTimeout(() => {
         errorMessage.classList.add('hidden');
-    }, 10000); // Increased to 10 seconds for visibility
+    }, 10000);
 }
 
-// Handle face recognition login
 async function handleFaceLogin() {
     const modal = document.getElementById('faceid-modal');
     const video = document.getElementById('video');
@@ -533,7 +562,6 @@ async function handleFaceLogin() {
     const closeModal = document.getElementById('close-modal');
     const retryButton = document.getElementById('retry-camera-btn');
 
-    // Show the modal
     modal.style.display = 'flex';
 
     let stream;
@@ -550,9 +578,8 @@ async function handleFaceLogin() {
 
     let isCapturing = false;
     let attemptCount = 0;
-    const maxAttempts = 100; // 10 seconds (100 attempts * 100ms)
+    const maxAttempts = 100;
 
-    // Function to continuously detect face until successful or cancelled
     async function detectFace() {
         if (!isCapturing) return;
 
@@ -589,7 +616,6 @@ async function handleFaceLogin() {
                 }
 
                 console.log("Sending face descriptor to backend for email:", email);
-                // Send the face descriptor and email to the backend
                 const response = await fetch('/api/login/face', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -629,20 +655,17 @@ async function handleFaceLogin() {
             captureButton.textContent = 'Connexion par visage';
             modal.style.display = 'none';
             stopVideo(video);
-            return; // Explicitly stop the loop
+            return;
         }
     }
 
-    // Start face detection loop when video is ready
     video.onloadedmetadata = () => {
         video.play();
         console.log("Video stream ready for face detection.");
-        // Wait for the capture button to start detection
     };
 
-    // Handle capture button click
     captureButton.addEventListener('click', async () => {
-        if (isCapturing) return; // Prevent multiple clicks
+        if (isCapturing) return;
 
         const email = emailInput.value.trim();
         if (!email) {
@@ -653,11 +676,10 @@ async function handleFaceLogin() {
         isCapturing = true;
         captureButton.classList.add('loading');
         captureButton.textContent = '';
-        attemptCount = 0; // Reset attempt count
+        attemptCount = 0;
         detectFace();
     });
 
-    // Handle retry button click
     retryButton.addEventListener('click', async () => {
         retryButton.style.display = 'none';
         captureButton.style.display = 'block';
@@ -674,7 +696,6 @@ async function handleFaceLogin() {
         }
     });
 
-    // Handle cancel button click
     cancelButton.addEventListener('click', () => {
         isCapturing = false;
         captureButton.classList.remove('loading');
@@ -683,7 +704,6 @@ async function handleFaceLogin() {
         stopVideo(video);
     });
 
-    // Handle close modal
     closeModal.addEventListener('click', () => {
         isCapturing = false;
         captureButton.classList.remove('loading');
@@ -693,7 +713,95 @@ async function handleFaceLogin() {
     });
 }
 
-// Initialize everything
+document.getElementById('fingerprint-icon').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('fingerprint-modal').style.display = 'flex';
+});
+
+document.getElementById('generate-qr-btn').addEventListener('click', async () => {
+    const email = document.getElementById('fingerprint-email').value.trim();
+    if (!email) {
+        displayError("Veuillez entrer votre adresse e-mail.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/fingerprint/qr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        console.log("Response status:", response.status);
+        let data;
+        try {
+            data = await response.json();
+            console.log("Response data:", data);
+        } catch (err) {
+            console.error("Failed to parse JSON response:", await response.text());
+            throw new Error("Réponse du serveur non valide : format JSON attendu.");
+        }
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Échec de la génération du QR code');
+        }
+
+        const qrCodeImage = document.getElementById('qr-code-image');
+        qrCodeImage.src = data.qrCode;
+        document.getElementById('qr-code-container').style.display = 'block';
+
+        pollFingerprintStatus(data.token);
+    } catch (error) {
+        console.error("Error generating QR code:", error);
+        displayError("Échec de la génération du QR code : " + error.message);
+    }
+});
+
+async function pollFingerprintStatus(token) {
+    const interval = setInterval(async () => {
+        try {
+            const response = await fetch(`/api/fingerprint/status/${token}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Échec de la vérification de l\'état');
+            }
+
+            if (data.status === 'pending') {
+                return;
+            }
+
+            clearInterval(interval);
+
+            if (data.status === 'success') {
+                alert("Connexion réussie avec empreinte digitale !");
+                document.getElementById('fingerprint-modal').style.display = 'none';
+                window.location.href = "/";
+            } else {
+                displayError("Échec de la vérification de l'empreinte digitale : " + (data.error || 'Erreur inconnue'));
+                document.getElementById('qr-code-container').style.display = 'none';
+            }
+        } catch (error) {
+            clearInterval(interval);
+            displayError("Erreur lors de la vérification : " + error.message);
+            document.getElementById('qr-code-container').style.display = 'none';
+        }
+    }, 2000);
+}
+
+document.getElementById('cancel-fingerprint-btn').addEventListener('click', () => {
+    document.getElementById('fingerprint-modal').style.display = 'none';
+    document.getElementById('qr-code-container').style.display = 'none';
+});
+
+document.getElementById('close-fingerprint-modal').addEventListener('click', () => {
+    document.getElementById('fingerprint-modal').style.display = 'none';
+    document.getElementById('qr-code-container').style.display = 'none';
+});
+
 let modelsLoaded = false;
 (async () => {
     try {
@@ -704,8 +812,7 @@ let modelsLoaded = false;
     }
 })();
 
-// Handle faceid button click
-document.getElementById('faceid-btn').addEventListener('click', async (e) => {
+document.getElementById('faceid-icon').addEventListener('click', async (e) => {
     e.preventDefault();
     if (!modelsLoaded) {
         displayError("Les modèles de reconnaissance faciale ne sont pas chargés. Veuillez vérifier votre connexion ou réessayer.");
@@ -715,7 +822,6 @@ document.getElementById('faceid-btn').addEventListener('click', async (e) => {
     handleFaceLogin();
 });
 
-// Existing login form submission
 function getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(name);
@@ -768,5 +874,6 @@ document.getElementById("login-form").addEventListener("submit", function(e) {
     });
 });
 </script>
+<script src="{{ asset('js/app.js') }}" type="module"></script>
 </body>
 </html>

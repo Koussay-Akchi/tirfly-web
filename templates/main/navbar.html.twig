@@ -2,27 +2,27 @@
 	<div class="overlay" data-overlay></div>
 
 	{% if app.request.pathInfo == path('home') %}
-	<div class="header-top">
-		<div class="tir-container">
-			<a href="tel:+01123456790" class="helpline-box">
-				<div class="icon-box">
-					<ion-icon name="call-outline"></ion-icon>
+		<div class="header-top">
+			<div class="tir-container">
+				<a href="tel:+01123456790" class="helpline-box">
+					<div class="icon-box">
+						<ion-icon name="call-outline"></ion-icon>
+					</div>
+					<div class="wrapper">
+						<p class="helpline-title">Téléphone :</p>
+						<p class="helpline-number">(+214) 40 862 777</p>
+					</div>
+				</a>
+				<a href="{{ path('home') }}" class="logo" style="margin-left: 30%;">
+					<img src="{{ asset('images/logo.svg') }}" alt="Logo TirFly" height="80">
+				</a>
+				<div class="header-btn-group">
+					<button class="nav-open-btn" aria-label="Ouvrir le menu" data-nav-open-btn>
+						<ion-icon name="menu-outline"></ion-icon>
+					</button>
 				</div>
-				<div class="wrapper">
-					<p class="helpline-title">Téléphone :</p>
-					<p class="helpline-number">(+214) 40 862 777</p>
-				</div>
-			</a>
-			<a href="{{ path('home') }}" class="logo" style="margin-left: 30%;">
-				<img src="{{ asset('images/logo.svg') }}" alt="Logo TirFly" height="80">
-			</a>
-			<div class="header-btn-group">
-				<button class="nav-open-btn" aria-label="Ouvrir le menu" data-nav-open-btn>
-					<ion-icon name="menu-outline"></ion-icon>
-				</button>
 			</div>
 		</div>
-	</div>
 	{% endif %}
 
 	<div class="header-bottom">
@@ -80,10 +80,14 @@
 						<button class="tir-navbar-link" id="reclamationsDropdownToggle">Réclamations</button>
 						<ul class="dropdown-menu" id="reclamationsDropdown">
 							<li>
-								<button onclick="window.location.href='{{ path('mon_historique_reclamations') }}'" class="tir-navbar-link"><ion-icon name="time-outline"></ion-icon> Historique</button>
+								<button onclick="window.location.href='{{ path('mon_historique_reclamations') }}'" class="tir-navbar-link">
+									<ion-icon name="time-outline"></ion-icon>
+									Historique</button>
 							</li>
 							<li>
-								<button onclick="window.location.href='{{ path('ajout_reclamation') }}'" class="tir-navbar-link"><ion-icon name="add-outline"></ion-icon> Nouvelle Réclamation</button>
+								<button onclick="window.location.href='{{ path('ajout_reclamation') }}'" class="tir-navbar-link">
+									<ion-icon name="add-outline"></ion-icon>
+									Nouvelle Réclamation</button>
 							</li>
 						</ul>
 					</li>
@@ -100,15 +104,20 @@
 					<div class="user-info">
 						<img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=50&h=50&q=80" alt="User Avatar" class="user-avatar">
 						<div class="user-details">
-							<span class="user-name">{{ app.user.prenom }} {{ app.user.nom }}</span>
+							<span class="user-name">{{ app.user.prenom }}
+								{{ app.user.nom }}</span>
 							{% if is_granted('ROLE_CLIENT') and app.user.niveau %}
-							<div class="level-progress">
-								<span class="level-text">Niveau {{ app.user.niveau.niveau }}</span>
-								<div class="progress-bar">
-									<div class="progress-fill" style="width: {{ (app.user.niveau.niveauXP / app.user.niveau.MaxNiveauXP * 100) }}%;"></div>
+								<div class="level-progress">
+									<span class="level-text">Niveau
+										{{ app.user.niveau.niveau }}</span>
+									<div class="progress-bar">
+										<div class="progress-fill" style="width: {{ (app.user.niveau.niveauXP / app.user.niveau.MaxNiveauXP * 100) }}%;"></div>
+									</div>
+									<span class="xp-text">{{ app.user.niveau.niveauXP }}
+										/
+										{{ app.user.niveau.MaxNiveauXP }}
+										XP</span>
 								</div>
-								<span class="xp-text">{{ app.user.niveau.niveauXP }} / {{ app.user.niveau.MaxNiveauXP }} XP</span>
-							</div>
 							{% endif %}
 						</div>
 						<button class="settings-btn" id="settingsDropdownToggle" aria-label="User settings">
@@ -118,8 +127,28 @@
 							<li>
 								<button onclick="window.location.href='{{ path('client_profile') }}'" class="tir-navbar-link">Profile</button>
 							</li>
+
 							<li>
-								<button onclick="window.location.href='{{ path('logout') }}'" class="tir-navbar-link">Logout</button>
+								<a href="{{ path('favorites') }}" class="tir-navbar-link" title="Favoris" style="margin-right: 15px; color: white; display: flex; align-items: center;">
+									Favoris &nbsp;<ion-icon name="heart-outline"></ion-icon>
+									{% if app.user and app.user.favorites|length > 0 %}
+										&nbsp;<span class="nav-badge" id="favorite-count">{{ app.user.favorites|length }}</span>
+									{% endif %}
+								</a>
+
+								<a href="{{ path('panier') }}" class="tir-navbar-link" title="Panier" style="margin-right: 15px; color: white; display: flex; align-items: center;">
+									Panier &nbsp;<ion-icon name="cart-outline"></ion-icon>
+									{% if app.user.paniers|length > 0 %}
+										{% set totalItems = 0 %}
+										{% for panier in app.user.paniers %}
+											{% set totalItems = totalItems + panier.articles|length %}
+										{% endfor %}
+										&nbsp;<span class="nav-badge" id="panier-count">{{ totalItems }}</span>
+									{% endif %}
+								</a>
+							</li>
+							<li>
+								<button onclick="window.location.href='{{ path('logout') }}'" class="tir-navbar-link">Déconnexion</button>
 							</li>
 						</ul>
 					</div>
@@ -314,12 +343,12 @@
 	}
 </style>
 
-<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+ <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+ <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-	const offresDropdownToggle = document.getElementById('offresDropdownToggle');
+ <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const offresDropdownToggle = document.getElementById('offresDropdownToggle');
 	const offresDropdownWrapper = offresDropdownToggle.closest('.tir-navbar-dropdown');
 
 	offresDropdownToggle.addEventListener('click', function (e) {
@@ -335,26 +364,26 @@ document.addEventListener("DOMContentLoaded", function () {
 			e.stopPropagation();
 			settingsDropdownWrapper.classList.toggle('active');
 		});
-	}
+    }
 
-	const reclamationsDropdownToggle = document.getElementById('reclamationsDropdownToggle');
+    const reclamationsDropdownToggle = document.getElementById('reclamationsDropdownToggle');
     const reclamationsDropdownWrapper = reclamationsDropdownToggle.closest('.tir-navbar-dropdown');
 reclamationsDropdownToggle.addEventListener('click', function (e) {
       e.stopPropagation();
       // Close Offres dropdown if open
       offresDropdownWrapper.classList.remove('active');
       reclamationsDropdownWrapper.classList.toggle('active');
-
+    
     document.addEventListener('click', function (e) {
       if (!dropdownWrapper.contains(e.target)) {
         dropdownWrapper.classList.remove('active');
       }
-	  if (!reclamationsDropdownWrapper.contains(e.target)) {
+    if (!reclamationsDropdownWrapper.contains(e.target)) {
         reclamationsDropdownWrapper.classList.remove('active');
       }
     });
   });
-	document.addEventListener('click', function (e) {
+    document.addEventListener('click', function (e) {
 		if (!offresDropdownWrapper.contains(e.target)) {
 			offresDropdownWrapper.classList.remove('active');
 
@@ -367,6 +396,6 @@ reclamationsDropdownToggle.addEventListener('click', function (e) {
 		if (!reclamationsDropdownWrapper.contains(e.target)) {
 			reclamationsDropdownWrapper.classList.remove('active');
 		}
-	});
-});
+    });
+  });
 </script>

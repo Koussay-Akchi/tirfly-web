@@ -66,6 +66,7 @@
                 <th>Nom</th>
                 <th>Prix (€)</th>
                 <th>Voyages</th>
+                <th>Événements</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -85,6 +86,13 @@
                     <td>
                         {% for voyage in pack.voyages %}
                             <span class="badge bg-primary">{{ voyage.nom }}</span>
+                        {% else %}
+                            <span class="text-muted">Aucun</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for evenement in pack.evenements %}
+                            <span class="badge badge-event">{{ evenement.titre }}</span>
                         {% else %}
                             <span class="text-muted">Aucun</span>
                         {% endfor %}

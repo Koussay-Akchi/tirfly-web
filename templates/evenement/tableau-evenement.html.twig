@@ -54,14 +54,34 @@
             height: auto;
             border-radius: 6px;
         }
+
+        /* Styles pour SweetAlert2 */
+        .swal2-popup-custom {
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .swal2-title-custom {
+            font-size: 1.5rem;
+            color: #198754;
+        }
+
+        .swal2-html-container-custom {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
     </style>
 {% endblock %}
 
 {% block body %}
 <div class="container mt-5">
     <h1 class="mb-4">🎉 Gestion des Événements</h1>
+    
+        <!-- Conteneur pour le calendrier -->
+        <div id="calendar" class="mb-5"></div>
 
     <div class="mb-4 text-end">
+        <a href="{{ path('app_evenement_stats') }}" class="btn-add me-2">📊 Voir les Statistiques</a>
         <a href="{{ path('app_evenement_new') }}" class="btn-add">➕ Ajouter un nouvel Événement</a>
     </div>
 
@@ -69,8 +89,8 @@
         <thead class="table-dark">
             <tr>
                 <th>Image</th>
-                <th>Titre</th> 
-                <th>Description</th> 
+                <th>Titre</th>
+                <th>Description</th>
                 <th>Prix (€)</th>
                 <th>Dates</th>
                 <th>Destination</th>
@@ -82,13 +102,13 @@
                 <tr>
                     <td>
                         {% if evenement.image %}
-                            <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="Image" class="event-img">
+                            <img src="{{ asset('Uploads/evenements/' ~ evenement.image) }}" alt="Image" class="event-img">
                         {% else %}
                             <span class="text-muted">Aucune image</span>
                         {% endif %}
                     </td>
-                    <td>{{ evenement.titre }}</td> 
-                    <td>{{ evenement.description }}</td> 
+                    <td>{{ evenement.titre }}</td>
+                    <td>{{ evenement.description }}</td>
                     <td>{{ evenement.prix }}</td>
                     <td>
                         Du {{ evenement.dateDebut|date('d/m/Y') }}<br>
@@ -112,4 +132,12 @@
         </tbody>
     </table>
 </div>
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Ajoutez Chart.js si nécessaire -->
+    <script src="{{ asset('js/calendar.js') }}"></script>
+    <!-- Script inline pour Chart.js, si pertinent -->
+{% endblock %}
 {% endblock %}
