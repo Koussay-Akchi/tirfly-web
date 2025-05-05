@@ -123,9 +123,15 @@ cd llama-destinations
 venv\Scripts\activate
 python app3.py
 ```
+#### 8. Télechargement de l'utilite de conversion PDF
+
+```bash
+https://wkhtmltopdf.org/downloads.html
+```
+
 ---
 
-#### 8. Lancement du serveur Symfony
+#### 9. Lancement du serveur Symfony
 
 ```bash
 symfony serve

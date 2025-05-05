@@ -15,7 +15,7 @@
         "doctrine/orm": "^3.3",
         "knplabs/knp-paginator-bundle": "^6.8",
         "knplabs/knp-snappy": "^1.5",
-        "knplabs/knp-snappy-bundle": "^1.9",
+        "knplabs/knp-snappy-bundle": "^1.10",
         "knpuniversity/oauth2-client-bundle": "^2.18",
         "league/oauth2-facebook": "^2.2",
         "league/oauth2-google": "^4.0",
