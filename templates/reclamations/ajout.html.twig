@@ -74,8 +74,11 @@
     </div>
 
     <div class="chatbot-container">
-        <a href="{{ path('chatbot_home') }}">
-            <img src="{{ asset('images/bot-icon-chatbot-icon-concept-vector-illustration_230920-1327.avif') }}" alt="Chatbot" style="height: 150px; cursor: pointer;" title="Discuter avec le support">
+        <a href="{{ path('chatbot_home') }}" class="chatbot-link">
+            <div class="chatbot-wrapper">
+                <span class="chatbot-text">If you need help, I'm here</span>
+                <img src="{{ asset('img/photos/RK67baKq9A79.gif') }}" alt="Chatbot" class="chatbot-gif">
+            </div>
         </a>
     </div>
 </div>
@@ -107,6 +110,38 @@
             align-items: center;
             justify-content: center;
             flex: 0 0 auto;
+        }
+
+        .chatbot-link {
+            text-decoration: none;
+            position: relative;
+        }
+
+        .chatbot-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chatbot-gif {
+            height: 200px; /* Increased size */
+            cursor: pointer;
+        }
+
+        .chatbot-text {
+            color: #fff; /* White text */
+            font-size: 1.3rem; /* Slightly larger */
+            font-weight: 700; /* Bold */
+            text-align: center;
+            background: #28a745; /* Green background to match theme */
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+            text-transform: uppercase; /* Matches h1 style */
+            letter-spacing: 0.5px; /* Matches h1 style */
+            white-space: nowrap;
         }
 
         h1 {
@@ -292,6 +327,15 @@
 
             .chatbot-container {
                 margin-top: 1.5rem;
+            }
+
+            .chatbot-gif {
+                height: 150px; /* Smaller size for mobile */
+            }
+
+            .chatbot-text {
+                font-size: 1rem; /* Smaller font for mobile */
+                padding: 0.4rem 0.8rem;
             }
 
             h1 {
