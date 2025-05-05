@@ -43,7 +43,6 @@ class EmailService
         <!-- Header -->
         <tr>
             <td style="background: linear-gradient(90deg, #28a745, #218838); padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
-                <img src="https://via.placeholder.com/150x50?text=Logo" alt="tirfy agence" style="max-width: 150px; height: auto;">
                 <h1 style="color: #ffffff; font-size: 24px; margin: 10px 0; font-weight: 600;">Réponse à votre réclamation</h1>
             </td>
         </tr>
@@ -64,7 +63,7 @@ class EmailService
         <tr>
             <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px;">
                 <p style="font-size: 14px; color: #6c757d; margin: 0;">
-                    &copy; 2025 Votre Entreprise. Tous droits réservés.
+                    &copy; 2025 TirFly.com , Tous droits réservés.
               
         </tr>
     </table>
@@ -73,7 +72,7 @@ class EmailService
 EOT;
 
         // Plain text fallback
-        $plainText = strip_tags(str_replace('<br />', "\n", $formattedContent)) . "\n\nMerci de votre confiance.\nVoir les détails dans votre historique de réclamations.\n\n© 2025 Votre Entreprise.\nContact: support@votreentreprise.com";
+        $plainText = strip_tags(str_replace('<br />', "\n", $formattedContent)) . "\n\nMerci de votre confiance.\nVoir les détails dans votre historique de réclamations.\n\n© 2025 TirFly.\nContact: support@votreentreprise.com";
 
         $email = (new Email())
             ->from('azizlouati338@gmail.com')
