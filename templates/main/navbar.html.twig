@@ -125,7 +125,13 @@
 						</button>
 						<ul class="dropdown-menu user-settings-dropdown" id="settingsDropdown">
 							<li>
-								<button onclick="window.location.href='{{ path('client_profile') }}'" class="tir-navbar-link">Profile</button>
+								<button onclick="window.location.href='{{ path('client_profile') }}'" class="tir-navbar-link" style="display: flex; align-items: center;">Profile &nbsp;<ion-icon name="person-circle-outline"></ion-icon>
+								</button>
+							</li>
+
+							<li>
+								<button onclick="window.location.href='{{ path('historique_reservations') }}'" class="tir-navbar-link" style="display: flex; align-items: center;">Mes reservations &nbsp;<ion-icon name="card-outline"></ion-icon>
+								</button>
 							</li>
 
 							<li>
@@ -148,7 +154,8 @@
 								</a>
 							</li>
 							<li>
-								<button onclick="window.location.href='{{ path('logout') }}'" class="tir-navbar-link">Déconnexion</button>
+								<button onclick="window.location.href='{{ path('logout') }}'" class="tir-navbar-link" style="display: flex; align-items: center;">Déconnexion &nbsp;<ion-icon name="log-out-outline"></ion-icon>
+								</button>
 							</li>
 						</ul>
 					</div>
