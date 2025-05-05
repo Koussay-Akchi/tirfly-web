@@ -3,16 +3,134 @@
 {% block title %}Détail du Pack{% endblock %}
 
 {% block body %}
-    <div class="container">
+
+<style>
+  /* CSS Variables for Theming */
+  :root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --accent-color: #e74c3c;
+    --background-color: #f4f6f8;
+    --text-color: #2c3e50;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+  }
+
+  
+  .container-detail {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color: #ffffff;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+
+  h1, h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
+
+  p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Lists Styling */
+  ul-detail {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  li-detail {
+    background-color: #ffffff;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  }
+
+  li-detail:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Image Styling */
+  img.img-fluid {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-top: 1rem;
+    transition: transform var(--transition-speed);
+  }
+
+  img.img-fluid:hover {
+    transform: scale(1.02);
+  }
+
+  /* Responsive Typography */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+    }
+  }
+
+  /* Button Styling (if needed) */
+  .btn-detail {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: background-color var(--transition-speed);
+  }
+
+  .btn-detail:hover {
+    background-color: var(--secondary-color);
+  }
+</style>
+<main style="margin-top: 300px;">
+    <div class="container-detail">
         <h1>{{ pack.nom }}</h1>
         <p><strong>Prix :</strong> {{ pack.prix }} €</p>
 
         <h3>Voyages associés :</h3>
-        <ul>
+        <ul class="ul-detail">
             {% for voyage in pack.voyages %}
-                <li>{{ voyage.nom }}</li>
+                <li class="li-detail">{{ voyage.nom }}</li>
             {% else %}
-                <li>Aucun voyage associé</li>
+                <li class="li-detail">Aucun voyage associé</li>
+            {% endfor %}
+        </ul>
+        <h3>Sejours associés :</h3>
+        <ul class="ul-detail">
+            {% for sejour in pack.sejours %}
+                <li class="li-detail">{{ sejour.hebergement.nom }} - {{ sejour.jours }} jours</li>
+            {% else %}
+                <li class="li-detail">Aucun sejour associé</li>
+            {% endfor %}
+        </ul>
+
+        <h3>Evenements associés :</h3>
+        <ul class="ul-detail">
+            {% for evenement in pack.evenements %}
+                <li class="li-detail">{{ evenement.titre }}</li>
+            {% else %}
+                <li class="li-detail">Aucun evenement associé</li>
             {% endfor %}
         </ul>
 
@@ -22,4 +140,5 @@
             <p>Aucune image disponible.</p>
         {% endif %}
     </div>
+    </main>
 {% endblock %}

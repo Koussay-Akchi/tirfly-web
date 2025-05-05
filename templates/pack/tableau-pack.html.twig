@@ -64,8 +64,9 @@
             <tr>
                 <th>Image</th>
                 <th>Nom</th>
-                <th>Prix (€)</th>
+                <th>Prix (DT)</th>
                 <th>Voyages</th>
+                <th>Hebergements</th>
                 <th>Événements</th>
                 <th>Actions</th>
             </tr>
@@ -91,17 +92,26 @@
                         {% endfor %}
                     </td>
                     <td>
-                        {% for evenement in pack.evenements %}
-                            <span class="badge badge-event">{{ evenement.titre }}</span>
+                        {% for sejour in pack.sejours %}
+                            <span class="badge bg-primary">{{ sejour.hebergement.nom }}</span>
                         {% else %}
                             <span class="text-muted">Aucun</span>
                         {% endfor %}
                     </td>
                     <td>
-                        <a href="{{ path('app_pack_edit', {id: pack.id}) }}" class="btn-edit me-2">✏️ Modifier</a>
-                        <a href="{{ path('app_pack_delete', {id: pack.id}) }}"
+                        {% for evenement in pack.evenements %}
+                            <span class="badge bg-primary">{{ evenement.titre }}</span>
+                        {% else %}
+                            <span class="text-muted">Aucun</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <button class="btn-edit"><a href="{{ path('app_pack_edit', {id: pack.id}) }}" class="btn-edit">✏️ Modifier</a>
+                        </button>
+                        <button class="btn-delete"><a href="{{ path('app_pack_delete', {id: pack.id}) }}"
                            class="btn-delete"
                            onclick="return confirm('Supprimer ce pack ?')">🗑️ Supprimer</a>
+                           </button>
                     </td>
                 </tr>
             {% else %}
