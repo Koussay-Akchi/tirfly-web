@@ -3,49 +3,54 @@
 namespace App\Dto;
 
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class PaymentResponse
 {
     #[Groups(['payment_response:read'])]
-    private ?bool $status = null;
+    #[SerializedName('status')]
+    private bool $status;
 
     #[Groups(['payment_response:read'])]
-    private ?string $message = null;
+    #[SerializedName('message')]
+    private string $message;
 
     #[Groups(['payment_response:read'])]
-    private ?int $code = null;
+    #[SerializedName('code')]
+    private int $code;
 
     #[Groups(['payment_response:read'])]
-    private ?PaymentData $data = null;
+    #[SerializedName('data')]
+    private ?PaymentData $data;
 
-    public function getStatus(): ?bool
+    public function getStatus(): bool
     {
         return $this->status;
     }
 
-    public function setStatus(?bool $status): self
+    public function setStatus(bool $status): self
     {
         $this->status = $status;
         return $this;
     }
 
-    public function getMessage(): ?string
+    public function getMessage(): string
     {
         return $this->message;
     }
 
-    public function setMessage(?string $message): self
+    public function setMessage(string $message): self
     {
         $this->message = $message;
         return $this;
     }
 
-    public function getCode(): ?int
+    public function getCode(): int
     {
         return $this->code;
     }
 
-    public function setCode(?int $code): self
+    public function setCode(int $code): self
     {
         $this->code = $code;
         return $this;

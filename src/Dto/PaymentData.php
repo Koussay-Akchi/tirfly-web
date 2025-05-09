@@ -3,60 +3,49 @@
 namespace App\Dto;
 
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class PaymentData
 {
-    #[Groups(['payment:read', 'payment:write'])]
-    private ?string $note = null;
-
-    #[Groups(['payment:read', 'payment:write'])]
-    private ?string $phone = null;
-
-    #[Groups(['payment:read', 'payment:write'])]
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('token')]
     private ?string $token = null;
 
-    #[Groups(['payment:read', 'payment:write'])]
-    private ?string $lastName = null;
-
-    #[Groups(['payment:read', 'payment:write'])]
-    private ?string $bindingId = null;
-
-    #[Groups(['payment:read', 'payment:write'])]
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('order_id')]
     private ?string $orderId = null;
 
-    #[Groups(['payment:read', 'payment:write'])]
-    private ?float $amount = null;
-
-    #[Groups(['payment:read', 'payment:write'])]
-    private ?string $paymentUrl = null;
-
-    #[Groups(['payment:read', 'payment:write'])]
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('first_name')]
     private ?string $firstName = null;
 
-    #[Groups(['payment:read', 'payment:write'])]
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('last_name')]
+    private ?string $lastName = null;
+
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('email')]
     private ?string $email = null;
 
-    public function getNote(): ?string
-    {
-        return $this->note;
-    }
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('phone')]
+    private ?string $phone = null;
 
-    public function setNote(?string $note): self
-    {
-        $this->note = $note;
-        return $this;
-    }
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('note')]
+    private ?string $note = null;
 
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('amount')]
+    private ?float $amount = null;
 
-    public function setPhone(?string $phone): self
-    {
-        $this->phone = $phone;
-        return $this;
-    }
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('payment_url')]
+    private ?string $paymentUrl = null;
+
+    #[Groups(['payment_response:read'])]
+    #[SerializedName('payment_status')]
+    private ?bool $paymentStatus = null;
 
     public function getToken(): ?string
     {
@@ -66,6 +55,28 @@ class PaymentData
     public function setToken(?string $token): self
     {
         $this->token = $token;
+        return $this;
+    }
+
+    public function getOrderId(): ?string
+    {
+        return $this->orderId;
+    }
+
+    public function setOrderId(?string $orderId): self
+    {
+        $this->orderId = $orderId;
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(?string $firstName): self
+    {
+        $this->firstName = $firstName;
         return $this;
     }
 
@@ -80,25 +91,36 @@ class PaymentData
         return $this;
     }
 
-    public function getBindingId(): ?string
+    public function getEmail(): ?string
     {
-        return $this->bindingId;
+        return $this->email;
     }
 
-    public function setBindingId(?string $bindingId): self
+    public function setEmail(?string $email): self
     {
-        $this->bindingId = $bindingId;
+        $this->email = $email;
         return $this;
     }
 
-    public function getOrderId(): ?string
+    public function getPhone(): ?string
     {
-        return $this->orderId;
+        return $this->phone;
     }
 
-    public function setOrderId(?string $orderId): self
+    public function setPhone(?string $phone): self
     {
-        $this->orderId = $orderId;
+        $this->phone = $phone;
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $note): self
+    {
+        $this->note = $note;
         return $this;
     }
 
@@ -124,25 +146,14 @@ class PaymentData
         return $this;
     }
 
-    public function getFirstName(): ?string
+    public function getPaymentStatus(): ?bool
     {
-        return $this->firstName;
+        return $this->paymentStatus;
     }
 
-    public function setFirstName(?string $firstName): self
+    public function setPaymentStatus(?bool $paymentStatus): self
     {
-        $this->firstName = $firstName;
-        return $this;
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(?string $email): self
-    {
-        $this->email = $email;
+        $this->paymentStatus = $paymentStatus;
         return $this;
     }
 }

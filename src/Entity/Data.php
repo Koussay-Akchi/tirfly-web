@@ -127,15 +127,15 @@ class Data
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
-    private ?string $payment_status = null;
+    #[ORM\Column(type: 'boolean', nullable: false)]
+    private ?bool $payment_status = null;
 
-    public function getPayment_status(): ?string
+    public function getPayment_status(): ?bool
     {
         return $this->payment_status;
     }
 
-    public function setPayment_status(string $payment_status): self
+    public function setPayment_status(bool $payment_status): self
     {
         $this->payment_status = $payment_status;
         return $this;

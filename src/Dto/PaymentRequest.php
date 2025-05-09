@@ -3,51 +3,57 @@
 namespace App\Dto;
 
 use Symfony\Component\Serializer\Annotation\Groups;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 class PaymentRequest
 {
     #[Groups(['payment_request:write'])]
-    private ?float $amount = null;
+    #[SerializedName('amount')]
+    private float $amount;
 
     #[Groups(['payment_request:write'])]
-    private string $note = 'Payment for Flight Ticket';
+    #[SerializedName('note')]
+    private string $note;
 
     #[Groups(['payment_request:write'])]
-    private ?string $firstName = null;
+    #[SerializedName('first_name')]
+    private string $firstName;
 
     #[Groups(['payment_request:write'])]
-    private ?string $lastName = null;
+    #[SerializedName('last_name')]
+    private string $lastName;
 
     #[Groups(['payment_request:write'])]
-    private ?string $email = null;
+    #[SerializedName('email')]
+    private string $email;
 
     #[Groups(['payment_request:write'])]
-    private ?string $phone = null;
+    #[SerializedName('phone')]
+    private string $phone;
 
     #[Groups(['payment_request:write'])]
-    private string $returnUrl = 'https://localhost:8000/payment';
+    #[SerializedName('return_url')]
+    private string $returnUrl;
 
     #[Groups(['payment_request:write'])]
-    private string $cancelUrl = 'https://localhost:8000/payment';
+    #[SerializedName('cancel_url')]
+    private string $cancelUrl;
 
     #[Groups(['payment_request:write'])]
-    private string $webhookUrl = 'https://localhost:8000/admin';
+    #[SerializedName('webhook_url')]
+    private string $webhookUrl;
 
     #[Groups(['payment_request:write'])]
+    #[SerializedName('order_id')]
     private string $orderId;
 
-    public function __construct()
-    {
-        $this->orderId = Uuid::uuid4()->toString();
-    }
-
-    public function getAmount(): ?float
+    // Getters and setters
+    public function getAmount(): float
     {
         return $this->amount;
     }
 
-    public function setAmount(?float $amount): self
+    public function setAmount(float $amount): self
     {
         $this->amount = $amount;
         return $this;
@@ -64,45 +70,45 @@ class PaymentRequest
         return $this;
     }
 
-    public function getFirstName(): ?string
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
 
-    public function setFirstName(?string $firstName): self
+    public function setFirstName(string $firstName): self
     {
         $this->firstName = $firstName;
         return $this;
     }
 
-    public function getLastName(): ?string
+    public function getLastName(): string
     {
         return $this->lastName;
     }
 
-    public function setLastName(?string $lastName): self
+    public function setLastName(string $lastName): self
     {
         $this->lastName = $lastName;
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): string
     {
         return $this->email;
     }
 
-    public function setEmail(?string $email): self
+    public function setEmail(string $email): self
     {
         $this->email = $email;
         return $this;
     }
 
-    public function getPhone(): ?string
+    public function getPhone(): string
     {
         return $this->phone;
     }
 
-    public function setPhone(?string $phone): self
+    public function setPhone(string $phone): self
     {
         $this->phone = $phone;
         return $this;
