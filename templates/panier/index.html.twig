@@ -73,18 +73,6 @@
             background-color: #d1ecf1;
             border-color: #bee5eb;
         }
-
-        /* Validation styles */
-        .is-invalid {
-            border-color: #dc3545 !important;
-        }
-        
-        .error-message {
-            color: #dc3545;
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-            display: none;
-        }
         
         /* Go-top button */
         .go-top {
@@ -139,12 +127,9 @@
                                 <td>{{ article.produit.nom }}</td>
                                 <td>{{ article.produit.prixUnitaire|number_format(2, ',', ' ') }} €</td>
                                 <td>
-                                    <form method="post" action="{{ path('modifier_quantite_article', {'id': article.id}) }}" class="form-inline update-form">
-                                        <input type="number" name="quantite" value="{{ article.quantite }}" 
-                                               min="1" max="{{ article.produit.quantiteStock }}" 
-                                               class="form-control form-control-sm quantity-input">
+                                    <form method="post" action="{{ path('modifier_quantite_article', {'id': article.id}) }}" class="form-inline">
+                                        <input type="number" name="quantite" value="{{ article.quantite }}" class="form-control form-control-sm">
                                         <button type="submit" class="btn btn-sm btn-primary ml-2">Mettre à jour</button>
-                                        <div class="error-message"></div>
                                     </form>
                                 </td>
                                 <td>{{ article.total|number_format(2, ',', ' ') }} €</td>
@@ -204,57 +189,5 @@
     <script src="{{ asset('js/script.js') }}"></script>
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-    
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize quantity validation for all update forms
-        const updateForms = document.querySelectorAll('.update-form');
-        
-        updateForms.forEach(form => {
-            const quantityInput = form.querySelector('.quantity-input');
-            const errorMessage = form.querySelector('.error-message');
-            const maxQuantity = parseInt(quantityInput.max);
-            const submitButton = form.querySelector('button[type="submit"]');
-            
-            // Validate on input change
-            quantityInput.addEventListener('change', function() {
-                validateQuantity(this, maxQuantity, errorMessage, submitButton);
-            });
-            
-            // Validate on form submission
-            form.addEventListener('submit', function(e) {
-                if (!validateQuantity(quantityInput, maxQuantity, errorMessage, submitButton)) {
-                    e.preventDefault();
-                    quantityInput.focus();
-                }
-            });
-        });
-        
-        function validateQuantity(input, maxQuantity, errorElement, submitButton) {
-            const quantity = parseInt(input.value) || 0;
-            let isValid = true;
-            let errorMsg = '';
-            
-            if (quantity < 1) {
-                errorMsg = 'La quantité doit être au moins 1';
-                isValid = false;
-            } else if (quantity > maxQuantity) {
-                errorMsg = `Stock disponible: ${maxQuantity} seulement`;
-                isValid = false;
-            }
-            
-            // Update UI based on validation
-            input.classList.toggle('is-invalid', !isValid);
-            errorElement.textContent = errorMsg;
-            errorElement.style.display = isValid ? 'none' : 'block';
-            
-            if (submitButton) {
-                submitButton.disabled = !isValid;
-            }
-            
-            return isValid;
-        }
-    });
-    </script>
 </body>
 </html>

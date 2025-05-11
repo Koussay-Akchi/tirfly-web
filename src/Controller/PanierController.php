@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\{Article, Panier, Produit, Client};
+use App\Entity\Commande;
+use App\Entity\LigneCommande; // Add this too if you're using it
 use App\Repository\{PanierRepository, ProduitRepository};
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -232,5 +234,66 @@ public function checkout(): Response
         'panier' => $panier,
         'total' => $this->calculatePanierTotal($panier)
     ]);
+}
+#[Route('/confirmer-commande', name: 'confirmer_commande', methods: ['POST'])]
+public function confirmerCommande(): Response
+{
+    $user = $this->getUserOrRedirect();
+    $panier = $this->getOrCreateActivePanier($user);
+
+    if ($panier->getArticles()->isEmpty()) {
+        $this->addFlash('warning', 'Votre panier est vide');
+        return $this->redirectToRoute('panier');
+    }
+
+    // Create new Commande
+    $commande = new Commande();
+    $commande->setClient($user)
+             ->setMontantTotal($this->calculatePanierTotal($panier))
+             ->setAdresseLivraison($user->getAdresse())
+             ->setStatut('en_attente');
+
+    // Convert each Article to LigneCommande
+    foreach ($panier->getArticles() as $article) {
+        $ligneCommande = new LigneCommande();
+        $ligneCommande->setProduit($article->getProduit())
+                      ->setQuantite($article->getQuantite())
+                      ->setPrixUnitaire($article->getProduit()->getPrixUnitaire())
+                      ->setTotal($article->getTotal());
+
+        $commande->addLigneCommande($ligneCommande);
+    }
+
+    // Save the Commande
+    $this->em->persist($commande);
+    
+    // Clear the panier
+    foreach ($panier->getArticles() as $article) {
+        $this->em->remove($article);
+    }
+    $panier->setPrixTotal(0);
+    
+    $this->em->flush();
+
+    $this->addFlash('success', 'Votre commande a été passée avec succès');
+    return $this->redirectToRoute('commande_confirmation', ['id' => $commande->getId()]);
+}
+
+#[Route('/commande/confirmation/{id}', name: 'commande_confirmation')]
+public function confirmationCommande(Commande $commande): Response
+{
+    $this->validateCommandeOwnership($commande);
+
+    return $this->render('commande/confirmation.html.twig', [
+        'commande' => $commande
+    ]);
+}
+
+private function validateCommandeOwnership(Commande $commande): void
+{
+    $user = $this->getUserOrRedirect();
+    if ($commande->getClient() !== $user) {
+        throw $this->createAccessDeniedException('Accès non autorisé à cette commande');
+    }
 }
 }
