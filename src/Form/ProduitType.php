@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
 class ProduitType extends AbstractType
 {
@@ -60,7 +61,8 @@ class ProduitType extends AbstractType
                 'html5' => true,
                 'scale' => 2,
                 'constraints' => [
-                    new NotBlank(['message' => 'Le prix unitaire est obligatoire'])
+                    new NotBlank(['message' => 'Le prix unitaire est obligatoire']),
+                    new PositiveOrZero(['message' => 'Le prix doit être supérieur ou égal à 0'])
                 ]
             ])
             ->add('quantiteStock', NumberType::class, [
@@ -71,7 +73,8 @@ class ProduitType extends AbstractType
                 ],
                 'html5' => true,
                 'constraints' => [
-                    new NotBlank(['message' => 'La quantité en stock est obligatoire'])
+                    new NotBlank(['message' => 'La quantité en stock est obligatoire']),
+                    new PositiveOrZero(['message' => 'La quantité doit être supérieure ou égale à 0'])
                 ]
             ])
             ->add('ecoFriendly', CheckboxType::class, [
