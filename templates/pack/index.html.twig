@@ -75,7 +75,9 @@
                             <div class="qr-container" style="margin-left: 40px;" 
                                  data-url="tirfly.com{{ path('app_pack_show', {id: pack.id}) }}">
                             </div>
-                            <a href="#" class="btn btn-info btn-sm mt-2">Réserver</a>
+                            <button type="button" class="btn btn-info btn-sm mt-2" onclick="window.location.href='{{ path('ajout_reservation', {'type': 'pack', 'id': pack.id}) }}'">
+								Réserver
+							</button>
                         </div>
                     </div>
                 </div>
