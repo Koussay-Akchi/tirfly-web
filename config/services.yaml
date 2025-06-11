@@ -1,13 +1,17 @@
+# !!!
+# 11/06/2025 Koussay : All API keys have been revoked and removed from this file, any key found in older commits will also not work ###
+# !!!
+
 parameters:
     packs_images_directory: '%kernel.project_dir%/public/uploads/packs'
-    google_api_key: 'AIzaSyDpxgIqCekHbOLgUL6fyHdavfAGr1KijcQ'
+    google_api_key: ''
     video_directory: '%kernel.project_dir%/public/uploads/videos'
     evenement_images_directory: '%kernel.project_dir%/public/uploads/evenements'
     voyages_images_directory: '%kernel.project_dir%/public/uploads/voyages'
     destinations_images_directory: '%kernel.project_dir%/public/uploads/destinations'
     audio_directory: '%kernel.project_dir%/public/uploads/audio'
-    huggingface_api_key: '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'
-    app.admin_phone: '+21658911032'
+    huggingface_api_key: ''
+    app.admin_phone: ''
     app.low_stock_threshold: 10
 
 services:
@@ -30,7 +34,7 @@ services:
     _instanceof:
         App\Service\CurrencyConverter:
             bind:
-                $exchangeRateApiKey: '%env(dec3bbdb08a8f599977f5d1e)%'
+                $exchangeRateApiKey: ''
 
     App\:
         resource: '../src/*'

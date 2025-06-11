@@ -7,6 +7,11 @@ use Psr\Log\LoggerInterface;
 
 class SentimentAnalysisService
 {
+
+// !!!
+// 11/06/2025 Koussay : All API keys have been revoked and removed from this file, any key found in older commits will also not work ###
+// !!!
+
     private $httpClient;
     private $apiKey;
     private $logger;
@@ -18,7 +23,7 @@ class SentimentAnalysisService
      * @param LoggerInterface $logger Logger pour enregistrer les informations de débogage
      * @param string $apiKey Clé API Hugging Face (remplacez par une clé valide)
      */
-    public function __construct(HttpClientInterface $httpClient, LoggerInterface $logger, string $apiKey = 'YOUR_ACTUAL_API_KEY')
+    public function __construct(HttpClientInterface $httpClient, LoggerInterface $logger, string $apiKey = '')
     {
         $this->httpClient = $httpClient;
         $this->apiKey = $apiKey;

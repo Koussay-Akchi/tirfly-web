@@ -1,6 +1,11 @@
+
+// !!!
+// 11/06/2025 Koussay : All API keys have been revoked and removed from this file, any key found in older commits will also not work ###
+// !!!
+
 class ClimatService {
     constructor() {
-        this.API_KEY = "P0E+ZkyPDy5kdfsO3/NbTA==g6w2neX15rszBJb1";
+        this.API_KEY = "";
         this.API_COORDONNEES = "https://api.api-ninjas.com/v1/geocoding?city=";
         this.API_CLIMAT = "http://climateapi.scottpinkelman.com/api/v1/location/";
         this.API_TEMPERATURE = "https://api.api-ninjas.com/v1/weather";
